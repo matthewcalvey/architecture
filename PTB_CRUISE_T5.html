@@ -1313,10 +1313,27 @@ li strong{color:var(--text);font-weight:600}
   <div class="breakout" style="padding:0;background:var(--surface)">
     <iframe src="CALVEY_CruiseT5_Model.html" style="height:600px;width:100%" loading="lazy" title="3D Scaled Massing Model" allow="webgl"></iframe>
   </div>
-  <div style="text-align:center;margin-top:16px">
+
+  <!-- Program Categories Legend (moved out of WebGL for mobile usability) -->
+  <div class="model-legend-row" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:16px auto 8px;max-width:760px;padding:0 16px">
+    <div style="width:100%;text-align:center;margin-bottom:4px">
+      <span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">Program Categories</span>
+    </div>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#4A90D9;flex-shrink:0;border:1px solid #d8d6d0"></span>A. Embarkation &mdash; 23,700 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#D94A4A;flex-shrink:0;border:1px solid #d8d6d0"></span>B. Debarkation &mdash; 20,500 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#D9A44A;flex-shrink:0;border:1px solid #d8d6d0"></span>C. Baggage &amp; Logistics &mdash; 20,000 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#8B8B8B;flex-shrink:0;border:1px solid #d8d6d0"></span>D. Vertical Circulation &mdash; 8,000 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#6B8E6B;flex-shrink:0;border:1px solid #d8d6d0"></span>E. Operations / BOH &mdash; 10,000 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#7B6B8E;flex-shrink:0;border:1px solid #d8d6d0"></span>F. Building Systems &mdash; 9,000 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#8EB6A0;flex-shrink:0;border:1px solid #d8d6d0"></span>G. Public Amenities &mdash; 4,100 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#88BBE0;opacity:0.6;flex-shrink:0;border:1px solid #d8d6d0"></span>Curtain Wall</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#C0C8D0;flex-shrink:0;border:1px solid #d8d6d0"></span>Wave Roof</span>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
     <button class="open-plans-btn outline" onclick="document.getElementById('model-lightbox').classList.add('active');document.body.style.overflow='hidden'">Open Full Screen &rarr;</button>
   </div>
-  <div class="nt" style="text-align:center;margin-top:8px">Drag to orbit &middot; Scroll to zoom &middot; Right-click to pan</div>
+  <div class="nt" style="text-align:center;margin-top:8px">Drag to orbit &middot; Scroll to zoom &middot; Pinch to zoom on mobile</div>
 </div>
 
 <!-- MODEL LIGHTBOX -->
