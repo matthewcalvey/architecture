@@ -54,9 +54,6 @@
   }
   
   /* Legend panel — hidden in iframe, shown on main page below viewer */
-  #legend {
-    display: none;
-  }
 
   /* Info panel */
   #info-panel {
@@ -230,7 +227,6 @@
     <div class="subtitle">Scaled Massing Model — 96,100 SF Enclosed Program — Two-Level Vertical Separation</div>
   </div>
   
-  <div id="legend"></div>
   
   <div id="info-panel" class="hidden">
     <h4 id="info-name"></h4>
@@ -795,44 +791,6 @@ canopy.castShadow = true;
 scene.add(canopy);
 allMeshes.push(canopy);
 
-// --- LEGEND ---
-function buildLegend() {
-  const el = document.getElementById('legend');
-  let html = '<h3>Program Categories</h3>';
-  const cats = ['A','B','C','D','E','F','G'];
-  const catSF = {};
-  
-  [...PROGRAM.upper, ...PROGRAM.grade, ...PROGRAM.both, PROGRAM.debarRamp].forEach(s => {
-    catSF[s.cat] = (catSF[s.cat] || 0) + s.sf;
-  });
-  
-  cats.forEach(c => {
-    html += `<div class="legend-item" data-cat="${c}">
-      <div class="legend-swatch" style="background:${CAT_COLORS[c].hex}"></div>
-      <span>${CAT_COLORS[c].name}</span>
-      <span class="legend-sf">${(catSF[c] || 0).toLocaleString()} SF</span>
-    </div>`;
-  });
-  
-  html += `<div style="margin-top:8px; padding-top:6px; border-top:1px solid rgba(106,156,196,0.15);">
-    <div class="legend-item" style="cursor:default">
-      <div class="legend-swatch" style="background:${CAT_COLORS.GLASS.hex}; opacity:0.5"></div>
-      <span>Curtain Wall</span>
-    </div>
-    <div class="legend-item" style="cursor:default">
-      <div class="legend-swatch" style="background:${CAT_COLORS.ROOF.hex}"></div>
-      <span>Wave Roof</span>
-    </div>
-  </div>`;
-  
-  el.innerHTML = html;
-  
-  // Hover highlight
-  el.querySelectorAll('.legend-item[data-cat]').forEach(item => {
-    item.addEventListener('mouseenter', () => highlightCategory(item.dataset.cat));
-    item.addEventListener('mouseleave', () => clearHighlight());
-  });
-}
 
 function highlightCategory(cat) {
   programMeshes.forEach(m => {
@@ -854,7 +812,6 @@ function clearHighlight() {
   });
 }
 
-buildLegend();
 
 // --- RAYCASTING / HOVER ---
 const raycaster = new THREE.Raycaster();
