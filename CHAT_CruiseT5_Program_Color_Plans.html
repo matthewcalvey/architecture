@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cruise Terminal 5 - Program Color Plans</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff;
+    --surface: #f5f5f5;
+    --surface-2: #f0f2f3;
+    --border: #ddd;
+    --text: #1a1a1a;
+    --text-dim: #555;
+    --text-muted: #888;
+    --accent: #6a9cc4;
+    --accent-soft: rgba(106, 156, 196, 0.12);
+    --green: #7ab87a;
+    --amber: #c9a959;
+    --coral: #cc8878;
+    --shadow: 0 18px 46px rgba(26, 26, 26, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    min-height: 100%;
+    background:
+      radial-gradient(circle at top left, rgba(106, 156, 196, 0.08), transparent 30%),
+      linear-gradient(180deg, #fff 0%, #fafafa 100%);
+  }
+
+  body {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    color: var(--text);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button, input, textarea, select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: rgba(106, 156, 196, 0.22);
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  .app-shell {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 18px 32px;
+    color: var(--text);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .header h1 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 300;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .header .sub {
+    margin-top: 4px;
+    font-family: "Space Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 auto 16px;
+    padding: 10px 14px;
+    border: 1px solid rgba(221, 221, 221, 0.9);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    flex: 1 1 auto;
+  }
+
+  .mode-tab,
+  .ghost-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: "Space Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .mode-tab {
+    flex: 1 1 0;
+  }
+
+  .mode-tab:hover,
+  .ghost-btn:hover:not(:disabled) {
+    color: var(--text);
+    border-color: rgba(106, 156, 196, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .mode-tab.active-cruise {
+    background: #8fb5cc;
+    border-color: #8fb5cc;
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(143, 181, 204, 0.24);
+  }
+
+  .mode-tab.active-nc {
+    background: #cc8878;
+    border-color: #cc8878;
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(204, 136, 120, 0.24);
+  }
+
+  .action-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .ghost-btn {
+    min-width: 130px;
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  .ghost-btn:disabled {
+    opacity: 0.42;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .helper-copy {
+    margin: 0 0 18px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 19px;
+    font-weight: 300;
+  }
+
+  .helper-copy .mono {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: "Space Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .plans-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+
+  .plan-column {
+    background: rgba(245, 245, 245, 0.88);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .plan-title {
+    padding: 12px 16px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(245, 245, 245, 0.55));
+  }
+
+  .plan-title h2 {
+    font-family: "Space Mono", monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .plan-canvas {
+    padding: 10px;
+  }
+
+  .site-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 0.82;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 249, 250, 0.92)),
+      linear-gradient(90deg, rgba(106, 156, 196, 0.03), transparent 25%);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .block-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .ctx-water,
+  .ctx-water-lbl,
+  .ctx-infill,
+  .ctx-infill-lbl,
+  .ctx-berth,
+  .ctx-berth-lbl,
+  .ctx-selmon,
+  .ctx-selmon-lbl,
+  .ctx-cside,
+  .ctx-cside-lbl,
+  .ctx-ship,
+  .ctx-ship-lbl,
+  .north-arrow,
+  .view-badge {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .ctx-water {
+    right: 0;
+    top: 0;
+    width: 14%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(106, 156, 196, 0.12) 0%, rgba(106, 156, 196, 0.05) 100%);
+  }
+
+  .ctx-water-lbl {
+    right: 3%;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    font-family: "Space Mono", monospace;
+    font-size: 7px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.52;
+    white-space: nowrap;
+  }
+
+  .ctx-infill {
+    right: 8%;
+    top: 10%;
+    width: 10%;
+    height: 60%;
+    border: 1.5px dashed rgba(106, 156, 196, 0.3);
+    border-radius: 2px;
+  }
+
+  .ctx-infill-lbl {
+    right: 10%;
+    top: 7%;
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+
+  .ctx-berth {
+    right: 13.5%;
+    top: 8%;
+    width: 1px;
+    height: 65%;
+    background: repeating-linear-gradient(to bottom, #bbb 0px, #bbb 3px, transparent 3px, transparent 7px);
+  }
+
+  .ctx-berth-lbl {
+    right: 14%;
+    top: 74%;
+    transform: translateX(50%);
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ctx-selmon {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6%;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ctx-selmon-lbl {
+    top: 1.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ctx-cside {
+    left: 0;
+    top: 6%;
+    width: 5%;
+    height: 94%;
+    background: rgba(0, 0, 0, 0.02);
+    border-right: 1px solid var(--border);
+  }
+
+  .ctx-cside-lbl {
+    left: 0.5%;
+    top: 52%;
+    transform: rotate(-90deg);
+    transform-origin: left center;
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ctx-ship {
+    right: 2%;
+    bottom: 8%;
+    width: 8%;
+    height: 30%;
+    border: 1.5px solid rgba(106, 156, 196, 0.2);
+    border-radius: 3px 3px 20px 20px;
+  }
+
+  .ctx-ship-lbl {
+    right: 3.5%;
+    bottom: 25%;
+    font-family: "Space Mono", monospace;
+    font-size: 5px;
+    color: rgba(106, 156, 196, 0.44);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .north-arrow {
+    top: 8%;
+    left: 7%;
+    z-index: 2;
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    line-height: 1;
+    text-align: center;
+  }
+
+  .north-arrow::before {
+    content: "▲";
+    display: block;
+    font-size: 8px;
+  }
+
+  .view-badge {
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    z-index: 2;
+  }
+
+  .view-south {
+    bottom: 2%;
+    left: 22%;
+    background: rgba(201, 169, 89, 0.12);
+    color: var(--amber);
+    border: 1px solid rgba(201, 169, 89, 0.2);
+  }
+
+  .view-east {
+    right: 15%;
+    top: 35%;
+    background: rgba(106, 156, 196, 0.08);
+    color: var(--accent);
+    border: 1px solid rgba(106, 156, 196, 0.15);
+    transform: rotate(-90deg);
+  }
+
+  .block {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    text-align: center;
+    overflow: hidden;
+    cursor: grab;
+    opacity: 0.92;
+    transition:
+      left 300ms ease,
+      top 300ms ease,
+      width 300ms ease,
+      height 300ms ease,
+      transform 160ms ease,
+      box-shadow 160ms ease,
+      border-color 160ms ease,
+      opacity 160ms ease;
+    will-change: transform, left, top, width, height;
+    pointer-events: auto;
+  }
+
+  .block:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+
+  .block.is-active {
+    z-index: 100;
+    cursor: grabbing;
+    opacity: 0.84;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2);
+    transition: width 120ms ease, height 120ms ease, box-shadow 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  .block.is-active.dragging {
+    transform: scale(1.05);
+  }
+
+  .block.is-selected {
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  .block.stair-feature {
+    border: 2px solid rgba(201, 169, 89, 0.6);
+    background: linear-gradient(135deg, rgba(201, 169, 89, 0.16), rgba(245, 245, 245, 0.92)) !important;
+    box-shadow: 0 0 8px rgba(201, 169, 89, 0.12);
+  }
+
+  .block.outdoor-deck {
+    border: 2px dashed rgba(122, 184, 122, 0.5);
+    background: repeating-linear-gradient(45deg, rgba(122, 184, 122, 0.06), rgba(122, 184, 122, 0.06) 4px, transparent 4px, transparent 8px) !important;
+  }
+
+  .block.core-spine {
+    background: linear-gradient(180deg, #e8eaed, #dde0e4) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .block-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .label {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    line-height: 1.12;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .sf {
+    font-family: "Space Mono", monospace;
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 400;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .block.core-spine .label {
+    color: var(--text-dim);
+    text-shadow: none;
+    font-weight: 400;
+  }
+
+  .block.core-spine .sf {
+    color: var(--text-muted);
+    text-shadow: none;
+  }
+
+  .block.stair-feature .label {
+    color: var(--amber);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  .convert-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    z-index: 3;
+    border-radius: 999px;
+    padding: 2px 5px;
+    font-family: "Space Mono", monospace;
+    font-size: 6px;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .badge-full {
+    background: rgba(122, 184, 122, 0.92);
+  }
+
+  .badge-partial {
+    background: rgba(201, 169, 89, 0.92);
+  }
+
+  .badge-fixed {
+    background: rgba(120, 120, 120, 0.88);
+  }
+
+  .resize-target {
+    position: absolute;
+    right: -14px;
+    bottom: -14px;
+    width: 44px;
+    height: 44px;
+    z-index: 4;
+    touch-action: none;
+  }
+
+  .resize-handle {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px 0 3px 0;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: rotate(45deg);
+    transition: opacity 120ms ease, transform 120ms ease;
+    pointer-events: none;
+  }
+
+  .block:hover .resize-handle,
+  .block.is-selected .resize-handle,
+  .block.is-active .resize-handle,
+  .is-coarse .resize-handle {
+    opacity: 1;
+  }
+
+  .block.is-active .resize-handle {
+    transform: rotate(45deg) scale(1.08);
+  }
+
+  .area-chip {
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    transform: translateX(-50%);
+    z-index: 4;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(26, 26, 26, 0.72);
+    color: #fff;
+    font-family: "Space Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .revenue-bar,
+  .legend-section {
+    margin-top: 18px;
+  }
+
+  .revenue-strip,
+  .legend-panel {
+    background: rgba(245, 245, 245, 0.9);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .revenue-strip {
+    padding: 12px 18px;
+    display: flex;
+    justify-content: center;
+    gap: 34px;
+    flex-wrap: wrap;
+  }
+
+  .rev-item {
+    text-align: center;
+  }
+
+  .rev-val {
+    font-size: 24px;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .rev-label {
+    margin-top: 2px;
+    font-family: "Space Mono", monospace;
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .legend-panel {
+    padding: 14px;
+  }
+
+  .legend-panel h3 {
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .legend-items {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex: 0 0 auto;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .legend-swatch.sw-stair {
+    border: 1.5px solid rgba(201, 169, 89, 0.5);
+    background: linear-gradient(135deg, rgba(201, 169, 89, 0.2), #f5f5f5) !important;
+  }
+
+  .legend-swatch.sw-deck {
+    border: 1.5px dashed rgba(122, 184, 122, 0.45);
+    background: repeating-linear-gradient(45deg, rgba(122, 184, 122, 0.12), rgba(122, 184, 122, 0.12) 2px, transparent 2px, transparent 4px) !important;
+  }
+
+  .legend-swatch.sw-core {
+    background: linear-gradient(180deg, #e8eaed, #dde0e4) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .legend-text {
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .convert-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .convert-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .convert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .tooltip {
+    position: fixed;
+    z-index: 1000;
+    width: min(300px, calc(100vw - 24px));
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.14);
+    pointer-events: none;
+  }
+
+  .tooltip .tt-id,
+  .sheet .tt-id {
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .tooltip .tt-title,
+  .sheet .tt-title {
+    font-family: "Space Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tooltip .tt-sf,
+  .sheet .tt-sf {
+    margin-top: 5px;
+    font-family: "Space Mono", monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tooltip .tt-desc,
+  .sheet .tt-desc {
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  .tooltip .tt-why,
+  .sheet .tt-why {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--amber);
+    font-style: italic;
+  }
+
+  .tooltip .tt-meta,
+  .sheet .tt-meta {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: "Space Mono", monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(26, 26, 26, 0.18);
+    backdrop-filter: blur(8px);
+  }
+
+  .sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -16px 34px rgba(0, 0, 0, 0.16);
+  }
+
+  .sheet-handle {
+    width: 52px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(26, 26, 26, 0.16);
+    margin: 0 auto 12px;
+  }
+
+  .sheet-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: "Space Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .app-shell {
+      padding: 20px 12px 28px;
+    }
+
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 10px;
+    }
+
+    .mode-tabs,
+    .action-group {
+      width: 100%;
+    }
+
+    .action-group {
+      justify-content: stretch;
+    }
+
+    .ghost-btn {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .plans-container {
+      grid-template-columns: 1fr;
+    }
+
+    .legend-items {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .helper-copy {
+      font-size: 17px;
+      margin-bottom: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-presets="env,react">
+  const { useEffect, useMemo, useRef, useState } = React;
+
+  const L1C = [
+    {id:"H.01",label:"Curbside Drop-Off / Pick-Up",sf:"\u2014",color:"#9ac89a",pos:[6,7,24,11],desc:"Covered canopy; separate private/rideshare/motorcoach.",convert:"partial"},
+    {id:"CORE",label:"Services Core Spine",sf:"~18K",color:"core",pos:[31,7,20,25],cls:"core-spine",desc:"Consolidated circ + MEP. Stacks vertically.",convert:"fixed"},
+    {id:"C.01",label:"Luggage Laydown \u2014 Embark",sf:"8,000",color:"#9a9dc4",pos:[52,7,28,15],desc:"Curbside drop \u2192 porter sort \u2192 conveyor south.",convert:"partial"},
+    {id:"H.04",label:"Pedestrian Plaza / Arrival Court",sf:"\u2014",color:"#9ac89a",pos:[6,18,24,12],desc:"Landscaped entry; wayfinding; food trucks.",convert:"full"},
+    {id:"C.02",label:"Luggage Laydown \u2014 Debark",sf:"8,000",color:"#9a9dc4",pos:[52,22,28,15],desc:"Vessel off-load \u2192 staging \u2192 claim.",convert:"partial"},
+    {id:"H.03",label:"Bus / Motorcoach Staging",sf:"\u2014",color:"#9ac89a",pos:[6,30,24,8],desc:"Tour bus loading; layover.",convert:"partial"},
+    {id:"E.06",label:"Loading Dock / Service",sf:"2,500",color:"#d4be80",pos:[31,32,12,11],desc:"Provisioning; waste; deliveries.",convert:"partial"},
+    {id:"E.01",label:"Port Office",sf:"1,500",color:"#d4be80",pos:[43,32,8,10],desc:"Shift supervisor, dispatch, CCTV.",convert:"partial"},
+    {id:"C.03",label:"BHS Equipment",sf:"3,000",color:"#9a9dc4",pos:[52,37,21,8],desc:"Conveyors, screening, controls.",convert:"fixed"},
+    {id:"C.04",label:"Cart Storage",sf:"1,000",color:"#9a9dc4",pos:[73,37,7,8],desc:"Porter equipment; cart corrals.",convert:"partial"},
+    {id:"PLAZA",label:"South Plaza / Entry Garden",sf:"\u2014",color:"rgba(154,200,154,0.3)",pos:[6,38,24,21],desc:"South-facing approach. Outdoor ceremony.",convert:"full"},
+    {id:"E.02",label:"CBP Office Suite",sf:"2,000",color:"#d4be80",pos:[31,43,13,9],desc:"Secure; armory; corridor to FIS.",convert:"fixed"},
+    {id:"E.04",label:"Staff Break",sf:"1,000",color:"#d4be80",pos:[44,43,7,9],desc:"Lockers; kitchenette.",convert:"partial"},
+    {id:"E.05",label:"Janitorial",sf:"500",color:"#d4be80",pos:[31,52,4,7],desc:"Slop sinks; chemical storage.",convert:"fixed"},
+    {id:"G.01a",label:"Restrooms",sf:"1,500",color:"#8ec8c8",pos:[35,52,12,7],desc:"Grade restrooms.",convert:"fixed"},
+    {id:"G.03",label:"Pet Relief",sf:"400",color:"#8ec8c8",pos:[47,52,4,5],desc:"Service animals.",convert:"fixed"},
+    {id:"B.02",label:"CBP / FIS",sf:"6,000",color:"#a89cc8",pos:[52,45,20,15],desc:"Primary + secondary + APHIS; sealed.",convert:"fixed-ops"},
+    {id:"D.03",label:"Monumental Stair",sf:"1,800",color:"stair",pos:[6,59,8,12],cls:"stair-feature",desc:"Glass-enclosed at SW. Civic beacon. Gallery walls.",why:"The pursuit image.",convert:"fixed"},
+    {id:"H.05",label:"Utility",sf:"\u2014",color:"#b8b8b8",pos:[15,59,8,6],desc:"Stormwater; grease trap.",convert:"fixed"},
+    {id:"B.04",label:"Meeter-Greeter / Reunification",sf:"2,500",color:"#a89cc8",pos:[15,65,20,7],desc:"Post-CBP reunification. Bay-facing exit.",convert:"full"},
+    {id:"B.03",label:"Baggage Claim Hall",sf:"10,000",color:"#a89cc8",pos:[52,60,28,18],desc:"Flat-bed claim; 20' clear.",convert:"full"}
+  ];
+
+  const L1NC = [
+    {id:"H.01\u2192",label:"Restaurant Valet / Event Drop-Off",sf:"\u2014",color:"#c480a8",pos:[6,7,24,11],convert:"partial",badge:"PARTIAL",desc:"Event valet."},
+    {id:"CORE\u2192",label:"Services Core (Fixed)",sf:"~18K",color:"core",pos:[31,7,20,25],cls:"core-spine",convert:"fixed",badge:"FIXED",desc:"Zone HVAC reduces cost."},
+    {id:"C.01\u2192",label:"Event Staging / Food Truck",sf:"8,000",color:"#a8be90",pos:[52,7,28,15],convert:"partial",badge:"PARTIAL",desc:"Deliveries; commissary."},
+    {id:"H.04\u2192",label:"Public Market / Food Trucks / Concerts",sf:"\u2014",color:"#cc8878",pos:[6,18,24,12],convert:"full",badge:"FULL",desc:"Concerts, festivals, markets."},
+    {id:"C.02\u2192",label:"Vendor Load-In / Overflow Market",sf:"8,000",color:"#a8be90",pos:[52,22,28,15],convert:"partial",badge:"PARTIAL",desc:"Overflow market stalls."},
+    {id:"H.03\u2192",label:"Tour Bus / Charter",sf:"\u2014",color:"#a8be90",pos:[6,30,24,8],convert:"partial",badge:"PARTIAL",desc:"Tour bus; charter."},
+    {id:"E.06\u2192",label:"Event Load-In / Load-Out",sf:"2,500",color:"#a8be90",pos:[31,32,12,11],convert:"partial",badge:"PARTIAL",desc:"Catering; event load-in."},
+    {id:"E.01\u2192",label:"Event Mgmt Office",sf:"1,500",color:"#a8be90",pos:[43,32,8,10],convert:"partial",badge:"PARTIAL",desc:"Scheduling, AV."},
+    {id:"C.03\u2192",label:"BHS (Fixed)",sf:"3,000",color:"#b8b8b8",pos:[52,37,21,8],convert:"fixed",badge:"FIXED",desc:"Mechanical."},
+    {id:"C.04\u2192",label:"Event Equipment Storage",sf:"1,000",color:"#a8be90",pos:[73,37,7,8],convert:"partial",badge:"PARTIAL",desc:"Tables, chairs, AV."},
+    {id:"PLAZA\u2192",label:"South Plaza \u2014 Outdoor Events",sf:"\u2014",color:"rgba(204,136,120,0.25)",pos:[6,38,24,21],convert:"full",badge:"FULL",desc:"Ceremony, cocktail gardens."},
+    {id:"E.02\u2192",label:"CBP (Locked)",sf:"2,000",color:"#b8b8b8",pos:[31,43,13,9],convert:"fixed",badge:"FIXED",desc:"Federal; locked."},
+    {id:"E.04\u2192",label:"Event Staff Break",sf:"1,000",color:"#a8be90",pos:[44,43,7,9],convert:"partial",badge:"PARTIAL",desc:"Event crew."},
+    {id:"E.05\u2192",label:"Janitorial (Fixed)",sf:"500",color:"#b8b8b8",pos:[31,52,4,7],convert:"fixed",badge:"FIXED",desc:"Same function."},
+    {id:"G.01a\u2192",label:"Restrooms",sf:"1,500",color:"#9ac8d4",pos:[35,52,12,7],convert:"fixed",badge:"FIXED",desc:"Event patrons."},
+    {id:"G.03\u2192",label:"Pet Relief",sf:"400",color:"#9ac8d4",pos:[47,52,4,5],convert:"fixed",badge:"FIXED",desc:"Restaurant/obs deck."},
+    {id:"B.02\u2192",label:"Indoor Rec \u2014 Pickleball / Fitness",sf:"6,000",color:"#d4a478",pos:[52,45,20,15],convert:"full",badge:"FULL",desc:"FIS retracts; sports-grade, 20' clear."},
+    {id:"D.03\u2192",label:"Monumental Stair (Public Icon)",sf:"1,800",color:"stair",pos:[6,59,8,12],cls:"stair-feature",convert:"fixed",badge:"FIXED",desc:"Glass beacon. Ascent to event hall."},
+    {id:"H.05\u2192",label:"Utility (Fixed)",sf:"\u2014",color:"#b8b8b8",pos:[15,59,8,6],convert:"fixed",badge:"FIXED",desc:"Site infrastructure."},
+    {id:"B.04\u2192",label:"Maritime History / Art Gallery",sf:"2,500",color:"#a89cc8",pos:[15,65,20,7],convert:"full",badge:"FULL",desc:"Rotating exhibitions. Gallery walls."},
+    {id:"B.03\u2192",label:"Community Events / Indoor Market",sf:"10,000",color:"#d4a478",pos:[52,60,28,18],convert:"full",badge:"FULL",desc:"Health fairs, maker fairs. 20' clear."}
+  ];
+
+  const L2C = [
+    {id:"A.01",label:"Main Entry Lobby / Check-In",sf:"8,000",color:"#8fb5cc",pos:[7,10,38,11],desc:"Flexible kiosk + agent layout.",convert:"full"},
+    {id:"A.02",label:"Security Screening",sf:"3,500",color:"#8fb5cc",pos:[7,21,24,8],desc:"4\u20136 lanes expandable to 8.",convert:"full"},
+    {id:"CORE\u2082",label:"Services Core (Upper)",sf:"(cont.)",color:"core",pos:[46,10,20,24],cls:"core-spine",desc:"Upper continuation of services spine.",convert:"fixed"},
+    {id:"E.03",label:"Cruise Line Operations",sf:"2,500",color:"#d4be80",pos:[46,34,12,11],desc:"Embark/debark ops; guest services.",convert:"full"},
+    {id:"A.04",label:"VIP / Loyalty Lounge",sf:"2,000",color:"#7da8be",pos:[7,34,12,9],desc:"Private check-in; concierge. Bay views.",convert:"full"},
+    {id:"A.05",label:"Retail & F&B",sf:"2,500",color:"#9ac8d4",pos:[19,34,13,10],desc:"Dual-facing. Bay view dining.",convert:"full"},
+    {id:"A.06",label:"Family / Accessible",sf:"1,200",color:"#a8d0da",pos:[32,34,8,8],desc:"Stroller staging; ADA; near core.",convert:"full"},
+    {id:"G.01b",label:"Restrooms (Upper)",sf:"1,500",color:"#8ec8c8",pos:[58,34,9,9],desc:"Upper restrooms.",convert:"fixed"},
+    {id:"G.02",label:"Nursing",sf:"300",color:"#8ec8c8",pos:[67,10,4,4],desc:"Private; lockable.",convert:"fixed"},
+    {id:"G.04",label:"Interfaith",sf:"400",color:"#8ec8c8",pos:[67,14,5,4],desc:"Quiet.",convert:"fixed"},
+    {id:"A.07",label:"Boarding Bridge Vestibule",sf:"1,500",color:"#6d9ab5",pos:[67,34,9,9],desc:"Weather-protected; vessel gangway.",convert:"partial"},
+    {id:"A.03",label:"Post-Security Holding / Waiting",sf:"5,000",color:"#8fb5cc",pos:[14,48,50,5],desc:"1,800 pax. Panoramic south: bay, skyline, sunset.",why:"The $15K\u2013$50K/event view.",convert:"full"},
+    {id:"DECK",label:"Outdoor Deck / Terrace",sf:"~2,500",color:"deck",pos:[14,53,35,4],cls:"outdoor-deck",desc:"Covered south terrace. Bay + sunset.",convert:"full"},
+    {id:"D.03\u2082",label:"Monumental Stair (Upper)",sf:"(cont.)",color:"stair",pos:[6,48,8,12],cls:"stair-feature",desc:"Glass stair arrives at upper. View reveals bay, skyline.",convert:"fixed"},
+    {id:"B.01",label:"Debark Ramp (Upper\u2192Grade)",sf:"2,000",color:"#a89cc8",pos:[67,43,10,11],desc:"Vessel-to-FIS; separated.",convert:"fixed"},
+    {id:"GARAGE",label:"\u2190 Garage Bridge",sf:"",color:"rgba(106,156,196,0.2)",pos:[0,18,7,10],desc:"Enclosed bridge from 800-space garage.",convert:"fixed"}
+  ];
+
+  const L2NC = [
+    {id:"A.01\u2192",label:"Event Reception / Registration",sf:"8,000",color:"#cc8878",pos:[7,10,38,11],convert:"full",badge:"FULL",desc:"Grand reception; kiosks retracted."},
+    {id:"A.02\u2192",label:"Open Event Floor",sf:"3,500",color:"#cc8878",pos:[7,21,24,8],convert:"full",badge:"FULL",desc:"Security behind partitions."},
+    {id:"CORE\u2082\u2192",label:"Services Core (Fixed)",sf:"(cont.)",color:"core",pos:[46,10,20,24],cls:"core-spine",convert:"fixed",badge:"FIXED",desc:"All circ + MEP."},
+    {id:"E.03\u2192",label:"Event Production Suite",sf:"2,500",color:"#a8be90",pos:[46,34,12,11],convert:"full",badge:"FULL",desc:"Green room, AV, vendor."},
+    {id:"A.04\u2192",label:"Private Event Suite",sf:"2,000",color:"#c08878",pos:[7,34,12,9],convert:"full",badge:"FULL",desc:"Retreats, rehearsal dinners."},
+    {id:"A.05\u2192",label:"Public Restaurant / Caf\u00e9",sf:"2,500",color:"#c480a8",pos:[19,34,13,10],convert:"full",badge:"FULL",desc:"Dual-access. Bay view dining. 365-day."},
+    {id:"A.06\u2192",label:"Community Wellness",sf:"1,200",color:"#8ec8c8",pos:[32,34,8,8],convert:"full",badge:"FULL",desc:"Yoga, meditation, meetings."},
+    {id:"G.01b\u2192",label:"Restrooms",sf:"1,500",color:"#9ac8d4",pos:[58,34,9,9],convert:"fixed",badge:"FIXED",desc:"Event patrons."},
+    {id:"G.02\u2192",label:"Wellness",sf:"300",color:"#8ec8c8",pos:[67,10,4,4],convert:"fixed",badge:"FIXED",desc:"Meditation, nursing."},
+    {id:"G.04\u2192",label:"Meeting",sf:"400",color:"#8ec8c8",pos:[67,14,5,4],convert:"fixed",badge:"FIXED",desc:"Small groups."},
+    {id:"A.07\u2192",label:"Waterside Terrace",sf:"1,500",color:"#9ac8d4",pos:[67,34,9,9],convert:"partial",badge:"PARTIAL",desc:"Cocktail overflow."},
+    {id:"A.03\u2192",label:"PREMIER EVENT HALL",sf:"5,000",color:"#cc8878",pos:[14,48,50,5],convert:"full",badge:"FULL",desc:"$15K\u2013$50K+/event. Panoramic south.",why:"$1.5M\u2013$5M+ annual."},
+    {id:"DECK\u2192",label:"Outdoor Event Terrace",sf:"~2,500",color:"deck",pos:[14,53,35,4],cls:"outdoor-deck",convert:"full",badge:"FULL",desc:"Sunset ceremonies = premium rates."},
+    {id:"D.03\u2082\u2192",label:"Monumental Stair \u2014 The Icon",sf:"(cont.)",color:"stair",pos:[6,48,8,12],cls:"stair-feature",convert:"fixed",badge:"FIXED",desc:"Glass beacon. Ascent to event hall."},
+    {id:"B.01\u2192",label:"Service (Closed)",sf:"2,000",color:"#b8b8b8",pos:[67,43,10,11],convert:"fixed",badge:"FIXED",desc:"Closed."},
+    {id:"GARAGE\u2192",label:"\u2190 Garage (Public)",sf:"",color:"rgba(154,200,154,0.15)",pos:[0,18,7,10],convert:"full",badge:"FULL",desc:"$500K\u2013$1M+ district parking."}
+  ];
+
+  const cLeg = [{color:"#8fb5cc",label:"A \u2014 Embarkation"},{color:"#a89cc8",label:"B \u2014 Debarkation/FIS"},{color:"#9a9dc4",label:"C \u2014 Baggage/Logistics"},{color:"#d4be80",label:"E \u2014 Operations/BOH"},{color:"#8ec8c8",label:"G \u2014 Amenities"},{color:"#9ac89a",label:"H \u2014 Exterior/Site"},{color:"",label:"Services Core",sw:"sw-core"},{color:"",label:"\u2605 Monumental Stair",sw:"sw-stair"},{color:"",label:"Outdoor Deck",sw:"sw-deck"}];
+  const ncLeg = [{color:"#cc8878",label:"Event Venue"},{color:"#d4a478",label:"Recreation/Fitness"},{color:"#c480a8",label:"Restaurant/Retail"},{color:"#a89cc8",label:"Gallery/Exhibit"},{color:"#a8be90",label:"Staging/Ops"},{color:"#8ec8c8",label:"Wellness"},{color:"#9ac8d4",label:"Public Amenity"},{color:"#b8b8b8",label:"Fixed"},{color:"",label:"\u2605 Stair Beacon",sw:"sw-stair"},{color:"",label:"Outdoor Terrace",sw:"sw-deck"}];
+
+  const MODE_META = {
+    cruise: {
+      accent: "#8fb5cc",
+      title: "Cruise-Day Program",
+      legend: cLeg,
+      shipLabel: "Vessel",
+      data: { L1: L1C, L2: L2C }
+    },
+    nc: {
+      accent: "#cc8878",
+      title: "Non-Cruise-Day Program",
+      legend: ncLeg,
+      shipLabel: "No Vessel",
+      data: { L1: L1NC, L2: L2NC }
+    }
+  };
+
+  const LEVEL_META = [
+    { key: "L1", title: "Level 1 - Grade" },
+    { key: "L2", title: "Level 2 - Upper" }
+  ];
+
+  const MIN_W = 3;
+  const MIN_H = 3;
+  const COMPACT_STEP = 0.5;
+  const DRAG_THRESHOLD = 5;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function clonePositions(levelPositions) {
+    return levelPositions.map((pos) => ({ ...pos }));
+  }
+
+  function cloneLayout(layout) {
+    return {
+      L1: clonePositions(layout.L1),
+      L2: clonePositions(layout.L2)
+    };
+  }
+
+  function positionsFrom(source) {
+    return source.map((item) => ({
+      left: item.pos[0],
+      top: item.pos[1],
+      width: item.pos[2],
+      height: item.pos[3]
+    }));
+  }
+
+  function overlaps(a, b) {
+    return !(
+      a.left + a.width <= b.left ||
+      b.left + b.width <= a.left ||
+      a.top + a.height <= b.top ||
+      b.top + b.height <= a.top
+    );
+  }
+
+  function isWithinFrame(geom) {
+    return geom.left >= 0 &&
+      geom.top >= 0 &&
+      geom.width >= MIN_W &&
+      geom.height >= MIN_H &&
+      geom.left + geom.width <= 100 &&
+      geom.top + geom.height <= 100;
+  }
+
+  function isValidGeom(levelPositions, index, geom) {
+    if (!isWithinFrame(geom)) return false;
+    return levelPositions.every((item, itemIndex) => itemIndex === index || !overlaps(geom, item));
+  }
+
+  function compactLevel(input) {
+    const result = clonePositions(input);
+    const indices = [...result.keys()].sort((a, b) => result[a].top - result[b].top || result[a].left - result[b].left);
+
+    indices.forEach((index) => {
+      let moved = true;
+      while (moved) {
+        moved = false;
+
+        while (result[index].top > 0) {
+          const candidate = { ...result[index], top: Math.max(0, result[index].top - COMPACT_STEP) };
+          if (isValidGeom(result, index, candidate)) {
+            result[index] = candidate;
+            moved = true;
+          } else {
+            break;
+          }
+        }
+
+        while (result[index].left > 0) {
+          const candidate = { ...result[index], left: Math.max(0, result[index].left - COMPACT_STEP) };
+          if (isValidGeom(result, index, candidate)) {
+            result[index] = candidate;
+            moved = true;
+          } else {
+            break;
+          }
+        }
+      }
+    });
+
+    return result;
+  }
+
+  function badgeForBlock(block) {
+    if (block.badge) return block.badge;
+    if ((block.convert || "").startsWith("full")) return "FULL";
+    if ((block.convert || "").startsWith("partial")) return "PARTIAL";
+    return "FIXED";
+  }
+
+  function badgeClass(badge) {
+    if (badge === "FULL") return "badge-full";
+    if (badge === "PARTIAL") return "badge-partial";
+    return "badge-fixed";
+  }
+
+  function displaySf(sf) {
+    if (!sf) return "";
+    if (sf === "\u2014" || sf === "(cont.)") return sf;
+    return sf.includes("SF") ? sf : `${sf} SF`;
+  }
+
+  function areaText(block) {
+    const sf = block.sf || "";
+    if (!sf || sf === "\u2014" || sf === "(cont.)") return "Area locked";
+    return `${displaySf(sf)} - locked`;
+  }
+
+  function sameGeom(a, b) {
+    return ["left", "top", "width", "height"].every((key) => Math.abs(a[key] - b[key]) < 0.001);
+  }
+
+  function sameLayout(a, b) {
+    return ["L1", "L2"].every((level) =>
+      a[level].length === b[level].length &&
+      a[level].every((geom, index) => sameGeom(geom, b[level][index]))
+    );
+  }
+
+  function buildAreaLockedGeom(interaction, targetWidth) {
+    const maxWidth = 100 - interaction.initialGeom.left;
+    const maxHeight = 100 - interaction.initialGeom.top;
+    let width = clamp(targetWidth, MIN_W, maxWidth);
+    let height = interaction.originalArea / width;
+
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = interaction.originalArea / height;
+    }
+
+    if (height < MIN_H) {
+      height = MIN_H;
+      width = interaction.originalArea / height;
+    }
+
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = interaction.originalArea / width;
+    }
+
+    if (width < MIN_W) {
+      width = MIN_W;
+      height = interaction.originalArea / width;
+    }
+
+    return {
+      left: interaction.initialGeom.left,
+      top: interaction.initialGeom.top,
+      width,
+      height
+    };
+  }
+
+  function resolveResizeCandidate(basePositions, interaction, targetWidth) {
+    for (let offset = 0; offset <= 12; offset += 0.5) {
+      const attempts = offset === 0 ? [targetWidth] : [targetWidth - offset, targetWidth + offset];
+      for (const candidateWidth of attempts) {
+        const candidate = buildAreaLockedGeom(interaction, candidateWidth);
+        if (isValidGeom(basePositions, interaction.index, candidate)) {
+          return candidate;
+        }
+      }
+    }
+    return interaction.lastValidGeom;
+  }
+
+  function blockFontSizes(area) {
+    if (area >= 420) return { label: 10, sf: 8.6 };
+    if (area >= 220) return { label: 9, sf: 7.8 };
+    if (area >= 110) return { label: 8, sf: 7 };
+    if (area >= 55) return { label: 7, sf: 6.2 };
+    return { label: 6.2, sf: 5.6 };
+  }
+
+  function convertSummary(convert) {
+    if ((convert || "").startsWith("full")) return "\u25cf Full";
+    if ((convert || "").startsWith("partial")) return "\u25cf Partial";
+    return "\u25cf Fixed";
+  }
+
+  function convertColor(convert) {
+    if ((convert || "").startsWith("full")) return "#7ab87a";
+    if ((convert || "").startsWith("partial")) return "#c9a959";
+    return "#888";
+  }
+
+  function BlockInfo({ block }) {
+    if (!block) return null;
+
+    return (
+      <>
+        <div className="tt-id">{block.id}</div>
+        <div className="tt-title">{block.label}</div>
+        {block.sf ? <div className="tt-sf">{displaySf(block.sf)}</div> : null}
+        <div className="tt-desc">{block.desc || ""}</div>
+        {block.why ? <div className="tt-why">\u21b3 {block.why}</div> : null}
+        <div className="tt-meta">
+          <span style={{ color: convertColor(block.convert) }}>{convertSummary(block.convert)}</span>
+          <span>{badgeForBlock(block)}</span>
+        </div>
+      </>
+    );
+  }
+
+  function ContextOverlay({ shipLabel }) {
+    return (
+      <>
+        <div className="ctx-water" />
+        <div className="ctx-water-lbl">Ybor Channel</div>
+        <div className="ctx-infill" />
+        <div className="ctx-infill-lbl">Infill</div>
+        <div className="ctx-berth" />
+        <div className="ctx-berth-lbl">Berths 263-265</div>
+        <div className="ctx-selmon" />
+        <div className="ctx-selmon-lbl">Selmon Expressway</div>
+        <div className="ctx-cside" />
+        <div className="ctx-cside-lbl">Channelside Dr</div>
+        <div className="ctx-ship" />
+        <div className="ctx-ship-lbl">{shipLabel}</div>
+        <div className="north-arrow">N</div>
+        <div className="view-badge view-south">&#9733; Tampa Bay - Skyline - Sunset</div>
+        <div className="view-badge view-east">Channel Views</div>
+      </>
+    );
+  }
+
+  function Block({
+    block,
+    geom,
+    level,
+    index,
+    interaction,
+    isMobile,
+    isSelected,
+    onBlockPointerDown,
+    onHandlePointerDown,
+    onHover,
+    onLeave
+  }) {
+    const area = geom.width * geom.height;
+    const font = blockFontSizes(area);
+    const badge = badgeForBlock(block);
+    const isActive = interaction && interaction.level === level && interaction.index === index;
+    const classes = [
+      "block",
+      block.cls || "",
+      isActive ? `is-active ${interaction.type === "drag" ? "dragging" : "resizing"}` : "",
+      isSelected ? "is-selected" : ""
+    ].filter(Boolean).join(" ");
+
+    const style = {
+      left: `${isActive && interaction.type === "drag" ? interaction.initialGeom.left : geom.left}%`,
+      top: `${isActive && interaction.type === "drag" ? interaction.initialGeom.top : geom.top}%`,
+      width: `${geom.width}%`,
+      height: `${geom.height}%`,
+      background: block.cls ? undefined : block.color,
+      transform: isActive && interaction.type === "drag"
+        ? `translate3d(${interaction.liveDx}px, ${interaction.liveDy}px, 0) scale(1.05)`
+        : undefined,
+      zIndex: isActive ? 100 : 3
+    };
+
+    return (
+      <div
+        className={classes}
+        style={style}
+        onPointerDown={(event) => onBlockPointerDown(event, level, index)}
+        onPointerEnter={(event) => onHover(event, level, index)}
+        onPointerMove={(event) => onHover(event, level, index)}
+        onPointerLeave={onLeave}
+      >
+        <span className={`convert-badge ${badgeClass(badge)}`}>{badge}</span>
+        <div className="block-content">
+          <span className="label" style={{ fontSize: `${font.label}px` }}>{block.label}</span>
+          {block.sf && area > 22 ? <span className="sf" style={{ fontSize: `${font.sf}px` }}>{displaySf(block.sf)}</span> : null}
+        </div>
+        <div className="resize-target" onPointerDown={(event) => onHandlePointerDown(event, level, index)}>
+          <div className="resize-handle" />
+        </div>
+        {isActive && interaction.type === "resize" ? <div className="area-chip">{areaText(block)}</div> : null}
+      </div>
+    );
+  }
+
+  function App() {
+    const initialLayout = useMemo(() => ({
+      L1: positionsFrom(L1C),
+      L2: positionsFrom(L2C)
+    }), []);
+
+    const positionsRef = useRef(initialLayout);
+    const activeRef = useRef(null);
+    const frameRefs = useRef({ L1: null, L2: null });
+
+    const [mode, setMode] = useState("cruise");
+    const [layout, setLayout] = useState(initialLayout);
+    const [history, setHistory] = useState([]);
+    const [interaction, setInteraction] = useState(null);
+    const [selectedBlock, setSelectedBlock] = useState(null);
+    const [hoveredBlock, setHoveredBlock] = useState(null);
+    const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+    const [isMobile, setIsMobile] = useState(() => window.matchMedia("(max-width: 900px), (pointer: coarse)").matches);
+
+    const meta = MODE_META[mode];
+
+    useEffect(() => {
+      document.documentElement.style.setProperty("--accent", meta.accent);
+    }, [meta.accent]);
+
+    useEffect(() => {
+      positionsRef.current = layout;
+    }, [layout]);
+
+    useEffect(() => {
+      activeRef.current = interaction;
+    }, [interaction]);
+
+    useEffect(() => {
+      const mq = window.matchMedia("(max-width: 900px), (pointer: coarse)");
+      const onChange = () => setIsMobile(mq.matches);
+      onChange();
+      if (mq.addEventListener) {
+        mq.addEventListener("change", onChange);
+        return () => mq.removeEventListener("change", onChange);
+      }
+      mq.addListener(onChange);
+      return () => mq.removeListener(onChange);
+    }, []);
+
+    const canUndo = history.length > 0;
+    const canReset = !sameLayout(layout, initialLayout);
+
+    function pushHistorySnapshot(snapshot) {
+      setHistory((prev) => [...prev, cloneLayout(snapshot)].slice(-20));
+    }
+
+    function clearFloatingInfo() {
+      setHoveredBlock(null);
+      setTooltipPos({ x: 0, y: 0 });
+    }
+
+    function beginInteraction(event, level, index, type) {
+      if (event.button !== undefined && event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+
+      const frame = frameRefs.current[level];
+      if (!frame) return;
+
+      const rect = frame.getBoundingClientRect();
+      const baseLayout = cloneLayout(positionsRef.current);
+      const initialGeom = { ...baseLayout[level][index] };
+      const nextInteraction = {
+        type,
+        level,
+        index,
+        pointerId: event.pointerId,
+        rect,
+        startX: event.clientX,
+        startY: event.clientY,
+        initialGeom,
+        previewGeom: initialGeom,
+        lastValidGeom: initialGeom,
+        liveDx: 0,
+        liveDy: 0,
+        moved: false,
+        originalArea: initialGeom.width * initialGeom.height,
+        baseLayout
+      };
+
+      clearFloatingInfo();
+      setSelectedBlock({ level, index });
+      setInteraction(nextInteraction);
+    }
+
+    function onBlockPointerDown(event, level, index) {
+      beginInteraction(event, level, index, "drag");
+    }
+
+    function onHandlePointerDown(event, level, index) {
+      beginInteraction(event, level, index, "resize");
+    }
+
+    useEffect(() => {
+      if (!interaction) return undefined;
+
+      function handlePointerMove(event) {
+        const current = activeRef.current;
+        if (!current || event.pointerId !== current.pointerId) return;
+
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+
+        const dxPx = event.clientX - current.startX;
+        const dyPx = event.clientY - current.startY;
+        const moved = current.moved || Math.hypot(dxPx, dyPx) >= DRAG_THRESHOLD;
+
+        if (!moved) {
+          setInteraction((prev) => prev ? { ...prev, liveDx: dxPx, liveDy: dyPx } : prev);
+          return;
+        }
+
+        const basePositions = current.baseLayout[current.level];
+        let nextGeom = current.lastValidGeom;
+
+        if (current.type === "drag") {
+          const candidate = {
+            left: clamp(current.initialGeom.left + (dxPx / current.rect.width) * 100, 0, 100 - current.initialGeom.width),
+            top: clamp(current.initialGeom.top + (dyPx / current.rect.height) * 100, 0, 100 - current.initialGeom.height),
+            width: current.initialGeom.width,
+            height: current.initialGeom.height
+          };
+
+          if (isValidGeom(basePositions, current.index, candidate)) {
+            nextGeom = candidate;
+          }
+        } else {
+          const proposedWidth = clamp(current.initialGeom.width + (dxPx / current.rect.width) * 100, MIN_W, 100 - current.initialGeom.left);
+          const proposedHeight = clamp(current.initialGeom.height + (dyPx / current.rect.height) * 100, MIN_H, 100 - current.initialGeom.top);
+          const ratioSeed = proposedHeight === 0 ? 1 : proposedWidth / proposedHeight;
+          const targetWidth = Math.sqrt(current.originalArea * ratioSeed);
+          nextGeom = resolveResizeCandidate(basePositions, current, targetWidth);
+        }
+
+        setInteraction((prev) => prev ? {
+          ...prev,
+          moved,
+          previewGeom: nextGeom,
+          lastValidGeom: nextGeom,
+          liveDx: ((nextGeom.left - prev.initialGeom.left) / 100) * prev.rect.width,
+          liveDy: ((nextGeom.top - prev.initialGeom.top) / 100) * prev.rect.height
+        } : prev);
+      }
+
+      function handlePointerUp(event) {
+        const current = activeRef.current;
+        if (!current || event.pointerId !== current.pointerId) return;
+
+        const finalInteraction = activeRef.current;
+
+        if (!finalInteraction.moved) {
+          setSelectedBlock((prev) => {
+            if (prev && prev.level === finalInteraction.level && prev.index === finalInteraction.index && isMobile) {
+              return null;
+            }
+            return { level: finalInteraction.level, index: finalInteraction.index };
+          });
+          setInteraction(null);
+          return;
+        }
+
+        const previewGeom = finalInteraction.previewGeom || finalInteraction.lastValidGeom || finalInteraction.initialGeom;
+        const nextLayout = cloneLayout(positionsRef.current);
+        nextLayout[finalInteraction.level][finalInteraction.index] = { ...previewGeom };
+        nextLayout[finalInteraction.level] = compactLevel(nextLayout[finalInteraction.level]);
+
+        if (!sameLayout(nextLayout, positionsRef.current)) {
+          pushHistorySnapshot(positionsRef.current);
+          setLayout(nextLayout);
+        }
+
+        setInteraction(null);
+      }
+
+      window.addEventListener("pointermove", handlePointerMove, { passive: false });
+      window.addEventListener("pointerup", handlePointerUp, { passive: false });
+      window.addEventListener("pointercancel", handlePointerUp, { passive: false });
+
+      return () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("pointercancel", handlePointerUp);
+      };
+    }, [interaction, isMobile]);
+
+    function handleHover(event, level, index) {
+      if (interaction || isMobile || event.pointerType === "touch") return;
+      const block = meta.data[level][index];
+      setHoveredBlock(block);
+      setTooltipPos({
+        x: Math.min(event.clientX + 18, window.innerWidth - 320),
+        y: Math.min(event.clientY + 12, window.innerHeight - 220)
+      });
+    }
+
+    function handleLeave() {
+      if (!isMobile) {
+        clearFloatingInfo();
+      }
+    }
+
+    function handleFramePointerDown(event) {
+      if (event.target === event.currentTarget) {
+        setSelectedBlock(null);
+        clearFloatingInfo();
+      }
+    }
+
+    function handleUndo() {
+      setHistory((prev) => {
+        if (!prev.length) return prev;
+        const nextHistory = prev.slice(0, -1);
+        const previousLayout = prev[prev.length - 1];
+        setLayout(cloneLayout(previousLayout));
+        setInteraction(null);
+        return nextHistory;
+      });
+    }
+
+    function handleReset() {
+      if (!canReset) return;
+      pushHistorySnapshot(positionsRef.current);
+      setLayout(cloneLayout(initialLayout));
+      setInteraction(null);
+      setSelectedBlock(null);
+      clearFloatingInfo();
+    }
+
+    const bottomSheetBlock = selectedBlock ? meta.data[selectedBlock.level][selectedBlock.index] : null;
+
+    return (
+      <div className={`app-shell ${isMobile ? "is-coarse" : ""}`} style={{ "--accent": meta.accent }}>
+        <header className="header">
+          <h1>Program Color Plans</h1>
+          <div className="sub">Port Tampa Bay · Cruise Terminal 5 · RFQ 006-26</div>
+        </header>
+
+        <div className="toolbar">
+          <div className="mode-tabs">
+            <button
+              className={`mode-tab ${mode === "cruise" ? "active-cruise" : ""}`}
+              onClick={() => setMode("cruise")}
+            >
+              Cruise Day
+            </button>
+            <button
+              className={`mode-tab ${mode === "nc" ? "active-nc" : ""}`}
+              onClick={() => setMode("nc")}
+            >
+              Non-Cruise Day
+            </button>
+          </div>
+          <div className="action-group">
+            <button className="ghost-btn" onClick={handleUndo} disabled={!canUndo}>Undo</button>
+            <button className="ghost-btn" onClick={handleReset} disabled={!canReset}>Reset Layout</button>
+          </div>
+        </div>
+
+        <div className="helper-copy">
+          Drag blocks to reposition. Pull the corner to rebalance proportions while area stays locked.
+          <span className="mono">Cruise and non-cruise layouts stay synced by level.</span>
+        </div>
+
+        <section className="plans-container">
+          {LEVEL_META.map((levelMeta) => (
+            <article className="plan-column" key={levelMeta.key}>
+              <div className="plan-title">
+                <h2>{levelMeta.title}</h2>
+              </div>
+              <div className="plan-canvas">
+                <div
+                  className="site-frame"
+                  ref={(node) => { frameRefs.current[levelMeta.key] = node; }}
+                  onPointerDown={handleFramePointerDown}
+                >
+                  <ContextOverlay shipLabel={meta.shipLabel} />
+                  <div className="block-layer">
+                    {meta.data[levelMeta.key].map((block, index) => {
+                      const activeBlock = interaction && interaction.level === levelMeta.key && interaction.index === index
+                        ? interaction.previewGeom
+                        : layout[levelMeta.key][index];
+                      const isSelected = selectedBlock && selectedBlock.level === levelMeta.key && selectedBlock.index === index;
+
+                      return (
+                        <Block
+                          key={`${levelMeta.key}-${index}-${block.id}`}
+                          block={block}
+                          geom={activeBlock}
+                          level={levelMeta.key}
+                          index={index}
+                          interaction={interaction}
+                          isMobile={isMobile}
+                          isSelected={Boolean(isSelected)}
+                          onBlockPointerDown={onBlockPointerDown}
+                          onHandlePointerDown={onHandlePointerDown}
+                          onHover={handleHover}
+                          onLeave={handleLeave}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="revenue-bar">
+          <div className="revenue-strip">
+            <div className="rev-item">
+              <div className="rev-val">$1.5M-$5M+</div>
+              <div className="rev-label">Event Venue</div>
+            </div>
+            <div className="rev-item">
+              <div className="rev-val">$500K-$1M+</div>
+              <div className="rev-label">Parking</div>
+            </div>
+            <div className="rev-item">
+              <div className="rev-val">$15K-$50K+</div>
+              <div className="rev-label">Per Event</div>
+            </div>
+            <div className="rev-item">
+              <div className="rev-val">285-305</div>
+              <div className="rev-label">Non-Cruise Days</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="legend-section">
+          <div className="legend-panel">
+            <h3 style={{ color: meta.accent }}>{meta.title}</h3>
+            <div className="legend-items">
+              {meta.legend.map((item) => (
+                <div className="legend-item" key={`${item.label}-${item.color || item.sw || "none"}`}>
+                  <div
+                    className={`legend-swatch ${item.sw || ""}`}
+                    style={item.sw ? undefined : { background: item.color }}
+                  />
+                  <span className="legend-text">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="convert-legend">
+              <div className="convert-item">
+                <div className="convert-dot" style={{ background: "rgba(122,184,122,0.9)" }} />
+                Full
+              </div>
+              <div className="convert-item">
+                <div className="convert-dot" style={{ background: "rgba(201,169,89,0.9)" }} />
+                Partial
+              </div>
+              <div className="convert-item">
+                <div className="convert-dot" style={{ background: "rgba(136,136,136,0.8)" }} />
+                Fixed
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {!isMobile && hoveredBlock ? (
+          <div className="tooltip" style={{ left: tooltipPos.x, top: tooltipPos.y }}>
+            <BlockInfo block={hoveredBlock} />
+          </div>
+        ) : null}
+
+        {isMobile && bottomSheetBlock && !interaction ? (
+          <div className="sheet-backdrop" onClick={() => setSelectedBlock(null)}>
+            <div className="sheet" onClick={(event) => event.stopPropagation()}>
+              <div className="sheet-handle" />
+              <button className="sheet-close" onClick={() => setSelectedBlock(null)}>Close</button>
+              <BlockInfo block={bottomSheetBlock} />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<App />);
+</script>
+</body>
+</html>
