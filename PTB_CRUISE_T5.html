@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#6a9cc4;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Port Tampa Bay — Cruise Terminal 5 Design Workshop</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:#f5f5f5;
+  --border:#ddd;
+  --text:#1a1a1a;
+  --text-dim:#555;
+  --text-muted:#888;
+  --accent:#6a9cc4;
+  --green:#7ab87a;
+  --amber:#c9a959;
+  --hot:#c45c3e;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(106,156,196,0.25);color:#1a1a1a}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+
+h1,.ht{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text)}
+h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4vw,42px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:24px;line-height:1.3}
+h3{font-family:'Space Mono',monospace;font-size:12px;font-weight:400;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-top:36px;margin-bottom:12px}
+p{font-size:18px;font-weight:300;color:var(--text-dim);margin-bottom:20px;line-height:1.85}
+p strong{color:var(--text);font-weight:600}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(106,156,196,0.3);transition:border-color 0.2s}
+a:hover{border-bottom-color:var(--accent)}
+ul{margin:8px 0 20px 24px}
+li{font-size:16px;color:var(--text-dim);margin-bottom:6px;line-height:1.7}
+li strong{color:var(--text);font-weight:600}
+
+/* ── NAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px}
+.topnav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.topnav-inner::-webkit-scrollbar{display:none}
+.nav-brand{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase;white-space:nowrap;margin-right:16px;flex-shrink:0;border-bottom:none}
+.nav-link{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all 0.2s;flex-shrink:0}
+.nav-link:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── HERO ── */
+.hero{min-height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 24px;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(106,156,196,0.06) 0%,transparent 70%)}
+.htl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:18px}
+.hln{width:40px;height:1px;background:var(--accent);margin:0 auto 18px;position:relative}
+.ht{font-size:clamp(48px,9vw,100px);line-height:1.05;margin-bottom:16px;position:relative}
+.hs{font-size:clamp(16px,2vw,22px);font-weight:300;font-style:italic;color:var(--text-dim);max-width:760px;line-height:1.7;margin-bottom:16px;position:relative}
+.hs2{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:30px}
+.hm{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);position:relative}
+
+/* ── STATS ROW ── */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:24px 0}
+.mi{background:var(--bg);border:1px solid var(--border);padding:12px 14px;text-align:center}
+.mi .ml{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.mi .mv{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--text);line-height:1.3}
+.mi .ms{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted)}
+/* colored stat boxes — semantic tinting */
+.mi-area{background:rgba(201,169,89,0.06);border-color:rgba(201,169,89,0.2)}
+.mi-area .mv{color:#8a7040}
+.mi-people{background:rgba(106,156,196,0.06);border-color:rgba(106,156,196,0.2)}
+.mi-people .mv{color:#4a7a9b}
+.mi-infra{background:rgba(136,136,136,0.04);border-color:rgba(136,136,136,0.18)}
+.mi-infra .mv{color:#5a5850}
+.mi-time{background:rgba(122,184,122,0.06);border-color:rgba(122,184,122,0.2)}
+.mi-time .mv{color:#4a7a5a}
+.mi-money{background:rgba(122,184,122,0.08);border-color:rgba(122,184,122,0.22)}
+.mi-money .mv{color:#3d6e3d}
+.mi-hot{background:rgba(196,92,62,0.05);border-color:rgba(196,92,62,0.15)}
+.mi-hot .mv{color:#8a4a30}
+
+/* ── CONTENT ── */
+.ct{max-width:760px;margin:0 auto;padding:0 24px 88px}
+.sec{padding:72px 0;border-top:1px solid var(--border)}
+.sec:first-child{border-top:none}
+.sn{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px}
+
+/* ── EXPANDABLE SECTIONS ── */
+.dsh{display:flex;align-items:baseline;gap:16px;cursor:pointer;user-select:none;margin-bottom:24px;padding:16px 0;border-bottom:1px solid var(--border)}
+.dsn{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;min-width:80px;flex-shrink:0}
+.dst{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(20px,3vw,28px);letter-spacing:0.08em;text-transform:uppercase;color:var(--text);flex:1}
+.bdg{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 10px;border-radius:2px;flex-shrink:0}
+.bdg-ok{color:var(--green);background:rgba(122,184,122,0.08)}
+.bdg-lk{color:var(--amber);background:rgba(201,169,89,0.08)}
+.bdg-hot{color:var(--hot);background:rgba(196,92,62,0.08)}
+.dsg{font-size:14px;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0}
+.dsg.op{transform:rotate(180deg)}
+.dsb{display:none;padding-bottom:24px}.dsb.op{display:block}
+
+/* ── INFO BOX ── */
+.sb{background:var(--surface);border:1px solid var(--border);padding:20px;margin:28px 0}
+.sl{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+
+/* ── DATA TABLES ── */
+.dt{width:100%;border-collapse:collapse;margin:16px 0}
+.dt tr{border-bottom:1px solid var(--border)}.dt tr:last-child{border-bottom:none}.dt tr:hover{background:var(--surface)}
+.dt th{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;padding:10px 10px;text-align:left;border-bottom:1px solid #ccc}
+.dt td{padding:8px 10px;font-size:15px;color:var(--text-dim)}
+.dt .k{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;width:35%;padding-right:16px;vertical-align:top}
+.dt .v{color:var(--text-dim);vertical-align:top}
+.dt .sf{font-family:'Space Mono',monospace;color:var(--accent);font-weight:400}
+
+/* ── BADGES ── */
+.rb{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 12px;border-radius:2px}
+.rb-full{color:var(--green);background:rgba(122,184,122,0.1);border:1px solid rgba(122,184,122,0.15)}
+.rb-partial{color:var(--amber);background:rgba(201,169,89,0.1);border:1px solid rgba(201,169,89,0.15)}
+.rb-fixed{color:var(--text-muted);background:rgba(136,136,136,0.08);border:1px solid rgba(136,136,136,0.15)}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.card{background:var(--surface);border:1px solid var(--border);padding:20px}
+.card h3{margin-top:0;margin-bottom:8px}
+.card p{font-size:15px;margin-bottom:12px}
+.card-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--accent);line-height:1.2}
+.card-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+
+/* ── IMAGES ── */
+.img-full{width:100%;border:1px solid var(--border);margin:20px 0;display:block}
+.img-caption{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;text-align:center;margin:-12px 0 20px}
+
+/* ── FLOW DIAGRAM ── */
+.flow-container{background:var(--surface);border:1px solid var(--border);padding:24px;margin:24px 0;overflow-x:auto}
+.flow-container svg{max-width:100%;height:auto}
+
+/* ── IFRAME / BREAKOUT ── */
+.embed-frame{border:1px solid var(--border);overflow:hidden;margin:24px 0;background:var(--surface)}
+.embed-frame iframe{width:100%;border:none;display:block}
+
+/* ── FULL-WIDTH BREAKOUT ── */
+.breakout{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);padding:16px}
+.breakout iframe{width:100%;border:none;display:block}
+
+/* ── LIGHTBOX ── */
+.lightbox-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.97);backdrop-filter:blur(8px);overflow:auto}
+.lightbox-overlay.active{display:block}
+.lightbox-close{position:fixed;top:16px;right:24px;z-index:10000;background:transparent;border:1px solid var(--border);padding:8px 18px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all 0.2s}
+.lightbox-close:hover{border-color:var(--accent);color:var(--accent)}
+.lightbox-body{width:100%;height:100%;padding:0}
+.lightbox-body iframe{width:100%;height:100%;border:none}
+
+/* ── OPEN PLANS BUTTON ── */
+.open-plans-btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:14px 36px;color:#fff;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;margin-top:16px}
+.open-plans-btn:hover{background:#5889b0;transform:translateY(-2px)}
+.open-plans-btn.outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.open-plans-btn.outline:hover{background:var(--accent);color:#fff}
+
+/* ── MATRIX LIGHTBOX ── */
+.matrix-tabs{display:flex;gap:3px;margin-bottom:20px;justify-content:center}
+.matrix-tab{padding:8px 24px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.matrix-tab:hover{color:var(--text);border-color:var(--accent)}
+.matrix-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.matrix-sheet{display:none;max-width:900px;margin:0 auto;padding:0 24px}
+.matrix-sheet.active{display:block}
+.matrix-sheet .cat-header{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:22px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);margin:28px 0 4px;padding-top:20px;border-top:1px solid var(--border)}
+.matrix-sheet .cat-header:first-child{border-top:none;margin-top:0}
+.matrix-sheet .cat-logic{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.06em;margin-bottom:12px;font-style:italic}
+.matrix-sheet .subtotal{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:0.08em;padding:8px 0;margin-bottom:8px}
+.matrix-sheet .grand-total{font-family:'Space Mono',monospace;font-size:13px;color:var(--text);letter-spacing:0.1em;padding:12px 0;margin-top:16px;border-top:2px solid var(--accent)}
+
+/* ── AI TIMELINE ── */
+.ai-timeline{position:relative;padding-left:32px;margin:24px 0}
+.ai-timeline::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:1px;background:var(--accent);opacity:0.3}
+.ai-step{position:relative;margin-bottom:28px}
+.ai-step::before{content:'';position:absolute;left:-25px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.ai-step h3{margin-top:0;margin-bottom:4px}
+.ai-step p{font-size:15px}
+
+/* ── NOTE BOX ── */
+.nt{border-left:1px solid var(--border);padding:14px 18px;margin-top:20px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.8}
+
+/* ── HEADLINE CALLOUTS ── */
+.callout-bar{max-width:760px;margin:0 auto;padding:0 24px}
+.callout{border-left:2px solid var(--accent);padding:20px 24px;margin-bottom:16px;background:linear-gradient(90deg,rgba(106,156,196,0.04),transparent)}
+.callout p{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);line-height:1.6;margin-bottom:0;font-style:italic}
+.callout .callout-tag{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;font-style:normal}
+
+/* ── RENDER NOTE ── */
+.render-note{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.06em;background:var(--surface);border:1px solid var(--border);padding:8px 14px;margin:8px 0 16px;display:inline-block}
+
+/* ── RENDER GALLERY ── */
+.render-gallery{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:20px 0}
+.render-thumb{position:relative;aspect-ratio:1.5;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.render-thumb:hover{border-color:var(--accent);transform:scale(1.03);z-index:2;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.render-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.render-lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;cursor:pointer}
+.render-lightbox.active{display:flex}
+.render-lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border:1px solid rgba(255,255,255,0.1)}
+@media(max-width:700px){.render-gallery{grid-template-columns:repeat(3,1fr)}}
+
+/* ── STAT HIGHLIGHT ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin:16px 0}
+.stat-item{text-align:center;padding:10px 8px;background:var(--surface);border:1px solid var(--border)}
+.stat-item .stat-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--text);line-height:1.2}
+.stat-item .stat-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
+.footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .card-grid{grid-template-columns:1fr}
+  .dsh{flex-wrap:wrap;gap:8px}
+  .dsn{min-width:auto}
+  .mg{grid-template-columns:1fr 1fr}
+  .hero{padding:60px 16px;min-height:auto}
+  .ht{font-size:clamp(36px,10vw,60px)}
+  .ct{padding:0 16px 60px}
+}
+@media(max-width:480px){
+  .mg{grid-template-columns:1fr 1fr;gap:6px}
+  .mi .mv{font-size:22px}
+  .dt .k{width:38%;font-size:8px;padding:6px}
+  .dt td{font-size:14px;padding:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="nav-brand">PTB CT-5</span>
+    <a class="nav-link" href="#overview">Overview</a>
+    <a class="nav-link" href="#context">Context</a>
+    <a class="nav-link" href="#research">Research</a>
+    <a class="nav-link" href="#flow">Flow</a>
+    <a class="nav-link" href="#design">Design Ideas</a>
+    <a class="nav-link" href="#drivers">Drivers</a>
+    <a class="nav-link" href="#program">Program</a>
+    <a class="nav-link" href="#plans">Plans</a>
+    <a class="nav-link" href="#renders">Renders</a>
+    <a class="nav-link" href="#model">3D Model</a>
+    <a class="nav-link" href="#ai">AI Process</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="overview">
+  <div class="htl">Design Workshop Briefing</div>
+  <div class="hln"></div>
+  <h1 class="ht">Cruise<br>Terminal 5</h1>
+  <p class="hs">Port Tampa Bay's dual-use civic landmark &mdash; a cruise terminal that generates revenue 365 days a year as Tampa Bay's premier waterfront event venue.</p>
+  <div class="hs2">RFQ 006-26 &middot; Project No. 26-00226 &middot; March 2026</div>
+  <div class="mg" style="max-width:600px;width:100%">
+    <div class="mi mi-area"><div class="ml">Enclosed Program</div><div class="mv">~336,100 SF</div></div>
+    <div class="mi mi-people"><div class="ml">Design Day</div><div class="mv">3,000 pax</div></div>
+    <div class="mi mi-infra"><div class="ml">Parking</div><div class="mv">800 spaces</div></div>
+    <div class="mi mi-time"><div class="ml">Non-Cruise Days</div><div class="mv">285&ndash;305</div><div class="ms">per year</div></div>
+  </div>
+  <div class="hm" style="margin-top:24px">Calvey &middot; 2026</div>
+</section>
+
+<!-- ═══ HEADLINES ═══ -->
+<div class="callout-bar" style="padding-top:48px">
+  <div class="callout">
+    <div class="callout-tag">The Thesis</div>
+    <p>This building is an activated civic event space that generates revenue and brings this critical hub to life &mdash; a dual-use civic waterfront asset at the intersection of tourism, residential density, and major infrastructure investment. An extremely rare condition for a cruise terminal.</p>
+  </div>
+  <div class="callout">
+    <div class="callout-tag">The Market</div>
+    <p>There is no venue like this in the area with that view. It is a premiere event space &mdash; and only needs to sell 30&ndash;40% of available non-cruise days to generate meaningful revenue.</p>
+  </div>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="ct">
+
+<!-- ═══ 01 THE BIG IDEA ═══ -->
+<div class="sec" id="big-idea">
+  <div class="sn">01 &mdash; The Big Idea</div>
+  <h2>Dual-Use Civic Landmark</h2>
+  <p>Terminal 5 is not a cruise terminal that happens to host events. It is a dual-use civic landmark designed to generate revenue 365 days a year &mdash; serving 3,000 passengers on ~60&ndash;80 sailing days and converting into Tampa Bay's premier waterfront event venue on the remaining ~285&ndash;305 non-cruise days.</p>
+  <p>The core architectural strategy is <strong>vertical separation</strong>: embarkation on the upper level, debarkation and federal inspection at grade. A monumental stair stitches the two levels together and serves as the building's wayfinding anchor on cruise days and its ceremonial entry on event nights.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Clear-Span Upper Hall</h3>
+      <p>~15,500 SF of column-free space with flush floor boxes, dimmable lighting, acoustic treatment, and a catering kitchen. On cruise days it's check-in. On non-cruise days it's a gala venue commanding $15K&ndash;$50K+ per booking.</p>
+    </div>
+    <div class="card">
+      <h3>4&ndash;6 Hour Conversion</h3>
+      <p>The terminal converts without construction &mdash; demountable kiosks, retractable baggage claim, folding FIS partitions, independent HVAC zoning. Of 36 spaces: 12 convert fully, 9 partially, 15 remain fixed.</p>
+    </div>
+  </div>
+
+  <div class="sb">
+    <div class="sl">Revenue Thesis</div>
+    <p style="margin-bottom:0">A terminal designed exclusively for cruise operations is a depreciating asset on every non-sailing day. A terminal designed for convertibility transforms the financial model from cost center to revenue contributor.</p>
+    <div class="card-val" style="margin-top:12px;color:#3d6e3d">$1.5M&ndash;$5M+</div>
+    <div class="card-label">projected annual event venue revenue</div>
+  </div>
+</div>
+
+<!-- ═══ 02 CONTEXT ═══ -->
+<div class="sec" id="context">
+  <div class="sn">02 &mdash; Site &amp; Context</div>
+  <h2>Channelside District</h2>
+  <p>Port Tampa Bay's Channelside district, within the <strong>$1.2 billion Master Plan Vision 2030</strong> redevelopment envelope. The most actively developing waterfront corridor in the southeastern United States.</p>
+
+  <img src="SITE PLAN.png" alt="Site aerial" class="img-full" loading="lazy">
+  <div class="img-caption">Site plan &mdash; aerial view of Ybor Channel and project area</div>
+
+  <img src="SITE AXON.png" alt="Site axonometric" class="img-full" loading="lazy">
+  <div class="img-caption">Axonometric view &mdash; Ybor Channel, Channel District, Selmon Expressway</div>
+
+  <!-- Expandable: History -->
+  <div class="dsh" onclick="tb('hist')">
+    <div class="dsn">02.1</div><div class="dst">Site Identity &amp; History</div>
+    <span class="bdg bdg-ok">Heritage</span>
+    <span class="dsg" id="t-hist">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-hist">
+    <p>The Channel District's character was maritime-industrial from its origins over 75 years ago, serving the Port of Tampa and private shipping interests. Known as the Estuary, La Draga, and the Ybor Channel area, it was home to ships' chandlers, shipping companies, bonded warehouses, and thousands of longshoremen.</p>
+    <p>The transformation began in the late 1980s when the Tampa Port Authority acquired waterfront property and invested approximately $80 million in cruise facilities. The Florida Aquarium opened in 1995. The Channel District CRA, established in 2003 (sunsetting 2033), has funded significant infrastructure reinvestment. Today, the district is the highest-density residential community in downtown Tampa.</p>
+  </div>
+
+  <!-- Expandable: Surroundings -->
+  <div class="dsh" onclick="tb('surr')">
+    <div class="dsn">02.2</div><div class="dst">Surrounding Development</div>
+    <span class="bdg bdg-lk">Adjacencies</span>
+    <span class="dsg" id="t-surr">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-surr">
+    <h3>South (along Channelside Dr)</h3>
+    <ul>
+      <li><strong>Sparkman Wharf</strong> &mdash; 160,000 SF office + 70,000 SF retail</li>
+      <li><strong>Florida Aquarium</strong> &mdash; major regional attraction</li>
+      <li><strong>Tampa EDITION</strong> &mdash; luxury hotel</li>
+      <li>Cruise Terminals 2 and 3</li>
+    </ul>
+    <h3>North / Northeast</h3>
+    <ul>
+      <li><strong>Ybor Harbor</strong> &mdash; 33 acres, rezoned April 2024: ~5,000 residential units, 500,000 SF office, 800 hotel rooms, proposed 15,000-seat soccer stadium</li>
+      <li><strong>Gasworx</strong> &mdash; 50-acre mixed-use linking Ybor City to downtown</li>
+      <li>Tampa General Hospital &mdash; plans for a hospital within Ybor development</li>
+    </ul>
+    <h3>West</h3>
+    <ul>
+      <li>Channel District high-rise residential (Towers of Channelside, Channel Club, SkyHouse)</li>
+      <li><strong>Benchmark International Arena</strong> (Tampa Bay Lightning)</li>
+      <li><strong>Water Street Tampa</strong> &mdash; planned 3,500-seat music venue, hotel, 100K SF retail</li>
+    </ul>
+    <h3>Arriving 2026</h3>
+    <p><strong>Tampa WOW!</strong> &mdash; 250-foot observation wheel, $20 million private investment.</p>
+  </div>
+
+  <!-- Expandable: Views -->
+  <div class="dsh" onclick="tb('view')">
+    <div class="dsn">02.3</div><div class="dst">Views Assessment</div>
+    <span class="bdg bdg-ok">Asset</span>
+    <span class="dsg" id="t-view">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-view">
+    <ul>
+      <li><strong>East:</strong> Direct, unobstructed water views across Ybor Channel (~500&ndash;600 ft width)</li>
+      <li><strong>South/SW:</strong> Tampa Bay, Garrison Channel, downtown skyline. Sunset orientation for dramatic golden-hour events.</li>
+      <li><strong>West:</strong> Channel District residential towers, Tampa WOW! observation wheel</li>
+      <li><strong>North:</strong> Upper levels clear the Selmon Expressway for long views toward Ybor City</li>
+    </ul>
+    <p>The upper-level hall places guests ~30&ndash;40 ft above waterline &mdash; a panoramic view encompassing the full sweep from Ybor Channel to Tampa Bay to the downtown skyline. <strong>No existing event venue in the Channel District currently offers this.</strong></p>
+  </div>
+
+  <!-- Expandable: Circulation -->
+  <div class="dsh" onclick="tb('circ')">
+    <div class="dsn">02.4</div><div class="dst">Circulation &amp; Connectivity</div>
+    <span class="bdg bdg-ok">Multi-Modal</span>
+    <span class="dsg" id="t-circ">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-circ">
+    <h3>Vehicular</h3>
+    <p>Primary access via Selmon Expressway (I-4 East to Exit 1). Secondary via Channelside Drive and E Adamo Dr.</p>
+    <h3>TECO Streetcar</h3>
+    <p>Free 2.7-mile heritage streetcar connecting downtown, Channel District, and Ybor City. Three stops relevant to T-5. 15-minute intervals, extended hours on Friday/Saturday nights.</p>
+    <h3>Selmon Greenway</h3>
+    <p>15-foot-wide multi-use path running east-west under the Selmon Expressway, connecting Tampa Riverwalk to N. 19th Street with planned extension to Ybor City.</p>
+  </div>
+
+  <!-- Expandable: Climate -->
+  <div class="dsh" onclick="tb('clim')">
+    <div class="dsn">02.5</div><div class="dst">Climate &amp; Environmental Response</div>
+    <span class="bdg bdg-hot">ASHRAE 2A</span>
+    <span class="dsg" id="t-clim">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-clim">
+    <p>Tampa (ASHRAE Climate Zone 2A: Hot-Humid) averages <strong>94 days/year above 90&deg;F</strong>. Perceived temperatures frequently exceed 100&deg;F in summer. ~50 inches of annual rainfall concentrated June&ndash;September with near-daily afternoon thunderstorms.</p>
+    <h3>Design Response</h3>
+    <p>Every exterior space gets permanent cover. The enclosed, climate-controlled pedestrian bridge from the garage to the terminal upper level is non-negotiable. Tampa's extreme climate actually <em>strengthens</em> the dual-use argument &mdash; enclosed, climate-controlled waterfront event space is dramatically more valuable in this market than outdoor-only alternatives.</p>
+    <h3>Air Quality</h3>
+    <p>Ships docking at the port release diesel exhaust from onboard generators when shore power is not available, and container handling requires heavy-duty diesel vehicles. PTB has actively invested in mitigation: electric gantry cranes, reduced truck idling programs, and <strong>$1.8M in EPA Clean Ports Program funding</strong> (October 2024) for electrification, battery-electric, hydrogen fuel cell, and green fuel technologies. Shore power infrastructure (specified in the T-5 design parameters) would allow docked vessels to shut down generators &mdash; the single biggest air quality improvement possible at the berth. Tampa's coastal breeze patterns and the Ybor Channel's orientation allow effective plume dispersal. On non-cruise days (the primary event window), air quality is clean.</p>
+    <h3>Noise</h3>
+    <p>Ship horn blasts at departure are dramatic but infrequent and schedulable. Vessel generator hum is eliminated by shore power. The upper-level event hall with acoustic treatment achieves the interior quiet needed for ceremonies. Outdoor ceremonies on non-cruise days have no port noise issues. For fitness uses, the port soundscape (water, ships, industrial hum) is considered atmospheric, not disruptive.</p>
+  </div>
+
+  <!-- Expandable: Schedule -->
+  <div class="dsh" onclick="tb('sched')">
+    <div class="dsn">02.6</div><div class="dst">Cruise Schedule Analysis</div>
+    <span class="bdg bdg-ok">Revenue Window</span>
+    <span class="dsg" id="t-sched">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-sched">
+    <p>Port Tampa Bay handles ~200+ cruise departures annually across all terminals. Terminal 5 would host a subset: ~60&ndash;80 cruise days/year, leaving <strong>285&ndash;305 non-cruise days</strong> available for dual-use programming.</p>
+    <p>Even in peak season (November&ndash;April), Mondays and Tuesdays are reliably cruise-free &mdash; creating anchor days for recurring programming.</p>
+    <div class="sb">
+      <div class="sl">Projected Revenue</div>
+      <p>Tampa waterfront wedding venues currently command <strong>$6,400&ndash;$7,800 per event</strong>. A premium, architecturally distinctive cruise terminal event space with panoramic bay views could command <strong>$10,000&ndash;$15,000+ per event</strong> and book 150+ non-cruise days per year. At the conservative end, that's <strong>$1.5M&ndash;$2.25M</strong> in annual ancillary revenue from the event venue alone.</p>
+      <p>At the upper range (100 events averaging $20,000+), the venue projects <strong>$2M&ndash;$5M+</strong>. Combined with parking ($500K&ndash;$1M+), F&amp;B concessions, and community programming, the dual-use model transforms the financial equation. There is no comparable 15,500 SF waterfront event venue in the Channel District today.</p>
+    </div>
+    <div class="nt">The 800-space parking garage solves the district's chronic parking shortage. Pedestrian connectivity &mdash; TECO streetcar, Riverwalk extension, Channelside sidewalk network &mdash; means event attendees can arrive without adding vehicle traffic on non-cruise days.</div>
+  </div>
+</div>
+
+<!-- ═══ 02.7 RISKS ═══ -->
+<div class="dsh" onclick="tb('risks')">
+  <div class="dsn">02.7</div><div class="dst">Risks &amp; Competitive Context</div>
+  <span class="bdg bdg-hot">Watchpoints</span>
+  <span class="dsg" id="t-risks">&#9662;</span>
+</div>
+<div class="dsb" id="b-risks">
+  <h3>SSA Marine Competing Port</h3>
+  <p>SSA Marine has proposed building a cruise port in the Knott-Cowen tract near the Sunshine Skyway Bridge in Manatee County, which would allow larger ships that cannot fit under the Skyway to port in Tampa Bay. This is a <strong>competitive threat to PTB's cruise market share</strong> that strengthens the argument for T-5 being a compelling, best-in-class facility with revenue diversification &mdash; a terminal that generates value even if cruise volumes shift.</p>
+  <h3>Flood Zone</h3>
+  <p>The site is in FEMA coastal AE/VE zones. The vertical separation strategy (Option B) inherently addresses this by elevating primary functions above the design flood elevation.</p>
+  <h3>Brownfield Designation</h3>
+  <p>The entire port has been designated a Brownfield Redevelopment Area, and PTB has spent millions cleaning up contaminated industrial sites. Environmental site assessment will be essential during programming.</p>
+  <h3>Selmon Expressway Access</h3>
+  <p>All cruise traffic funnels through limited access points. Adding event traffic on non-cruise days is manageable; simultaneous cruise + event operations would require careful traffic management &mdash; but non-cruise days are the primary event window.</p>
+</div>
+
+<!-- ═══ 03 RESEARCH ═══ -->
+<div class="sec" id="research">
+  <div class="sn">03 &mdash; Research &amp; Precedents</div>
+  <h2>Comparable Terminals</h2>
+  <p>Analysis of comparable cruise terminals and federal inspection requirements informing the design strategy.</p>
+
+  <div class="dsh" onclick="tb('ct3')">
+    <div class="dsn">03.1</div><div class="dst">Port Canaveral CT3</div>
+    <span class="bdg bdg-ok">188K SF</span>
+    <span class="dsg" id="t-ct3">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ct3">
+    <table class="dt">
+      <tr><td class="k">Opened</td><td class="v">2020/2021</td></tr>
+      <tr><td class="k">Architect</td><td class="v">Bermello Ajamil &amp; Partners</td></tr>
+      <tr><td class="k">Cost</td><td class="v">$163M</td></tr>
+      <tr><td class="k">Size</td><td class="v">188,000 SF (two stories)</td></tr>
+      <tr><td class="k">Parking</td><td class="v">1,800 spaces, six-story garage</td></tr>
+      <tr><td class="k">Max Capacity</td><td class="v">6,630 pax</td></tr>
+    </table>
+    <h3>Relevance to T-5</h3>
+    <p>12 security scanning machines, pre-check kiosks, 10 check-in counters, seating for 1,700 passengers. Elevated pedestrian bridge from garage to terminal demonstrates effective vehicular/pedestrian separation. Integrated facial recognition and modernized CBP screening.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('taa')">
+    <div class="dsn">03.2</div><div class="dst">PortMiami Terminal AA</div>
+    <span class="bdg bdg-hot">493K SF</span>
+    <span class="dsg" id="t-taa">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-taa">
+    <table class="dt">
+      <tr><td class="k">Opened</td><td class="v">April 2025</td></tr>
+      <tr><td class="k">Architect</td><td class="v">Arquitectonica</td></tr>
+      <tr><td class="k">Cost</td><td class="v">~$450M</td></tr>
+      <tr><td class="k">Size</td><td class="v">493,000 SF (four stories, world's largest)</td></tr>
+      <tr><td class="k">Daily Capacity</td><td class="v">36,000 passengers</td></tr>
+    </table>
+    <h3>Relevance to T-5</h3>
+    <p>Layered embark/debark design with both processes overlapping on different floor levels. Fully biometric passenger journey (18 face pods, 22 E-gates). Advanced baggage handling with cross-belt conveyor technology and 42 screening machines.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('rca')">
+    <div class="dsn">03.3</div><div class="dst">PortMiami Terminal A</div>
+    <span class="bdg bdg-ok">170K SF</span>
+    <span class="dsg" id="t-rca">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-rca">
+    <table class="dt">
+      <tr><td class="k">Opened</td><td class="v">November 2018</td></tr>
+      <tr><td class="k">Architect</td><td class="v">Broadway Malyan / B&amp;A</td></tr>
+      <tr><td class="k">Cost</td><td class="v">~$250M</td></tr>
+      <tr><td class="k">Size</td><td class="v">170,000 SF</td></tr>
+      <tr><td class="k">Capacity</td><td class="v">~7,000 pax (Oasis-class)</td></tr>
+    </table>
+    <h3>Relevance to T-5</h3>
+    <p>Closest in scale to T-5 (120K&ndash;180K SF range). LEED Silver. Shore power added 2024. Angular glass design shows how iconic expression can be achieved at mid-range cruise terminal scale.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('comp')">
+    <div class="dsn">03.4</div><div class="dst">Comparison Table</div>
+    <span class="bdg bdg-lk">Data</span>
+    <span class="dsg" id="t-comp">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-comp">
+    <table class="dt">
+      <thead><tr><th>Metric</th><th>CT3 Canaveral</th><th>Terminal AA</th><th>Terminal A</th></tr></thead>
+      <tr><td class="k">Terminal SF</td><td class="sf">188,000</td><td class="sf">493,000</td><td class="sf">170,000</td></tr>
+      <tr><td class="k">Stories</td><td>2</td><td>4</td><td>Multi-level</td></tr>
+      <tr><td class="k">Parking</td><td>1,800</td><td>2,400+</td><td>1,000</td></tr>
+      <tr><td class="k">Max Pax</td><td>6,630</td><td>36,000/day</td><td>~7,000</td></tr>
+      <tr><td class="k">Cost</td><td>$163M</td><td>$450M</td><td>$250M</td></tr>
+      <tr><td class="k">Biometrics</td><td>Facial recognition</td><td>Full biometric</td><td>Expedited</td></tr>
+      <tr><td class="k">LEED</td><td>Not certified</td><td>Gold (pending)</td><td>Silver</td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('fis')">
+    <div class="dsn">03.5</div><div class="dst">CBP Federal Inspection</div>
+    <span class="bdg bdg-hot">FIS</span>
+    <span class="dsg" id="t-fis">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-fis">
+    <p>The FIS area is one of the most technically constrained zones. Design governed by CBP's Cruise Terminal Design Standards, project-specific Program of Requirements developed with CBP Director of Field Operations.</p>
+    <h3>FIS Process Flow</h3>
+    <ul>
+      <li><strong>Sterile Corridor:</strong> From debark ramp, no mixing with domestic traffic. CCTV throughout.</li>
+      <li><strong>CBP Primary:</strong> 10&ndash;12 primary inspection booths, APC kiosks, Global Entry, biometric face-pods.</li>
+      <li><strong>Secondary Processing:</strong> Document verification, baggage examination, 2&ndash;3 interview rooms, secure holding.</li>
+      <li><strong>APHIS:</strong> Agriculture inspections for prohibited food, plant, and animal products.</li>
+    </ul>
+    <h3>Space Requirements</h3>
+    <table class="dt">
+      <tr><td class="k">Primary Inspection</td><td class="sf">2,500&ndash;3,000 SF</td></tr>
+      <tr><td class="k">Coordination Center</td><td class="sf">300&ndash;500 SF</td></tr>
+      <tr><td class="k">Unified Secondary</td><td class="sf">800&ndash;1,200 SF</td></tr>
+      <tr><td class="k">APHIS / Agriculture</td><td class="sf">400&ndash;600 SF</td></tr>
+      <tr><td class="k">CBP Admin Offices</td><td class="sf">1,000&ndash;1,500 SF</td></tr>
+      <tr><td class="k">Sterile Corridor</td><td class="sf">800&ndash;1,200 SF</td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('selm')">
+    <div class="dsn">03.6</div><div class="dst">Selmon Expressway &amp; Ybor Connection</div>
+    <span class="bdg bdg-lk">Opportunity</span>
+    <span class="dsg" id="t-selm">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-selm">
+    <p>THEA's <strong>$752 million Work Plan (FY2026&ndash;2031)</strong>, approved July 2025, includes the South Selmon Capacity Project &mdash; upgrading all 14 underpasses with wider sidewalks, pedestrian lighting, and community spaces including the Meridian Health Trail.</p>
+    <p>Construction begins spring 2026, <strong>overlapping directly with the T-5 timeline</strong>.</p>
+    <div class="sb">
+      <div class="sl">The Pitch</div>
+      <p style="margin-bottom:0">Position the underpass improvement as a joint PTB/THEA/City of Tampa initiative. T-5's design team designs the underpass connection; THEA funds infrastructure; the City contributes public art or CRA funds. The result stitches the cruise port to Ybor Harbor and unlocks foot traffic in both directions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 04 FLOW ═══ -->
+<div class="sec" id="flow">
+  <div class="sn">04 &mdash; Passenger Flow</div>
+  <h2>Two One-Way Loops</h2>
+  <p>The two loops never cross, enabling simultaneous embarkation and debarkation on turnaround days.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Embarkation &mdash; Upper Level</h3>
+      <p>Curbside &rarr; luggage drop &rarr; check-in (60&ndash;70% self-service) &rarr; security (6&ndash;8 lanes) &rarr; post-security holding (1,500&ndash;1,800 seats) &rarr; boarding bridge</p>
+      <div class="card-val">45&ndash;75 min</div>
+      <div class="card-label">curbside to vessel</div>
+    </div>
+    <div class="card">
+      <h3>Debarkation &mdash; Grade Level</h3>
+      <p>Vessel &rarr; dedicated ramp &rarr; sterile corridor &rarr; FIS primary &rarr; secondary/APHIS &rarr; baggage claim (3,000 bags/2 hr) &rarr; meeter-greeter &rarr; curbside</p>
+      <div class="card-val">30&ndash;60 min</div>
+      <div class="card-label">vessel to curbside</div>
+    </div>
+  </div>
+
+  <div class="breakout" style="padding:24px;background:var(--bg)">
+    <div style="max-width:700px;margin:0 auto">
+    <svg width="100%" viewBox="0 0 680 920" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <!-- UPPER LEVEL -->
+    <rect x="30" y="30" width="620" height="430" rx="12" fill="#f0f4f8" stroke="#b8cfe0" stroke-width="0.5"/>
+    <text x="50" y="56" font-family="'Cormorant Garamond',Georgia,serif" font-weight="300" letter-spacing="0.08em" fill="#4a7a9b" font-size="15">UPPER LEVEL — EMBARKATION SEQUENCE</text>
+    <text x="50" y="74" font-family="'Space Mono',monospace" fill="#8aabb8" font-size="11" letter-spacing="0.08em">45–75 min curbside to vessel · 3,000 pax · +30–40 ft above waterline</text>
+    <rect x="50" y="100" width="150" height="56" rx="6" fill="#e8e7e4" stroke="#c5c3bc" stroke-width="0.5"/>
+    <text x="125" y="120" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#5a5850" font-size="13" font-weight="700">① Arrive</text>
+    <text x="125" y="139" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a877e" font-size="11">Garage bridge / curbside</text>
+    <line x1="200" y1="128" x2="230" y2="128" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="236" y="100" width="170" height="56" rx="6" fill="#dce8f0" stroke="#9bbdd4" stroke-width="0.5"/>
+    <text x="321" y="120" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#4a7a9b" font-size="13" font-weight="700">② Check-in hall</text>
+    <text x="321" y="139" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#7ba4b8" font-size="11">8,000 SF · kiosks + agents</text>
+    <line x1="321" y1="156" x2="321" y2="186" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="236" y="192" width="170" height="56" rx="6" fill="#dce8f0" stroke="#9bbdd4" stroke-width="0.5"/>
+    <text x="321" y="212" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#4a7a9b" font-size="13" font-weight="700">③ Security screening</text>
+    <text x="321" y="231" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#7ba4b8" font-size="11">3,500 SF · 6–8 lanes</text>
+    <path d="M321 248 L321 270" fill="none" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5"/>
+    <text x="321" y="289" text-anchor="middle" font-family="'Space Mono',monospace" fill="#a0a0a0" font-size="11">④ Amenities ring (optional stops)</text>
+    <rect x="60" y="305" width="140" height="44" rx="6" fill="#e8e0f0" stroke="#b8a8d0" stroke-width="0.5"/>
+    <text x="130" y="327" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#6b5a8a" font-size="13" font-weight="700">VIP lounge</text>
+    <text x="130" y="362" font-family="'Space Mono',monospace" fill="#a0a0a0" font-size="11">2,000 SF</text>
+    <rect x="240" y="305" width="140" height="44" rx="6" fill="#e8e0f0" stroke="#b8a8d0" stroke-width="0.5"/>
+    <text x="310" y="327" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#6b5a8a" font-size="13" font-weight="700">Retail / F&amp;B</text>
+    <text x="310" y="362" text-anchor="middle" font-family="'Space Mono',monospace" fill="#a0a0a0" font-size="11">2,500 SF</text>
+    <rect x="420" y="305" width="140" height="44" rx="6" fill="#e8e0f0" stroke="#b8a8d0" stroke-width="0.5"/>
+    <text x="490" y="327" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#6b5a8a" font-size="13" font-weight="700">Family / ADA</text>
+    <text x="490" y="362" text-anchor="middle" font-family="'Space Mono',monospace" fill="#a0a0a0" font-size="11">1,200 SF</text>
+    <line x1="310" y1="370" x2="310" y2="390" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="120" y="396" width="380" height="50" rx="6" fill="#dfeee8" stroke="#8dbaa8" stroke-width="0.5"/>
+    <text x="310" y="414" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#4a7a5a" font-size="13" font-weight="700">⑤ Post-security holding</text>
+    <text x="310" y="433" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#7ba88a" font-size="11">5,000 SF · 1,500–1,800 seats · panoramic bay view</text>
+    <line x1="500" y1="421" x2="530" y2="421" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="536" y="396" width="100" height="50" rx="6" fill="#f0e0d8" stroke="#c4a090" stroke-width="0.5"/>
+    <text x="586" y="414" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a5a40" font-size="13" font-weight="700">⑥ Board</text>
+    <text x="586" y="433" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#b08870" font-size="11">To vessel →</text>
+    <rect x="642" y="390" width="5" height="62" rx="2.5" fill="#c4a090" opacity="0.5"/>
+    <!-- SEPARATION -->
+    <line x1="30" y1="490" x2="650" y2="490" stroke="#ccc" stroke-width="1" stroke-dasharray="8 4" opacity="0.5"/>
+    <text x="340" y="508" text-anchor="middle" font-family="'Space Mono',monospace" fill="#aaa" font-size="11" letter-spacing="0.08em">Floor / structural separation</text>
+    <!-- GROUND LEVEL -->
+    <rect x="30" y="520" width="620" height="370" rx="12" fill="#faf5ee" stroke="#d4c4a0" stroke-width="0.5"/>
+    <text x="50" y="548" font-family="'Cormorant Garamond',Georgia,serif" font-weight="300" letter-spacing="0.08em" fill="#8a7040" font-size="15">GROUND LEVEL — DEBARKATION SEQUENCE</text>
+    <text x="50" y="566" font-family="'Space Mono',monospace" fill="#b8a878" font-size="11" letter-spacing="0.08em">30–60 min vessel to curbside · 3,000 pax · grade level</text>
+    <rect x="642" y="582" width="5" height="50" rx="2.5" fill="#c4a090" opacity="0.5"/>
+    <rect x="510" y="588" width="126" height="50" rx="6" fill="#f0e0d8" stroke="#c4a090" stroke-width="0.5"/>
+    <text x="573" y="606" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a5a40" font-size="13" font-weight="700">❶ Debark ramp</text>
+    <text x="573" y="625" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#b08870" font-size="11">← From vessel</text>
+    <line x1="510" y1="613" x2="476" y2="613" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="340" y="588" width="130" height="50" rx="6" fill="#f5eee0" stroke="#d4c4a0" stroke-width="0.5"/>
+    <text x="405" y="606" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a7040" font-size="13" font-weight="700">❷ Sterile corridor</text>
+    <text x="405" y="625" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#b8a878" font-size="11">CCTV · sealed</text>
+    <line x1="340" y1="613" x2="306" y2="613" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="130" y="588" width="170" height="50" rx="6" fill="#f5eee0" stroke="#d4c4a0" stroke-width="0.5"/>
+    <text x="215" y="606" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a7040" font-size="13" font-weight="700">❸ CBP / FIS primary</text>
+    <text x="215" y="625" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#b8a878" font-size="11">6,000 SF · 10–12 booths</text>
+    <line x1="215" y1="638" x2="215" y2="670" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="130" y="676" width="170" height="44" rx="6" fill="#f5eee0" stroke="#d4c4a0" stroke-width="0.5"/>
+    <text x="215" y="698" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a7040" font-size="13" font-weight="700">❹ Secondary / APHIS</text>
+    <line x1="215" y1="720" x2="215" y2="748" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="100" y="754" width="260" height="50" rx="6" fill="#dfeee8" stroke="#8dbaa8" stroke-width="0.5"/>
+    <text x="230" y="772" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#4a7a5a" font-size="13" font-weight="700">❺ Baggage claim</text>
+    <text x="230" y="791" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#7ba88a" font-size="11">10,000 SF · flat-bed · 3,000 bags</text>
+    <line x1="360" y1="779" x2="400" y2="779" marker-end="url(#arrow)" stroke="#b0ada5" stroke-width="1.5" fill="none"/>
+    <rect x="406" y="754" width="180" height="50" rx="6" fill="#e8e7e4" stroke="#c5c3bc" stroke-width="0.5"/>
+    <text x="496" y="772" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#5a5850" font-size="13" font-weight="700">❻ Meeter-greeter</text>
+    <text x="496" y="791" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#8a877e" font-size="11">Exit → curbside / garage</text>
+    <rect x="50" y="845" width="580" height="36" rx="4" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/>
+    <text x="340" y="867" text-anchor="middle" dominant-baseline="central" font-family="'Space Mono',monospace" fill="#888" font-size="12" font-weight="700" letter-spacing="0.1em">Two one-way loops · never cross · simultaneous turnaround operations</text>
+    </svg>
+    </div>
+  </div>
+
+  <div class="dsh" onclick="tb('flmod')">
+    <div class="dsn">04.1</div><div class="dst">Flow Modeling Methodology</div>
+    <span class="bdg bdg-lk">Technical</span>
+    <span class="dsg" id="t-flmod">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-flmod">
+    <h3>Design Day Parameters</h3>
+    <ul>
+      <li><strong>Full Turnaround:</strong> 3,000 departing + 3,000 arriving + ~1,000&ndash;1,200 crew</li>
+      <li><strong>Peak Embarkation:</strong> 4&ndash;5 hours (11AM&ndash;4PM)</li>
+      <li><strong>Peak Debarkation:</strong> 3&ndash;4 hours (7AM&ndash;11AM)</li>
+      <li><strong>Growth Scenario:</strong> Model 4,500&ndash;5,000 pax</li>
+    </ul>
+    <h3>Modeling Tools</h3>
+    <ul>
+      <li><strong>DES:</strong> Discrete Event Simulation (AnyLogic, Simio, Arena)</li>
+      <li><strong>LOS Analysis:</strong> IATA Level of Service standards, target LOS B/C</li>
+      <li><strong>Pedestrian Sim:</strong> Oasys MassMotion or PTV Viswalk</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══ 05 DESIGN IDEAS ═══ -->
+<div class="sec" id="design">
+  <div class="sn">05 &mdash; Design Opportunities &amp; Ideas</div>
+  <h2>Five Critical Moves</h2>
+
+  <div class="dsh" onclick="tb('moves')">
+    <div class="dsn">05.0</div><div class="dst">Three Critical Design Moves</div>
+    <span class="bdg bdg-ok">Core</span>
+    <span class="dsg" id="t-moves">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-moves">
+    <h3>Move 1 &mdash; The Section</h3>
+    <p>Option B vertical strategy: embarkation upper level, debarkation/FIS/baggage at grade. The single most consequential decision. Upper level datum at +30&ndash;40 ft above waterline, clearing the Selmon sightline and delivering panoramic harbor views.</p>
+    <h3>Move 2 &mdash; The Clear-Span Upper Hall</h3>
+    <p>~15,500 SF as a single contiguous hall, not a processing corridor. Target 60&ndash;80' clear-span structural bays. Flush floor boxes, dimmable lighting, acoustic treatment, commercial-grade catering kitchen.</p>
+    <h3>Move 3 &mdash; Site Organization</h3>
+    <p>Three parallel bands running north&ndash;south along the Ybor Channel:</p>
+    <ul>
+      <li><strong>Waterside (east):</strong> Terminal on berth, boarding bridge upper level, debark ramp at grade</li>
+      <li><strong>Middle:</strong> Covered curbside / event plaza &mdash; hardscape rated for food trucks, distributed power/water</li>
+      <li><strong>Landside (west):</strong> 800-space parking garage, pedestrian bridge, rooftop observation deck</li>
+    </ul>
+  </div>
+
+  <div class="dsh" onclick="tb('5a')">
+    <div class="dsn">05.A</div><div class="dst">The Monumental Stair</div>
+    <span class="bdg bdg-ok">1,800 SF</span>
+    <span class="dsg" id="t-5a">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-5a">
+    <p>The building's most visible interior architectural element. On cruise days: intuitive wayfinding anchor alongside 4 elevators and 4 escalator pairs. On event nights: the ceremonial arrival &mdash; a dramatic ascent with views opening as guests climb.</p>
+    <h3>Gallery Walls</h3>
+    <p>Walls along the stair are programmed as display surfaces: gallery-quality finishes, integrated picture-hanging rail, adjustable accent lighting. Zero-cost amenity &mdash; the wall exists; treating it as display adds only rail and lighting tracks.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('5b')">
+    <div class="dsn">05.B</div><div class="dst">Selmon Underpass Activation</div>
+    <span class="bdg bdg-lk">Joint Initiative</span>
+    <span class="dsg" id="t-5b">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-5b">
+    <p>The Selmon Expressway creates a hard urban edge: shadowed, 65&ndash;75 dBA road noise, narrow sidewalks. It separates the cruise port from Ybor Harbor (33 acres, 5,000 units, 800 hotel rooms).</p>
+    <p>THEA's $752M Work Plan overlaps with T-5's timeline. Widened promenade (15&ndash;20'), murals, lighting, acoustic panels, wayfinding connecting T-5 to Ybor Harbor.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('5c')">
+    <div class="dsn">05.C</div><div class="dst">Envelope as Primary Architecture</div>
+    <span class="bdg bdg-hot">Climate</span>
+    <span class="dsg" id="t-5c">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-5c">
+    <p>In ASHRAE 2A, the building envelope is not a skin decision &mdash; it is one of the primary architectural moves. Every exterior space gets permanent cover.</p>
+    <h3>The Garage Bridge</h3>
+    <p>Enclosed, climate-controlled pedestrian bridge is non-negotiable. An exposed walkway in Tampa's climate is a failure. This bridge is where most passengers first touch the terminal &mdash; it must be architecturally treated. On non-cruise days, it is the event arrival sequence.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('5d')">
+    <div class="dsn">05.D</div><div class="dst">Convertibility Mechanics</div>
+    <span class="bdg bdg-ok">Operations</span>
+    <span class="dsg" id="t-5d">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-5d">
+    <p>Design target: 4&ndash;6 hour transformation without construction, by trained operations staff.</p>
+    <ul>
+      <li>Demountable check-in kiosks on casters with quick-disconnect power/data</li>
+      <li>Retractable queue barriers stored in wall pockets</li>
+      <li>Fold-flat baggage claim devices flush with floor</li>
+      <li>Demountable FIS partitions on track systems (where CBP permits)</li>
+      <li>Independent HVAC zoning for partial building activation</li>
+    </ul>
+    <div class="nt">Mondays and Tuesdays are reliably cruise-free even in peak season &mdash; anchor days for recurring programming.</div>
+  </div>
+
+  <div class="dsh" onclick="tb('5e')">
+    <div class="dsn">05.E</div><div class="dst">Scalability Provisions</div>
+    <span class="bdg bdg-lk">Future</span>
+    <span class="dsg" id="t-5e">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-5e">
+    <p>Current design day is 3,000 passengers; RFQ requires planning for 4,500&ndash;5,000.</p>
+    <ul>
+      <li>Expandable check-in hall with flexible kiosk layout</li>
+      <li>Structural bays sized for terminal extension</li>
+      <li>Oversized MEP risers and utility chases</li>
+      <li>Modular baggage handling system layout</li>
+      <li>Test the SD layout against growth scenario before locking footprint</li>
+    </ul>
+  </div>
+
+  <div class="dsh" onclick="tb('dual')">
+    <div class="dsn">05.F</div><div class="dst">Dual-Use Revenue Programming</div>
+    <span class="bdg bdg-ok">365 Days</span>
+    <span class="dsg" id="t-dual">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-dual">
+    <div style="overflow-x:auto">
+    <table class="dt">
+      <thead><tr><th>Space</th><th>SF</th><th>Cruise Day</th><th>Non-Cruise Day</th><th>Fit</th></tr></thead>
+      <tr><td>Upper-Level Hall</td><td class="sf">~15,500</td><td>Check-in, security, holding</td><td>Galas, corporate conferences, trade shows, wedding receptions. Monumental stair and water views are the selling point. $10K&ndash;$15K+/event.</td><td><span class="rb rb-full">Excellent</span></td></tr>
+      <tr><td>VIP Lounge</td><td class="sf">2,000</td><td>Premium lounge</td><td>Rentable private event suite &mdash; corporate retreats, rehearsal dinners, small fundraisers. Separate entry, already configured.</td><td><span class="rb rb-full">Excellent</span></td></tr>
+      <tr><td>Retail &amp; F&amp;B</td><td class="sf">2,500</td><td>Concessions</td><td>Dual-facing restaurant/cafe serving Channel District. Think Sparkman Wharf dining, but with bay views.</td><td><span class="rb rb-full">Excellent</span></td></tr>
+      <tr><td>Pedestrian Plaza</td><td class="sf">N/A</td><td>Curbside</td><td>Weekend farmers markets, food truck rallies, outdoor concert series. Zero building modification. Ties T-5 into the Channel District pedestrian loop.</td><td><span class="rb rb-partial">Strong</span></td></tr>
+      <tr><td>Parking Garage</td><td class="sf">~240K</td><td>Cruise parking</td><td>Solves the district's chronic parking shortage. Aquarium, Sparkman Wharf, Water St Tampa, event attendees. Dynamic pricing.</td><td><span class="rb rb-full">Excellent</span></td></tr>
+      <tr><td>Garage Rooftop</td><td class="sf">N/A</td><td>Parking</td><td>Public observation deck &amp; park. Harbor views and Skyway Bridge sightlines. Turns dead structure into a destination.</td><td><span class="rb rb-partial">Strong</span></td></tr>
+      <tr><td>Ground-Level Debark</td><td class="sf">~16K</td><td>FIS, baggage</td><td>Indoor fitness, pickleball pop-ups, community health fairs. 20' clear height. The "working out while watching cruise ships" angle is genuinely unique.</td><td><span class="rb rb-partial">Good</span></td></tr>
+      <tr><td>Community Rooms</td><td class="sf">~1,900</td><td>Amenities</td><td>Yoga classes, mindfulness sessions, community meeting rooms. Low operational overhead, high goodwill.</td><td><span class="rb rb-partial">Strong</span></td></tr>
+      <tr><td>Meeter-Greeter</td><td class="sf">2,500</td><td>Reunification</td><td>Maritime education partnerships with local schools. Rotating art exhibitions. Permanent interpretive exhibit on Tampa's port history.</td><td><span class="rb rb-partial">Strong</span></td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 05G DESIGN DRIVERS & ENVIRONMENTAL STRATEGY ═══ -->
+<div class="sec" id="drivers">
+  <div class="sn">05G &mdash; Design Drivers &amp; Environmental Strategy</div>
+  <h2>Architecture from Site Conditions</h2>
+  <p>Five named design drivers and a comprehensive environmental strategy developed through iterative analysis. The architecture emerges from Tampa's specific climate, light, and waterfront conditions.</p>
+
+  <div class="dsh" onclick="tb('drv')">
+    <div class="dsn">Drivers</div><div class="dst">Five Architectural Drivers</div>
+    <span class="bdg bdg-ok">Core</span>
+    <span class="dsg op" id="t-drv">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-drv">
+    <h3>1. Arrival as Threshold</h3>
+    <p>The entry sequence frames the water and ship view. The architectural language shifts intentionally from <strong>opaque and grounded</strong> on the landside to <strong>transparent and light</strong> on the waterside. This is the primary experiential driver.</p>
+    <h3>2. Structure as Expansion Framework</h3>
+    <p>40&ndash;45 ft structural bay modules; 80&ndash;100 ft column-free spans in the main hall; pre-positioned expansion joints and utility stubs at the growth edge. The structure is not just load-bearing &mdash; it is designed as a framework for future expansion.</p>
+    <h3>3. Light as Orientation</h3>
+    <p>Toplighting in the holding area; directional clerestories oriented toward the waterside; controlled darkness in the FIS sterile zone. Light is used as a wayfinding and mood-setting device, guiding passengers through the sequence.</p>
+    <h3>4. Roof as Environmental Machine</h3>
+    <p>Deep cantilevered overhangs (6&ndash;8 ft on south/west) for solar shading. Integrated photovoltaic panels (60,000&ndash;80,000 SF canopy on garage roof and curbside). High-SRI surface treatment. Rainwater collection. The roof is simultaneously structure, environmental mediator, and energy generator.</p>
+    <h3>5. Tampa Identity</h3>
+    <p>Waterfront culture, subtropical landscape, Channel District character. The architecture emerges from site conditions rather than applied iconography.</p>
+  </div>
+
+  <div class="dsh" onclick="tb('env')">
+    <div class="dsn">Environ.</div><div class="dst">Environmental &amp; Resilience Strategy</div>
+    <span class="bdg bdg-ok">Sustainability</span>
+    <span class="dsg" id="t-env">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-env">
+    <h3>Envelope</h3>
+    <ul>
+      <li>South/west overhangs of 6&ndash;8 ft for solar control</li>
+      <li>Low-SHGC / high-VLT glazing (block heat, admit light)</li>
+      <li>Insulated metal panel or precast for BOH walls</li>
+      <li>High-SRI cool roof assembly</li>
+    </ul>
+    <h3>Mechanical</h3>
+    <ul>
+      <li>HVLS (high-volume low-speed) fans for air movement</li>
+      <li>High-efficiency chillers with variable-speed drives</li>
+      <li>Demand-controlled ventilation (DCV) with CO2 sensing</li>
+      <li>Thermal energy storage (ice or chilled water) for peak demand shifting</li>
+    </ul>
+    <h3>Energy</h3>
+    <ul>
+      <li><strong>Shore power</strong> conduit and switchgear for future vessel connection</li>
+      <li><strong>PV canopy</strong>: 60,000&ndash;80,000 SF on parking garage roof and curbside canopy</li>
+      <li>Battery energy storage system (BESS) as supplement to diesel generation</li>
+    </ul>
+    <h3>Resilience</h3>
+    <ul>
+      <li>Critical systems above design flood elevation (FEMA AE/VE)</li>
+      <li>Generator sized for full FIS and life-safety operations</li>
+      <li>Vertical separation inherently elevates primary functions above flood</li>
+    </ul>
+  </div>
+
+  <div class="dsh" onclick="tb('ptb')">
+    <div class="dsn">PTB</div><div class="dst">Port Tampa Bay &mdash; By the Numbers</div>
+    <span class="bdg bdg-lk">FSTED 2023</span>
+    <span class="dsg" id="t-ptb">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ptb">
+    <p>Port Tampa Bay is <strong>Florida's largest and most diversified seaport</strong> and the largest economic engine in West Central Florida, located on the Interstate-4 Corridor.</p>
+    <div class="mg">
+      <div class="mi mi-infra"><div class="ml">Total Tonnage</div><div class="mv">35M</div><div class="ms">tons (2023) &mdash; highest in FL</div></div>
+      <div class="mi mi-people"><div class="ml">Cruise Passengers</div><div class="mv">1.12M</div><div class="ms">2023 &mdash; 5th in Florida</div></div>
+      <div class="mi mi-area"><div class="ml">Port Acreage</div><div class="mv">2,565</div><div class="ms">acres &middot; 10,000+ ft berths</div></div>
+      <div class="mi mi-people"><div class="ml">Harbor Depth</div><div class="mv">43 ft</div><div class="ms">FTZ #79 &middot; est. 1945</div></div>
+    </div>
+    <h3>Florida Cruise Context</h3>
+    <ul>
+      <li><strong>19.4 million</strong> cruise passengers statewide in 2023 (record) &mdash; 3.1% CAGR since 2010</li>
+      <li>Florida handles nearly <strong>60% of all U.S. cruise embarkations</strong></li>
+      <li>The cruise industry creates <strong>158,992 jobs</strong> and <strong>$8.1 billion in income</strong> statewide</li>
+      <li>PTB is specifically named alongside Palm Beach and JAXPORT as ports investing in homeport facilities to shape future cruise growth</li>
+      <li>Two new Florida ports (Seaport Manatee, Port St. Pete) anticipating new cruise traffic</li>
+    </ul>
+    <h3>Decarbonization &amp; Alternative Energy</h3>
+    <p>PTB received <strong>$1.8M EPA Clean Ports Program funding</strong> (October 2024). Working with maritime partners on alternative fuel terminals through hydrogen and carbon capture pilot projects. Developing shore power opportunities with cruise business partners. PTB contributes to the statewide $2.9 billion Capital Improvement Plan (top 5 ports account for 91% of the $5B CIP budget 2024&ndash;2028).</p>
+    <div class="nt">Source: 2023&ndash;2024 FSTED Seaport Mission Plan, Florida Seaport Transportation &amp; Economic Development Council</div>
+  </div>
+</div>
+
+<!-- ═══ 06 PROGRAM ═══ -->
+<div class="sec" id="program">
+  <div class="sn">06 &mdash; Building Program</div>
+  <h2>336,100 SF Enclosed</h2>
+  <p>36+ spaces, each programmed for both cruise-day and non-cruise-day function. Of 36 spaces: <span class="rb rb-full">12 Full</span> &nbsp; <span class="rb rb-partial">9 Partial</span> &nbsp; <span class="rb rb-fixed">15 Fixed</span></p>
+
+  <div class="dsh" onclick="tb('pa')">
+    <div class="dsn">A</div><div class="dst">Embarkation</div>
+    <span class="bdg bdg-ok">23,700 SF</span>
+    <span class="dsg" id="t-pa">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-pa">
+    <div class="nt">Logic: Linear progression &mdash; arrival &rarr; check-in &rarr; security &rarr; hold &rarr; board. No backflow.</div>
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Level</th><th>Convert</th></tr></thead>
+      <tr><td class="k">A.01</td><td>Main Entry / Check-In</td><td class="sf">8,000</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.02</td><td>Security Screening</td><td class="sf">3,500</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.03</td><td>Post-Security Holding</td><td class="sf">5,000</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.04</td><td>VIP / Loyalty Lounge</td><td class="sf">2,000</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.05</td><td>Retail / F&amp;B</td><td class="sf">2,500</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.06</td><td>Family / Accessible</td><td class="sf">1,200</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.07</td><td>Boarding Bridge</td><td class="sf">1,500</td><td>Upper</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('pb')">
+    <div class="dsn">B</div><div class="dst">Debarkation</div>
+    <span class="bdg bdg-ok">20,500 SF</span>
+    <span class="dsg" id="t-pb">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-pb">
+    <div class="nt">Logic: Compressed high-throughput &mdash; ramp &rarr; FIS &rarr; bags &rarr; exit.</div>
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Level</th><th>Convert</th></tr></thead>
+      <tr><td class="k">B.01</td><td>Debarkation Ramp</td><td class="sf">2,000</td><td>Upper&rarr;Grade</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">B.02</td><td>CBP / FIS</td><td class="sf">6,000</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.03</td><td>Baggage Claim</td><td class="sf">10,000</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.04</td><td>Meeter-Greeter</td><td class="sf">2,500</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('pc')">
+    <div class="dsn">C</div><div class="dst">Baggage &amp; Logistics</div>
+    <span class="bdg bdg-lk">20,000 SF</span>
+    <span class="dsg" id="t-pc">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-pc">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Convert</th></tr></thead>
+      <tr><td class="k">C.01</td><td>Luggage Laydown &mdash; Embark</td><td class="sf">8,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.02</td><td>Luggage Laydown &mdash; Debark</td><td class="sf">8,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.03</td><td>BHS Equipment Room</td><td class="sf">3,000</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">C.04</td><td>Cart / Equipment Storage</td><td class="sf">1,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('pd')">
+    <div class="dsn">D</div><div class="dst">Vertical Circulation</div>
+    <span class="bdg bdg-lk">8,000 SF</span>
+    <span class="dsg" id="t-pd">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-pd">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Space</th><th>SF</th></tr></thead>
+      <tr><td class="k">D.01</td><td>Passenger Elevators (4)</td><td class="sf">1,200</td></tr>
+      <tr><td class="k">D.02</td><td>Escalators (4 pairs)</td><td class="sf">2,400</td></tr>
+      <tr><td class="k">D.03</td><td>Monumental Stair</td><td class="sf">1,800</td></tr>
+      <tr><td class="k">D.04</td><td>Service Elevator(s)</td><td class="sf">600</td></tr>
+      <tr><td class="k">D.05</td><td>Egress Stairs (code)</td><td class="sf">2,000</td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('pe')">
+    <div class="dsn">E&ndash;G</div><div class="dst">Operations, MEP &amp; Amenities</div>
+    <span class="bdg bdg-lk">23,900 SF</span>
+    <span class="dsg" id="t-pe">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-pe">
+    <h3>E. Operations &amp; Back-of-House &mdash; 10,000 SF</h3>
+    <table class="dt">
+      <tr><td class="k">E.01</td><td>Port Office</td><td class="sf">1,500</td></tr>
+      <tr><td class="k">E.02</td><td>CBP Office Suite</td><td class="sf">2,000</td></tr>
+      <tr><td class="k">E.03</td><td>Cruise Line Ops</td><td class="sf">2,500</td></tr>
+      <tr><td class="k">E.04</td><td>Staff Break/Lockers</td><td class="sf">1,000</td></tr>
+      <tr><td class="k">E.05</td><td>Janitorial</td><td class="sf">500</td></tr>
+      <tr><td class="k">E.06</td><td>Loading Dock</td><td class="sf">2,500</td></tr>
+    </table>
+    <h3>F. Building Systems &mdash; 9,800 SF</h3>
+    <table class="dt">
+      <tr><td class="k">F.01</td><td>Electrical / Switchgear</td><td class="sf">2,000</td></tr>
+      <tr><td class="k">F.02</td><td>HVAC Mechanical</td><td class="sf">3,500</td></tr>
+      <tr><td class="k">F.03</td><td>Fire Pump</td><td class="sf">800</td></tr>
+      <tr><td class="k">F.04</td><td>IT / Telecom</td><td class="sf">1,200</td></tr>
+      <tr><td class="k">F.05</td><td>Emergency Generator</td><td class="sf">1,500</td></tr>
+      <tr><td class="k">F.06</td><td>Elevator Machine</td><td class="sf">800</td></tr>
+    </table>
+    <h3>G. Public Amenities &mdash; 4,100 SF</h3>
+    <table class="dt">
+      <tr><td class="k">G.01</td><td>Public Restrooms</td><td class="sf">3,000</td></tr>
+      <tr><td class="k">G.02</td><td>Nursing Room</td><td class="sf">300</td></tr>
+      <tr><td class="k">G.03</td><td>Pet Relief</td><td class="sf">400</td></tr>
+      <tr><td class="k">G.04</td><td>Interfaith / Meditation</td><td class="sf">400</td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('ph')">
+    <div class="dsn">H</div><div class="dst">Exterior / Site / Landside</div>
+    <span class="bdg bdg-lk">+240K Garage</span>
+    <span class="dsg" id="t-ph">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ph">
+    <table class="dt">
+      <tr><td class="k">H.01</td><td>Curbside Drop-Off</td><td>Covered canopy, bus/taxi/rideshare</td></tr>
+      <tr><td class="k">H.02</td><td>Parking Garage</td><td>800 spaces, ~240,000 SF, pedestrian bridge</td></tr>
+      <tr><td class="k">H.03</td><td>Bus Staging</td><td>Tour bus loading, layover</td></tr>
+      <tr><td class="k">H.04</td><td>Pedestrian Plaza</td><td>Landscaped entry, wayfinding</td></tr>
+      <tr><td class="k">H.05</td><td>Utility Yard</td><td>Stormwater, electrical service</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ 06B FULL PROGRAM MATRIX ═══ -->
+<div class="sec" id="matrix">
+  <div class="sn">06B &mdash; Full Program Matrix</div>
+  <h2>Non-Cruise-Day Program</h2>
+  <p>How every space converts on the ~285&ndash;305 non-cruise days per year. Mondays and Tuesdays are reliably clear even in peak season.</p>
+
+  <div class="dsh" onclick="tb('ncA')">
+    <div class="dsn">A</div><div class="dst">Upper Hall &rarr; Event Venue</div>
+    <span class="bdg bdg-ok">6 Full / 1 Partial</span>
+    <span class="dsg" id="t-ncA">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ncA">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Cruise-Day</th><th>Non-Cruise-Day Use</th><th>SF</th><th>Convert</th></tr></thead>
+      <tr><td class="k">A.01</td><td>Check-In Hall</td><td>Event reception / registration hall; conference registration</td><td class="sf">8,000</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.02</td><td>Security Screening</td><td>Absorbed into open event floor; equipment retracted</td><td class="sf">3,500</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.03</td><td>Post-Security Holding</td><td>Premier event hall: galas, conferences, weddings ($15K&ndash;$50K+)</td><td class="sf">5,000</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.04</td><td>VIP Lounge</td><td>Private event suite: corporate retreats, rehearsal dinners, brand activations</td><td class="sf">2,000</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.05</td><td>Retail / F&amp;B</td><td>Public-facing restaurant / cafe via dual-access storefronts</td><td class="sf">2,500</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.06</td><td>Family / Accessible</td><td>Community wellness: yoga, meditation, neighborhood meetings</td><td class="sf">1,200</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.07</td><td>Boarding Bridge</td><td>Waterside terrace / viewing gallery; cocktail reception overflow</td><td class="sf">1,500</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('ncB')">
+    <div class="dsn">B</div><div class="dst">Debark Zone &rarr; Recreation &amp; Culture</div>
+    <span class="bdg bdg-ok">3 Full / 1 Fixed</span>
+    <span class="dsg" id="t-ncB">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ncB">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Cruise-Day</th><th>Non-Cruise-Day Use</th><th>SF</th><th>Convert</th></tr></thead>
+      <tr><td class="k">B.01</td><td>Debark Ramp</td><td>Secondary service access or closed</td><td class="sf">2,000</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">B.02</td><td>CBP / FIS</td><td>Indoor recreation: pickleball courts, volleyball, fitness events</td><td class="sf">6,000</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.03</td><td>Baggage Claim</td><td>Community events: health fairs, blood drives, indoor markets, maker fairs</td><td class="sf">10,000</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.04</td><td>Meeter-Greeter</td><td>Maritime history exhibit / rotating art gallery</td><td class="sf">2,500</td><td><span class="rb rb-full">Full</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('ncC')">
+    <div class="dsn">C&ndash;E</div><div class="dst">Logistics &amp; Operations &rarr; Event Support</div>
+    <span class="bdg bdg-lk">Mixed</span>
+    <span class="dsg" id="t-ncC">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ncC">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Cruise-Day</th><th>Non-Cruise-Day Use</th><th>SF</th><th>Convert</th></tr></thead>
+      <tr><td class="k">C.01</td><td>Luggage Embark</td><td>Event staging / food truck commissary support</td><td class="sf">8,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.02</td><td>Luggage Debark</td><td>Vendor load-in / overflow market stalls</td><td class="sf">8,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.03</td><td>BHS Equipment</td><td>Fixed &mdash; mechanical systems in place</td><td class="sf">3,000</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">C.04</td><td>Cart Storage</td><td>Event equipment: tables, chairs, stanchions, AV</td><td class="sf">1,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">E.01</td><td>Port Office</td><td>Event management office: scheduling, AV control</td><td class="sf">1,500</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">E.02</td><td>CBP Office</td><td>Secured and locked &mdash; federal space</td><td class="sf">2,000</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">E.03</td><td>Cruise Line Ops</td><td>Event production suite: green room, vendor coordination, AV</td><td class="sf">2,500</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">E.04</td><td>Staff Break</td><td>Break room for event crew, catering, security</td><td class="sf">1,000</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">E.06</td><td>Loading Dock</td><td>Event load-in/load-out; catering deliveries</td><td class="sf">2,500</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+  </div>
+
+  <div class="dsh" onclick="tb('ncH')">
+    <div class="dsn">H</div><div class="dst">Exterior &rarr; District Amenities</div>
+    <span class="bdg bdg-ok">2 Full / 2 Partial</span>
+    <span class="dsg" id="t-ncH">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-ncH">
+    <table class="dt">
+      <thead><tr><th>No.</th><th>Cruise-Day</th><th>Non-Cruise-Day Use</th><th>Convert</th></tr></thead>
+      <tr><td class="k">H.01</td><td>Curbside</td><td>Restaurant valet / event drop-off; rideshare</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">H.02</td><td>Parking Garage</td><td>Daily/monthly public parking: Aquarium, Sparkman Wharf, Water St; LPR dynamic pricing</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">H.03</td><td>Bus Staging</td><td>Tour bus for Aquarium/downtown; charter bus for events</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">H.04</td><td>Pedestrian Plaza</td><td>Public market, food truck court, outdoor concerts, festivals</td><td><span class="rb rb-full">Full</span></td></tr>
+    </table>
+  </div>
+
+  <div class="sb" style="margin-top:32px">
+    <div class="sl">Convertibility Summary</div>
+    <div class="mg" style="margin:12px 0 0">
+      <div class="mi mi-time"><div class="ml">Full Convert</div><div class="mv">12</div><div class="ms">spaces</div></div>
+      <div class="mi mi-area"><div class="ml">Partial Convert</div><div class="mv">9</div><div class="ms">spaces</div></div>
+      <div class="mi mi-infra"><div class="ml">Fixed</div><div class="mv">15</div><div class="ms">spaces</div></div>
+      <div class="mi mi-area"><div class="ml">Total Enclosed</div><div class="mv">336,100 SF</div><div class="ms">excl. garage</div></div>
+    </div>
+    <div class="nt" style="margin-top:16px">Climate note: enclosed climate-controlled event space is more valuable in Tampa's market than outdoor-only alternatives. Conversion target: 4&ndash;6 hours by trained operations staff, no construction required.</div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px">
+    <button class="open-plans-btn outline" onclick="document.getElementById('matrix-lightbox').classList.add('active');document.body.style.overflow='hidden';showSheet('cruise')">Open Full Program Matrix &rarr;</button>
+  </div>
+</div>
+
+<!-- MATRIX LIGHTBOX -->
+<div class="lightbox-overlay" id="matrix-lightbox">
+  <button class="lightbox-close" onclick="document.getElementById('matrix-lightbox').classList.remove('active');document.body.style.overflow=''">&times; Close</button>
+  <div style="padding:60px 24px 40px;text-align:center">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px">Full Program Matrix</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:32px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px">Building Program</h2>
+    <div class="matrix-tabs">
+      <button class="matrix-tab active" onclick="showSheet('cruise')">Cruise-Day</button>
+      <button class="matrix-tab" onclick="showSheet('dual')">Dual-Use</button>
+      <button class="matrix-tab" onclick="showSheet('noncruise')">Non-Cruise-Day</button>
+    </div>
+  </div>
+
+  <!-- SHEET 1: CRUISE-DAY -->
+  <div class="matrix-sheet active" id="sheet-cruise">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.12em">RFQ 006-26 / PROJECT NO. 26-00226 &middot; DRAFT &mdash; MARCH 2026</div>
+    </div>
+
+    <div class="cat-header">A. Passenger Processing &mdash; Embarkation</div>
+    <div class="cat-logic">Logic: Linear progression &mdash; arrival &rarr; check-in &rarr; security &rarr; hold &rarr; board. No backflow.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">A.01</td><td>Main Entry Lobby / Check-In Hall</td><td class="sf">8,000</td><td>Flexible kiosk + agent layout; clear sightlines to security</td><td>Upper</td></tr>
+      <tr><td class="k">A.02</td><td>Security Screening (TSA/CBP)</td><td class="sf">3,500</td><td>4&ndash;6 lanes; expandable to 8; direct feed from check-in</td><td>Upper</td></tr>
+      <tr><td class="k">A.03</td><td>Post-Security Holding / Waiting</td><td class="sf">5,000</td><td>General + zone seating; distributed F&amp;B; 1,500&ndash;1,800 pax peak</td><td>Upper</td></tr>
+      <tr><td class="k">A.04</td><td>VIP / Loyalty Lounge</td><td class="sf">2,000</td><td>Separate entry; private check-in; concierge</td><td>Upper</td></tr>
+      <tr><td class="k">A.05</td><td>Passenger Amenities (Retail/F&amp;B)</td><td class="sf">2,500</td><td>Post-security concessions; revenue-generating</td><td>Upper</td></tr>
+      <tr><td class="k">A.06</td><td>Family / Accessible Waiting</td><td class="sf">1,200</td><td>Stroller staging; ADA seating; near elevators</td><td>Upper</td></tr>
+      <tr><td class="k">A.07</td><td>Boarding Bridge Vestibule</td><td class="sf">1,500</td><td>Weather-protected; continuous sliding doors</td><td>Upper</td></tr>
+    </table>
+    <div class="subtotal">Subtotal A &mdash; 23,700 SF</div>
+
+    <div class="cat-header">B. Passenger Processing &mdash; Debarkation</div>
+    <div class="cat-logic">Logic: Compressed high-throughput &mdash; ramp &rarr; FIS &rarr; bags &rarr; exit. No mixing with embark.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">B.01</td><td>Dedicated Debarkation Ramp</td><td class="sf">2,000</td><td>Vessel-to-FIS; physically separated from embark gangway</td><td>Upper&rarr;Grade</td></tr>
+      <tr><td class="k">B.02</td><td>CBP Federal Inspection (FIS)</td><td class="sf">6,000</td><td>Primary + secondary + APHIS + interview; sealed zone</td><td>Grade</td></tr>
+      <tr><td class="k">B.03</td><td>Baggage Claim Hall</td><td class="sf">10,000</td><td>Flat-bed devices; oversized area; CBP inspection tables</td><td>Grade</td></tr>
+      <tr><td class="k">B.04</td><td>Post-CBP / Meeter-Greeter</td><td class="sf">2,500</td><td>Reunification; ground transport info; clear exit wayfinding</td><td>Grade</td></tr>
+    </table>
+    <div class="subtotal">Subtotal B &mdash; 20,500 SF</div>
+
+    <div class="cat-header">C. Baggage &amp; Logistics</div>
+    <div class="cat-logic">Logic: Parallel system &mdash; baggage moves independently of passengers.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">C.01</td><td>Luggage Laydown &mdash; Embark</td><td class="sf">8,000</td><td>Curbside drop &rarr; porter sort &rarr; conveyor feed to vessel</td><td>Grade</td></tr>
+      <tr><td class="k">C.02</td><td>Luggage Laydown &mdash; Debark</td><td class="sf">8,000</td><td>Vessel off-load &rarr; staging &rarr; claim device feed</td><td>Grade</td></tr>
+      <tr><td class="k">C.03</td><td>BHS Equipment Room</td><td class="sf">3,000</td><td>Conveyors, screening, controls; expandable footprint</td><td>Grade</td></tr>
+      <tr><td class="k">C.04</td><td>Cart / Equipment Storage</td><td class="sf">1,000</td><td>Porter equipment; cart corrals</td><td>Grade</td></tr>
+    </table>
+    <div class="subtotal">Subtotal C &mdash; 20,000 SF</div>
+
+    <div class="cat-header">D. Vertical Circulation</div>
+    <div class="cat-logic">Logic: Redundant capacity at every level change.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">D.01</td><td>Passenger Elevators (4 ea.)</td><td class="sf">1,200</td><td>High-capacity; ADA; grouped at main core</td><td>All</td></tr>
+      <tr><td class="k">D.02</td><td>Escalators (4 pairs up/down)</td><td class="sf">2,400</td><td>At primary level transitions; visible from holding</td><td>All</td></tr>
+      <tr><td class="k">D.03</td><td>Monumental / Feature Stair</td><td class="sf">1,800</td><td>Architectural element at main lobby; wayfinding anchor</td><td>All</td></tr>
+      <tr><td class="k">D.04</td><td>Service Elevator(s)</td><td class="sf">600</td><td>Staff/freight; connects all levels; separate from public</td><td>All</td></tr>
+      <tr><td class="k">D.05</td><td>Egress Stairs (code-required)</td><td class="sf">2,000</td><td>Enclosed fire stairs per FBC</td><td>All</td></tr>
+    </table>
+    <div class="subtotal">Subtotal D &mdash; 8,000 SF</div>
+
+    <div class="cat-header">E. Operations &amp; Back-of-House</div>
+    <div class="cat-logic">Logic: Secure, separated from public. Direct FIS access for CBP.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">E.01</td><td>Terminal Operations / Port Office</td><td class="sf">1,500</td><td>Shift supervisor, dispatch, CCTV</td><td>Grade</td></tr>
+      <tr><td class="k">E.02</td><td>CBP / Federal Office Suite</td><td class="sf">2,000</td><td>Secure; break room; armory; direct FIS access</td><td>Grade</td></tr>
+      <tr><td class="k">E.03</td><td>Cruise Line Operations</td><td class="sf">2,500</td><td>Embark/debark ops; guest services; comms</td><td>Upper</td></tr>
+      <tr><td class="k">E.04</td><td>Staff Break / Locker Area</td><td class="sf">1,000</td><td>Lockers; kitchenette</td><td>Grade</td></tr>
+      <tr><td class="k">E.05</td><td>Janitorial / Housekeeping</td><td class="sf">500</td><td>Slop sinks; chemical storage</td><td>Grade</td></tr>
+      <tr><td class="k">E.06</td><td>Loading Dock / Service Yard</td><td class="sf">2,500</td><td>Provisioning; waste; deliveries</td><td>Grade</td></tr>
+    </table>
+    <div class="subtotal">Subtotal E &mdash; 10,000 SF</div>
+
+    <div class="cat-header">F. Building Systems &amp; MEP</div>
+    <div class="cat-logic">Logic: Oversized risers and chases for future expansion. Emergency systems fully redundant.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">F.01</td><td>Main Electrical / Switchgear</td><td class="sf">2,000</td><td>Main service; transformers; shore power tie-in</td><td>Grade</td></tr>
+      <tr><td class="k">F.02</td><td>HVAC Mechanical Room(s)</td><td class="sf">3,500</td><td>AHUs; chillers; controls; sized for peak cooling</td><td>Grade/Roof</td></tr>
+      <tr><td class="k">F.03</td><td>Fire Pump / Sprinkler Room</td><td class="sf">800</td><td>Fire pump; jockey pump; FDC</td><td>Grade</td></tr>
+      <tr><td class="k">F.04</td><td>IT / Telecom / Security</td><td class="sf">1,200</td><td>MDF/IDF; PA; CCTV head-end; biometric systems</td><td>Grade</td></tr>
+      <tr><td class="k">F.05</td><td>Emergency Generator</td><td class="sf">1,500</td><td>Diesel gen-set; fuel day tank; ATS</td><td>Grade</td></tr>
+      <tr><td class="k">F.06</td><td>Elevator Machine Rooms</td><td class="sf">800</td><td>Traction machines; controllers</td><td>Upper/Roof</td></tr>
+    </table>
+    <div class="subtotal">Subtotal F &mdash; 9,800 SF</div>
+
+    <div class="cat-header">G. Public Amenities</div>
+    <div class="cat-logic">Logic: Distributed across levels. Near vertical circulation cores.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">G.01</td><td>Public Restrooms (multi-location)</td><td class="sf">3,000</td><td>Men; women; family; ADA</td><td>Both</td></tr>
+      <tr><td class="k">G.02</td><td>Nursing / Mother's Room</td><td class="sf">300</td><td>Private; lockable; sink</td><td>Upper</td></tr>
+      <tr><td class="k">G.03</td><td>Pet Relief Area</td><td class="sf">400</td><td>Interior/exterior; service animals</td><td>Grade</td></tr>
+      <tr><td class="k">G.04</td><td>Interfaith / Meditation Room</td><td class="sf">400</td><td>Quiet; non-denominational</td><td>Upper</td></tr>
+    </table>
+    <div class="subtotal">Subtotal G &mdash; 4,100 SF</div>
+
+    <div class="cat-header">H. Exterior / Site / Landside</div>
+    <div class="cat-logic">Logic: Segregate private vehicles, buses, rideshare. Weather-protected pedestrian connections.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Program Area</th><th>Est. SF</th><th>Description</th><th>Level</th></tr></thead>
+      <tr><td class="k">H.01</td><td>Curbside Drop-Off / Pick-Up</td><td>N/A</td><td>Covered canopy; bus/taxi/rideshare lanes; separated</td><td>Grade</td></tr>
+      <tr><td class="k">H.02</td><td>Parking Garage (800 spaces)</td><td class="sf">240,000</td><td>Multi-level; pedestrian bridge to terminal</td><td>Multi</td></tr>
+      <tr><td class="k">H.03</td><td>Bus / Motorcoach Staging</td><td>N/A</td><td>Tour bus loading; layover parking; separated from cars</td><td>Grade</td></tr>
+      <tr><td class="k">H.04</td><td>Pedestrian Plaza / Arrival Court</td><td>N/A</td><td>Landscaped entry; wayfinding; Tampa identity</td><td>Grade</td></tr>
+      <tr><td class="k">H.05</td><td>Utility Yard / Site Infrastructure</td><td>N/A</td><td>Stormwater; grease trap; electrical service</td><td>Grade</td></tr>
+    </table>
+
+    <div class="grand-total">Total Enclosed Program: ~336,100 SF &nbsp;&middot;&nbsp; Excludes parking garage (~240,000 SF) &amp; exterior areas</div>
+  </div>
+
+  <!-- SHEET 2: DUAL-USE -->
+  <div class="matrix-sheet" id="sheet-dual">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.12em">~60&ndash;80 CRUISE DAYS/YEAR &middot; 285&ndash;305 NON-CRUISE DAYS AVAILABLE</div>
+    </div>
+    <table class="dt"><thead><tr><th>Primary Space</th><th>Est. SF</th><th>Cruise-Day</th><th>Non-Cruise-Day</th><th>Fit</th><th>Key Enablers</th></tr></thead>
+      <tr><td>Upper-Level Embarkation Hall</td><td class="sf">~15,500</td><td>Check-in, security, post-security holding</td><td>Premier event venue: galas, conferences, trade shows, weddings ($15K&ndash;$50K+/event)</td><td><span class="rb rb-full">Excellent</span></td><td>Clear-span structure, flush floor boxes, catering kitchen, dimmable lighting, acoustic treatment</td></tr>
+      <tr><td>VIP / Loyalty Lounge</td><td class="sf">2,000</td><td>Premium passenger lounge, private check-in</td><td>Private event suite: corporate retreats, rehearsal dinners, fundraisers</td><td><span class="rb rb-full">Excellent</span></td><td>Independent HVAC/lighting, dedicated restroom, separate access, built-in AV</td></tr>
+      <tr><td>Retail &amp; F&amp;B</td><td class="sf">2,500</td><td>Post-security concessions</td><td>Public-facing restaurant, caf&eacute;, or market serving Channel District</td><td><span class="rb rb-full">Excellent</span></td><td>Dual-access storefronts, independent metering, restaurant-grade exhaust</td></tr>
+      <tr><td>Pedestrian Plaza / Arrival Court</td><td>N/A</td><td>Passenger arrival, curbside operations</td><td>Public market, food trucks, outdoor concerts, festivals</td><td><span class="rb rb-partial">Strong</span></td><td>Distributed power/water, heavy-duty hardscape, shade structures, event storage</td></tr>
+      <tr><td>Parking Garage (800 spaces)</td><td class="sf">~240,000</td><td>Cruise passenger parking</td><td>Daily/monthly public parking for Channel District (Aquarium, Sparkman Wharf, Water St)</td><td><span class="rb rb-full">Excellent</span></td><td>LPR revenue control, public wayfinding, district pedestrian connections, EV charging</td></tr>
+      <tr><td>Garage Rooftop</td><td>N/A</td><td>Vehicle parking (top level)</td><td>Public observation deck and park: harbor views, Skyway sightlines</td><td><span class="rb rb-partial">Strong</span></td><td>Occupancy-rated structure, guardrails, elevator access, shade canopies, restrooms</td></tr>
+      <tr><td>Ground-Level Debark Zone</td><td class="sf">~16,000</td><td>FIS processing, baggage claim</td><td>Indoor fitness, pickleball pop-ups, health fairs, community events</td><td><span class="rb rb-partial">Good</span></td><td>Sports-grade flooring, retractable claim devices, demountable FIS partitions, 20' clear, independent HVAC</td></tr>
+      <tr><td>Interfaith / Family / Nursing</td><td class="sf">~1,900</td><td>Passenger amenities</td><td>Community wellness: yoga, meditation, neighborhood meetings</td><td><span class="rb rb-partial">Strong</span></td><td>Independent access path, resilient flooring, reservation/booking system</td></tr>
+      <tr><td>Meeter-Greeter Zone</td><td class="sf">2,500</td><td>Post-CBP reunification</td><td>Maritime history exhibit, rotating art gallery</td><td><span class="rb rb-partial">Strong</span></td><td>Gallery-quality wall surfaces, lighting tracks, secure display cases, power/data for digital exhibits</td></tr>
+    </table>
+    <div class="nt" style="margin-top:20px">Mondays and Tuesdays are reliably clear even in peak cruise season &mdash; high-value anchor days for non-cruise programming.</div>
+  </div>
+
+  <!-- SHEET 3: NON-CRUISE-DAY -->
+  <div class="matrix-sheet" id="sheet-noncruise">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.12em">~285&ndash;305 NON-CRUISE DAYS/YEAR &middot; MONDAYS &amp; TUESDAYS RELIABLY CLEAR</div>
+    </div>
+
+    <div class="cat-header">A. Embarkation &rarr; Event Venue</div>
+    <div class="cat-logic">Upper-level hall becomes premier event venue. Demountable kiosks, retractable barriers, clear-span structure.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Non-Cruise-Day Use</th><th>Level</th><th>Convert</th></tr></thead>
+      <tr><td class="k">A.01</td><td>Check-In Hall</td><td class="sf">8,000</td><td>Event reception / registration hall</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.02</td><td>Security Screening</td><td class="sf">3,500</td><td>Absorbed into open event floor; equipment retracted</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.03</td><td>Post-Security Holding</td><td class="sf">5,000</td><td>Premier event hall: galas, conferences, weddings ($15K&ndash;$50K+)</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.04</td><td>VIP Lounge</td><td class="sf">2,000</td><td>Private event suite: retreats, rehearsal dinners, brand activations</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.05</td><td>Retail / F&amp;B</td><td class="sf">2,500</td><td>Public-facing restaurant / caf&eacute; via dual-access storefronts</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.06</td><td>Family / Accessible</td><td class="sf">1,200</td><td>Community wellness: yoga, meditation, meetings</td><td>Upper</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">A.07</td><td>Boarding Bridge</td><td class="sf">1,500</td><td>Waterside terrace / viewing gallery; cocktail overflow</td><td>Upper</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+    <div class="subtotal">Subtotal A &mdash; 23,700 SF &middot; 6 Full / 1 Partial / 0 Fixed</div>
+
+    <div class="cat-header">B. Debarkation &rarr; Recreation &amp; Culture</div>
+    <div class="cat-logic">Ground-level debark zone (~16,000 SF) converts to indoor recreation and community event space.</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Non-Cruise-Day Use</th><th>Level</th><th>Convert</th></tr></thead>
+      <tr><td class="k">B.01</td><td>Debark Ramp</td><td class="sf">2,000</td><td>Secondary service access or closed</td><td>Upper&rarr;Grade</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">B.02</td><td>CBP / FIS</td><td class="sf">6,000</td><td>Indoor recreation: pickleball, volleyball, fitness events</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.03</td><td>Baggage Claim</td><td class="sf">10,000</td><td>Community events: health fairs, blood drives, indoor markets</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">B.04</td><td>Meeter-Greeter</td><td class="sf">2,500</td><td>Maritime history exhibit / rotating art gallery</td><td>Grade</td><td><span class="rb rb-full">Full</span></td></tr>
+    </table>
+    <div class="subtotal">Subtotal B &mdash; 20,500 SF &middot; 3 Full / 0 Partial / 1 Fixed</div>
+
+    <div class="cat-header">C. Logistics &rarr; Event Support</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Non-Cruise-Day Use</th><th>Level</th><th>Convert</th></tr></thead>
+      <tr><td class="k">C.01</td><td>Luggage Embark</td><td class="sf">8,000</td><td>Event staging / food truck commissary support</td><td>Grade</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.02</td><td>Luggage Debark</td><td class="sf">8,000</td><td>Vendor load-in / overflow market stalls</td><td>Grade</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">C.03</td><td>BHS Equipment</td><td class="sf">3,000</td><td>Fixed &mdash; mechanical systems in place</td><td>Grade</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">C.04</td><td>Cart Storage</td><td class="sf">1,000</td><td>Event equipment: tables, chairs, AV gear</td><td>Grade</td><td><span class="rb rb-partial">Partial</span></td></tr>
+    </table>
+    <div class="subtotal">Subtotal C &mdash; 20,000 SF &middot; 0 Full / 3 Partial / 1 Fixed</div>
+
+    <div class="cat-header">D&ndash;G. Circulation, Operations, Systems &amp; Amenities</div>
+    <table class="dt"><thead><tr><th>No.</th><th>Space</th><th>SF</th><th>Non-Cruise-Day Use</th><th>Convert</th></tr></thead>
+      <tr><td class="k">D.01&ndash;05</td><td>Vertical Circulation (all)</td><td class="sf">8,000</td><td>Public access to event levels + observation deck</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">E.01</td><td>Port Office</td><td class="sf">1,500</td><td>Event management: scheduling, AV control</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">E.02</td><td>CBP Office</td><td class="sf">2,000</td><td>Secured and locked &mdash; federal space</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">E.03</td><td>Cruise Line Ops</td><td class="sf">2,500</td><td>Event production suite: green room, AV, vendor</td><td><span class="rb rb-full">Full</span></td></tr>
+      <tr><td class="k">E.04</td><td>Staff Break</td><td class="sf">1,000</td><td>Event crew break room</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">E.06</td><td>Loading Dock</td><td class="sf">2,500</td><td>Event load-in/load-out; catering deliveries</td><td><span class="rb rb-partial">Partial</span></td></tr>
+      <tr><td class="k">F.01&ndash;06</td><td>Building Systems (all MEP)</td><td class="sf">9,800</td><td>Fixed &mdash; zone HVAC allows partial activation</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+      <tr><td class="k">G.01&ndash;04</td><td>Public Amenities (all)</td><td class="sf">4,100</td><td>Event patrons, restaurant visitors, observation deck</td><td><span class="rb rb-fixed">Fixed</span></td></tr>
+    </table>
+
+    <div class="grand-total">Total: 336,100 SF &nbsp;&middot;&nbsp; 12 Full / 9 Partial / 15 Fixed</div>
+  </div>
+
+  <div style="padding:40px 24px;text-align:center">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em">Source: CruiseT5_Program_Matrix.xlsx &middot; 3 Sheets &middot; Full Dataset</div>
+  </div>
+</div>
+
+<!-- ═══ 07 INTERACTIVE PLANS ═══ -->
+<div class="sec" id="plans">
+  <div class="sn">07 &mdash; Interactive Plans</div>
+  <h2>Program Color Plans</h2>
+  <p>Side-by-side floor plans showing Level 1 (Grade) and Level 2 (Upper) with all programmed spaces. Toggle between Cruise Day and Non-Cruise Day configurations to see how each space converts. Hover over blocks for details.</p>
+
+  <div class="breakout">
+    <iframe src="CruiseT5_Program_Color_Plans.html" style="height:720px" loading="lazy" title="Interactive Program Color Plans — Side by Side"></iframe>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button class="open-plans-btn" onclick="document.getElementById('plans-lightbox').classList.add('active');document.body.style.overflow='hidden'">Open Full Screen &rarr;</button>
+  </div>
+  <div class="nt" style="text-align:center;margin-top:12px">Toggle Cruise Day / Non-Cruise Day tabs &middot; Hover blocks for program details</div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="plans-lightbox">
+  <button class="lightbox-close" onclick="document.getElementById('plans-lightbox').classList.remove('active');document.body.style.overflow=''">&times; Close</button>
+  <div class="lightbox-body">
+    <iframe src="CruiseT5_Program_Color_Plans.html" title="Full Screen Color Plans"></iframe>
+  </div>
+</div>
+
+<!-- ═══ 08 RENDERS ═══ -->
+<div class="sec" id="renders">
+  <div class="sn">08 &mdash; Concept Renders</div>
+  <h2>Exterior &amp; Interior</h2>
+
+  <h3>Exterior Massing &mdash; Primary Concept</h3>
+  <img src="T5 Concept.png" alt="Terminal 5 Exterior Concept - aerodynamic massing" class="img-full" loading="lazy">
+  <div class="img-caption">Primary concept &mdash; aerodynamic massing with exterior monumental stair (bottom)</div>
+  <div class="render-note">Photoshop composite by M. Calvey over AI-generated base</div>
+  <p>The building form is <strong>aerodynamic</strong> &mdash; shaped to protect pedestrians from strong winds at the waterfront without creating ground-level turbulence. The curved roof profile also blocks high-angle sun while filling the interior with indirect natural light through clerestory glazing. The <strong>bottom image adds an exterior monumental stair</strong> at the south face &mdash; a public civic gesture connecting the plaza level to the upper-level event hall, visible from the water and the Selmon Expressway.</p>
+
+  <h3>Interior &mdash; Dual Use Comparison</h3>
+  <img src="T5 Interior Concept.png" alt="Terminal 5 Interior - upper hall as check-in and as event venue" class="img-full" loading="lazy">
+  <div class="img-caption">Upper-level hall: cruise check-in (top) &amp; banquet event venue (bottom)</div>
+  <p><strong>Top:</strong> Upper-level hall configured for cruise day &mdash; check-in kiosks, holding seating, panoramic harbor views through full-height glazing, cruise ship at berth. <strong>Bottom:</strong> Same hall configured as event venue &mdash; banquet tables, stage presentation, Port Tampa Bay branding, identical panoramic views transformed into a premium event backdrop.</p>
+
+  <h3>Terrace &mdash; Dual Use</h3>
+  <img src="T5 Terrace Dual Use.png" alt="Terminal 5 terrace - embarkation day vs wedding evening" class="img-full" loading="lazy">
+  <div class="img-caption">Upper-level terrace: embarkation viewing (top) &amp; evening wedding reception (bottom)</div>
+  <p><strong>Top:</strong> A couple watches from the covered upper-level terrace as passengers board the cruise ship below &mdash; the same view that becomes the event venue's greatest asset. <strong>Bottom:</strong> The identical terrace transformed for an evening wedding reception with string lights, the harbor and sunset as backdrop. <em>There is no venue like this in the area with that view.</em></p>
+</div>
+
+<!-- ═══ 09 3D MODEL ═══ -->
+<div class="sec" id="model">
+  <div class="sn">09 &mdash; 3D Scaled Massing Model</div>
+  <h2>Interactive WebGL Model</h2>
+  <p>Scaled massing model of the terminal, garage, curbside zone, and berth in three-dimensional context. Orbit, zoom, and pan to explore the site organization and building volumes.</p>
+  <div class="breakout" style="padding:0;background:var(--surface)">
+    <iframe src="CALVEY_CruiseT5_Model.html" style="height:600px;width:100%" loading="lazy" title="3D Scaled Massing Model" allow="webgl"></iframe>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button class="open-plans-btn outline" onclick="document.getElementById('model-lightbox').classList.add('active');document.body.style.overflow='hidden'">Open Full Screen &rarr;</button>
+  </div>
+  <div class="nt" style="text-align:center;margin-top:8px">Drag to orbit &middot; Scroll to zoom &middot; Right-click to pan</div>
+</div>
+
+<!-- MODEL LIGHTBOX -->
+<div class="lightbox-overlay" id="model-lightbox">
+  <button class="lightbox-close" onclick="document.getElementById('model-lightbox').classList.remove('active');document.body.style.overflow=''">&times; Close</button>
+  <div class="lightbox-body">
+    <iframe src="CALVEY_CruiseT5_Model.html" title="Full Screen 3D Model" allow="webgl"></iframe>
+  </div>
+</div>
+
+<!-- ═══ 10 AI PROCESS ═══ -->
+<div class="sec" id="ai">
+  <div class="sn">10 &mdash; Human-AI Collaboration</div>
+  <h2>Process &amp; Record</h2>
+  <p>This entire body of work &mdash; research, programming, analysis, visualization, and this website &mdash; was produced through a collaborative process between a designer and two AI platforms over approximately one week in March 2026. It has been a genuine collaboration, and documenting the process honestly is part of the value.</p>
+
+  <div class="card-grid" style="margin-bottom:32px">
+    <div class="card">
+      <h3>ChatGPT (OpenAI)</h3>
+      <p>Initial project research, RFQ interpretation, site analysis, operational modeling, dual-use strategy development, design narrative writing, circulation logic, and <strong>all concept image generation</strong> (exterior massing studies, interior dual-use renders, terrace visualizations).</p>
+    </div>
+    <div class="card">
+      <h3>Claude (Anthropic)</h3>
+      <p>Document production (DOCX/PDF in Calvey format), program database structuring (JSON/XLSX), comparable terminal research, CBP/FIS technical requirements, interactive visualization code (HTML/SVG/JS), environmental strategy, and this design workshop website.</p>
+    </div>
+  </div>
+
+  <h3>By the Numbers</h3>
+  <div class="stat-row">
+    <div class="stat-item"><div class="stat-val">76</div><div class="stat-label">Files Produced</div></div>
+    <div class="stat-item"><div class="stat-val">484 MB</div><div class="stat-label">Total Project</div></div>
+    <div class="stat-item"><div class="stat-val">16</div><div class="stat-label">Documents (DOCX)</div></div>
+    <div class="stat-item"><div class="stat-val">16</div><div class="stat-label">PDFs</div></div>
+    <div class="stat-item"><div class="stat-val">10</div><div class="stat-label">Concept Renders</div></div>
+    <div class="stat-item"><div class="stat-val">22</div><div class="stat-label">Site Photos</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-item"><div class="stat-val">4</div><div class="stat-label">JSON Databases</div></div>
+    <div class="stat-item"><div class="stat-val">3</div><div class="stat-label">Excel Sheets</div></div>
+    <div class="stat-item"><div class="stat-val">41</div><div class="stat-label">Spaces Programmed</div></div>
+    <div class="stat-item"><div class="stat-val">336,100</div><div class="stat-label">SF Documented</div></div>
+    <div class="stat-item"><div class="stat-val">12+</div><div class="stat-label">Document Versions</div></div>
+    <div class="stat-item"><div class="stat-val">~7</div><div class="stat-label">Days Total</div></div>
+  </div>
+
+  <h3>Process Timeline</h3>
+  <div class="ai-timeline">
+    <div class="ai-step">
+      <h3>Phase 1 &mdash; RFQ Intake &amp; Translation</h3>
+      <p>The 47-page RFQ PDF was read, extracted, and translated from procurement language into architectural design language. Rather than a compliance checklist, the question became: what kind of building should this be? How do flows separate? What should the public experience feel like?</p>
+    </div>
+    <div class="ai-step">
+      <h3>Phase 2 &mdash; Site &amp; Context Research</h3>
+      <p>Comprehensive site assessment across two versions: V1 covered site identity, surrounding development (Ybor Harbor, Sparkman Wharf, Water Street Tampa), environmental evaluation, and revenue projections. V2 expanded with cruise schedule analysis, multi-modal circulation, ASHRAE 2A climate response, and Selmon underpass design strategies. GIS parcel investigation was attempted through Hillsborough County endpoints.</p>
+    </div>
+    <div class="ai-step">
+      <h3>Phase 3 &mdash; Program Development</h3>
+      <p>Three major versions of the Design Parameters document, each representing a genuine intellectual leap. V1: RFQ extraction. V2: dual-use programming framework with space-by-space convertibility matrix. V3: restructured as a design-driving instrument with site drivers, 41-space program database, three sectional strategies (A/B/C), and recommendation of Option B vertical separation. Program data maintained in parallel across DOCX, PDF, Excel (3 sheets), and JSON (v0.2, v0.3) formats with cross-validated totals.</p>
+    </div>
+    <div class="ai-step">
+      <h3>Phase 4 &mdash; Design Strategy &amp; Narrative</h3>
+      <p>Development of the dual-use revenue thesis, five design ideas (monumental stair, Selmon activation, envelope as architecture, convertibility mechanics, scalability), passenger flow sequences, and the Pursuit Briefing synthesis. The SD Synopsis distilled everything into 10 critical schematic design moves. Environmental strategy added in v0.3 JSON (envelope, mechanical, energy with PV canopy, resilience).</p>
+    </div>
+    <div class="ai-step">
+      <h3>Phase 5 &mdash; Image Generation &amp; Visualization</h3>
+      <p><strong>ChatGPT</strong> generated all concept renders: 10 exterior massing studies exploring roof form, facade transparency, and civic presence; interior dual-use comparisons showing the same space as cruise check-in and banquet venue; terrace views showing embarkation day vs. evening wedding reception. The designer then composited and refined select images in Photoshop (noted on the primary exterior concept). <strong>Claude</strong> built the interactive program color plans (HTML/CSS/JS with side-by-side floor plans, hover tooltips, cruise/non-cruise toggle), SVG passenger flow diagrams, and the Excel program matrix.</p>
+    </div>
+    <div class="ai-step">
+      <h3>Phase 6 &mdash; Design Workshop Website</h3>
+      <p><strong>Claude</strong> built this website &mdash; reading all source documents (5 DOCX files, 1 XLSX, 4 images, 1 SVG), synthesizing the full content, and producing a single portable HTML file in the Calvey Form aesthetic. The site went through multiple iterations: initial dark theme build, full rebuild in the light Calvey aesthetic, color plan rebuild with side-by-side layout and lightbox, flow diagram rebuild as inline SVG, Excel data integration as tabbed popup, render annotations, design drivers section, PTB stats from the FSTED Seaport Mission Plan, and muted color palette refinements.</p>
+    </div>
+  </div>
+
+  <div class="dsh" onclick="tb('aidid')">
+    <div class="dsn">09.1</div><div class="dst">What AI Did</div>
+    <span class="bdg bdg-ok">Record</span>
+    <span class="dsg op" id="t-aidid">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-aidid">
+    <h3>ChatGPT</h3>
+    <ul>
+      <li>Initial RFQ interpretation and translation into design language</li>
+      <li>Site analysis, neighborhood assessment, and revenue strategy development</li>
+      <li>Operational modeling &mdash; embarkation/debarkation flow logic, level organization, circulation sequencing</li>
+      <li>Dual-use strategy framing &mdash; the core idea that the terminal should generate value 365 days/year</li>
+      <li>Design narrative and storytelling &mdash; shaping the material into presentation-ready language</li>
+      <li><strong>All 10 concept renders</strong> &mdash; exterior massing options, interior dual-use comparisons, terrace visualizations</li>
+      <li>Preliminary massing exploration and architectural character studies</li>
+    </ul>
+    <h3>Claude</h3>
+    <ul>
+      <li>16 DOCX documents across 12+ versions (Design Parameters V1&ndash;V3, Site Assessment V1&ndash;V2, SD Synopsis, Pursuit Briefing) in Calvey template format</li>
+      <li>16 companion PDFs with architectural grid backgrounds</li>
+      <li>4 JSON program databases (v0.2, v0.3, paired cruise/non-cruise day files) with 41 spaces across 8 categories</li>
+      <li>3-sheet Excel program matrix (cruise-day, dual-use, non-cruise-day)</li>
+      <li>Comparable terminal research &mdash; Port Canaveral CT3, PortMiami Terminal AA, PortMiami Terminal A with benchmarking data</li>
+      <li>CBP Federal Inspection Service technical requirements and spatial standards</li>
+      <li>Environmental strategy &mdash; envelope, mechanical, energy (PV canopy specs), resilience</li>
+      <li>5 architectural design drivers formalized from iterative analysis</li>
+      <li>Interactive program color plans (HTML/CSS/JS) with 40+ positioned blocks, cruise/non-cruise toggle, hover tooltips</li>
+      <li>SVG passenger flow diagrams (embarkation + debarkation sequences)</li>
+      <li>SVG circulation map</li>
+      <li>This design workshop website &mdash; ~1,500 lines of hand-built HTML with 11 sections, 35 expandable panels, 7 images, 2 lightboxes, inline SVG, embedded iframes, tabbed data views</li>
+    </ul>
+    <h3>Calvey</h3>
+    <ul>
+      <li>Direction, iteration, and quality control across every phase</li>
+      <li>Photoshop compositing of select exterior renders (adding exterior monumental stair, refining massing)</li>
+      <li>22 site photographs documenting existing conditions</li>
+      <li>Architectural judgment calls &mdash; which ideas to pursue, spatial priorities, massing refinement</li>
+      <li>Drove the dual-use thesis from concept to conviction</li>
+    </ul>
+  </div>
+
+  <div class="dsh" onclick="tb('aimethod')">
+    <div class="dsn">09.2</div><div class="dst">Working Method</div>
+    <span class="bdg bdg-lk">Process</span>
+    <span class="dsg" id="t-aimethod">&#9662;</span>
+  </div>
+  <div class="dsb" id="b-aimethod">
+    <p>The process followed a consistent pattern across both AI platforms:</p>
+    <ul>
+      <li><strong>Read source material</strong> &mdash; RFQ, site data, precedent information fed directly to AI</li>
+      <li><strong>Translate procurement &rarr; design</strong> &mdash; converting consultant task lists into architectural questions</li>
+      <li><strong>Build operational model</strong> &mdash; testing how passengers, baggage, staff, and vehicles move</li>
+      <li><strong>Build spatial/program model</strong> &mdash; organizing by levels, adjacencies, circulation, support</li>
+      <li><strong>Test against the site</strong> &mdash; comparing emerging ideas against the actual waterfront setting</li>
+      <li><strong>Expand into strategy</strong> &mdash; dual-use revenue, civic identity, community positioning</li>
+      <li><strong>Visualize</strong> &mdash; renders, diagrams, interactive tools, plan graphics</li>
+      <li><strong>Synthesize &amp; present</strong> &mdash; shaping everything into this workshop briefing</li>
+    </ul>
+    <p>Each document version represented a genuine intellectual leap, not just editorial revision. V1 &rarr; V2 &rarr; V3 of the Design Parameters document went from RFQ extraction to dual-use framework to a full design-driving instrument with sectional strategy options. The project matured from <strong>research &rarr; interpretation &rarr; strategy &rarr; design narrative &rarr; visual concepting</strong> in approximately one week.</p>
+  </div>
+
+  <h3>All Concept Renders</h3>
+  <p style="font-size:15px;color:var(--text-dim)">Generated by <strong>ChatGPT (OpenAI)</strong>, composited by the designer. Click to enlarge.</p>
+  <div class="render-gallery">
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/PORT TAMPA BAY CRUISE TERMINAL 5.png" alt="Exterior options" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/T5 Concept.png" alt="Primary concept" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/4475B352-D7D7-4D9E-9F3E-FC0B649664C2.png" alt="Curved canopy" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/50CF479D-CF09-42E9-99FD-1BD16B24643E.png" alt="Canopy variant" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/6F9CD448-9BEB-4FD6-B8F6-FDB05301FB64.png" alt="Signage variant" loading="lazy"></div>
+
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/0806050B-0F41-4731-AA12-C890ED80722F.png" alt="Vertical massing" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/BE29834D-01E8-4542-8520-2F6DD7B2ACB4.png" alt="Three options" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/PORT TAMPA BAY CRUISE TERMINAL 5 Interior.png" alt="Terrace dual-use" loading="lazy"></div>
+    <div class="render-thumb" onclick="openRenderLB(this)"><img src="renders/ee00d65a8a090bb7cd044efbfeb53ec7cbc823fe3eb47964e6dd90b671ddd26e.png" alt="Interior dual-use" loading="lazy"></div>
+  </div>
+  <div class="render-lightbox" id="render-lb" onclick="this.classList.remove('active')">
+    <img id="render-lb-img" src="" alt="Enlarged render">
+  </div>
+</div>
+
+</div><!-- end .ct -->
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <p>Port Tampa Bay &middot; Cruise Terminal 5 &middot; Design Workshop Briefing</p>
+  <p style="margin-top:6px">RFQ 006-26 / Project No. 26-00226 &middot; March 2026</p>
+</div>
+
+<script>
+// Toggle expandable sections
+function tb(id){
+  var b=document.getElementById('b-'+id);
+  var t=document.getElementById('t-'+id);
+  if(b) b.classList.toggle('op');
+  if(t) t.classList.toggle('op');
+}
+
+// Matrix sheet tabs
+function showSheet(id){
+  document.querySelectorAll('.matrix-sheet').forEach(function(s){s.classList.remove('active')});
+  document.querySelectorAll('.matrix-tab').forEach(function(t){t.classList.remove('active')});
+  var sheet=document.getElementById('sheet-'+id);
+  if(sheet) sheet.classList.add('active');
+  var tabs=document.querySelectorAll('.matrix-tab');
+  var idx={cruise:0,dual:1,noncruise:2}[id]||0;
+  if(tabs[idx]) tabs[idx].classList.add('active');
+}
+
+// Render lightbox
+function openRenderLB(thumb){
+  var img=thumb.querySelector('img');
+  document.getElementById('render-lb-img').src=img.src;
+  document.getElementById('render-lb').classList.add('active');
+}
+
+// Smooth scroll nav
+document.querySelectorAll('.nav-link').forEach(function(link){
+  link.addEventListener('click',function(e){
+    e.preventDefault();
+    var target=document.querySelector(link.getAttribute('href'));
+    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+</script>
+</body>
+</html>

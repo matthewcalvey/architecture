@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Port Tampa Bay — Cruise Terminal 5 — Scaled Massing Model</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #f8f7f4;
+    color: #1a1a1a;
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  #canvas-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  canvas { display: block; }
+  
+  /* Title overlay */
+  #title-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px 28px 16px;
+    background: linear-gradient(180deg, rgba(248,247,244,0.95) 0%, rgba(248,247,244,0.7) 70%, transparent 100%);
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  #title-bar h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  
+  #title-bar .subtitle {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #6b6b65;
+    text-transform: uppercase;
+  }
+  
+  /* Legend panel */
+  #legend {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    background: rgba(238,237,234,0.92);
+    border: 1px solid #d8d6d0;
+    border-radius: 4px;
+    padding: 16px 20px;
+    z-index: 10;
+    min-width: 260px;
+    backdrop-filter: blur(12px);
+  }
+  
+  #legend h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #d8d6d0;
+    padding-bottom: 6px;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: #1a1a1a;
+    cursor: pointer;
+    padding: 3px 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  
+  .legend-item:hover { background: rgba(106,156,196,0.1); }
+  
+  .legend-swatch {
+    width: 14px; height: 14px;
+    border-radius: 2px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    border: 1px solid #d8d6d0;
+  }
+  
+  .legend-sf {
+    margin-left: auto;
+    color: #6b6b65;
+    font-size: 9px;
+    padding-left: 12px;
+  }
+
+  /* Info panel */
+  #info-panel {
+    position: absolute;
+    top: 90px; right: 20px;
+    background: rgba(238,237,234,0.92);
+    border: 1px solid #d8d6d0;
+    border-radius: 4px;
+    padding: 16px 20px;
+    z-index: 10;
+    min-width: 220px;
+    max-width: 280px;
+    backdrop-filter: blur(12px);
+    transition: opacity 0.3s;
+  }
+  
+  #info-panel.hidden { opacity: 0; pointer-events: none; }
+  
+  #info-panel h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  
+  #info-panel .info-category {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6b6b65;
+    margin-bottom: 8px;
+  }
+  
+  #info-panel .info-sf {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  
+  #info-panel .info-level {
+    font-size: 10px;
+    color: #6b6b65;
+    margin-bottom: 8px;
+  }
+  
+  #info-panel .info-desc {
+    font-size: 10px;
+    color: #6b6b65;
+    line-height: 1.5;
+  }
+
+  /* Controls */
+  #controls {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .ctrl-btn {
+    background: rgba(238,237,234,0.92);
+    border: 1px solid #d8d6d0;
+    color: #1a1a1a;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(12px);
+  }
+  
+  .ctrl-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
+  .ctrl-btn.active { background: #1a1a1a; color: #f8f7f4; border-color: #1a1a1a; }
+  
+  /* Loading */
+  #loading {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f7f4;
+    z-index: 100;
+    transition: opacity 0.8s;
+  }
+  
+  #loading.done { opacity: 0; pointer-events: none; }
+  
+  #loading h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  #loading p {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #6b6b65;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <h2>Cruise Terminal 5</h2>
+  <p>Loading WebGL Model…</p>
+</div>
+
+<div id="canvas-container">
+  <div id="title-bar">
+    <h1>Port Tampa Bay — Cruise Terminal 5</h1>
+    <div class="subtitle">Scaled Massing Model — 96,100 SF Enclosed Program — Two-Level Vertical Separation</div>
+  </div>
+  
+  <div id="legend"></div>
+  
+  <div id="info-panel" class="hidden">
+    <h4 id="info-name"></h4>
+    <div class="info-category" id="info-cat"></div>
+    <div class="info-sf" id="info-sf"></div>
+    <div class="info-level" id="info-level"></div>
+    <div class="info-desc" id="info-desc"></div>
+  </div>
+  
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-explode">Explode View</button>
+    <button class="ctrl-btn" id="btn-section">Section Cut</button>
+    <button class="ctrl-btn" id="btn-wire">Wireframe</button>
+    <button class="ctrl-btn" id="btn-labels">Labels</button>
+    <button class="ctrl-btn" id="btn-reset">Reset Camera</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// PORT TAMPA BAY — CRUISE TERMINAL 5 — WEBGL MASSING MODEL
+// Scale: 1 unit = 1 foot
+// ============================================================
+
+// --- PROGRAM DATA (from CruiseT5_Program_Matrix.xlsx) ---
+const PROGRAM = {
+  upper: [
+    { id:'A.01', name:'Main Entry Lobby / Check-In Hall', sf:8000, cat:'A', desc:'Flexible kiosk + agent layout; clear sightlines to security' },
+    { id:'A.02', name:'Security Screening', sf:3500, cat:'A', desc:'4–6 lanes; expandable to 8; direct feed from check-in' },
+    { id:'A.03', name:'Post-Security Holding / Waiting', sf:5000, cat:'A', desc:'General + zone seating; distributed F&B; 1,500–1,800 pax peak' },
+    { id:'A.04', name:'VIP / Loyalty Lounge', sf:2000, cat:'A', desc:'Separate entry; private check-in; concierge' },
+    { id:'A.05', name:'Retail & F&B', sf:2500, cat:'A', desc:'Post-security concessions; revenue-generating' },
+    { id:'A.06', name:'Family / Accessible Waiting', sf:1200, cat:'A', desc:'Stroller staging; ADA seating; near elevators' },
+    { id:'A.07', name:'Boarding Bridge Vestibule', sf:1500, cat:'A', desc:'Weather-protected; continuous sliding doors' },
+    { id:'E.03', name:'Cruise Line Operations', sf:2500, cat:'E', desc:'Embark/debark ops; guest services; comms' },
+    { id:'G.02', name:'Nursing / Mother\'s Room', sf:300, cat:'G', desc:'Private; lockable; sink' },
+    { id:'G.04', name:'Interfaith / Meditation', sf:400, cat:'G', desc:'Quiet; non-denominational' },
+  ],
+  grade: [
+    { id:'B.02', name:'CBP Federal Inspection (FIS)', sf:6000, cat:'B', desc:'Primary + secondary + APHIS + interview; sealed zone' },
+    { id:'B.03', name:'Baggage Claim Hall', sf:10000, cat:'B', desc:'Flat-bed devices; oversized area; CBP inspection tables' },
+    { id:'B.04', name:'Meeter-Greeter', sf:2500, cat:'B', desc:'Reunification; ground transport info; clear exit wayfinding' },
+    { id:'C.01', name:'Luggage Laydown — Embark', sf:8000, cat:'C', desc:'Curbside drop → porter sort → conveyor feed to vessel' },
+    { id:'C.02', name:'Luggage Laydown — Debark', sf:8000, cat:'C', desc:'Vessel off-load → staging → claim device feed' },
+    { id:'C.03', name:'BHS Equipment Room', sf:3000, cat:'C', desc:'Conveyors, screening, controls; expandable footprint' },
+    { id:'C.04', name:'Cart / Equipment Storage', sf:1000, cat:'C', desc:'Porter equipment; cart corrals' },
+    { id:'E.01', name:'Terminal Operations', sf:1500, cat:'E', desc:'Shift supervisor, dispatch, CCTV' },
+    { id:'E.02', name:'CBP / Federal Office Suite', sf:2000, cat:'E', desc:'Secure; break room; armory; direct FIS access' },
+    { id:'E.04', name:'Staff Break / Locker', sf:1000, cat:'E', desc:'Lockers; kitchenette' },
+    { id:'E.05', name:'Janitorial', sf:500, cat:'E', desc:'Slop sinks; chemical storage' },
+    { id:'E.06', name:'Loading Dock / Service Yard', sf:2500, cat:'E', desc:'Provisioning; waste; deliveries' },
+    { id:'F.01', name:'Main Electrical / Switchgear', sf:2000, cat:'F', desc:'Main service; transformers; shore power' },
+    { id:'F.02', name:'HVAC Mechanical', sf:3500, cat:'F', desc:'AHUs; chillers; controls; sized for peak cooling' },
+    { id:'F.03', name:'Fire Pump Room', sf:800, cat:'F', desc:'Fire pump; jockey pump; FDC' },
+    { id:'F.04', name:'IT / Telecom / Security', sf:1200, cat:'F', desc:'MDF/IDF; PA; CCTV head-end' },
+    { id:'F.05', name:'Emergency Generator', sf:1500, cat:'F', desc:'Diesel gen-set; fuel day tank; ATS' },
+  ],
+  both: [
+    { id:'D.01', name:'Passenger Elevators (4)', sf:1200, cat:'D', desc:'High-capacity; ADA; grouped at main core' },
+    { id:'D.02', name:'Escalators (4 pairs)', sf:2400, cat:'D', desc:'At primary level transitions; visible from holding' },
+    { id:'D.03', name:'Monumental Stair', sf:1800, cat:'D', desc:'Architectural element at main lobby; wayfinding anchor' },
+    { id:'D.04', name:'Service Elevator(s)', sf:600, cat:'D', desc:'Staff/freight; connects all levels' },
+    { id:'D.05', name:'Egress Stairs', sf:2000, cat:'D', desc:'Enclosed fire stairs per FBC' },
+    { id:'G.01', name:'Public Restrooms', sf:3000, cat:'G', desc:'Men; women; family; ADA' },
+    { id:'G.03', name:'Pet Relief Area', sf:400, cat:'G', desc:'Interior/exterior; service animals' },
+  ],
+  debarRamp: { id:'B.01', name:'Debarkation Ramp', sf:2000, cat:'B', desc:'Vessel-to-FIS; physically separated from embark gangway' },
+};
+
+const CAT_COLORS = {
+  A: { hex: '#4A90D9', name: 'A. Embarkation' },
+  B: { hex: '#D94A4A', name: 'B. Debarkation' },
+  C: { hex: '#D9A44A', name: 'C. Baggage & Logistics' },
+  D: { hex: '#8B8B8B', name: 'D. Vertical Circulation' },
+  E: { hex: '#6B8E6B', name: 'E. Operations / BOH' },
+  F: { hex: '#7B6B8E', name: 'F. Building Systems' },
+  G: { hex: '#8EB6A0', name: 'G. Public Amenities' },
+  ROOF: { hex: '#C0C8D0', name: 'Roof Structure' },
+  GLASS: { hex: '#88BBE0', name: 'Curtain Wall' },
+  SITE: { hex: '#3A3A3A', name: 'Ground Plane' },
+};
+
+// --- SCENE SETUP ---
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf8f7f4);
+scene.fog = new THREE.FogExp2(0xf8f7f4, 0.0006);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+camera.position.set(420, 280, 380);
+camera.lookAt(0, 30, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// --- LIGHTS ---
+const ambientLight = new THREE.AmbientLight(0xf0ece4, 0.8);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfff5e6, 1.0);
+sunLight.position.set(200, 400, 150);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 50;
+sunLight.shadow.camera.far = 1200;
+sunLight.shadow.camera.left = -400;
+sunLight.shadow.camera.right = 400;
+sunLight.shadow.camera.top = 400;
+sunLight.shadow.camera.bottom = -400;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x6A9CC4, 0.3);
+fillLight.position.set(-150, 100, -200);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
+rimLight.position.set(-100, 50, 300);
+scene.add(rimLight);
+
+// --- MATERIALS ---
+function makeMat(color, opacity = 1.0, transparent = false) {
+  return new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(color),
+    roughness: 0.6,
+    metalness: 0.05,
+    transparent: transparent,
+    opacity: opacity,
+    side: THREE.DoubleSide,
+    clearcoat: 0.1,
+  });
+}
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0x88BBE0),
+  roughness: 0.05,
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.25,
+  transmission: 0.6,
+  side: THREE.DoubleSide,
+});
+
+const roofMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0xD8DEE4),
+  roughness: 0.3,
+  metalness: 0.4,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.2,
+  side: THREE.DoubleSide,
+});
+
+// --- BUILDING GEOMETRY PARAMETERS ---
+// Overall footprint derived from program:
+// Grade level total ~53,000 SF → ~265 x 200 ft footprint
+// Upper level total ~26,900 SF → uses subset of footprint
+const BLDG_LENGTH = 340;  // ft along berth (long axis)
+const BLDG_WIDTH  = 180;  // ft perpendicular to berth
+const GRADE_HEIGHT = 22;  // ft floor-to-floor
+const UPPER_HEIGHT = 34;  // ft floor-to-structure (raised for roof clearance)
+const ROOF_PEAK = 8;      // ft additional for wave roof
+
+const allMeshes = [];
+const programMeshes = [];
+const labelSprites = [];
+let exploded = false;
+let sectionCut = false;
+let wireframeMode = false;
+let labelsVisible = false;
+
+// --- GROUND PLANE WITH CALVEY GRID ---
+// Create grid texture matching CALVEY architectural grid (60px spacing, 3% opacity lines)
+const gridCanvas = document.createElement('canvas');
+gridCanvas.width = 512;
+gridCanvas.height = 512;
+const gctx = gridCanvas.getContext('2d');
+// Base color: warm off-white
+gctx.fillStyle = '#eeedea';
+gctx.fillRect(0, 0, 512, 512);
+// Grid lines at ~60px equivalent spacing
+const gridSpacing = 64; // pixels in texture
+gctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+gctx.lineWidth = 1;
+for (let i = 0; i <= 512; i += gridSpacing) {
+  gctx.beginPath(); gctx.moveTo(i, 0); gctx.lineTo(i, 512); gctx.stroke();
+  gctx.beginPath(); gctx.moveTo(0, i); gctx.lineTo(512, i); gctx.stroke();
+}
+// Heavier accent lines every 4th grid
+gctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+gctx.lineWidth = 1.5;
+for (let i = 0; i <= 512; i += gridSpacing * 4) {
+  gctx.beginPath(); gctx.moveTo(i, 0); gctx.lineTo(i, 512); gctx.stroke();
+  gctx.beginPath(); gctx.moveTo(0, i); gctx.lineTo(512, i); gctx.stroke();
+}
+const gridTex = new THREE.CanvasTexture(gridCanvas);
+gridTex.wrapS = THREE.RepeatWrapping;
+gridTex.wrapT = THREE.RepeatWrapping;
+gridTex.repeat.set(20, 20);
+
+const groundGeo = new THREE.PlaneGeometry(1200, 1200);
+const groundMat = new THREE.MeshPhysicalMaterial({
+  map: gridTex,
+  roughness: 0.95,
+  metalness: 0,
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.5;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Water plane (berth side)
+const waterGeo = new THREE.PlaneGeometry(1200, 600);
+const waterMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0x8abbd4),
+  roughness: 0.1,
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.4,
+});
+const water = new THREE.Mesh(waterGeo, waterMat);
+water.rotation.x = -Math.PI / 2;
+water.position.set(0, -1, -BLDG_WIDTH / 2 - 300);
+scene.add(water);
+
+// --- HELPER: CREATE PROGRAM BLOCK ---
+function createBlock(x, z, w, d, h, yBase, space, catColor) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mat = makeMat(catColor, 0.85, true);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, yBase + h / 2, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = { ...space, baseY: yBase + h / 2 };
+  scene.add(mesh);
+  allMeshes.push(mesh);
+  programMeshes.push(mesh);
+  
+  // Edge wireframe
+  const edges = new THREE.EdgesGeometry(geo);
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 });
+  const line = new THREE.LineSegments(edges, lineMat);
+  mesh.add(line);
+  
+  return mesh;
+}
+
+// --- LAYOUT ENGINE ---
+// Grade Level: pack spaces left-to-right in rows
+function layoutLevel(spaces, yBase, zOffset, maxWidth, rowDepth) {
+  let curX = -BLDG_LENGTH / 2 + 10;
+  let curZ = zOffset;
+  const meshes = [];
+  
+  spaces.forEach(space => {
+    const area = space.sf;
+    const w = Math.sqrt(area * (1.5)); // ~1.5:1 aspect
+    const d = area / w;
+    // Cap height so blocks never poke through the wave roof
+    const maxH = yBase < 5 ? GRADE_HEIGHT - 4 : UPPER_HEIGHT - ROOF_PEAK - 4;
+    const h = Math.min(maxH, yBase < 5 ? GRADE_HEIGHT - 2 : UPPER_HEIGHT - 4);
+    
+    if (curX + w > BLDG_LENGTH / 2 - 10) {
+      curX = -BLDG_LENGTH / 2 + 10;
+      curZ += rowDepth + 4;
+    }
+    
+    const mesh = createBlock(curX + w / 2, curZ + d / 2, w, d, h, yBase, space, CAT_COLORS[space.cat].hex);
+    meshes.push(mesh);
+    curX += w + 4;
+  });
+  
+  return meshes;
+}
+
+// Grade level spaces
+layoutLevel(PROGRAM.grade, 0, -BLDG_WIDTH / 2 + 10, BLDG_LENGTH, 60);
+
+// Upper level spaces
+layoutLevel(PROGRAM.upper, GRADE_HEIGHT, -BLDG_WIDTH / 2 + 10, BLDG_LENGTH, 50);
+
+// Vertical circulation (spans both levels)
+PROGRAM.both.forEach((space, i) => {
+  const coreX = -40 + i * 22;
+  const coreZ = BLDG_WIDTH / 2 - 25;
+  const area = space.sf;
+  const side = Math.sqrt(area);
+  createBlock(coreX, coreZ, side, side, GRADE_HEIGHT + UPPER_HEIGHT - 2, 0, space, CAT_COLORS.D.hex);
+});
+
+// Debarkation ramp (angled connector)
+const rampGeo = new THREE.BoxGeometry(15, 3, 60);
+const rampMat = makeMat(CAT_COLORS.B.hex, 0.7, true);
+const ramp = new THREE.Mesh(rampGeo, rampMat);
+ramp.position.set(BLDG_LENGTH / 2 - 30, GRADE_HEIGHT / 2, -BLDG_WIDTH / 2 - 15);
+ramp.rotation.x = Math.atan2(GRADE_HEIGHT, 60);
+ramp.castShadow = true;
+ramp.userData = { ...PROGRAM.debarRamp, baseY: GRADE_HEIGHT / 2 };
+scene.add(ramp);
+allMeshes.push(ramp);
+programMeshes.push(ramp);
+
+// --- FLOOR PLATES ---
+// Grade floor
+const gradeFloorGeo = new THREE.BoxGeometry(BLDG_LENGTH, 1.5, BLDG_WIDTH);
+const gradeFloor = new THREE.Mesh(gradeFloorGeo, makeMat('#999'));
+gradeFloor.position.set(0, -0.25, 0);
+gradeFloor.receiveShadow = true;
+scene.add(gradeFloor);
+allMeshes.push(gradeFloor);
+
+// Upper floor plate (enclosed area)
+const upperFloorGeo = new THREE.BoxGeometry(BLDG_LENGTH + 16, 1.5, BLDG_WIDTH + 8);
+const upperFloor = new THREE.Mesh(upperFloorGeo, makeMat('#555'));
+upperFloor.position.set(0, GRADE_HEIGHT, 0);
+upperFloor.castShadow = true;
+upperFloor.receiveShadow = true;
+scene.add(upperFloor);
+allMeshes.push(upperFloor);
+
+// --- OUTDOOR DECK (short side, +X end, level 2) ---
+const DECK_DEPTH = 45;
+const deckGeo = new THREE.BoxGeometry(DECK_DEPTH, 1.5, BLDG_WIDTH);
+const deckFloor = new THREE.Mesh(deckGeo, makeMat('#666'));
+deckFloor.position.set(BLDG_LENGTH / 2 + 8 + DECK_DEPTH / 2, GRADE_HEIGHT, 0);
+deckFloor.castShadow = true;
+deckFloor.receiveShadow = true;
+scene.add(deckFloor);
+allMeshes.push(deckFloor);
+
+// Deck railing — outer edge (+X)
+const deckRailMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0x999999), roughness: 0.3, metalness: 0.4,
+  transparent: true, opacity: 0.5,
+});
+const deckRailGeo = new THREE.BoxGeometry(0.4, 3.5, BLDG_WIDTH);
+const deckRail = new THREE.Mesh(deckRailGeo, deckRailMat);
+deckRail.position.set(BLDG_LENGTH / 2 + 8 + DECK_DEPTH, GRADE_HEIGHT + 2, 0);
+scene.add(deckRail); allMeshes.push(deckRail);
+
+// Deck railing — front and back returns
+[-1, 1].forEach(side => {
+  const retGeo = new THREE.BoxGeometry(DECK_DEPTH, 3.5, 0.4);
+  const ret = new THREE.Mesh(retGeo, deckRailMat);
+  ret.position.set(BLDG_LENGTH / 2 + 8 + DECK_DEPTH / 2, GRADE_HEIGHT + 2, side * BLDG_WIDTH / 2);
+  scene.add(ret); allMeshes.push(ret);
+});
+
+// Deck support columns
+for (let z = -BLDG_WIDTH / 2 + 30; z <= BLDG_WIDTH / 2 - 30; z += 40) {
+  const colGeo = new THREE.CylinderGeometry(1, 1, GRADE_HEIGHT, 8);
+  const col = new THREE.Mesh(colGeo, makeMat('#888'));
+  col.position.set(BLDG_LENGTH / 2 + 8 + DECK_DEPTH / 2, GRADE_HEIGHT / 2, z);
+  col.castShadow = true;
+  scene.add(col); allMeshes.push(col);
+}
+
+// --- WAVE ROOF (extends over building + short-side deck) ---
+function createWaveRoof() {
+  const segX = 64, segZ = 32;
+  const roofW = BLDG_LENGTH + DECK_DEPTH + 50; // extended on +X to cover deck
+  const roofD = BLDG_WIDTH + 30;
+  const geo = new THREE.PlaneGeometry(roofW, roofD, segX, segZ);
+  const pos = geo.attributes.position;
+  
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getY(i);
+    const wave1 = Math.sin(x / roofW * Math.PI * 2.5) * ROOF_PEAK * 0.6;
+    const wave2 = Math.sin(z / roofD * Math.PI * 1.5) * ROOF_PEAK * 0.35;
+    const edgeFactor = 1 - Math.pow(Math.abs(z) / (roofD / 2), 2) * 0.3;
+    const rawWave = (wave1 + wave2) * edgeFactor;
+    pos.setZ(i, Math.max(0, rawWave) + 2);
+  }
+  
+  geo.computeVertexNormals();
+  
+  const roof = new THREE.Mesh(geo, roofMat);
+  roof.rotation.x = -Math.PI / 2;
+  roof.position.y = GRADE_HEIGHT + UPPER_HEIGHT;
+  // Shift +X to center over building + deck
+  roof.position.x = DECK_DEPTH / 2;
+  roof.castShadow = true;
+  roof.receiveShadow = true;
+  scene.add(roof);
+  allMeshes.push(roof);
+  
+  // Soffit
+  const soffit = roof.clone();
+  soffit.material = makeMat('#ccc', 0.3, true);
+  soffit.position.y -= 1.5;
+  scene.add(soffit);
+  allMeshes.push(soffit);
+  
+  return roof;
+}
+createWaveRoof();
+
+// --- CURTAIN WALL / GLAZING ---
+function createGlazing() {
+  const h1 = GRADE_HEIGHT;
+  const h2 = UPPER_HEIGHT;
+  const panels = [
+    // Grade level - front (berth side)
+    { w: BLDG_LENGTH, h: h1 - 4, x: 0, y: h1 / 2, z: -BLDG_WIDTH / 2 },
+    // Grade level - back
+    { w: BLDG_LENGTH, h: h1 - 6, x: 0, y: h1 / 2, z: BLDG_WIDTH / 2 },
+    // Upper level - front
+    { w: BLDG_LENGTH + 16, h: h2 - 4, x: 0, y: h1 + h2 / 2, z: -BLDG_WIDTH / 2 - 4 },
+    // Upper level - back
+    { w: BLDG_LENGTH + 16, h: h2 - 4, x: 0, y: h1 + h2 / 2, z: BLDG_WIDTH / 2 + 4 },
+    // Grade level - sides
+    { w: BLDG_WIDTH, h: h1 - 4, x: -BLDG_LENGTH / 2, y: h1 / 2, z: 0, rotY: Math.PI / 2 },
+    { w: BLDG_WIDTH, h: h1 - 4, x: BLDG_LENGTH / 2, y: h1 / 2, z: 0, rotY: Math.PI / 2 },
+    // Upper level - sides
+    { w: BLDG_WIDTH + 8, h: h2 - 4, x: -(BLDG_LENGTH + 16) / 2, y: h1 + h2 / 2, z: 0, rotY: Math.PI / 2 },
+    { w: BLDG_WIDTH + 8, h: h2 - 4, x: (BLDG_LENGTH + 16) / 2, y: h1 + h2 / 2, z: 0, rotY: Math.PI / 2 },
+  ];
+  
+  panels.forEach(p => {
+    const geo = new THREE.PlaneGeometry(p.w, p.h);
+    const mesh = new THREE.Mesh(geo, glassMat);
+    mesh.position.set(p.x, p.y, p.z);
+    if (p.rotY) mesh.rotation.y = p.rotY;
+    scene.add(mesh);
+    allMeshes.push(mesh);
+    
+    // Mullion grid
+    const mullionMat = new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.3 });
+    // Vertical mullions
+    const spacing = 10;
+    for (let i = -p.w / 2; i <= p.w / 2; i += spacing) {
+      const pts = [new THREE.Vector3(i, -p.h / 2, 0.1), new THREE.Vector3(i, p.h / 2, 0.1)];
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      const line = new THREE.Line(lineGeo, mullionMat);
+      mesh.add(line);
+    }
+    // Horizontal mullion (mid)
+    const hPts = [new THREE.Vector3(-p.w / 2, 0, 0.1), new THREE.Vector3(p.w / 2, 0, 0.1)];
+    const hGeo = new THREE.BufferGeometry().setFromPoints(hPts);
+    mesh.add(new THREE.Line(hGeo, mullionMat));
+  });
+}
+createGlazing();
+
+// --- BUILDING SIGNAGE ---
+// "PORT TAMPA BAY · CRUISE TERMINAL 5" on the front (berth-side) fascia
+// Matching the concept rendering: gold/brass lettering on the upper-level spandrel band
+(function createSignage() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2048;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  
+  // Transparent background
+  ctx.clearRect(0, 0, 2048, 128);
+  
+  // Gold/brass lettering — matches concept rendering
+  ctx.fillStyle = '#D4B86A';
+  ctx.font = '600 62px "Cormorant Garamond", Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.letterSpacing = '8px';
+  // Add subtle text shadow for depth
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 2;
+  ctx.fillText('PORT TAMPA BAY  ·  CRUISE TERMINAL 5', 1024, 64);
+  
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  
+  const signMat = new THREE.MeshBasicMaterial({
+    map: tex,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  
+  // Sign panel on the front fascia — spandrel band between grade and upper glazing
+  const signW = BLDG_LENGTH * 0.75;
+  const signH = 6;
+  const signGeo = new THREE.PlaneGeometry(signW, signH);
+  const sign = new THREE.Mesh(signGeo, signMat);
+  // Position on the berth-side face, at the floor plate line between levels
+  sign.position.set(0, GRADE_HEIGHT + 1, -BLDG_WIDTH / 2 - 0.5);
+  scene.add(sign);
+  allMeshes.push(sign);
+  
+  // Spandrel band backing (dark fascia strip behind the lettering)
+  const bandGeo = new THREE.BoxGeometry(BLDG_LENGTH + 16, 5, 1.5);
+  const bandMat = makeMat('#1a1a1a', 0.95);
+  const band = new THREE.Mesh(bandGeo, bandMat);
+  band.position.set(0, GRADE_HEIGHT + 1, -BLDG_WIDTH / 2 - 1.5);
+  scene.add(band);
+  allMeshes.push(band);
+})();
+
+// --- UPPER LEVEL TERRACE (berth side) ---
+const terraceGeo = new THREE.BoxGeometry(80, 1, 30);
+const terraceMat = makeMat('#aaa', 0.8, true);
+const terrace = new THREE.Mesh(terraceGeo, terraceMat);
+terrace.position.set(40, GRADE_HEIGHT + 0.5, -BLDG_WIDTH / 2 - 18);
+terrace.castShadow = true;
+scene.add(terrace);
+allMeshes.push(terrace);
+
+// Terrace railing
+const railGeo = new THREE.BoxGeometry(80, 3.5, 0.3);
+const railMat = makeMat('#999', 0.5, true);
+const rail = new THREE.Mesh(railGeo, railMat);
+rail.position.set(40, GRADE_HEIGHT + 2, -BLDG_WIDTH / 2 - 33);
+scene.add(rail);
+allMeshes.push(rail);
+
+// --- BOARDING BRIDGE STUB ---
+const bridgeGeo = new THREE.BoxGeometry(20, 10, 50);
+const bridgeMat = makeMat('#555', 0.6, true);
+const bridge = new THREE.Mesh(bridgeGeo, bridgeMat);
+bridge.position.set(BLDG_LENGTH / 2 - 60, GRADE_HEIGHT + 10, -BLDG_WIDTH / 2 - 40);
+bridge.castShadow = true;
+scene.add(bridge);
+allMeshes.push(bridge);
+
+// --- PARKING GARAGE (simplified massing) ---
+const garageGeo = new THREE.BoxGeometry(200, 48, 120);
+const garageMat = makeMat('#2a2a2a', 0.5, true);
+const garage = new THREE.Mesh(garageGeo, garageMat);
+garage.position.set(0, 24, BLDG_WIDTH / 2 + 90);
+garage.castShadow = true;
+scene.add(garage);
+allMeshes.push(garage);
+
+// Garage floors
+for (let f = 0; f < 5; f++) {
+  const flGeo = new THREE.BoxGeometry(198, 0.5, 118);
+  const fl = new THREE.Mesh(flGeo, makeMat('#333'));
+  fl.position.set(0, f * 12 + 0.5, 0);
+  garage.add(fl);
+}
+
+// Pedestrian bridge to terminal
+const pedBridgeGeo = new THREE.BoxGeometry(10, 4, 30);
+const pedBridge = new THREE.Mesh(pedBridgeGeo, makeMat('#444'));
+pedBridge.position.set(-20, GRADE_HEIGHT + 2, BLDG_WIDTH / 2 + 15);
+scene.add(pedBridge);
+allMeshes.push(pedBridge);
+
+// --- CANOPY ---
+const canopyGeo = new THREE.BoxGeometry(BLDG_LENGTH + 30, 0.5, 25);
+const canopyMat = makeMat('#ccc', 0.4, true);
+const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+canopy.position.set(0, 16, BLDG_WIDTH / 2 + 15);
+canopy.castShadow = true;
+scene.add(canopy);
+allMeshes.push(canopy);
+
+// --- LEGEND ---
+function buildLegend() {
+  const el = document.getElementById('legend');
+  let html = '<h3>Program Categories</h3>';
+  const cats = ['A','B','C','D','E','F','G'];
+  const catSF = {};
+  
+  [...PROGRAM.upper, ...PROGRAM.grade, ...PROGRAM.both, PROGRAM.debarRamp].forEach(s => {
+    catSF[s.cat] = (catSF[s.cat] || 0) + s.sf;
+  });
+  
+  cats.forEach(c => {
+    html += `<div class="legend-item" data-cat="${c}">
+      <div class="legend-swatch" style="background:${CAT_COLORS[c].hex}"></div>
+      <span>${CAT_COLORS[c].name}</span>
+      <span class="legend-sf">${(catSF[c] || 0).toLocaleString()} SF</span>
+    </div>`;
+  });
+  
+  html += `<div style="margin-top:8px; padding-top:6px; border-top:1px solid rgba(106,156,196,0.15);">
+    <div class="legend-item" style="cursor:default">
+      <div class="legend-swatch" style="background:${CAT_COLORS.GLASS.hex}; opacity:0.5"></div>
+      <span>Curtain Wall</span>
+    </div>
+    <div class="legend-item" style="cursor:default">
+      <div class="legend-swatch" style="background:${CAT_COLORS.ROOF.hex}"></div>
+      <span>Wave Roof</span>
+    </div>
+  </div>`;
+  
+  el.innerHTML = html;
+  
+  // Hover highlight
+  el.querySelectorAll('.legend-item[data-cat]').forEach(item => {
+    item.addEventListener('mouseenter', () => highlightCategory(item.dataset.cat));
+    item.addEventListener('mouseleave', () => clearHighlight());
+  });
+}
+
+function highlightCategory(cat) {
+  programMeshes.forEach(m => {
+    if (m.userData.cat === cat) {
+      m.material.opacity = 1.0;
+      m.material.emissive = new THREE.Color(CAT_COLORS[cat].hex);
+      m.material.emissiveIntensity = 0.3;
+    } else {
+      m.material.opacity = 0.15;
+    }
+  });
+}
+
+function clearHighlight() {
+  programMeshes.forEach(m => {
+    m.material.opacity = 0.85;
+    m.material.emissive = new THREE.Color(0x000000);
+    m.material.emissiveIntensity = 0;
+  });
+}
+
+buildLegend();
+
+// --- RAYCASTING / HOVER ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let hoveredMesh = null;
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(programMeshes);
+  
+  const panel = document.getElementById('info-panel');
+  
+  if (hits.length > 0 && hits[0].object.userData.id) {
+    const obj = hits[0].object;
+    if (hoveredMesh !== obj) {
+      if (hoveredMesh) {
+        hoveredMesh.material.emissive = new THREE.Color(0x000000);
+      }
+      hoveredMesh = obj;
+      obj.material.emissive = new THREE.Color(CAT_COLORS[obj.userData.cat].hex);
+      obj.material.emissiveIntensity = 0.4;
+      
+      document.getElementById('info-name').textContent = obj.userData.name;
+      document.getElementById('info-cat').textContent = CAT_COLORS[obj.userData.cat].name;
+      document.getElementById('info-sf').textContent = obj.userData.sf.toLocaleString() + ' SF';
+      document.getElementById('info-level').textContent = 'ID: ' + obj.userData.id;
+      document.getElementById('info-desc').textContent = obj.userData.desc;
+      panel.classList.remove('hidden');
+    }
+  } else {
+    if (hoveredMesh) {
+      hoveredMesh.material.emissive = new THREE.Color(0x000000);
+      hoveredMesh = null;
+    }
+    panel.classList.add('hidden');
+  }
+});
+
+// --- CONTROLS (OrbitControls manually) ---
+let isDragging = false;
+let previousMouse = { x: 0, y: 0 };
+let spherical = { radius: 550, theta: Math.PI / 4, phi: Math.PI / 3.5 };
+let target = new THREE.Vector3(0, 30, 0);
+
+function updateCamera() {
+  camera.position.x = target.x + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  camera.position.y = target.y + spherical.radius * Math.cos(spherical.phi);
+  camera.position.z = target.z + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+  camera.lookAt(target);
+}
+
+renderer.domElement.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  previousMouse = { x: e.clientX, y: e.clientY };
+});
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const dx = e.clientX - previousMouse.x;
+  const dy = e.clientY - previousMouse.y;
+  spherical.theta -= dx * 0.005;
+  spherical.phi = Math.max(0.2, Math.min(Math.PI / 2.1, spherical.phi + dy * 0.005));
+  previousMouse = { x: e.clientX, y: e.clientY };
+  updateCamera();
+});
+
+renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+renderer.domElement.addEventListener('mouseleave', () => isDragging = false);
+
+renderer.domElement.addEventListener('wheel', (e) => {
+  spherical.radius = Math.max(150, Math.min(1200, spherical.radius + e.deltaY * 0.5));
+  updateCamera();
+});
+
+// Touch support
+renderer.domElement.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+}, { passive: true });
+
+renderer.domElement.addEventListener('touchmove', (e) => {
+  if (!isDragging || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - previousMouse.x;
+  const dy = e.touches[0].clientY - previousMouse.y;
+  spherical.theta -= dx * 0.005;
+  spherical.phi = Math.max(0.2, Math.min(Math.PI / 2.1, spherical.phi + dy * 0.005));
+  previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  updateCamera();
+}, { passive: true });
+
+renderer.domElement.addEventListener('touchend', () => isDragging = false);
+
+updateCamera();
+
+// --- CONTROL BUTTONS ---
+document.getElementById('btn-explode').addEventListener('click', function() {
+  exploded = !exploded;
+  this.classList.toggle('active');
+  const offset = exploded ? 30 : 0;
+  programMeshes.forEach(m => {
+    const baseY = m.userData.baseY || m.position.y;
+    if (m.position.y > GRADE_HEIGHT) {
+      m.position.y = baseY + offset;
+    }
+  });
+});
+
+document.getElementById('btn-section').addEventListener('click', function() {
+  sectionCut = !sectionCut;
+  this.classList.toggle('active');
+  const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+  allMeshes.forEach(m => {
+    if (sectionCut) {
+      m.material.clippingPlanes = [clipPlane];
+      renderer.localClippingEnabled = true;
+    } else {
+      m.material.clippingPlanes = [];
+    }
+  });
+});
+
+document.getElementById('btn-wire').addEventListener('click', function() {
+  wireframeMode = !wireframeMode;
+  this.classList.toggle('active');
+  allMeshes.forEach(m => {
+    if (m.material) m.material.wireframe = wireframeMode;
+  });
+});
+
+document.getElementById('btn-labels').addEventListener('click', function() {
+  labelsVisible = !labelsVisible;
+  this.classList.toggle('active');
+  
+  if (labelsVisible && labelSprites.length === 0) {
+    // Create labels
+    programMeshes.forEach(m => {
+      if (!m.userData.id) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'rgba(238,237,234,0.9)';
+      ctx.fillRect(0, 0, 256, 64);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 16px monospace';
+      ctx.fillText(m.userData.id, 8, 24);
+      ctx.fillStyle = '#6b6b65';
+      ctx.font = '11px monospace';
+      const shortName = m.userData.name.substring(0, 28);
+      ctx.fillText(shortName, 8, 48);
+      
+      const tex = new THREE.CanvasTexture(canvas);
+      const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.position.copy(m.position);
+      sprite.position.y += 8;
+      sprite.scale.set(40, 10, 1);
+      scene.add(sprite);
+      labelSprites.push(sprite);
+    });
+  }
+  
+  labelSprites.forEach(s => s.visible = labelsVisible);
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  spherical = { radius: 550, theta: Math.PI / 4, phi: Math.PI / 3.5 };
+  target = new THREE.Vector3(0, 30, 0);
+  updateCamera();
+});
+
+// --- ANIMATION LOOP ---
+function animate() {
+  requestAnimationFrame(animate);
+  
+  // Gentle water animation
+  water.position.y = -1 + Math.sin(Date.now() * 0.001) * 0.3;
+  
+  renderer.render(scene, camera);
+}
+
+// --- RESIZE ---
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// --- START ---
+setTimeout(() => {
+  document.getElementById('loading').classList.add('done');
+  animate();
+}, 800);
+
+</script>
+</body>
+</html>

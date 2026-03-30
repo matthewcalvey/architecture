@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#6a9cc4;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruise Terminal 5 — Program Color Plans</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--surface:#f5f5f5;--border:#ddd;--text:#1a1a1a;--text-dim:#555;--text-muted:#888;--accent:#6a9cc4;--green:#7ab87a;--amber:#c9a959;--hot:#c45c3e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+body.embedded{background:transparent}
+::selection{background:rgba(106,156,196,0.2)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+
+.header{text-align:center;padding:28px 20px 6px}
+.header h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(18px,3vw,32px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text)}
+.header .sub{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:4px}
+
+.mode-tabs{display:flex;justify-content:center;gap:3px;margin:18px auto 0;padding:3px;width:fit-content}
+.mode-tab{padding:10px 32px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'Space Mono',monospace;font-size:11px;font-weight:400;cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;transition:all 0.2s}
+.mode-tab:hover{color:var(--text);border-color:var(--accent)}
+.mode-tab.active-cruise{background:#8fb5cc;color:#fff;border-color:#8fb5cc}
+.mode-tab.active-nc{background:#cc8878;color:#fff;border-color:#cc8878}
+
+.plans-container{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:100%;margin:16px auto;padding:0 16px}
+.plan-column{background:var(--surface);border:1px solid var(--border);overflow:hidden}
+.plan-title{padding:10px 16px 8px;text-align:center;border-bottom:1px solid var(--border)}
+.plan-title h2{font-family:'Space Mono',monospace;font-size:10px;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted)}
+
+.plan-canvas{position:relative;width:100%;padding:8px}
+.site-frame{position:relative;width:100%;aspect-ratio:.82;border:1px solid var(--border);overflow:hidden;background:#fafbfc}
+
+/* ── CONTEXT OVERLAYS ── */
+.ctx-water{position:absolute;right:0;top:0;width:14%;height:100%;background:linear-gradient(180deg,rgba(106,156,196,0.12) 0%,rgba(106,156,196,0.06) 100%)}
+.ctx-water-lbl{position:absolute;right:3%;top:50%;transform:translateY(-50%) rotate(-90deg);font-family:'Space Mono',monospace;font-size:7px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;opacity:0.5;white-space:nowrap}
+.ctx-infill{position:absolute;right:8%;top:10%;width:10%;height:60%;border:1.5px dashed rgba(106,156,196,0.3);border-radius:2px}
+.ctx-infill-lbl{position:absolute;right:10%;top:7%;font-size:6px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;opacity:0.45}
+.ctx-berth{position:absolute;right:13.5%;top:8%;width:1px;height:65%;background:repeating-linear-gradient(to bottom,#bbb 0px,#bbb 3px,transparent 3px,transparent 7px)}
+.ctx-berth-lbl{position:absolute;right:14%;top:74%;font-size:6px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;transform:translateX(50%)}
+.ctx-selmon{position:absolute;top:0;left:0;right:0;height:6%;background:rgba(0,0,0,0.03);border-bottom:1px solid var(--border)}
+.ctx-selmon-lbl{position:absolute;top:1.5%;left:50%;transform:translateX(-50%);font-size:6px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
+.ctx-cside{position:absolute;left:0;top:6%;width:5%;height:94%;background:rgba(0,0,0,0.02);border-right:1px solid var(--border)}
+.ctx-cside-lbl{position:absolute;left:.5%;top:52%;transform:rotate(-90deg);transform-origin:left center;font-size:6px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
+.ctx-ship{position:absolute;right:2%;bottom:8%;width:8%;height:30%;border:1.5px solid rgba(106,156,196,0.2);border-radius:3px 3px 20px 20px}
+.ctx-ship-lbl{position:absolute;right:3.5%;bottom:25%;font-size:5px;color:rgba(106,156,196,0.4);letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-rl;transform:rotate(180deg)}
+.north-arrow{position:absolute;top:8%;left:7%;z-index:5;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);line-height:1;text-align:center}
+.north-arrow::before{content:'▲';display:block;font-size:8px}
+.view-badge{position:absolute;font-family:'Space Mono',monospace;font-size:6px;padding:2px 5px;border-radius:2px;letter-spacing:.5px;font-weight:400;white-space:nowrap;z-index:5}
+.view-south{bottom:2%;left:22%;background:rgba(201,169,89,0.12);color:var(--amber);border:1px solid rgba(201,169,89,0.2)}
+.view-east{right:15%;top:35%;background:rgba(106,156,196,0.08);color:var(--accent);border:1px solid rgba(106,156,196,0.15);transform:rotate(-90deg)}
+
+/* ── BLOCKS ── */
+.block{position:absolute;border-radius:3px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s,opacity 0.15s;border:1px solid rgba(255,255,255,0.3);overflow:hidden;animation:blockIn 0.3s ease both;opacity:0.5}
+@keyframes blockIn{from{opacity:0;transform:scale(0.93)}to{opacity:1;transform:scale(1)}}
+.block:hover{transform:scale(1.03);z-index:10;border-color:rgba(0,0,0,0.2);box-shadow:0 4px 16px rgba(0,0,0,0.12);opacity:0.85}
+.block.stair-feature{border:2px solid rgba(201,169,89,0.6);background:linear-gradient(135deg,rgba(201,169,89,0.15),rgba(245,245,245,0.9))!important;box-shadow:0 0 8px rgba(201,169,89,0.1)}
+.block.stair-feature:hover{border-color:rgba(201,169,89,0.9);box-shadow:0 0 16px rgba(201,169,89,0.2)}
+.block.outdoor-deck{border:2px dashed rgba(122,184,122,0.5);background:repeating-linear-gradient(45deg,rgba(122,184,122,0.06),rgba(122,184,122,0.06) 4px,transparent 4px,transparent 8px)!important}
+.block.core-spine{background:linear-gradient(180deg,#e8eaed,#dde0e4)!important;border:1px solid rgba(0,0,0,0.08)}
+.block .label{font-family:'Space Mono',monospace;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 1px 3px rgba(0,0,0,0.45)}
+.block .sf{color:rgba(255,255,255,0.9);font-weight:300;text-shadow:0 1px 2px rgba(0,0,0,0.35)}
+.block .convert-badge{position:absolute;top:1px;right:1px;font-size:5.5px;padding:1px 3px;border-radius:2px;font-weight:700;letter-spacing:.5px}
+.badge-full{background:rgba(122,184,122,0.9);color:#fff}
+.badge-partial{background:rgba(201,169,89,0.9);color:#fff}
+.badge-fixed{background:rgba(136,136,136,0.8);color:#fff}
+
+/* ── CORE SPINE LABEL OVERRIDE ── */
+.block.core-spine .label{color:var(--text-dim);text-shadow:none;font-weight:400}
+.block.core-spine .sf{color:var(--text-muted);text-shadow:none}
+.block.stair-feature .label{color:var(--amber);text-shadow:0 1px 2px rgba(0,0,0,0.15)}
+
+/* ── REVENUE BAR ── */
+.revenue-bar{max-width:100%;margin:0 auto 12px;padding:0 16px}
+.revenue-strip{background:var(--surface);border:1px solid var(--border);padding:10px 16px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
+.rev-item{text-align:center}
+.rev-item .rev-val{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--accent)}
+.rev-item .rev-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px}
+
+/* ── LEGEND ── */
+.legend-section{max-width:100%;margin:0 auto 24px;padding:0 16px}
+.legend-panel{background:var(--surface);border:1px solid var(--border);padding:14px}
+.legend-panel h3{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.legend-items{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,0.08)}
+.legend-swatch.sw-stair{border:1.5px solid rgba(201,169,89,0.5);background:linear-gradient(135deg,rgba(201,169,89,0.2),#f5f5f5)!important}
+.legend-swatch.sw-deck{border:1.5px dashed rgba(122,184,122,0.45);background:repeating-linear-gradient(45deg,rgba(122,184,122,0.12),rgba(122,184,122,0.12) 2px,transparent 2px,transparent 4px)!important}
+.legend-swatch.sw-core{background:linear-gradient(180deg,#e8eaed,#dde0e4)!important;border:1px solid rgba(0,0,0,0.08)}
+.legend-text{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim)}
+
+.convert-legend{display:flex;justify-content:center;gap:16px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
+.convert-item{display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted)}
+.convert-dot{width:8px;height:8px;border-radius:2px}
+
+/* ── TOOLTIP ── */
+.tooltip{display:none;position:fixed;background:#fff;border:1px solid var(--border);border-radius:4px;padding:10px 14px;max-width:280px;z-index:1000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.tooltip.visible{display:block}
+.tooltip .tt-title{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:0.04em}
+.tooltip .tt-sf{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:4px}
+.tooltip .tt-desc{font-size:14px;font-family:'Cormorant Garamond',serif;color:var(--text-dim);line-height:1.5}
+.tooltip .tt-why{font-size:12px;font-family:'Cormorant Garamond',serif;color:var(--amber);margin-top:6px;font-style:italic}
+.tooltip .tt-convert{font-family:'Space Mono',monospace;font-size:9px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+
+@media(max-width:900px){.plans-container{grid-template-columns:1fr;max-width:600px}.legend-items{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="header"><h1>Program Color Plans</h1><div class="sub">Port Tampa Bay &middot; Cruise Terminal 5 &middot; RFQ 006-26</div></div>
+<div class="mode-tabs">
+  <button class="mode-tab active-cruise" id="tab-cruise" onclick="showMode('cruise')">Cruise Day</button>
+  <button class="mode-tab" id="tab-nc" onclick="showMode('nc')">Non-Cruise Day</button>
+</div>
+<div class="plans-container">
+  <div class="plan-column">
+    <div class="plan-title"><h2>Level 1 &mdash; Grade</h2></div>
+    <div class="plan-canvas"><div class="site-frame">
+      <div class="ctx-water"></div><div class="ctx-water-lbl">Ybor Channel</div><div class="ctx-infill"></div><div class="ctx-infill-lbl">Infill</div><div class="ctx-berth"></div><div class="ctx-berth-lbl">Berths 263&ndash;265</div><div class="ctx-selmon"></div><div class="ctx-selmon-lbl">Selmon Expressway</div><div class="ctx-cside"></div><div class="ctx-cside-lbl">Channelside Dr</div><div class="ctx-ship"></div><div class="ctx-ship-lbl" id="ship1">Vessel</div><div class="north-arrow">N</div><div class="view-badge view-south">&#9733; Tampa Bay &middot; Skyline &middot; Sunset</div><div class="view-badge view-east">Channel Views</div>
+      <div id="blocks-l1"></div>
+    </div></div>
+  </div>
+  <div class="plan-column">
+    <div class="plan-title"><h2>Level 2 &mdash; Upper</h2></div>
+    <div class="plan-canvas"><div class="site-frame">
+      <div class="ctx-water"></div><div class="ctx-water-lbl">Ybor Channel</div><div class="ctx-infill"></div><div class="ctx-infill-lbl">Infill</div><div class="ctx-berth"></div><div class="ctx-berth-lbl">Berths 263&ndash;265</div><div class="ctx-selmon"></div><div class="ctx-selmon-lbl">Selmon Expressway</div><div class="ctx-cside"></div><div class="ctx-cside-lbl">Channelside Dr</div><div class="ctx-ship"></div><div class="ctx-ship-lbl" id="ship2">Vessel</div><div class="north-arrow">N</div><div class="view-badge view-south">&#9733; Tampa Bay &middot; Skyline &middot; Sunset</div><div class="view-badge view-east">Channel Views</div>
+      <div id="blocks-l2"></div>
+    </div></div>
+  </div>
+</div>
+<div class="revenue-bar"><div class="revenue-strip">
+  <div class="rev-item"><div class="rev-val">$1.5M&ndash;$5M+</div><div class="rev-label">Event Venue</div></div>
+  <div class="rev-item"><div class="rev-val">$500K&ndash;$1M+</div><div class="rev-label">Parking</div></div>
+  <div class="rev-item"><div class="rev-val">$15K&ndash;$50K+</div><div class="rev-label">Per Event</div></div>
+  <div class="rev-item"><div class="rev-val">285&ndash;305</div><div class="rev-label">Non-Cruise Days</div></div>
+</div></div>
+<div class="legend-section">
+  <div class="legend-panel"><h3 id="legend-title">Cruise-Day Program</h3><div class="legend-items" id="legend-items"></div></div>
+  <div class="convert-legend">
+    <div class="convert-item"><div class="convert-dot" style="background:rgba(122,184,122,0.9)"></div> Full</div>
+    <div class="convert-item"><div class="convert-dot" style="background:rgba(201,169,89,0.9)"></div> Partial</div>
+    <div class="convert-item"><div class="convert-dot" style="background:rgba(136,136,136,0.8)"></div> Fixed</div>
+  </div>
+</div>
+<div id="tooltip" class="tooltip"></div>
+<script>
+const L1C=[
+  {id:'H.01',label:'Curbside Drop-Off / Pick-Up',sf:'\u2014',color:'#9ac89a',pos:[6,7,24,11],desc:'Covered canopy; separate private/rideshare/motorcoach.',convert:'partial'},
+  {id:'CORE',label:'Services Core Spine',sf:'~18K',color:'core',pos:[31,7,20,24],cls:'core-spine',desc:'Consolidated circ + MEP. Stacks vertically.',convert:'fixed'},
+  {id:'C.01',label:'Luggage Laydown \u2014 Embark',sf:'8,000',color:'#9a9dc4',pos:[52,7,28,11],desc:'Curbside drop \u2192 porter sort \u2192 conveyor south.',convert:'partial'},
+  {id:'H.04',label:'Pedestrian Plaza / Arrival Court',sf:'\u2014',color:'#9ac89a',pos:[6,19,24,11],desc:'Landscaped entry; wayfinding; food trucks.',convert:'full'},
+  {id:'C.02',label:'Luggage Laydown \u2014 Debark',sf:'8,000',color:'#9a9dc4',pos:[52,19,28,11],desc:'Vessel off-load \u2192 staging \u2192 claim.',convert:'partial'},
+  {id:'H.03',label:'Bus / Motorcoach Staging',sf:'\u2014',color:'#9ac89a',pos:[6,31,24,9],desc:'Tour bus loading; layover.',convert:'partial'},
+  {id:'E.06',label:'Loading Dock / Service',sf:'2,500',color:'#d4be80',pos:[31,32,10,8],desc:'Provisioning; waste; deliveries.',convert:'partial'},
+  {id:'E.01',label:'Port Office',sf:'1,500',color:'#d4be80',pos:[42,32,9,8],desc:'Shift supervisor, dispatch, CCTV.',convert:'partial'},
+  {id:'C.03',label:'BHS Equipment',sf:'3,000',color:'#9a9dc4',pos:[52,31,14,9],desc:'Conveyors, screening, controls.',convert:'fixed'},
+  {id:'C.04',label:'Cart Storage',sf:'1,000',color:'#9a9dc4',pos:[67,31,13,9],desc:'Porter equipment; cart corrals.',convert:'partial'},
+  {id:'PLAZA',label:'South Plaza / Entry Garden',sf:'\u2014',color:'rgba(154,200,154,0.3)',pos:[6,41,24,18],desc:'South-facing approach. Outdoor ceremony.',convert:'full'},
+  {id:'E.02',label:'CBP Office Suite',sf:'2,000',color:'#d4be80',pos:[31,41,10,6],desc:'Secure; armory; corridor to FIS.',convert:'fixed'},
+  {id:'E.04',label:'Staff Break',sf:'1,000',color:'#d4be80',pos:[42,41,9,6],desc:'Lockers; kitchenette.',convert:'partial'},
+  {id:'E.05',label:'Janitorial',sf:'500',color:'#d4be80',pos:[31,48,10,5],desc:'Slop sinks; chemical storage.',convert:'fixed'},
+  {id:'G.01a',label:'Restrooms',sf:'1,500',color:'#8ec8c8',pos:[42,48,9,5],desc:'Grade restrooms.',convert:'fixed'},
+  {id:'G.03',label:'Pet Relief',sf:'400',color:'#8ec8c8',pos:[31,54,10,4],desc:'Service animals.',convert:'fixed'},
+  {id:'B.02',label:'CBP / FIS',sf:'6,000',color:'#a89cc8',pos:[52,41,28,17],desc:'Primary + secondary + APHIS; sealed.',convert:'fixed-ops'},
+  {id:'D.03',label:'Monumental Stair',sf:'1,800',color:'stair',pos:[6,60,13,22],cls:'stair-feature',desc:'Glass-enclosed at SW. Civic beacon. Gallery walls.',why:'The pursuit image.',convert:'fixed'},
+  {id:'H.05',label:'Utility',sf:'\u2014',color:'#b8b8b8',pos:[20,60,10,9],desc:'Stormwater; grease trap.',convert:'fixed'},
+  {id:'B.04',label:'Meeter-Greeter / Reunification',sf:'2,500',color:'#a89cc8',pos:[20,70,31,12],desc:'Post-CBP reunification. Bay-facing exit.',convert:'full'},
+  {id:'B.03',label:'Baggage Claim Hall',sf:'10,000',color:'#a89cc8',pos:[52,59,28,18],desc:'Flat-bed claim; 20\' clear.',convert:'full'}
+];
+const L1NC=[
+  {id:'H.01\u2192',label:'Restaurant Valet / Event Drop-Off',sf:'\u2014',color:'#c480a8',pos:[6,7,24,11],convert:'partial',badge:'PARTIAL',desc:'Event valet.'},
+  {id:'CORE\u2192',label:'Services Core (Fixed)',sf:'~18K',color:'core',pos:[31,7,20,24],cls:'core-spine',convert:'fixed',badge:'FIXED',desc:'Zone HVAC reduces cost.'},
+  {id:'C.01\u2192',label:'Event Staging / Food Truck',sf:'8,000',color:'#a8be90',pos:[52,7,28,11],convert:'partial',badge:'PARTIAL',desc:'Deliveries; commissary.'},
+  {id:'H.04\u2192',label:'Public Market / Food Trucks / Concerts',sf:'\u2014',color:'#cc8878',pos:[6,19,24,11],convert:'full',badge:'FULL',desc:'Concerts, festivals, markets.'},
+  {id:'C.02\u2192',label:'Vendor Load-In / Overflow Market',sf:'8,000',color:'#a8be90',pos:[52,19,28,11],convert:'partial',badge:'PARTIAL',desc:'Overflow market stalls.'},
+  {id:'H.03\u2192',label:'Tour Bus / Charter',sf:'\u2014',color:'#a8be90',pos:[6,31,24,9],convert:'partial',badge:'PARTIAL',desc:'Tour bus; charter.'},
+  {id:'E.06\u2192',label:'Event Load-In / Load-Out',sf:'2,500',color:'#a8be90',pos:[31,32,10,8],convert:'partial',badge:'PARTIAL',desc:'Catering; event load-in.'},
+  {id:'E.01\u2192',label:'Event Mgmt Office',sf:'1,500',color:'#a8be90',pos:[42,32,9,8],convert:'partial',badge:'PARTIAL',desc:'Scheduling, AV.'},
+  {id:'C.03\u2192',label:'BHS (Fixed)',sf:'3,000',color:'#b8b8b8',pos:[52,31,14,9],convert:'fixed',badge:'FIXED',desc:'Mechanical.'},
+  {id:'C.04\u2192',label:'Event Equipment Storage',sf:'1,000',color:'#a8be90',pos:[67,31,13,9],convert:'partial',badge:'PARTIAL',desc:'Tables, chairs, AV.'},
+  {id:'PLAZA\u2192',label:'South Plaza \u2014 Outdoor Events',sf:'\u2014',color:'rgba(204,136,120,0.25)',pos:[6,41,24,18],convert:'full',badge:'FULL',desc:'Ceremony, cocktail gardens.'},
+  {id:'E.02\u2192',label:'CBP (Locked)',sf:'2,000',color:'#b8b8b8',pos:[31,41,10,6],convert:'fixed',badge:'FIXED',desc:'Federal; locked.'},
+  {id:'E.04\u2192',label:'Event Staff Break',sf:'1,000',color:'#a8be90',pos:[42,41,9,6],convert:'partial',badge:'PARTIAL',desc:'Event crew.'},
+  {id:'E.05\u2192',label:'Janitorial (Fixed)',sf:'500',color:'#b8b8b8',pos:[31,48,10,5],convert:'fixed',badge:'FIXED',desc:'Same function.'},
+  {id:'G.01a\u2192',label:'Restrooms',sf:'1,500',color:'#9ac8d4',pos:[42,48,9,5],convert:'fixed',badge:'FIXED',desc:'Event patrons.'},
+  {id:'G.03\u2192',label:'Pet Relief',sf:'400',color:'#9ac8d4',pos:[31,54,10,4],convert:'fixed',badge:'FIXED',desc:'Restaurant/obs deck.'},
+  {id:'B.02\u2192',label:'Indoor Rec \u2014 Pickleball / Fitness',sf:'6,000',color:'#d4a478',pos:[52,41,28,17],convert:'full',badge:'FULL',desc:'FIS retracts; sports-grade, 20\' clear.'},
+  {id:'D.03\u2192',label:'Monumental Stair (Public Icon)',sf:'1,800',color:'stair',pos:[6,60,13,22],cls:'stair-feature',convert:'fixed',badge:'FIXED',desc:'Glass beacon. Ascent to event hall.'},
+  {id:'H.05\u2192',label:'Utility (Fixed)',sf:'\u2014',color:'#b8b8b8',pos:[20,60,10,9],convert:'fixed',badge:'FIXED',desc:'Site infrastructure.'},
+  {id:'B.04\u2192',label:'Maritime History / Art Gallery',sf:'2,500',color:'#a89cc8',pos:[20,70,31,12],convert:'full',badge:'FULL',desc:'Rotating exhibitions. Gallery walls.'},
+  {id:'B.03\u2192',label:'Community Events / Indoor Market',sf:'10,000',color:'#d4a478',pos:[52,59,28,18],convert:'full',badge:'FULL',desc:'Health fairs, maker fairs. 20\' clear.'}
+];
+const L2C=[
+  {id:'A.01',label:'Main Entry Lobby / Check-In',sf:'8,000',color:'#8fb5cc',pos:[7,12,40,17],desc:'Flexible kiosk + agent layout.',convert:'full'},
+  {id:'A.02',label:'Security Screening',sf:'3,500',color:'#8fb5cc',pos:[7,30,40,16],desc:'4\u20136 lanes expandable to 8.',convert:'full'},
+  {id:'CORE\u2082',label:'Services Core (Upper)',sf:'(cont.)',color:'core',pos:[48,12,18,18],cls:'core-spine',desc:'Upper continuation of services spine.',convert:'fixed'},
+  {id:'E.03',label:'Cruise Line Operations',sf:'2,500',color:'#d4be80',pos:[48,31,22,10],desc:'Embark/debark ops; guest services.',convert:'full'},
+  {id:'A.04',label:'VIP / Loyalty Lounge',sf:'2,000',color:'#7da8be',pos:[18,47,14,12],desc:'Private check-in; concierge. Bay views.',convert:'full'},
+  {id:'A.05',label:'Retail & F&B',sf:'2,500',color:'#9ac8d4',pos:[33,47,14,12],desc:'Dual-facing. Bay view dining.',convert:'full'},
+  {id:'A.06',label:'Family / Accessible',sf:'1,200',color:'#a8d0da',pos:[48,47,10,12],desc:'Stroller staging; ADA; near core.',convert:'full'},
+  {id:'G.01b',label:'Restrooms (Upper)',sf:'1,500',color:'#8ec8c8',pos:[59,47,8,8],desc:'Upper restrooms.',convert:'fixed'},
+  {id:'G.02',label:'Nursing',sf:'300',color:'#8ec8c8',pos:[67,12,7,5],desc:'Private; lockable.',convert:'fixed'},
+  {id:'G.04',label:'Interfaith',sf:'400',color:'#8ec8c8',pos:[67,18,7,5],desc:'Quiet.',convert:'fixed'},
+  {id:'A.07',label:'Boarding Bridge Vestibule',sf:'1,500',color:'#6d9ab5',pos:[68,47,12,16],desc:'Weather-protected; vessel gangway.',convert:'partial'},
+  {id:'A.03',label:'Post-Security Holding / Waiting',sf:'5,000',color:'#8fb5cc',pos:[18,60,48,14],desc:'1,800 pax. Panoramic south: bay, skyline, sunset.',why:'The $15K\u2013$50K/event view.',convert:'full'},
+  {id:'DECK',label:'Outdoor Deck / Terrace',sf:'~2,500',color:'deck',pos:[18,75,48,9],cls:'outdoor-deck',desc:'Covered south terrace. Bay + sunset.',convert:'full'},
+  {id:'D.03\u2082',label:'Monumental Stair (Upper)',sf:'(cont.)',color:'stair',pos:[6,60,11,24],cls:'stair-feature',desc:'Glass stair arrives at upper. View reveals bay, skyline.',convert:'fixed'},
+  {id:'B.01',label:'Debark Ramp (Upper\u2192Grade)',sf:'2,000',color:'#a89cc8',pos:[68,64,12,14],desc:'Vessel-to-FIS; separated.',convert:'fixed'},
+  {id:'GARAGE',label:'\u2190 Garage Bridge',sf:'',color:'rgba(106,156,196,0.2)',pos:[0,18,7,10],desc:'Enclosed bridge from 800-space garage.',convert:'fixed'}
+];
+const L2NC=[
+  {id:'A.01\u2192',label:'Event Reception / Registration',sf:'8,000',color:'#cc8878',pos:[7,12,40,17],convert:'full',badge:'FULL',desc:'Grand reception; kiosks retracted.'},
+  {id:'A.02\u2192',label:'Open Event Floor',sf:'3,500',color:'#cc8878',pos:[7,30,40,16],convert:'full',badge:'FULL',desc:'Security behind partitions.'},
+  {id:'CORE\u2082\u2192',label:'Services Core (Fixed)',sf:'(cont.)',color:'core',pos:[48,12,18,18],cls:'core-spine',convert:'fixed',badge:'FIXED',desc:'All circ + MEP.'},
+  {id:'E.03\u2192',label:'Event Production Suite',sf:'2,500',color:'#a8be90',pos:[48,31,22,10],convert:'full',badge:'FULL',desc:'Green room, AV, vendor.'},
+  {id:'A.04\u2192',label:'Private Event Suite',sf:'2,000',color:'#c08878',pos:[18,47,14,12],convert:'full',badge:'FULL',desc:'Retreats, rehearsal dinners.'},
+  {id:'A.05\u2192',label:'Public Restaurant / Caf\u00e9',sf:'2,500',color:'#c480a8',pos:[33,47,14,12],convert:'full',badge:'FULL',desc:'Dual-access. Bay view dining. 365-day.'},
+  {id:'A.06\u2192',label:'Community Wellness',sf:'1,200',color:'#8ec8c8',pos:[48,47,10,12],convert:'full',badge:'FULL',desc:'Yoga, meditation, meetings.'},
+  {id:'G.01b\u2192',label:'Restrooms',sf:'1,500',color:'#9ac8d4',pos:[59,47,8,8],convert:'fixed',badge:'FIXED',desc:'Event patrons.'},
+  {id:'G.02\u2192',label:'Wellness',sf:'300',color:'#8ec8c8',pos:[67,12,7,5],convert:'fixed',badge:'FIXED',desc:'Meditation, nursing.'},
+  {id:'G.04\u2192',label:'Meeting',sf:'400',color:'#8ec8c8',pos:[67,18,7,5],convert:'fixed',badge:'FIXED',desc:'Small groups.'},
+  {id:'A.07\u2192',label:'Waterside Terrace',sf:'1,500',color:'#9ac8d4',pos:[68,47,12,16],convert:'partial',badge:'PARTIAL',desc:'Cocktail overflow.'},
+  {id:'A.03\u2192',label:'PREMIER EVENT HALL',sf:'5,000',color:'#cc8878',pos:[18,60,48,14],convert:'full',badge:'FULL',desc:'$15K\u2013$50K+/event. Panoramic south.',why:'$1.5M\u2013$5M+ annual.'},
+  {id:'DECK\u2192',label:'Outdoor Event Terrace',sf:'~2,500',color:'deck',pos:[18,75,48,9],cls:'outdoor-deck',convert:'full',badge:'FULL',desc:'Sunset ceremonies = premium rates.'},
+  {id:'D.03\u2082\u2192',label:'Monumental Stair \u2014 The Icon',sf:'(cont.)',color:'stair',pos:[6,60,11,24],cls:'stair-feature',convert:'fixed',badge:'FIXED',desc:'Glass beacon. Ascent to event hall.'},
+  {id:'B.01\u2192',label:'Service (Closed)',sf:'2,000',color:'#b8b8b8',pos:[68,64,12,14],convert:'fixed',badge:'FIXED',desc:'Closed.'},
+  {id:'GARAGE\u2192',label:'\u2190 Garage (Public)',sf:'',color:'rgba(154,200,154,0.15)',pos:[0,18,7,10],convert:'full',badge:'FULL',desc:'$500K\u2013$1M+ district parking.'}
+];
+
+const cLeg=[{color:'#8fb5cc',label:'A \u2014 Embarkation'},{color:'#a89cc8',label:'B \u2014 Debarkation/FIS'},{color:'#9a9dc4',label:'C \u2014 Baggage/Logistics'},{color:'#d4be80',label:'E \u2014 Operations/BOH'},{color:'#8ec8c8',label:'G \u2014 Amenities'},{color:'#9ac89a',label:'H \u2014 Exterior/Site'},{color:'',label:'Services Core',sw:'sw-core'},{color:'',label:'\u2605 Monumental Stair',sw:'sw-stair'},{color:'',label:'Outdoor Deck',sw:'sw-deck'}];
+const ncLeg=[{color:'#cc8878',label:'Event Venue'},{color:'#d4a478',label:'Recreation/Fitness'},{color:'#c480a8',label:'Restaurant/Retail'},{color:'#a89cc8',label:'Gallery/Exhibit'},{color:'#a8be90',label:'Staging/Ops'},{color:'#8ec8c8',label:'Wellness'},{color:'#9ac8d4',label:'Public Amenity'},{color:'#b8b8b8',label:'Fixed'},{color:'',label:'\u2605 Stair Beacon',sw:'sw-stair'},{color:'',label:'Outdoor Terrace',sw:'sw-deck'}];
+
+function renderBlocks(id,blocks){var el=document.getElementById(id);el.innerHTML='';blocks.forEach(function(b,i){var div=document.createElement('div');div.className='block'+(b.cls?' '+b.cls:'');div.style.left=b.pos[0]+'%';div.style.top=b.pos[1]+'%';div.style.width=b.pos[2]+'%';div.style.height=b.pos[3]+'%';if(!b.cls)div.style.background=b.color;div.style.animationDelay=(i*0.02)+'s';var a=b.pos[2]*b.pos[3];var fs=a>350?'9px':a>100?'8px':a>40?'7px':'6px';var badge='';if(b.badge){var c=b.badge==='FULL'?'badge-full':b.badge==='PARTIAL'?'badge-partial':'badge-fixed';badge='<span class="convert-badge '+c+'">'+b.badge+'</span>'}div.innerHTML=badge+'<span class="label" style="font-size:'+fs+'">'+b.label+'</span>'+(b.sf&&a>25?'<span class="sf" style="font-size:'+(a>150?'8px':'6.5px')+'">'+b.sf+' SF</span>':'');div.addEventListener('mouseenter',function(e){showTT(e,b)});div.addEventListener('mousemove',moveTT);div.addEventListener('mouseleave',hideTT);el.appendChild(div)})}
+
+function renderLeg(items,title,color){document.getElementById('legend-title').textContent=title;document.getElementById('legend-title').style.color=color;document.getElementById('legend-items').innerHTML=items.map(function(i){var cls=i.sw?'legend-swatch '+i.sw:'legend-swatch';var bg=(!i.sw&&i.color)?'background:'+i.color:'';return'<div class="legend-item"><div class="'+cls+'" style="'+bg+'"></div><span class="legend-text">'+i.label+'</span></div>'}).join('')}
+
+function showMode(mode){
+  document.getElementById('tab-cruise').className='mode-tab'+(mode==='cruise'?' active-cruise':'');
+  document.getElementById('tab-nc').className='mode-tab'+(mode==='nc'?' active-nc':'');
+  document.getElementById('ship1').textContent=mode==='cruise'?'Vessel':'No Vessel';
+  document.getElementById('ship2').textContent=mode==='cruise'?'Vessel':'No Vessel';
+  if(mode==='cruise'){renderBlocks('blocks-l1',L1C);renderBlocks('blocks-l2',L2C);renderLeg(cLeg,'Cruise-Day Program','#8fb5cc')}
+  else{renderBlocks('blocks-l1',L1NC);renderBlocks('blocks-l2',L2NC);renderLeg(ncLeg,'Non-Cruise-Day Program','#cc8878')}
+}
+
+function showTT(e,b){var tt=document.getElementById('tooltip');var conv=b.convert==='full'?'<span style="color:#7ab87a">\u25cf Full</span>':b.convert==='partial'?'<span style="color:#c9a959">\u25cf Partial</span>':'<span style="color:#888">\u25cf Fixed</span>';tt.innerHTML='<div class="tt-title">'+((b.id||'').replace('\u2192','').replace('\u2082',''))+' \u2014 '+b.label+'</div>'+(b.sf?'<div class="tt-sf">'+b.sf+' SF</div>':'')+'<div class="tt-desc">'+(b.desc||'')+'</div>'+(b.why?'<div class="tt-why">\u21b3 '+b.why+'</div>':'')+'<div class="tt-convert">'+conv+'</div>';tt.classList.add('visible');moveTT(e)}
+function moveTT(e){var tt=document.getElementById('tooltip');tt.style.left=Math.min((e.clientX||e.pageX)+12,window.innerWidth-300)+'px';tt.style.top=Math.min((e.clientY||e.pageY)-6,window.innerHeight-200)+'px'}
+function hideTT(){document.getElementById('tooltip').classList.remove('visible')}
+
+showMode('cruise');
+</script>
+</body>
+</html>
