@@ -198,6 +198,43 @@ li strong{color:var(--text);font-weight:600}
 .stat-item .stat-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--text);line-height:1.2}
 .stat-item .stat-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
 
+/* ── STRATEGY SECTION ── */
+.sec-strategy{background:linear-gradient(180deg,rgba(196,92,62,0.03) 0%,transparent 100%);border-left:3px solid var(--hot);padding-left:21px;margin-left:-24px;position:relative}
+.sec-strategy .sn{color:var(--hot)}
+.priority-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#fff;background:var(--hot);padding:3px 12px;border-radius:2px;margin-left:12px;vertical-align:middle}
+.score-callout{background:rgba(196,92,62,0.06);border:1px solid rgba(196,92,62,0.2);padding:20px 24px;margin:24px 0}
+.score-callout p{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--text);line-height:1.6;margin-bottom:0}
+.score-callout strong{color:var(--hot)}
+.checklist{list-style:none;margin-left:0;padding-left:0}
+.checklist li{font-size:15px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.checklist li::before{content:'☐ ';font-size:14px;color:var(--text-muted)}
+.checklist li.counts::after{content:' ← COUNTS TOWARD 20 PAGES';font-family:'Space Mono',monospace;font-size:8px;color:var(--hot);letter-spacing:0.06em;text-transform:uppercase;margin-left:8px}
+.tab-checklist{counter-reset:tabnum;list-style:none;margin-left:0;padding-left:0}
+.tab-checklist li{font-size:15px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.04);counter-increment:tabnum}
+.tab-checklist li::before{content:'Tab ' counter(tabnum) '. ';font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.06em;font-weight:700}
+.action-box{background:rgba(196,92,62,0.06);border:1px solid rgba(196,92,62,0.2);padding:14px 18px;margin:16px 0;font-family:'Space Mono',monospace;font-size:11px;color:var(--hot);line-height:1.8;letter-spacing:0.02em}
+.action-box strong{color:var(--text)}
+.warn-icon::before{content:'⚠️ ';font-size:14px}
+
+/* ── KEY DATES BAR ── */
+.key-dates{max-width:760px;margin:0 auto;padding:0 24px}
+.key-dates-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:24px 0}
+.kd-item{text-align:center;padding:14px 10px;background:var(--surface);border:1px solid var(--border)}
+.kd-item .kd-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.kd-item .kd-date{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);line-height:1.3}
+.kd-item .kd-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted)}
+.kd-item.kd-deadline{background:rgba(196,92,62,0.06);border:2px solid var(--hot)}
+.kd-item.kd-deadline .kd-label{color:var(--hot);font-weight:700}
+.kd-item.kd-deadline .kd-date{color:var(--hot);font-size:26px;font-weight:600}
+.kd-item.kd-deadline .kd-time{color:var(--hot)}
+.kd-item.kd-past{opacity:0.5}
+
+/* ── ACTION ITEMS PANEL ── */
+.action-panel{background:var(--surface);border:1px solid var(--border);padding:24px;margin:28px 0}
+.action-panel h3{margin-top:20px}
+.action-panel h3:first-child{margin-top:0}
+.action-panel .checklist li{font-size:14px}
+
 /* ── FOOTER ── */
 .footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
 .footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
@@ -226,6 +263,7 @@ li strong{color:var(--text);font-weight:600}
 <nav class="topnav">
   <div class="topnav-inner">
     <span class="nav-brand">PTB CT-5</span>
+    <a class="nav-link" href="#strategy" style="color:var(--hot);border-color:rgba(196,92,62,0.3)">Strategy</a>
     <a class="nav-link" href="#overview">Overview</a>
     <a class="nav-link" href="#context">Context</a>
     <a class="nav-link" href="#research">Research</a>
@@ -268,8 +306,271 @@ li strong{color:var(--text);font-weight:600}
   </div>
 </div>
 
+<!-- ═══ KEY DATES ═══ -->
+<div class="key-dates" style="padding-top:32px">
+  <div style="text-align:center;margin-bottom:8px">
+    <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted)">Key Dates &mdash; RFQ 006-26</span>
+  </div>
+  <div class="key-dates-inner">
+    <div class="kd-item kd-past">
+      <div class="kd-label">Question Deadline</div>
+      <div class="kd-date">Mar 31</div>
+      <div class="kd-time">5:00 PM EST</div>
+    </div>
+    <div class="kd-item">
+      <div class="kd-label">PTB Answers</div>
+      <div class="kd-date">Apr 2</div>
+      <div class="kd-time">5:00 PM EST</div>
+    </div>
+    <div class="kd-item kd-deadline">
+      <div class="kd-label">Submittal Deadline</div>
+      <div class="kd-date">Apr 9</div>
+      <div class="kd-time">1:00 PM EST &mdash; Physical Delivery</div>
+    </div>
+    <div class="kd-item">
+      <div class="kd-label">Board Meeting</div>
+      <div class="kd-date">May 19</div>
+      <div class="kd-time">PTB Board of Commissioners</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--hot);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px">1101 Channelside Drive, Tampa, FL 33602, 4th Floor &mdash; No electronic or faxed responses accepted</div>
+</div>
+
 <!-- ═══ MAIN CONTENT ═══ -->
 <div class="ct">
+
+<!-- ═══ 00 WIN STRATEGY ═══ -->
+<div class="sec sec-strategy" id="strategy">
+  <div class="sn">00 &mdash; Win Strategy<span class="priority-badge">Priority</span></div>
+  <h2>RFQ Pursuit Playbook</h2>
+  <p>This is a <strong>CCNA qualifications-based procurement</strong>. 60% of the score is about who we are and who is on the team. 10% is about what we know. The design work on this site is our 10% weapon &mdash; but we need the 60% locked down or we never get to show it.</p>
+
+  <!-- 00.1 Evaluation Scoring Map -->
+  <div class="dsh" onclick="tb('eval')">
+    <div class="dsn">00.1</div><div class="dst">Evaluation Scoring Map</div>
+    <span class="bdg bdg-hot">60% Credentials</span>
+    <span class="dsg op" id="t-eval">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-eval">
+    <p>The actual RFQ evaluation criteria with weights. <strong>Read the math carefully.</strong></p>
+    <table class="dt">
+      <thead><tr><th>#</th><th>Criterion</th><th>Weight</th><th>Our Position</th></tr></thead>
+      <tr><td class="k">1</td><td><strong>Firm Qualifications / Experience</strong></td><td class="sf" style="color:var(--hot)">30%</td><td><span class="warn-icon"></span> Must demonstrate 10+ years, local office within 50 mi of 1101 Channelside Dr. Note: the RFQ criterion text includes "experience in design of deepwater sheet pile bulkhead wharves" (likely a template carryover from standard PTB engineering RFQs, but it is in the scoring criteria and evaluators will see it). Address via sub-consultant if needed.</td></tr>
+      <tr><td class="k">2</td><td><strong>Key Personnel Qualifications</strong></td><td class="sf" style="color:var(--hot)">30%</td><td><span class="warn-icon"></span> PM and key staff each need 10+ years, Florida PE licenses, TWIC eligibility. Org chart with PE numbers, office locations, sub-consultants with SBE/MBE designations is required.</td></tr>
+      <tr><td class="k">3</td><td><strong>Past Performance</strong></td><td class="sf">15%</td><td>Must show "major seaports projects or other similar marine projects." Comparable cruise terminal experience is the gold standard here.</td></tr>
+      <tr><td class="k">4</td><td><strong>Schedule / Budget / Workload</strong></td><td class="sf">10%</td><td>First-year funding is anticipated at $3,000,000 (Section A, 2.14). Demonstrate capacity and willingness.</td></tr>
+      <tr><td class="k">5</td><td><strong>Overall Responsiveness</strong></td><td class="sf" style="color:var(--green)">10%</td><td>This is where our design intelligence wins. "Innovative, pertinent, or other relevant information." The dual-use thesis, the programming depth, the SD Synopsis &mdash; all of this scores here.</td></tr>
+      <tr><td class="k">6</td><td><strong>Volume of Work</strong></td><td class="sf">5%</td><td>Points based on fees PTB paid to firm in past 3 years. New-to-PTB firms may actually benefit here.</td></tr>
+    </table>
+    <div class="score-callout">
+      <p><strong>The math: 60% of the score is about WHO WE ARE.</strong> 10% is about WHAT WE KNOW. The design work on this site is our 10% weapon &mdash; but we need the 60% locked down or we never get to show it.</p>
+    </div>
+  </div>
+
+  <!-- 00.2 Submission Checklist -->
+  <div class="dsh" onclick="tb('submit')">
+    <div class="dsn">00.2</div><div class="dst">Submission Checklist &amp; Requirements</div>
+    <span class="bdg bdg-hot">20-Page Limit</span>
+    <span class="dsg op" id="t-submit">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-submit">
+    <h3>Format Requirements</h3>
+    <ul>
+      <li><strong>Format:</strong> 8.5" &times; 11", bound, single-spaced, single-sided original</li>
+      <li><strong>Copies:</strong> 1 original + 6 exact replicas (bound, labeled tabs) + 1 flash drive (single Word or PDF)</li>
+      <li><strong>Page Limit:</strong> Main proposal limited to <strong>20 pages</strong> (Items 2, 4, 6, 13 = Transmittal Letter, Org Chart, References, Questionnaire). Resumes, licenses, certifications do NOT count toward the 20-page limit.</li>
+      <li><strong>Delivery:</strong> Physical delivery to 1101 Channelside Drive, Tampa, FL 33602, 4th Floor. <strong>NO electronic or faxed responses.</strong></li>
+    </ul>
+    <h3>Required Tabs (per RFQ Section A, Paragraph 3)</h3>
+    <ol class="tab-checklist">
+      <li>Proposal Cover (firm name, address, contact, phone, email)</li>
+      <li class="counts">Transmittal Letter (&le;2 pages)</li>
+      <li>Table of Contents</li>
+      <li class="counts">Organizational Chart (11&times;17 z-fold acceptable)</li>
+      <li>Form 1 &mdash; Declaration of Respondent</li>
+      <li class="counts">Form 2 &mdash; References</li>
+      <li>Form 3 &mdash; Public Entity Crimes</li>
+      <li>Form 4(A) &mdash; SBE-1 Outreach Action Plan (attach SBE certificates)</li>
+      <li>Form 4(B) &mdash; SBE-1 Opportunity List (attach emails, phone logs)</li>
+      <li>Form 5(A) &mdash; MBE-1 Outreach Action Plan (attach MBE certificates)</li>
+      <li>Form 5(B) &mdash; MBE-1 Opportunity List</li>
+      <li>Form 6 &mdash; Scrutinized Companies Certification</li>
+      <li class="counts">Form 7 &mdash; Questionnaire</li>
+      <li>Form 8 &mdash; Audited Financial Statements (3 years)</li>
+      <li>Form 9 &mdash; Office Location Map (MapQuest/Google Maps with miles)</li>
+      <li>Form 10 &mdash; Sunbiz Registration</li>
+      <li>Form 11 &mdash; Licenses/Certifications</li>
+      <li>Form 12 &mdash; Respondent Checklist</li>
+      <li>Form 13 &mdash; Mailing Label</li>
+      <li>Addendum Cover Sheets (if issued)</li>
+    </ol>
+  </div>
+
+  <!-- 00.3 SBE/MBE Requirements -->
+  <div class="dsh" onclick="tb('sbe')">
+    <div class="dsn">00.3</div><div class="dst">SBE/MBE Requirements</div>
+    <span class="bdg bdg-hot">Pass/Fail Gate</span>
+    <span class="dsg op" id="t-sbe">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-sbe">
+    <div class="action-box"><strong>This is a PASS/FAIL gate.</strong> Proposing less than 9% SBE participation without documented good faith efforts = NON-RESPONSIVE = disqualified before scoring even begins.</div>
+    <ul>
+      <li>PTB SBE participation goal: <strong>9% of contract value</strong></li>
+      <li>PTB is reciprocal with City of Tampa and Hillsborough County SBE programs</li>
+      <li>MBE component required (Forms 5A/5B) &mdash; no set goal percentage but will be considered alongside SBE</li>
+    </ul>
+    <div class="sb">
+      <div class="sl">SBE Contact</div>
+      <p style="margin-bottom:0"><strong>Donna Casey</strong>, SBE &amp; Contracts Manager<br>813-390-7570 &middot; dcasey@tampaport.com<br>SBE firm listing: www.porttb.com/procurement</p>
+    </div>
+    <div class="action-box" style="margin-top:16px"><strong>Action item:</strong> Identify and confirm SBE/MBE sub-consultants NOW. This is not optional.</div>
+  </div>
+
+  <!-- 00.4 Form 7 Questionnaire Strategy -->
+  <div class="dsh" onclick="tb('form7')">
+    <div class="dsn">00.4</div><div class="dst">Form 7 Questionnaire Strategy</div>
+    <span class="bdg bdg-hot">20-Page Battleground</span>
+    <span class="dsg op" id="t-form7">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-form7">
+    <p>The Questionnaire is where we win or lose within the 20-page limit. Each item mapped to strategy:</p>
+    <h3>Item 1 &mdash; Firm/Organization</h3>
+    <p>Firm description, 10+ years documentation, qualifications for Description of Services, availability/accessibility statement, local office address + distance from PTB, state of incorporation.</p>
+    <h3>Item 2 &mdash; Key Personnel</h3>
+    <p>PM with 10+ years + FL PE + office within 50 mi. Key personnel (marine, civil, structural, geotechnical, electrical) each with 10+ years + FL PE. Technical staff with names, credentials, office locations. Sub-consultant team with SBE/MBE designations. Detailed org chart.</p>
+    <h3>Item 3 &mdash; Services &amp; Approach</h3>
+    <p><strong>This is where the design intelligence from this website gets compressed into 2&ndash;3 pages.</strong> Description of approach, completed project profiles, key personnel continuity from profiled projects.</p>
+    <h3>Item 4 &mdash; Past Performance</h3>
+    <p>"Difficult and complex projects for major seaports." Key personnel still employed and assigned to this project.</p>
+    <h3>Item 5 &mdash; Other Qualifications</h3>
+    <p><strong>This is the dual-use thesis slot.</strong> "Innovative, pertinent, or otherwise relevant" &mdash; the revenue strategy, the 365-day programming, the convertibility framework. Also where to mention the pre-design work documented on this site.</p>
+    <h3>Item 6 &mdash; Pending Litigation</h3>
+    <p>Disclose or state "none."</p>
+    <h3>Item 7 &mdash; Conflict of Interest</h3>
+    <p>Including "engagements within the Tampa maritime community." Disclose or state "none."</p>
+    <h3>Item 8 &mdash; Schedule/Budget/Workload</h3>
+    <p>Willingness, current workload, workforce availability. Note: first-year budget anticipated at $3M.</p>
+    <h3>Item 9 &mdash; Client Retention</h3>
+    <p>Any terminated contracts in past 5 years. Disclose or state "none."</p>
+    <h3>Item 10 &mdash; PTB Contracts</h3>
+    <p>List any current/prior PTB contracts in past 3 years with fees. If none, state "none." (New-to-PTB firms may benefit on the Volume of Work criterion.)</p>
+  </div>
+
+  <!-- 00.5 Insurance Requirements -->
+  <div class="dsh" onclick="tb('insure')">
+    <div class="dsn">00.5</div><div class="dst">Insurance Requirements</div>
+    <span class="bdg bdg-hot">Non-Negotiable</span>
+    <span class="dsg op" id="t-insure">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-insure">
+    <p>These are NOT negotiable per the RFQ. The selected firm must carry:</p>
+    <table class="dt">
+      <thead><tr><th>Coverage</th><th>Minimum</th><th>Notes</th></tr></thead>
+      <tr><td class="k">Workers' Comp</td><td>FL Statutory + $1M Employer's Liability</td><td></td></tr>
+      <tr><td class="k">Commercial General Liability</td><td class="sf">$2M CSL</td><td>Per occurrence/aggregate</td></tr>
+      <tr><td class="k">Umbrella Liability</td><td class="sf">$2M</td><td>Each occurrence/aggregate</td></tr>
+      <tr><td class="k">Business Auto</td><td class="sf">$1M CSL</td><td></td></tr>
+      <tr><td class="k" style="color:var(--hot)">Pollution / Environmental</td><td class="sf" style="color:var(--hot)">$2M</td><td style="color:var(--hot)">Unusual for arch. services &mdash; reflects port/brownfield context</td></tr>
+      <tr><td class="k" style="color:var(--hot)">Cyber Liability</td><td class="sf" style="color:var(--hot)">$2M</td><td style="color:var(--hot)">Data breach, network security, PCI</td></tr>
+      <tr><td class="k" style="color:var(--hot)">Crime / Employee Dishonesty</td><td class="sf" style="color:var(--hot)">$500K</td><td></td></tr>
+      <tr><td class="k">Professional Liability (E&amp;O)</td><td class="sf">$1M / $2M aggregate</td><td>Per occurrence</td></tr>
+    </table>
+    <p style="margin-top:16px">All policies: PTB as additional insured, 30-day cancellation notice, 4-year tail on completed operations and claims-made policies.</p>
+    <div class="action-box"><strong>Action:</strong> Verify current coverage meets ALL minimums before submission. Pollution and Cyber are the ones most firms may not carry at these limits.</div>
+  </div>
+
+  <!-- 00.6 Competitive Intelligence -->
+  <div class="dsh" onclick="tb('compint')">
+    <div class="dsn">00.6</div><div class="dst">Competitive Intelligence</div>
+    <span class="bdg bdg-lk">Intel</span>
+    <span class="dsg op" id="t-compint">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-compint">
+    <h3>Who Competed for the HDR Contract (June 2024)?</h3>
+    <p>PTB awarded a $500K design contract to <strong>HDR Engineering (Tampa)</strong> for the new cruise terminal in June 2024. Three other Tampa firms submitted proposals: <strong>Moffatt &amp; Nichol</strong>, <strong>Burns &amp; McDonnell</strong>, and <strong>Kimley-Horn and Associates</strong>.</p>
+    <div class="sb">
+      <div class="sl">Key Question</div>
+      <p style="margin-bottom:0">The current RFQ 006-26 (March 2026) is for "architectural engineering consultant services &mdash; cruise terminal 5." Is this a REPLACEMENT of or ADDITION TO the HDR scope? The HDR contract was for a "4th cruise terminal" located "north of Terminal 6." The current RFQ is specifically for "Cruise Terminal 5" at 1300 Channelside Drive. These may be the same project re-scoped and re-procured, or they may be separate. <strong>Understanding this relationship is critical for positioning.</strong></p>
+    </div>
+    <h3>SSA Marine Manatee County Port &mdash; Resolved</h3>
+    <p>On March 19, 2026 (the same day as the T-5 pre-qualification teleconference), <strong>Governor DeSantis signed SB 302</strong> blocking the dredging needed for SSA Marine's proposed cruise port at Terra Ceia Aquatic Preserve in Manatee County. The competing port is effectively dead legislatively (though environmental groups note the bill doesn't prevent county-level rezoning applications). <strong>This reinforces PTB's position as the unchallenged Gulf Coast cruise hub.</strong></p>
+    <h3>PTB Cruise Volume (Updated)</h3>
+    <div class="mg">
+      <div class="mi mi-people"><div class="ml">2023</div><div class="mv">1.12M</div><div class="ms">passengers</div></div>
+      <div class="mi mi-people"><div class="ml">2025 Record</div><div class="mv">1.66M</div><div class="ms">+48% over 2023</div></div>
+      <div class="mi mi-hot"><div class="ml">2026 Projected</div><div class="mv">1.8M</div><div class="ms">394 ship calls</div></div>
+    </div>
+    <ul>
+      <li>PTB generates ~20% of port revenue from cruise operations</li>
+      <li>Six cruise lines currently homeport in Tampa</li>
+      <li><strong>Terminals operating near capacity &mdash; turning away business. This is why T-5 exists.</strong></li>
+    </ul>
+  </div>
+
+  <!-- 00.7 Contract Structure Notes -->
+  <div class="dsh" onclick="tb('contract')">
+    <div class="dsn">00.7</div><div class="dst">Contract Structure Notes</div>
+    <span class="bdg bdg-lk">Terms</span>
+    <span class="dsg op" id="t-contract">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-contract">
+    <table class="dt">
+      <tr><td class="k">Duration</td><td>3 years, as-needed basis</td></tr>
+      <tr><td class="k">Termination</td><td>30-day notice, including for convenience</td></tr>
+      <tr><td class="k">Ownership</td><td>All documents become PTB property</td></tr>
+      <tr><td class="k">Process</td><td>CCNA qualifications-based selection &rarr; negotiate fees with top-ranked firm</td></tr>
+      <tr><td class="k">E-Verify</td><td>Required for all employees and subs</td></tr>
+      <tr><td class="k">Public Records</td><td>All contract documents subject to Chapter 119, Florida Statutes</td></tr>
+      <tr><td class="k">Bonds</td><td>No bonds required for this contract</td></tr>
+    </table>
+  </div>
+
+  <!-- 00.8 What We Don't Have Yet -->
+  <div class="dsh" onclick="tb('gaps')">
+    <div class="dsn">00.8</div><div class="dst">What We Don't Have Yet</div>
+    <span class="bdg bdg-hot">Action Required</span>
+    <span class="dsg op" id="t-gaps">&#9662;</span>
+  </div>
+  <div class="dsb op" id="b-gaps">
+    <p>Clear list of what the team still needs to assemble. <strong>Every unchecked item is a risk to submission.</strong></p>
+    <div class="action-panel">
+      <h3>Personnel &amp; Credentials</h3>
+      <ul class="checklist">
+        <li>Project Manager identified (10+ yrs, FL PE, office within 50 mi of PTB)</li>
+        <li>Key personnel identified with FL PE licenses (civil, structural, MEP, marine)</li>
+        <li>Sub-consultant team assembled with SBE/MBE firms (9% SBE minimum)</li>
+        <li>Org chart drafted with PE numbers, office locations, SBE/MBE designations</li>
+        <li>TWIC eligibility confirmed for all personnel requiring port access</li>
+      </ul>
+      <h3>Firm Documentation</h3>
+      <ul class="checklist">
+        <li>10+ years of firm experience documented</li>
+        <li>Audited financial statements (3 years)</li>
+        <li>Sunbiz registration current</li>
+        <li>Insurance coverage verified against RFQ Attachment 2 minimums</li>
+        <li>E-Verify registration proof</li>
+        <li>Office location map with distance from 1101 Channelside Dr</li>
+      </ul>
+      <h3>Past Performance</h3>
+      <ul class="checklist">
+        <li>3&ndash;5 comparable cruise terminal or major seaport projects profiled</li>
+        <li>Key personnel from profiled projects confirmed as still employed and assigned to T-5</li>
+        <li>References identified and pre-notified (PTB will verify)</li>
+        <li>Litigation disclosure prepared (or "none" statement)</li>
+        <li>Conflict of interest statement prepared</li>
+      </ul>
+      <h3>Submission Production</h3>
+      <ul class="checklist">
+        <li>20-page main proposal drafted (Transmittal + Org Chart + References + Questionnaire)</li>
+        <li>All 13 forms completed and signed</li>
+        <li>1 original + 6 bound copies produced</li>
+        <li>Flash drive with single Word or PDF prepared</li>
+        <li>Mailing label (Form 13) applied</li>
+        <li>Physical delivery logistics confirmed for April 9 by 1:00 PM</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ 01 THE BIG IDEA ═══ -->
 <div class="sec" id="big-idea">
@@ -404,7 +705,7 @@ li strong{color:var(--text);font-weight:600}
     <span class="dsg" id="t-sched">&#9662;</span>
   </div>
   <div class="dsb" id="b-sched">
-    <p>Port Tampa Bay handles ~200+ cruise departures annually across all terminals. Terminal 5 would host a subset: ~60&ndash;80 cruise days/year, leaving <strong>285&ndash;305 non-cruise days</strong> available for dual-use programming.</p>
+    <p>Port Tampa Bay is projected to handle <strong>394 cruise ship calls in 2026</strong> across all terminals (up from ~200+ historically), with terminals operating near capacity. Terminal 5 would host a subset: ~60&ndash;80 cruise days/year, leaving <strong>285&ndash;305 non-cruise days</strong> available for dual-use programming.</p>
     <p>Even in peak season (November&ndash;April), Mondays and Tuesdays are reliably cruise-free &mdash; creating anchor days for recurring programming.</p>
     <div class="sb">
       <div class="sl">Projected Revenue</div>
@@ -422,8 +723,9 @@ li strong{color:var(--text);font-weight:600}
   <span class="dsg" id="t-risks">&#9662;</span>
 </div>
 <div class="dsb" id="b-risks">
-  <h3>SSA Marine Competing Port</h3>
-  <p>SSA Marine has proposed building a cruise port in the Knott-Cowen tract near the Sunshine Skyway Bridge in Manatee County, which would allow larger ships that cannot fit under the Skyway to port in Tampa Bay. This is a <strong>competitive threat to PTB's cruise market share</strong> that strengthens the argument for T-5 being a compelling, best-in-class facility with revenue diversification &mdash; a terminal that generates value even if cruise volumes shift.</p>
+  <h3>SSA Marine Manatee County Port &mdash; Legislatively Blocked</h3>
+  <p>SSA Marine had proposed building a cruise port in the Knott-Cowen tract near the Sunshine Skyway Bridge in Manatee County. On <strong>March 19, 2026</strong> (the same day as the T-5 pre-qualification teleconference), <strong>Governor DeSantis signed SB 302</strong>, restricting dredging in Terra Ceia Aquatic Preserve and effectively blocking the project at the state level. Environmental groups note the bill doesn't prevent county-level rezoning or federal permit applications, but the competing port is dead for practical purposes.</p>
+  <p><strong>The SSA Marine proposal has been legislatively blocked, reinforcing PTB's position as the unchallenged Gulf Coast cruise hub.</strong> This makes T-5 even more critical &mdash; PTB cannot grow cruise capacity at existing terminals, there is no alternative regional port forthcoming, and the 1.8M projected passengers in 2026 need somewhere to go.</p>
   <h3>Flood Zone</h3>
   <p>The site is in FEMA coastal AE/VE zones. The vertical separation strategy (Option B) inherently addresses this by elevating primary functions above the design flood elevation.</p>
   <h3>Brownfield Designation</h3>
@@ -753,6 +1055,10 @@ li strong{color:var(--text);font-weight:600}
       <li>Modular baggage handling system layout</li>
       <li>Test the SD layout against growth scenario before locking footprint</li>
     </ul>
+    <h3>Early Work Package Development</h3>
+    <p>The RFQ specifically calls for early work packages: <strong>foundations and structural systems</strong>, structural steel procurement and erection packages, and <strong>long-lead mechanical and electrical equipment</strong> (HVAC systems, switchgear, elevators, escalators). The modular bay structure and oversized utility chases support early procurement of long-lead items independent of final interior fit-out.</p>
+    <h3>Construction-Phase Support</h3>
+    <p>Full construction administration services are in scope per the RFQ: reviewing shop drawings, RFIs, and material submittals; site visits and inspections; commissioning, testing, and final acceptance; closeout documentation and as-built record development. The design team should plan for continuous CA engagement through project completion.</p>
   </div>
 
   <div class="dsh" onclick="tb('dual')">
@@ -845,7 +1151,9 @@ li strong{color:var(--text);font-weight:600}
     <p>Port Tampa Bay is <strong>Florida's largest and most diversified seaport</strong> and the largest economic engine in West Central Florida, located on the Interstate-4 Corridor.</p>
     <div class="mg">
       <div class="mi mi-infra"><div class="ml">Total Tonnage</div><div class="mv">35M</div><div class="ms">tons (2023) &mdash; highest in FL</div></div>
-      <div class="mi mi-people"><div class="ml">Cruise Passengers</div><div class="mv">1.12M</div><div class="ms">2023 &mdash; 5th in Florida</div></div>
+      <div class="mi mi-people"><div class="ml">Cruise Pax (2023)</div><div class="mv">1.12M</div><div class="ms">5th in Florida</div></div>
+      <div class="mi mi-people"><div class="ml">Cruise Pax (2025)</div><div class="mv">1.66M</div><div class="ms">record &mdash; +48% over 2023</div></div>
+      <div class="mi mi-hot"><div class="ml">2026 Projected</div><div class="mv">1.8M</div><div class="ms">394 ship calls &middot; near capacity</div></div>
       <div class="mi mi-area"><div class="ml">Port Acreage</div><div class="mv">2,565</div><div class="ms">acres &middot; 10,000+ ft berths</div></div>
       <div class="mi mi-people"><div class="ml">Harbor Depth</div><div class="mv">43 ft</div><div class="ms">FTZ #79 &middot; est. 1945</div></div>
     </div>
@@ -855,7 +1163,7 @@ li strong{color:var(--text);font-weight:600}
       <li>Florida handles nearly <strong>60% of all U.S. cruise embarkations</strong></li>
       <li>The cruise industry creates <strong>158,992 jobs</strong> and <strong>$8.1 billion in income</strong> statewide</li>
       <li>PTB is specifically named alongside Palm Beach and JAXPORT as ports investing in homeport facilities to shape future cruise growth</li>
-      <li>Two new Florida ports (Seaport Manatee, Port St. Pete) anticipating new cruise traffic</li>
+      <li>SSA Marine's proposed Manatee County cruise port legislatively blocked (SB 302, March 2026); PTB's Gulf Coast position reinforced</li>
     </ul>
     <h3>Decarbonization &amp; Alternative Energy</h3>
     <p>PTB received <strong>$1.8M EPA Clean Ports Program funding</strong> (October 2024). Working with maritime partners on alternative fuel terminals through hydrogen and carbon capture pilot projects. Developing shore power opportunities with cruise business partners. PTB contributes to the statewide $2.9 billion Capital Improvement Plan (top 5 ports account for 91% of the $5B CIP budget 2024&ndash;2028).</p>
@@ -1330,7 +1638,7 @@ li strong{color:var(--text);font-weight:600}
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#D9A44A;flex-shrink:0;border:1px solid #d8d6d0"></span>C. Baggage &amp; Logistics &mdash; 20,000 SF</span>
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#8B8B8B;flex-shrink:0;border:1px solid #d8d6d0"></span>D. Vertical Circulation &mdash; 8,000 SF</span>
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#6B8E6B;flex-shrink:0;border:1px solid #d8d6d0"></span>E. Operations / BOH &mdash; 10,000 SF</span>
-    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#7B6B8E;flex-shrink:0;border:1px solid #d8d6d0"></span>F. Building Systems &mdash; 9,000 SF</span>
+    <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#7B6B8E;flex-shrink:0;border:1px solid #d8d6d0"></span>F. Building Systems &mdash; 9,800 SF</span>
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#8EB6A0;flex-shrink:0;border:1px solid #d8d6d0"></span>G. Public Amenities &mdash; 4,100 SF</span>
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#88BBE0;opacity:0.6;flex-shrink:0;border:1px solid #d8d6d0"></span>Curtain Wall</span>
     <span class="model-cat-tag" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--text-dim)"><span style="width:12px;height:12px;border-radius:2px;background:#C0C8D0;flex-shrink:0;border:1px solid #d8d6d0"></span>Wave Roof</span>
