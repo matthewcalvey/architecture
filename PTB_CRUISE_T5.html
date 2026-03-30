@@ -87,6 +87,7 @@ li strong{color:var(--text);font-weight:600}
 .bdg-ok{color:var(--green);background:rgba(122,184,122,0.08)}
 .bdg-lk{color:var(--amber);background:rgba(201,169,89,0.08)}
 .bdg-hot{color:var(--hot);background:rgba(196,92,62,0.08)}
+.model-link{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);text-decoration:none;padding:2px 8px;border:1px solid var(--border);border-radius:2px;flex-shrink:0;transition:background 0.2s,color 0.2s}.model-link:hover{background:var(--accent);color:#fff}
 .dsg{font-size:14px;color:var(--text-muted);transition:transform 0.25s;flex-shrink:0}
 .dsg.op{transform:rotate(180deg)}
 .dsb{display:none;padding-bottom:24px}.dsb.op{display:block}
@@ -871,6 +872,7 @@ li strong{color:var(--text);font-weight:600}
   <div class="dsh" onclick="tb('pa')">
     <div class="dsn">A</div><div class="dst">Embarkation</div>
     <span class="bdg bdg-ok">23,700 SF</span>
+    <a class="model-link" href="#model" onclick="event.stopPropagation()">3D &rarr;</a>
     <span class="dsg" id="t-pa">&#9662;</span>
   </div>
   <div class="dsb op" id="b-pa">
@@ -890,6 +892,7 @@ li strong{color:var(--text);font-weight:600}
   <div class="dsh" onclick="tb('pb')">
     <div class="dsn">B</div><div class="dst">Debarkation</div>
     <span class="bdg bdg-ok">20,500 SF</span>
+    <a class="model-link" href="#model" onclick="event.stopPropagation()">3D &rarr;</a>
     <span class="dsg" id="t-pb">&#9662;</span>
   </div>
   <div class="dsb" id="b-pb">
@@ -906,6 +909,7 @@ li strong{color:var(--text);font-weight:600}
   <div class="dsh" onclick="tb('pc')">
     <div class="dsn">C</div><div class="dst">Baggage &amp; Logistics</div>
     <span class="bdg bdg-lk">20,000 SF</span>
+    <a class="model-link" href="#model" onclick="event.stopPropagation()">3D &rarr;</a>
     <span class="dsg" id="t-pc">&#9662;</span>
   </div>
   <div class="dsb" id="b-pc">
@@ -921,6 +925,7 @@ li strong{color:var(--text);font-weight:600}
   <div class="dsh" onclick="tb('pd')">
     <div class="dsn">D</div><div class="dst">Vertical Circulation</div>
     <span class="bdg bdg-lk">8,000 SF</span>
+    <a class="model-link" href="#model" onclick="event.stopPropagation()">3D &rarr;</a>
     <span class="dsg" id="t-pd">&#9662;</span>
   </div>
   <div class="dsb" id="b-pd">
@@ -937,6 +942,7 @@ li strong{color:var(--text);font-weight:600}
   <div class="dsh" onclick="tb('pe')">
     <div class="dsn">E&ndash;G</div><div class="dst">Operations, MEP &amp; Amenities</div>
     <span class="bdg bdg-lk">23,900 SF</span>
+    <a class="model-link" href="#model" onclick="event.stopPropagation()">3D &rarr;</a>
     <span class="dsg" id="t-pe">&#9662;</span>
   </div>
   <div class="dsb" id="b-pe">
