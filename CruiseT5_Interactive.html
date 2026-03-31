@@ -221,6 +221,284 @@ function ContextOverlays({ mode }) {
   );
 }
 
+const STORAGE_KEY = 'cruiseT5_savedLayout';
+
+function saveLayout(L1pos, L2pos, L1fp, L2fp) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ L1pos, L2pos, L1fp, L2fp, savedAt: Date.now() }));
+    return true;
+  } catch { return false; }
+}
+
+function loadLayout() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (data.L1pos && data.L2pos && data.L1fp && data.L2fp) return data;
+    return null;
+  } catch { return null; }
+}
+
+function hasSavedLayout() {
+  return !!localStorage.getItem(STORAGE_KEY);
+}
+
+// ── FORM ALGORITHM ──
+// Takes L1 and L2 positions, aligns edges across both levels, closes gaps,
+// stretches blocks moderately to fill remaining thin gaps, and shrink-wraps footprints.
+// Every step validates overlap-safety; reverts the step if overlaps are introduced.
+
+function formLayout(l1Pos, l2Pos) {
+  // Tolerance for "touching" vs "overlapping" — blocks within this are considered touching
+  const EPS = 0.1;
+
+  // Check if two rects overlap (with tolerance so touching edges don't count)
+  function ov(a, b) {
+    return !(a.left + a.width <= b.left + EPS || b.left + b.width <= a.left + EPS ||
+             a.top + a.height <= b.top + EPS || b.top + b.height <= a.top + EPS);
+  }
+  function anyOv(positions) {
+    for (let i = 0; i < positions.length; i++)
+      for (let j = i + 1; j < positions.length; j++)
+        if (ov(positions[i], positions[j])) return true;
+    return false;
+  }
+
+  // --- Helper: collect edges ---
+  function collectEdges(positions) {
+    const xs = [], ys = [];
+    for (const p of positions) {
+      xs.push(p.left, p.left + p.width);
+      ys.push(p.top, p.top + p.height);
+    }
+    return { xs, ys };
+  }
+
+  // --- Helper: cluster nearby values into alignment groups ---
+  const CLUSTER_THRESH = 1.5;
+  function clusterValues(values, thresh) {
+    const sorted = [...new Set(values.map(v => Math.round(v * 100) / 100))].sort((a, b) => a - b);
+    const clusters = [];
+    let i = 0;
+    while (i < sorted.length) {
+      let sum = sorted[i], count = 1, j = i + 1;
+      while (j < sorted.length && sorted[j] - sorted[j - 1] < thresh) {
+        sum += sorted[j]; count++; j++;
+      }
+      clusters.push(sum / count);
+      i = j;
+    }
+    return clusters;
+  }
+  function nearestGrid(val, grid) {
+    let best = grid[0], bestD = Math.abs(val - grid[0]);
+    for (let i = 1; i < grid.length; i++) {
+      const d = Math.abs(val - grid[i]);
+      if (d < bestD) { best = grid[i]; bestD = d; }
+    }
+    return best;
+  }
+
+  // --- Step 1: Build shared grid from both levels ---
+  const e1 = collectEdges(l1Pos);
+  const e2 = collectEdges(l2Pos);
+  const gridX = clusterValues([...e1.xs, ...e2.xs], CLUSTER_THRESH);
+  const gridY = clusterValues([...e1.ys, ...e2.ys], CLUSTER_THRESH);
+
+  // --- Step 2: Snap edges to grid, one block at a time, skip if it creates overlap ---
+  function snapToGrid(positions) {
+    const r = positions.map(p => ({...p}));
+    for (let i = 0; i < r.length; i++) {
+      const p = r[i];
+      const origAR = p.width / p.height;
+      let l = nearestGrid(p.left, gridX);
+      let rr = nearestGrid(p.left + p.width, gridX);
+      let t = nearestGrid(p.top, gridY);
+      let b = nearestGrid(p.top + p.height, gridY);
+      let w = Math.max(rr - l, MIN_DIM);
+      let h = Math.max(b - t, MIN_DIM);
+      // Moderate flex: cap aspect ratio change at 2x
+      const newAR = w / h;
+      if (origAR > 0 && newAR > origAR * 2) h = w / (origAR * 2);
+      else if (origAR > 0 && newAR < origAR / 2) w = h * (origAR / 2);
+      const candidate = { left: l, top: t, width: w, height: h };
+      // Only apply if it doesn't overlap any other block
+      const saved = r[i];
+      r[i] = candidate;
+      if (anyOv(r)) r[i] = saved; // revert
+    }
+    return r;
+  }
+
+  let r1 = snapToGrid(l1Pos.map(p => ({...p})));
+  let r2 = snapToGrid(l2Pos.map(p => ({...p})));
+
+  // --- Step 3: Close gaps — slide each block up/left as far as possible ---
+  function closeGaps(positions) {
+    const r = positions.map(p => ({...p}));
+    if (r.length === 0) return r;
+    let minL = Infinity, minT = Infinity;
+    for (const p of r) { minL = Math.min(minL, p.left); minT = Math.min(minT, p.top); }
+
+    for (let pass = 0; pass < 10; pass++) {
+      let moved = false;
+      const order = [...r.keys()].sort((a, b) => r[a].top - r[b].top || r[a].left - r[b].left);
+      for (const i of order) {
+        // Slide up
+        let maxUp = r[i].top - minT;
+        for (let j = 0; j < r.length; j++) {
+          if (j === i) continue;
+          const hShare = !(r[j].left + r[j].width <= r[i].left + EPS || r[i].left + r[i].width <= r[j].left + EPS);
+          if (hShare && r[j].top + r[j].height <= r[i].top + EPS) {
+            maxUp = Math.min(maxUp, r[i].top - (r[j].top + r[j].height));
+          }
+        }
+        if (maxUp > EPS) { r[i].top -= maxUp; moved = true; }
+
+        // Slide left
+        let maxLeft = r[i].left - minL;
+        for (let j = 0; j < r.length; j++) {
+          if (j === i) continue;
+          const vShare = !(r[j].top + r[j].height <= r[i].top + EPS || r[i].top + r[i].height <= r[j].top + EPS);
+          if (vShare && r[j].left + r[j].width <= r[i].left + EPS) {
+            maxLeft = Math.min(maxLeft, r[i].left - (r[j].left + r[j].width));
+          }
+        }
+        if (maxLeft > EPS) { r[i].left -= maxLeft; moved = true; }
+      }
+      if (!moved) break;
+    }
+    return r;
+  }
+
+  r1 = closeGaps(r1);
+  r2 = closeGaps(r2);
+
+  // --- Step 4: Fill thin gaps by stretching — validate each expansion ---
+  function fillGaps(positions, origPositions) {
+    const r = positions.map(p => ({...p}));
+    const GAP_MAX = 3.0;
+
+    for (let pass = 0; pass < 4; pass++) {
+      let filled = false;
+      for (let i = 0; i < r.length; i++) {
+        for (let j = i + 1; j < r.length; j++) {
+          const origAR_i = origPositions[i].width / origPositions[i].height;
+          const origAR_j = origPositions[j].width / origPositions[j].height;
+
+          // Horizontal gap between vertically-adjacent blocks
+          const vAdj = !(r[j].top + r[j].height <= r[i].top + EPS || r[i].top + r[i].height <= r[j].top + EPS);
+          if (vAdj) {
+            const li = r[i].left < r[j].left ? i : j;
+            const ri = li === i ? j : i;
+            const gap = r[ri].left - (r[li].left + r[li].width);
+            if (gap > EPS && gap < GAP_MAX) {
+              const origAR_L = li === i ? origAR_i : origAR_j;
+              const origAR_R = ri === i ? origAR_i : origAR_j;
+              // Try splitting the gap
+              const saved = [{ ...r[li] }, { ...r[ri] }];
+              const half = gap / 2;
+              r[li].width += half;
+              r[ri].left -= half;
+              r[ri].width += half;
+              const newAR_L = r[li].width / r[li].height;
+              const newAR_R = r[ri].width / r[ri].height;
+              if ((newAR_L <= origAR_L * 2) && (newAR_R <= origAR_R * 2) && !anyOv(r)) {
+                filled = true;
+              } else {
+                // Revert and try expanding just the left block
+                r[li] = { ...saved[0] }; r[ri] = { ...saved[1] };
+                r[li].width += gap;
+                if ((r[li].width / r[li].height <= origAR_L * 2) && !anyOv(r)) {
+                  filled = true;
+                } else {
+                  r[li] = { ...saved[0] };
+                  // Try expanding just the right block
+                  r[ri].left -= gap; r[ri].width += gap;
+                  if ((r[ri].width / r[ri].height <= origAR_R * 2) && !anyOv(r)) {
+                    filled = true;
+                  } else {
+                    r[ri] = { ...saved[1] }; // revert entirely
+                  }
+                }
+              }
+            }
+          }
+
+          // Vertical gap between horizontally-adjacent blocks
+          const hAdj = !(r[j].left + r[j].width <= r[i].left + EPS || r[i].left + r[i].width <= r[j].left + EPS);
+          if (hAdj) {
+            const ti = r[i].top < r[j].top ? i : j;
+            const bi = ti === i ? j : i;
+            const gap = r[bi].top - (r[ti].top + r[ti].height);
+            if (gap > EPS && gap < GAP_MAX) {
+              const origAR_T = ti === i ? origAR_i : origAR_j;
+              const origAR_B = bi === i ? origAR_i : origAR_j;
+              const saved = [{ ...r[ti] }, { ...r[bi] }];
+              const half = gap / 2;
+              r[ti].height += half;
+              r[bi].top -= half;
+              r[bi].height += half;
+              const newAR_T = r[ti].width / r[ti].height;
+              const newAR_B = r[bi].width / r[bi].height;
+              if ((newAR_T >= origAR_T / 2) && (newAR_B >= origAR_B / 2) && !anyOv(r)) {
+                filled = true;
+              } else {
+                r[ti] = { ...saved[0] }; r[bi] = { ...saved[1] };
+                r[ti].height += gap;
+                if ((r[ti].width / r[ti].height >= origAR_T / 2) && !anyOv(r)) {
+                  filled = true;
+                } else {
+                  r[ti] = { ...saved[0] };
+                  r[bi].top -= gap; r[bi].height += gap;
+                  if ((r[bi].width / r[bi].height >= origAR_B / 2) && !anyOv(r)) {
+                    filled = true;
+                  } else {
+                    r[bi] = { ...saved[1] };
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (!filled) break;
+    }
+    return r;
+  }
+
+  r1 = fillGaps(r1, l1Pos);
+  r2 = fillGaps(r2, l2Pos);
+
+  // Final compaction pass
+  r1 = closeGaps(r1);
+  r2 = closeGaps(r2);
+
+  // --- Step 5: Compute shrink-wrap footprints ---
+  function computeFP(positions) {
+    if (positions.length === 0) return { left: 0, top: 0, width: 50, height: 50 };
+    let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+    for (const p of positions) {
+      minL = Math.min(minL, p.left);
+      minT = Math.min(minT, p.top);
+      maxR = Math.max(maxR, p.left + p.width);
+      maxB = Math.max(maxB, p.top + p.height);
+    }
+    return { left: minL, top: minT, width: maxR - minL, height: maxB - minT };
+  }
+
+  const fp1 = computeFP(r1);
+  const fp2 = computeFP(r2);
+
+  // --- Step 6: Final validation ---
+  if (anyOv(r1) || anyOv(r2)) {
+    return null;
+  }
+
+  return { L1pos: r1, L2pos: r2, L1fp: fp1, L2fp: fp2 };
+}
+
 const SNAP = 3.0; // % units — snap/magnet threshold
 
 // Snap a position to nearby block edges, footprint edges, and frame edges
@@ -401,24 +679,28 @@ function Block({ block, pos, index, level, onDragStart, onResizeStart, onSelect,
           pointerEvents: 'none',
         }}>{block.sf} SF</span>
       )}
-      {/* Invisible corner hit zones — cursor only, no visual */}
-      {cornerZones.map(c => (
-        <div
-          key={c.id}
-          data-corner={c.id}
-          onPointerDown={(e) => {
-            e.preventDefault(); e.stopPropagation();
-            onResizeStart(e, index, level, c.id);
-          }}
-          style={{
-            position: 'absolute', width: 18, height: 18,
-            cursor: c.cursor, touchAction: 'none', zIndex: 4,
-            background: 'transparent',
-            top: c.top, left: c.left, right: c.right, bottom: c.bottom,
-            borderRadius: c.borderRadius,
-          }}
-        />
-      ))}
+      {/* Invisible corner hit zones — scale down for small blocks so drag still works */}
+      {cornerZones.map(c => {
+        // Limit corner zone to at most 30% of block dimension so center stays draggable
+        const cornerSize = Math.min(18, Math.max(6, area > 80 ? 18 : area > 30 ? 12 : 8));
+        return (
+          <div
+            key={c.id}
+            data-corner={c.id}
+            onPointerDown={(e) => {
+              e.preventDefault(); e.stopPropagation();
+              onResizeStart(e, index, level, c.id);
+            }}
+            style={{
+              position: 'absolute', width: cornerSize, height: cornerSize,
+              cursor: c.cursor, touchAction: 'none', zIndex: 4,
+              background: 'transparent',
+              top: c.top, left: c.left, right: c.right, bottom: c.bottom,
+              borderRadius: c.borderRadius,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -737,6 +1019,7 @@ function App() {
       origWidth: pos.width, origHeight: pos.height,
       origArea: pos.width * pos.height,
       origPositions: positions.map(p => ({...p})),
+      lastValid: positions.map(p => ({...p})),
     };
     setResizing({ index, level });
     pushHistory();
@@ -751,7 +1034,7 @@ function App() {
     const dx = ((clientX - startX) / frameRect.width) * 100;
     const dy = ((clientY - startY) / frameRect.height) * 100;
 
-    // Compute new width based on which corner, then derive height from area
+    // Area-preserving resize: width from dx, height derived to keep area constant
     let newWidth, newHeight, newLeft, newTop;
 
     if (corner === 'br') {
@@ -787,7 +1070,10 @@ function App() {
     const candidate = { left: newLeft, top: newTop, width: newWidth, height: newHeight };
     if (!hasAnyOverlap(positions, index, candidate)) {
       positions[index] = candidate;
+      resizeRef.current.lastValid = positions;
       setPositions(level, positions);
+    } else if (resizeRef.current.lastValid) {
+      setPositions(level, resizeRef.current.lastValid);
     }
   }, [setPositions]);
 
@@ -916,6 +1202,42 @@ function App() {
     setSelectedBlock(prev => (prev && prev.index === index && prev.level === level) ? null : { index, level });
   }, []);
 
+  const [saveStatus, setSaveStatus] = useState(null); // null | 'saved' | 'loaded'
+  const [hasSaved, setHasSaved] = useState(() => hasSavedLayout());
+
+  const handleSave = () => {
+    if (saveLayout(L1pos, L2pos, L1fp, L2fp)) {
+      setSaveStatus('saved');
+      setHasSaved(true);
+      setTimeout(() => setSaveStatus(null), 2000);
+    }
+  };
+
+  const handleLoad = () => {
+    const data = loadLayout();
+    if (!data) return;
+    pushHistory();
+    setL1pos(data.L1pos);
+    setL2pos(data.L2pos);
+    setL1fp(data.L1fp);
+    setL2fp(data.L2fp);
+    setSelectedBlock(null);
+    setSaveStatus('loaded');
+    setTimeout(() => setSaveStatus(null), 2000);
+  };
+
+  const handleForm = () => {
+    pushHistory();
+    const result = formLayout(L1pos, L2pos);
+    if (result) {
+      setL1pos(result.L1pos);
+      setL2pos(result.L2pos);
+      setL1fp(result.L1fp);
+      setL2fp(result.L2fp);
+      setSelectedBlock(null);
+    }
+  };
+
   const handleReset = () => {
     pushHistory();
     const l1 = initPositions(L1C);
@@ -981,7 +1303,23 @@ function App() {
             transition: 'all 0.2s',
           }}>Non-Cruise Day</button>
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <button onClick={handleSave} style={{
+            padding: '6px 14px', border: '1px solid var(--green)', background: 'transparent',
+            color: 'var(--green)', fontFamily: "'Space Mono',monospace", fontSize: 9,
+            cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>Save</button>
+          <button onClick={handleLoad} disabled={!hasSaved} style={{
+            padding: '6px 14px', border: '1px solid ' + (hasSaved ? 'var(--accent)' : 'var(--border)'), background: 'transparent',
+            color: hasSaved ? 'var(--accent)' : 'var(--border)',
+            fontFamily: "'Space Mono',monospace", fontSize: 9, cursor: hasSaved ? 'pointer' : 'default',
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>Load</button>
+          <button onClick={handleForm} style={{
+            padding: '6px 14px', border: '1px solid var(--accent)', background: 'transparent',
+            color: 'var(--accent)', fontFamily: "'Space Mono',monospace", fontSize: 9,
+            cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700,
+          }}>Form</button>
           <button onClick={handleUndo} disabled={history.length === 0} style={{
             padding: '6px 14px', border: '1px solid var(--border)', background: 'transparent',
             color: history.length ? 'var(--text-dim)' : 'var(--border)',
@@ -992,7 +1330,14 @@ function App() {
             padding: '6px 14px', border: '1px solid var(--border)', background: 'transparent',
             color: 'var(--text-dim)', fontFamily: "'Space Mono',monospace", fontSize: 9,
             cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase',
-          }}>Reset Layout</button>
+          }}>Reset</button>
+          {saveStatus && (
+            <span style={{
+              fontFamily: "'Space Mono',monospace", fontSize: 9, letterSpacing: '0.08em',
+              color: saveStatus === 'saved' ? 'var(--green)' : 'var(--accent)',
+              transition: 'opacity 0.3s', opacity: 1,
+            }}>{saveStatus === 'saved' ? '\u2713 Saved' : '\u2713 Loaded'}</span>
+          )}
         </div>
       </div>
 
