@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cruise Terminal 5 — Interactive Program Color Plans</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root{--bg:#ffffff;--surface:#f5f5f5;--border:#ddd;--text:#1a1a1a;--text-dim:#555;--text-muted:#888;--accent:#6a9cc4;--green:#7ab87a;--amber:#c9a959;--hot:#c45c3e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:rgba(106,156,196,0.2)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+#root{min-height:100vh}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:100%;margin:16px auto;padding:0 16px}
+@media(max-width:900px){.plans-grid{grid-template-columns:1fr;max-width:600px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useCallback, useEffect, useMemo } = React;
+
+// ── DATA ──
+const L1C=[
+  {id:'H.01',label:'Curbside Drop-Off / Pick-Up',sf:'\u2014',color:'#9ac89a',pos:[6,7,24,11],desc:'Covered canopy; separate private/rideshare/motorcoach.',convert:'partial'},
+  {id:'CORE',label:'Services Core Spine',sf:'~18K',color:'core',pos:[31,7,20,25],cls:'core-spine',desc:'Consolidated circ + MEP. Stacks vertically.',convert:'fixed'},
+  {id:'C.01',label:'Luggage Laydown \u2014 Embark',sf:'8,000',color:'#9a9dc4',pos:[52,7,28,15],desc:'Curbside drop \u2192 porter sort \u2192 conveyor south.',convert:'partial'},
+  {id:'H.04',label:'Pedestrian Plaza / Arrival Court',sf:'\u2014',color:'#9ac89a',pos:[6,18,24,12],desc:'Landscaped entry; wayfinding; food trucks.',convert:'full'},
+  {id:'C.02',label:'Luggage Laydown \u2014 Debark',sf:'8,000',color:'#9a9dc4',pos:[52,22,28,15],desc:'Vessel off-load \u2192 staging \u2192 claim.',convert:'partial'},
+  {id:'H.03',label:'Bus / Motorcoach Staging',sf:'\u2014',color:'#9ac89a',pos:[6,30,24,8],desc:'Tour bus loading; layover.',convert:'partial'},
+  {id:'E.06',label:'Loading Dock / Service',sf:'2,500',color:'#d4be80',pos:[31,32,12,11],desc:'Provisioning; waste; deliveries.',convert:'partial'},
+  {id:'E.01',label:'Port Office',sf:'1,500',color:'#d4be80',pos:[43,32,8,10],desc:'Shift supervisor, dispatch, CCTV.',convert:'partial'},
+  {id:'C.03',label:'BHS Equipment',sf:'3,000',color:'#9a9dc4',pos:[52,37,21,8],desc:'Conveyors, screening, controls.',convert:'fixed'},
+  {id:'C.04',label:'Cart Storage',sf:'1,000',color:'#9a9dc4',pos:[73,37,7,8],desc:'Porter equipment; cart corrals.',convert:'partial'},
+  {id:'PLAZA',label:'South Plaza / Entry Garden',sf:'\u2014',color:'rgba(154,200,154,0.3)',pos:[6,38,24,21],desc:'South-facing approach. Outdoor ceremony.',convert:'full'},
+  {id:'E.02',label:'CBP Office Suite',sf:'2,000',color:'#d4be80',pos:[31,43,13,9],desc:'Secure; armory; corridor to FIS.',convert:'fixed'},
+  {id:'E.04',label:'Staff Break',sf:'1,000',color:'#d4be80',pos:[44,43,7,9],desc:'Lockers; kitchenette.',convert:'partial'},
+  {id:'E.05',label:'Janitorial',sf:'500',color:'#d4be80',pos:[31,52,4,7],desc:'Slop sinks; chemical storage.',convert:'fixed'},
+  {id:'G.01a',label:'Restrooms',sf:'1,500',color:'#8ec8c8',pos:[35,52,12,7],desc:'Grade restrooms.',convert:'fixed'},
+  {id:'G.03',label:'Pet Relief',sf:'400',color:'#8ec8c8',pos:[47,52,4,5],desc:'Service animals.',convert:'fixed'},
+  {id:'B.02',label:'CBP / FIS',sf:'6,000',color:'#a89cc8',pos:[52,45,20,15],desc:'Primary + secondary + APHIS; sealed.',convert:'fixed-ops'},
+  {id:'D.03',label:'Monumental Stair',sf:'1,800',color:'stair',pos:[6,59,8,12],cls:'stair-feature',desc:'Glass-enclosed at SW. Civic beacon. Gallery walls.',why:'The pursuit image.',convert:'fixed'},
+  {id:'H.05',label:'Utility',sf:'\u2014',color:'#b8b8b8',pos:[15,59,8,6],desc:'Stormwater; grease trap.',convert:'fixed'},
+  {id:'B.04',label:'Meeter-Greeter / Reunification',sf:'2,500',color:'#a89cc8',pos:[15,65,20,7],desc:'Post-CBP reunification. Bay-facing exit.',convert:'full'},
+  {id:'B.03',label:'Baggage Claim Hall',sf:'10,000',color:'#a89cc8',pos:[52,60,28,18],desc:'Flat-bed claim; 20\' clear.',convert:'full'}
+];
+const L1NC=[
+  {id:'H.01\u2192',label:'Restaurant Valet / Event Drop-Off',sf:'\u2014',color:'#c480a8',pos:[6,7,24,11],convert:'partial',badge:'PARTIAL',desc:'Event valet.'},
+  {id:'CORE\u2192',label:'Services Core (Fixed)',sf:'~18K',color:'core',pos:[31,7,20,25],cls:'core-spine',convert:'fixed',badge:'FIXED',desc:'Zone HVAC reduces cost.'},
+  {id:'C.01\u2192',label:'Event Staging / Food Truck',sf:'8,000',color:'#a8be90',pos:[52,7,28,15],convert:'partial',badge:'PARTIAL',desc:'Deliveries; commissary.'},
+  {id:'H.04\u2192',label:'Public Market / Food Trucks / Concerts',sf:'\u2014',color:'#cc8878',pos:[6,18,24,12],convert:'full',badge:'FULL',desc:'Concerts, festivals, markets.'},
+  {id:'C.02\u2192',label:'Vendor Load-In / Overflow Market',sf:'8,000',color:'#a8be90',pos:[52,22,28,15],convert:'partial',badge:'PARTIAL',desc:'Overflow market stalls.'},
+  {id:'H.03\u2192',label:'Tour Bus / Charter',sf:'\u2014',color:'#a8be90',pos:[6,30,24,8],convert:'partial',badge:'PARTIAL',desc:'Tour bus; charter.'},
+  {id:'E.06\u2192',label:'Event Load-In / Load-Out',sf:'2,500',color:'#a8be90',pos:[31,32,12,11],convert:'partial',badge:'PARTIAL',desc:'Catering; event load-in.'},
+  {id:'E.01\u2192',label:'Event Mgmt Office',sf:'1,500',color:'#a8be90',pos:[43,32,8,10],convert:'partial',badge:'PARTIAL',desc:'Scheduling, AV.'},
+  {id:'C.03\u2192',label:'BHS (Fixed)',sf:'3,000',color:'#b8b8b8',pos:[52,37,21,8],convert:'fixed',badge:'FIXED',desc:'Mechanical.'},
+  {id:'C.04\u2192',label:'Event Equipment Storage',sf:'1,000',color:'#a8be90',pos:[73,37,7,8],convert:'partial',badge:'PARTIAL',desc:'Tables, chairs, AV.'},
+  {id:'PLAZA\u2192',label:'South Plaza \u2014 Outdoor Events',sf:'\u2014',color:'rgba(204,136,120,0.25)',pos:[6,38,24,21],convert:'full',badge:'FULL',desc:'Ceremony, cocktail gardens.'},
+  {id:'E.02\u2192',label:'CBP (Locked)',sf:'2,000',color:'#b8b8b8',pos:[31,43,13,9],convert:'fixed',badge:'FIXED',desc:'Federal; locked.'},
+  {id:'E.04\u2192',label:'Event Staff Break',sf:'1,000',color:'#a8be90',pos:[44,43,7,9],convert:'partial',badge:'PARTIAL',desc:'Event crew.'},
+  {id:'E.05\u2192',label:'Janitorial (Fixed)',sf:'500',color:'#b8b8b8',pos:[31,52,4,7],convert:'fixed',badge:'FIXED',desc:'Same function.'},
+  {id:'G.01a\u2192',label:'Restrooms',sf:'1,500',color:'#9ac8d4',pos:[35,52,12,7],convert:'fixed',badge:'FIXED',desc:'Event patrons.'},
+  {id:'G.03\u2192',label:'Pet Relief',sf:'400',color:'#9ac8d4',pos:[47,52,4,5],convert:'fixed',badge:'FIXED',desc:'Restaurant/obs deck.'},
+  {id:'B.02\u2192',label:'Indoor Rec \u2014 Pickleball / Fitness',sf:'6,000',color:'#d4a478',pos:[52,45,20,15],convert:'full',badge:'FULL',desc:'FIS retracts; sports-grade, 20\' clear.'},
+  {id:'D.03\u2192',label:'Monumental Stair (Public Icon)',sf:'1,800',color:'stair',pos:[6,59,8,12],cls:'stair-feature',convert:'fixed',badge:'FIXED',desc:'Glass beacon. Ascent to event hall.'},
+  {id:'H.05\u2192',label:'Utility (Fixed)',sf:'\u2014',color:'#b8b8b8',pos:[15,59,8,6],convert:'fixed',badge:'FIXED',desc:'Site infrastructure.'},
+  {id:'B.04\u2192',label:'Maritime History / Art Gallery',sf:'2,500',color:'#a89cc8',pos:[15,65,20,7],convert:'full',badge:'FULL',desc:'Rotating exhibitions. Gallery walls.'},
+  {id:'B.03\u2192',label:'Community Events / Indoor Market',sf:'10,000',color:'#d4a478',pos:[52,60,28,18],convert:'full',badge:'FULL',desc:'Health fairs, maker fairs. 20\' clear.'}
+];
+const L2C=[
+  {id:'A.01',label:'Main Entry Lobby / Check-In',sf:'8,000',color:'#8fb5cc',pos:[7,10,38,11],desc:'Flexible kiosk + agent layout.',convert:'full'},
+  {id:'A.02',label:'Security Screening',sf:'3,500',color:'#8fb5cc',pos:[7,21,24,8],desc:'4\u20136 lanes expandable to 8.',convert:'full'},
+  {id:'CORE\u2082',label:'Services Core (Upper)',sf:'(cont.)',color:'core',pos:[46,10,20,24],cls:'core-spine',desc:'Upper continuation of services spine.',convert:'fixed'},
+  {id:'E.03',label:'Cruise Line Operations',sf:'2,500',color:'#d4be80',pos:[46,34,12,11],desc:'Embark/debark ops; guest services.',convert:'full'},
+  {id:'A.04',label:'VIP / Loyalty Lounge',sf:'2,000',color:'#7da8be',pos:[7,34,12,9],desc:'Private check-in; concierge. Bay views.',convert:'full'},
+  {id:'A.05',label:'Retail & F&B',sf:'2,500',color:'#9ac8d4',pos:[19,34,13,10],desc:'Dual-facing. Bay view dining.',convert:'full'},
+  {id:'A.06',label:'Family / Accessible',sf:'1,200',color:'#a8d0da',pos:[32,34,8,8],desc:'Stroller staging; ADA; near core.',convert:'full'},
+  {id:'G.01b',label:'Restrooms (Upper)',sf:'1,500',color:'#8ec8c8',pos:[58,34,9,9],desc:'Upper restrooms.',convert:'fixed'},
+  {id:'G.02',label:'Nursing',sf:'300',color:'#8ec8c8',pos:[67,10,4,4],desc:'Private; lockable.',convert:'fixed'},
+  {id:'G.04',label:'Interfaith',sf:'400',color:'#8ec8c8',pos:[67,14,5,4],desc:'Quiet.',convert:'fixed'},
+  {id:'A.07',label:'Boarding Bridge Vestibule',sf:'1,500',color:'#6d9ab5',pos:[67,34,9,9],desc:'Weather-protected; vessel gangway.',convert:'partial'},
+  {id:'A.03',label:'Post-Security Holding / Waiting',sf:'5,000',color:'#8fb5cc',pos:[14,48,50,5],desc:'1,800 pax. Panoramic south: bay, skyline, sunset.',why:'The $15K\u2013$50K/event view.',convert:'full'},
+  {id:'DECK',label:'Outdoor Deck / Terrace',sf:'~2,500',color:'deck',pos:[14,53,35,4],cls:'outdoor-deck',desc:'Covered south terrace. Bay + sunset.',convert:'full'},
+  {id:'D.03\u2082',label:'Monumental Stair (Upper)',sf:'(cont.)',color:'stair',pos:[6,48,8,12],cls:'stair-feature',desc:'Glass stair arrives at upper. View reveals bay, skyline.',convert:'fixed'},
+  {id:'B.01',label:'Debark Ramp (Upper\u2192Grade)',sf:'2,000',color:'#a89cc8',pos:[67,43,10,11],desc:'Vessel-to-FIS; separated.',convert:'fixed'},
+  {id:'GARAGE',label:'\u2190 Garage Bridge',sf:'',color:'rgba(106,156,196,0.2)',pos:[0,18,7,10],desc:'Enclosed bridge from 800-space garage.',convert:'fixed'}
+];
+const L2NC=[
+  {id:'A.01\u2192',label:'Event Reception / Registration',sf:'8,000',color:'#cc8878',pos:[7,10,38,11],convert:'full',badge:'FULL',desc:'Grand reception; kiosks retracted.'},
+  {id:'A.02\u2192',label:'Open Event Floor',sf:'3,500',color:'#cc8878',pos:[7,21,24,8],convert:'full',badge:'FULL',desc:'Security behind partitions.'},
+  {id:'CORE\u2082\u2192',label:'Services Core (Fixed)',sf:'(cont.)',color:'core',pos:[46,10,20,24],cls:'core-spine',convert:'fixed',badge:'FIXED',desc:'All circ + MEP.'},
+  {id:'E.03\u2192',label:'Event Production Suite',sf:'2,500',color:'#a8be90',pos:[46,34,12,11],convert:'full',badge:'FULL',desc:'Green room, AV, vendor.'},
+  {id:'A.04\u2192',label:'Private Event Suite',sf:'2,000',color:'#c08878',pos:[7,34,12,9],convert:'full',badge:'FULL',desc:'Retreats, rehearsal dinners.'},
+  {id:'A.05\u2192',label:'Public Restaurant / Caf\u00e9',sf:'2,500',color:'#c480a8',pos:[19,34,13,10],convert:'full',badge:'FULL',desc:'Dual-access. Bay view dining. 365-day.'},
+  {id:'A.06\u2192',label:'Community Wellness',sf:'1,200',color:'#8ec8c8',pos:[32,34,8,8],convert:'full',badge:'FULL',desc:'Yoga, meditation, meetings.'},
+  {id:'G.01b\u2192',label:'Restrooms',sf:'1,500',color:'#9ac8d4',pos:[58,34,9,9],convert:'fixed',badge:'FIXED',desc:'Event patrons.'},
+  {id:'G.02\u2192',label:'Wellness',sf:'300',color:'#8ec8c8',pos:[67,10,4,4],convert:'fixed',badge:'FIXED',desc:'Meditation, nursing.'},
+  {id:'G.04\u2192',label:'Meeting',sf:'400',color:'#8ec8c8',pos:[67,14,5,4],convert:'fixed',badge:'FIXED',desc:'Small groups.'},
+  {id:'A.07\u2192',label:'Waterside Terrace',sf:'1,500',color:'#9ac8d4',pos:[67,34,9,9],convert:'partial',badge:'PARTIAL',desc:'Cocktail overflow.'},
+  {id:'A.03\u2192',label:'PREMIER EVENT HALL',sf:'5,000',color:'#cc8878',pos:[14,48,50,5],convert:'full',badge:'FULL',desc:'$15K\u2013$50K+/event. Panoramic south.',why:'$1.5M\u2013$5M+ annual.'},
+  {id:'DECK\u2192',label:'Outdoor Event Terrace',sf:'~2,500',color:'deck',pos:[14,53,35,4],cls:'outdoor-deck',convert:'full',badge:'FULL',desc:'Sunset ceremonies = premium rates.'},
+  {id:'D.03\u2082\u2192',label:'Monumental Stair \u2014 The Icon',sf:'(cont.)',color:'stair',pos:[6,48,8,12],cls:'stair-feature',convert:'fixed',badge:'FIXED',desc:'Glass beacon. Ascent to event hall.'},
+  {id:'B.01\u2192',label:'Service (Closed)',sf:'2,000',color:'#b8b8b8',pos:[67,43,10,11],convert:'fixed',badge:'FIXED',desc:'Closed.'},
+  {id:'GARAGE\u2192',label:'\u2190 Garage (Public)',sf:'',color:'rgba(154,200,154,0.15)',pos:[0,18,7,10],convert:'full',badge:'FULL',desc:'$500K\u2013$1M+ district parking.'}
+];
+
+const cLeg=[{color:'#8fb5cc',label:'A \u2014 Embarkation'},{color:'#a89cc8',label:'B \u2014 Debarkation/FIS'},{color:'#9a9dc4',label:'C \u2014 Baggage/Logistics'},{color:'#d4be80',label:'E \u2014 Operations/BOH'},{color:'#8ec8c8',label:'G \u2014 Amenities'},{color:'#9ac89a',label:'H \u2014 Exterior/Site'},{color:'',label:'Services Core',sw:'sw-core'},{color:'',label:'\u2605 Monumental Stair',sw:'sw-stair'},{color:'',label:'Outdoor Deck',sw:'sw-deck'}];
+const ncLeg=[{color:'#cc8878',label:'Event Venue'},{color:'#d4a478',label:'Recreation/Fitness'},{color:'#c480a8',label:'Restaurant/Retail'},{color:'#a89cc8',label:'Gallery/Exhibit'},{color:'#a8be90',label:'Staging/Ops'},{color:'#8ec8c8',label:'Wellness'},{color:'#9ac8d4',label:'Public Amenity'},{color:'#b8b8b8',label:'Fixed'},{color:'',label:'\u2605 Stair Beacon',sw:'sw-stair'},{color:'',label:'Outdoor Terrace',sw:'sw-deck'}];
+
+// ── HELPERS ──
+function initPositions(blocks) {
+  return blocks.map(b => ({ left: b.pos[0], top: b.pos[1], width: b.pos[2], height: b.pos[3] }));
+}
+
+function overlaps(a, b) {
+  return !(a.left + a.width <= b.left || b.left + b.width <= a.left ||
+           a.top + a.height <= b.top || b.top + b.height <= a.top);
+}
+
+function hasAnyOverlap(positions, idx, pos) {
+  for (let j = 0; j < positions.length; j++) {
+    if (j === idx) continue;
+    if (overlaps(pos, positions[j])) return true;
+  }
+  return false;
+}
+
+// Check if ANY pair of blocks in the set overlaps
+function hasAnyPairOverlap(positions) {
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      if (overlaps(positions[i], positions[j])) return true;
+    }
+  }
+  return false;
+}
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+const MIN_DIM = 3;
+
+// Default footprints (% of site frame) — encompass initial block layouts
+const DEFAULT_L1_FP = { left: 5, top: 6, width: 76, height: 74 };
+const DEFAULT_L2_FP = { left: 0, top: 8, width: 78, height: 54 };
+
+// Pack blocks toward footprint top-left, respecting each other
+function packIntoFootprint(positions, fp) {
+  const r = positions.map(p => ({...p}));
+  // Clamp far-outside blocks back into footprint
+  for (let i = 0; i < r.length; i++) {
+    if (r[i].left > fp.left + fp.width + 8)  r[i].left = fp.left + fp.width - r[i].width;
+    if (r[i].top  > fp.top  + fp.height + 8)  r[i].top  = fp.top  + fp.height - r[i].height;
+    if (r[i].left + r[i].width < fp.left - 8)  r[i].left = fp.left;
+    if (r[i].top  + r[i].height < fp.top - 8)   r[i].top  = fp.top;
+    r[i].left = clamp(r[i].left, fp.left, fp.left + fp.width  - r[i].width);
+    r[i].top  = clamp(r[i].top,  fp.top,  fp.top  + fp.height - r[i].height);
+  }
+  // Compact: sort top→bottom, left→right, then slide each up and left as far as possible
+  const sorted = [...r.keys()].sort((a, b) => r[a].top - r[b].top || r[a].left - r[b].left);
+  for (const i of sorted) {
+    // slide up
+    let maxUp = r[i].top - fp.top;
+    for (let j = 0; j < r.length; j++) {
+      if (j === i) continue;
+      const hOk = !(r[j].left + r[j].width <= r[i].left || r[i].left + r[i].width <= r[j].left);
+      if (hOk && r[j].top + r[j].height <= r[i].top)
+        maxUp = Math.min(maxUp, r[i].top - (r[j].top + r[j].height));
+    }
+    r[i].top = Math.max(fp.top, r[i].top - maxUp);
+    // slide left
+    let maxLeft = r[i].left - fp.left;
+    for (let j = 0; j < r.length; j++) {
+      if (j === i) continue;
+      const vOk = !(r[j].top + r[j].height <= r[i].top || r[i].top + r[i].height <= r[j].top);
+      if (vOk && r[j].left + r[j].width <= r[i].left)
+        maxLeft = Math.min(maxLeft, r[i].left - (r[j].left + r[j].width));
+    }
+    r[i].left = Math.max(fp.left, r[i].left - maxLeft);
+  }
+  return r;
+}
+
+// Is block substantially outside the footprint?
+function isDisconnected(pos, fp) {
+  return pos.left > fp.left + fp.width + 4 ||
+         pos.left + pos.width < fp.left - 4 ||
+         pos.top  > fp.top  + fp.height + 4 ||
+         pos.top  + pos.height < fp.top - 4;
+}
+
+// ── CONTEXT OVERLAYS ──
+function ContextOverlays({ mode }) {
+  return (
+    <>
+      <div style={{position:'absolute',right:0,top:0,width:'14%',height:'100%',background:'linear-gradient(180deg,rgba(106,156,196,0.12) 0%,rgba(106,156,196,0.06) 100%)'}} />
+      <div style={{position:'absolute',right:'3%',top:'50%',transform:'translateY(-50%) rotate(-90deg)',fontFamily:"'Space Mono',monospace",fontSize:7,color:'var(--accent)',letterSpacing:3,textTransform:'uppercase',opacity:0.5,whiteSpace:'nowrap'}}>Ybor Channel</div>
+      <div style={{position:'absolute',right:'8%',top:'10%',width:'10%',height:'60%',border:'1.5px dashed rgba(106,156,196,0.3)',borderRadius:2}} />
+      <div style={{position:'absolute',right:'10%',top:'7%',fontSize:6,color:'var(--accent)',letterSpacing:1,textTransform:'uppercase',opacity:0.45}}>Infill</div>
+      <div style={{position:'absolute',right:'13.5%',top:'8%',width:1,height:'65%',background:'repeating-linear-gradient(to bottom,#bbb 0px,#bbb 3px,transparent 3px,transparent 7px)'}} />
+      <div style={{position:'absolute',right:'14%',top:'74%',fontSize:6,color:'var(--text-muted)',letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap',transform:'translateX(50%)'}}>Berths 263–265</div>
+      <div style={{position:'absolute',top:0,left:0,right:0,height:'6%',background:'rgba(0,0,0,0.03)',borderBottom:'1px solid var(--border)'}} />
+      <div style={{position:'absolute',top:'1.5%',left:'50%',transform:'translateX(-50%)',fontSize:6,color:'var(--text-muted)',letterSpacing:2,textTransform:'uppercase',whiteSpace:'nowrap'}}>Selmon Expressway</div>
+      <div style={{position:'absolute',left:0,top:'6%',width:'5%',height:'94%',background:'rgba(0,0,0,0.02)',borderRight:'1px solid var(--border)'}} />
+      <div style={{position:'absolute',left:'.5%',top:'52%',transform:'rotate(-90deg)',transformOrigin:'left center',fontSize:6,color:'var(--text-muted)',letterSpacing:2,textTransform:'uppercase',whiteSpace:'nowrap'}}>Channelside Dr</div>
+      <div style={{position:'absolute',right:'2%',bottom:'8%',width:'8%',height:'30%',border:'1.5px solid rgba(106,156,196,0.2)',borderRadius:'3px 3px 20px 20px'}} />
+      <div style={{position:'absolute',right:'3.5%',bottom:'25%',fontSize:5,color:'rgba(106,156,196,0.4)',letterSpacing:1,textTransform:'uppercase',writingMode:'vertical-rl',transform:'rotate(180deg)'}}>{mode === 'cruise' ? 'Vessel' : 'No Vessel'}</div>
+      <div style={{position:'absolute',top:'8%',left:'7%',zIndex:5,fontFamily:"'Space Mono',monospace",fontSize:9,color:'var(--text-muted)',lineHeight:1,textAlign:'center'}}>
+        <span style={{display:'block',fontSize:8}}>{'\u25B2'}</span>N
+      </div>
+      <div style={{position:'absolute',bottom:'2%',left:'22%',fontFamily:"'Space Mono',monospace",fontSize:6,padding:'2px 5px',borderRadius:2,letterSpacing:0.5,whiteSpace:'nowrap',zIndex:5,background:'rgba(201,169,89,0.12)',color:'var(--amber)',border:'1px solid rgba(201,169,89,0.2)'}}>
+        {'\u2733'} Tampa Bay · Skyline · Sunset
+      </div>
+      <div style={{position:'absolute',right:'15%',top:'35%',fontFamily:"'Space Mono',monospace",fontSize:6,padding:'2px 5px',borderRadius:2,letterSpacing:0.5,whiteSpace:'nowrap',zIndex:5,background:'rgba(106,156,196,0.08)',color:'var(--accent)',border:'1px solid rgba(106,156,196,0.15)',transform:'rotate(-90deg)'}}>
+        Channel Views
+      </div>
+    </>
+  );
+}
+
+const SNAP = 3.0; // % units — snap/magnet threshold
+
+// Snap a position to nearby block edges, footprint edges, and frame edges
+function snapPos(pos, positions, idx, fp) {
+  let { left, top, width, height } = pos;
+  let snapX = false, snapY = false;
+  for (let i = 0; i < positions.length; i++) {
+    if (i === idx) continue;
+    const p = positions[i];
+    if (!snapX) {
+      if (Math.abs(left - (p.left + p.width)) < SNAP)           { left = p.left + p.width;         snapX = true; }
+      else if (Math.abs(left + width - p.left) < SNAP)           { left = p.left - width;            snapX = true; }
+      else if (Math.abs(left - p.left) < SNAP)                   { left = p.left;                    snapX = true; }
+      else if (Math.abs(left + width - p.left - p.width) < SNAP) { left = p.left + p.width - width;  snapX = true; }
+    }
+    if (!snapY) {
+      if (Math.abs(top - (p.top + p.height)) < SNAP)             { top = p.top + p.height;           snapY = true; }
+      else if (Math.abs(top + height - p.top) < SNAP)             { top = p.top - height;             snapY = true; }
+      else if (Math.abs(top - p.top) < SNAP)                     { top = p.top;                      snapY = true; }
+      else if (Math.abs(top + height - p.top - p.height) < SNAP) { top = p.top + p.height - height;  snapY = true; }
+    }
+  }
+  // Footprint edges (stronger magnet — slightly wider threshold)
+  const FPS = SNAP * 1.4;
+  if (fp) {
+    if (!snapX) {
+      if (Math.abs(left - fp.left) < FPS)                          { left = fp.left;                   snapX = true; }
+      else if (Math.abs(left + width - (fp.left + fp.width)) < FPS){ left = fp.left + fp.width - width; snapX = true; }
+    }
+    if (!snapY) {
+      if (Math.abs(top - fp.top) < FPS)                            { top = fp.top;                     snapY = true; }
+      else if (Math.abs(top + height - (fp.top + fp.height)) < FPS){ top = fp.top + fp.height - height; snapY = true; }
+    }
+  }
+  // Frame edges
+  if (!snapX) {
+    if (Math.abs(left) < SNAP) left = 0;
+    else if (Math.abs(left + width - 100) < SNAP) left = 100 - width;
+  }
+  if (!snapY) {
+    if (Math.abs(top) < SNAP) top = 0;
+    else if (Math.abs(top + height - 100) < SNAP) top = 100 - height;
+  }
+  return { ...pos, left: clamp(left, 0, 100 - width), top: clamp(top, 0, 100 - height) };
+}
+
+// Push block `target` away from block `pusher` using minimum displacement
+function pushAway(pusher, target) {
+  const ol = pusher.left + pusher.width - target.left;
+  const or_ = target.left + target.width - pusher.left;
+  const ot = pusher.top + pusher.height - target.top;
+  const ob = target.top + target.height - pusher.top;
+  if (ol <= 0 || or_ <= 0 || ot <= 0 || ob <= 0) return target;
+  const min = Math.min(ol, or_, ot, ob);
+  if (min === ol)  return { ...target, left: clamp(pusher.left + pusher.width, 0, 100 - target.width) };
+  if (min === or_) return { ...target, left: clamp(pusher.left - target.width, 0, 100 - target.width) };
+  if (min === ot)  return { ...target, top:  clamp(pusher.top + pusher.height, 0, 100 - target.height) };
+                   return { ...target, top:  clamp(pusher.top - target.height, 0, 100 - target.height) };
+}
+
+// Resolve all overlaps by cascading pushes outward from `anchorIdx`
+function resolvePushes(positions, anchorIdx) {
+  const result = positions.map(p => ({...p}));
+  for (let pass = 0; pass < 30; pass++) {
+    let moved = false;
+    // Push blocks away from the anchor
+    for (let i = 0; i < result.length; i++) {
+      if (i === anchorIdx) continue;
+      if (overlaps(result[anchorIdx], result[i])) {
+        const pushed = pushAway(result[anchorIdx], result[i]);
+        if (pushed.left !== result[i].left || pushed.top !== result[i].top) {
+          result[i] = pushed; moved = true;
+        }
+      }
+    }
+    // Cascade: all non-anchor blocks push each other
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        if (i === anchorIdx || j === anchorIdx) continue;
+        if (overlaps(result[i], result[j])) {
+          // Push the block that is further from anchor
+          const di = Math.abs(result[i].left - result[anchorIdx].left) + Math.abs(result[i].top - result[anchorIdx].top);
+          const dj = Math.abs(result[j].left - result[anchorIdx].left) + Math.abs(result[j].top - result[anchorIdx].top);
+          if (dj >= di) {
+            const pushed = pushAway(result[i], result[j]);
+            if (pushed.left !== result[j].left || pushed.top !== result[j].top) { result[j] = pushed; moved = true; }
+          } else {
+            const pushed = pushAway(result[j], result[i]);
+            if (pushed.left !== result[i].left || pushed.top !== result[i].top) { result[i] = pushed; moved = true; }
+          }
+        }
+      }
+    }
+    if (!moved) break;
+  }
+  return result;
+}
+
+// ── BLOCK COMPONENT ──
+function Block({ block, pos, index, level, onDragStart, onResizeStart, onSelect, isDragging, isResizing, fp }) {
+  const disconnected = fp ? isDisconnected(pos, fp) : false;
+  const area = pos.width * pos.height;
+  const fs = area > 350 ? 9 : area > 100 ? 8 : area > 40 ? 7 : 6;
+  const sfFs = area > 150 ? 8 : 6.5;
+  const isCoreSpine = block.cls === 'core-spine';
+  const isStair = block.cls === 'stair-feature';
+  const isDeck = block.cls === 'outdoor-deck';
+
+  let bg = block.color;
+  if (isCoreSpine) bg = 'linear-gradient(180deg,#e8eaed,#dde0e4)';
+  else if (isStair) bg = 'linear-gradient(135deg,rgba(201,169,89,0.15),rgba(245,245,245,0.9))';
+  else if (isDeck) bg = 'repeating-linear-gradient(45deg,rgba(122,184,122,0.06),rgba(122,184,122,0.06) 4px,transparent 4px,transparent 8px)';
+
+  let borderStyle = '1px solid rgba(255,255,255,0.3)';
+  if (disconnected) borderStyle = '1.5px dashed rgba(180,80,60,0.55)';
+  else if (isStair) borderStyle = '2px solid rgba(201,169,89,0.6)';
+  else if (isDeck) borderStyle = '2px dashed rgba(122,184,122,0.5)';
+  else if (isCoreSpine) borderStyle = '1px solid rgba(0,0,0,0.08)';
+
+  const labelColor = isCoreSpine ? 'var(--text-dim)' : isStair ? 'var(--amber)' : '#fff';
+  const labelShadow = isCoreSpine ? 'none' : isStair ? '0 1px 2px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.45)';
+  const sfColor = isCoreSpine ? 'var(--text-muted)' : 'rgba(255,255,255,0.9)';
+  const badgeClass = block.badge === 'FULL' ? '#7ab87a' : block.badge === 'PARTIAL' ? '#c9a959' : '#888';
+
+  // Corner hit zones for resize — invisible, just change cursor
+  const cornerZones = [
+    { id:'tl', cursor:'nwse-resize', top:0,    left:0,  borderRadius:'3px 0 0 0' },
+    { id:'tr', cursor:'nesw-resize', top:0,    right:0, borderRadius:'0 3px 0 0' },
+    { id:'bl', cursor:'nesw-resize', bottom:0, left:0,  borderRadius:'0 0 0 3px' },
+    { id:'br', cursor:'nwse-resize', bottom:0, right:0, borderRadius:'0 0 3px 0' },
+  ];
+
+  return (
+    <div
+      onPointerDown={(e) => {
+        if (e.target.dataset.corner) return;
+        e.preventDefault(); e.stopPropagation();
+        onDragStart(e, index, level);
+      }}
+      onClick={(e) => { e.stopPropagation(); onSelect(index, level); }}
+      style={{
+        position: 'absolute',
+        left: pos.left + '%', top: pos.top + '%',
+        width: pos.width + '%', height: pos.height + '%',
+        background: bg, border: borderStyle, borderRadius: 3,
+        display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center',
+        textAlign: 'center', padding: 2, cursor: 'grab',
+        // Animate non-dragging blocks smoothly when pushed
+        transition: isDragging ? 'none' : 'left 0.14s cubic-bezier(.25,.8,.25,1), top 0.14s cubic-bezier(.25,.8,.25,1), width 0.14s, height 0.14s, box-shadow 0.15s',
+        overflow: 'hidden', touchAction: 'none', userSelect: 'none',
+        opacity: isDragging ? 0.88 : 1,
+        transform: isDragging ? 'scale(1.04)' : 'none',
+        boxShadow: isDragging ? '0 10px 36px rgba(0,0,0,0.2)' : isStair ? '0 0 8px rgba(201,169,89,0.1)' : 'none',
+        zIndex: isDragging ? 100 : isResizing ? 100 : 1,
+        willChange: isDragging ? 'transform, left, top' : 'auto',
+      }}
+      className="interactive-block"
+    >
+      {block.badge && (
+        <span style={{
+          position: 'absolute', top: 1, right: 1, fontSize: 5.5,
+          padding: '1px 3px', borderRadius: 2, fontWeight: 700,
+          letterSpacing: 0.5, backgroundColor: badgeClass, color: '#fff',
+          fontFamily: "'Space Mono',monospace",
+        }}>{block.badge}</span>
+      )}
+      <span style={{
+        fontFamily: "'Space Mono',monospace", fontWeight: isCoreSpine ? 400 : 700,
+        color: labelColor, lineHeight: 1.12, textShadow: labelShadow, fontSize: fs,
+        pointerEvents: 'none',
+      }}>{block.label}</span>
+      {block.sf && area > 25 && (
+        <span style={{
+          color: sfColor, fontWeight: 300,
+          textShadow: isCoreSpine ? 'none' : '0 1px 2px rgba(0,0,0,0.35)',
+          fontSize: sfFs, fontFamily: "'Cormorant Garamond',serif",
+          pointerEvents: 'none',
+        }}>{block.sf} SF</span>
+      )}
+      {/* Invisible corner hit zones — cursor only, no visual */}
+      {cornerZones.map(c => (
+        <div
+          key={c.id}
+          data-corner={c.id}
+          onPointerDown={(e) => {
+            e.preventDefault(); e.stopPropagation();
+            onResizeStart(e, index, level, c.id);
+          }}
+          style={{
+            position: 'absolute', width: 18, height: 18,
+            cursor: c.cursor, touchAction: 'none', zIndex: 4,
+            background: 'transparent',
+            top: c.top, left: c.left, right: c.right, bottom: c.bottom,
+            borderRadius: c.borderRadius,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── FOOTPRINT ──
+function FootprintEl({ fp, onMoveStart, onCornerStart, onEdgeStart }) {
+  const corners = [
+    { id:'tl', cursor:'nwse-resize', style:{ top:-5, left:-5 } },
+    { id:'tr', cursor:'nesw-resize', style:{ top:-5, right:-5 } },
+    { id:'bl', cursor:'nesw-resize', style:{ bottom:-5, left:-5 } },
+    { id:'br', cursor:'nwse-resize', style:{ bottom:-5, right:-5 } },
+  ];
+  const edges = [
+    { id:'t', cursor:'ns-resize',   style:{ top:-4, left:'20%', right:'20%', height:8 } },
+    { id:'b', cursor:'ns-resize',   style:{ bottom:-4, left:'20%', right:'20%', height:8 } },
+    { id:'l', cursor:'ew-resize',   style:{ left:-4, top:'20%', bottom:'20%', width:8 } },
+    { id:'r', cursor:'ew-resize',   style:{ right:-4, top:'20%', bottom:'20%', width:8 } },
+  ];
+  return (
+    <div
+      onPointerDown={(e) => {
+        if (e.target.dataset.fpc || e.target.dataset.fpe) return;
+        e.preventDefault(); e.stopPropagation();
+        onMoveStart(e);
+      }}
+      style={{
+        position: 'absolute',
+        left: fp.left + '%', top: fp.top + '%',
+        width: fp.width + '%', height: fp.height + '%',
+        border: '1.5px solid rgba(26,26,26,0.28)',
+        borderRadius: 2,
+        background: 'transparent',
+        cursor: 'move',
+        zIndex: 0,
+        touchAction: 'none', userSelect: 'none',
+        pointerEvents: 'all',
+        transition: 'left 0.14s cubic-bezier(.25,.8,.25,1), top 0.14s, width 0.14s, height 0.14s',
+      }}
+    >
+      {/* Label */}
+      <div style={{
+        position:'absolute', bottom:-16, left:'50%', transform:'translateX(-50%)',
+        fontFamily:"'Space Mono',monospace", fontSize:6.5, color:'rgba(26,26,26,0.35)',
+        letterSpacing:'0.12em', textTransform:'uppercase', whiteSpace:'nowrap', pointerEvents:'none',
+      }}>Building Footprint</div>
+      {/* Corner handles */}
+      {corners.map(c => (
+        <div key={c.id} data-fpc={c.id}
+          onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onCornerStart(e, c.id); }}
+          style={{
+            position:'absolute', width:10, height:10,
+            background:'#fff', border:'1.5px solid rgba(26,26,26,0.45)',
+            borderRadius:1, cursor:c.cursor, touchAction:'none', zIndex:20,
+            ...c.style,
+          }}
+        />
+      ))}
+      {/* Edge handles */}
+      {edges.map(edge => (
+        <div key={edge.id} data-fpe={edge.id}
+          onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); onEdgeStart(e, edge.id); }}
+          style={{
+            position:'absolute', cursor:edge.cursor, touchAction:'none', zIndex:15,
+            background:'transparent',
+            ...edge.style,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── TOOLTIP ──
+function Tooltip({ block, pos, frameRef }) {
+  if (!block) return null;
+  const convColor = block.convert === 'full' ? '#7ab87a' : block.convert === 'partial' ? '#c9a959' : '#888';
+  const convLabel = block.convert === 'full' ? 'Full' : block.convert === 'partial' ? 'Partial' : 'Fixed';
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+      background: '#fff', border: '1px solid var(--border)', borderRadius: 4,
+      padding: '10px 14px', maxWidth: 320, zIndex: 1000,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)', pointerEvents: 'none',
+    }}>
+      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, fontWeight: 700, color: 'var(--text)', marginBottom: 3, letterSpacing: '0.04em' }}>
+        {(block.id || '').replace('\u2192','').replace('\u2082','')} — {block.label}
+      </div>
+      {block.sf && <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: 'var(--accent)', marginBottom: 4 }}>{block.sf} SF</div>}
+      <div style={{ fontSize: 14, fontFamily: "'Cormorant Garamond',serif", color: 'var(--text-dim)', lineHeight: 1.5 }}>{block.desc}</div>
+      {block.why && <div style={{ fontSize: 12, fontFamily: "'Cormorant Garamond',serif", color: 'var(--amber)', marginTop: 6, fontStyle: 'italic' }}>{'\u21B3'} {block.why}</div>}
+      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--border)', color: convColor }}>
+        {'\u25CF'} {convLabel}
+      </div>
+    </div>
+  );
+}
+
+// ── PLAN VIEW ──
+function PlanView({ title, blocks, positions, level, mode, fp, onDragStart, onResizeStart, onFpMoveStart, onFpCornerStart, onFpEdgeStart, selectedBlock, onSelect, draggingIdx, resizingIdx }) {
+  return (
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div style={{ padding: '10px 16px 8px', textAlign: 'center', borderBottom: '1px solid var(--border)' }}>
+        <h2 style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, fontWeight: 400, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+          {title}
+        </h2>
+      </div>
+      <div style={{ position: 'relative', width: '100%', padding: 8 }}>
+        <div
+          data-level={level}
+          style={{
+            position: 'relative', width: '100%', aspectRatio: '0.82',
+            border: '1px solid var(--border)', overflow: 'visible',
+            background: '#fafbfc', touchAction: 'none',
+          }}
+          onClick={() => onSelect(null, null)}
+        >
+          <ContextOverlays mode={mode} />
+          {/* Building footprint — rendered below blocks */}
+          <FootprintEl
+            fp={fp}
+            onMoveStart={(e) => onFpMoveStart(e, level)}
+            onCornerStart={(e, c) => onFpCornerStart(e, level, c)}
+            onEdgeStart={(e, edge) => onFpEdgeStart(e, level, edge)}
+          />
+          {blocks.map((block, i) => (
+            <Block
+              key={i}
+              block={block}
+              pos={positions[i]}
+              index={i}
+              level={level}
+              fp={fp}
+              onDragStart={onDragStart}
+              onResizeStart={onResizeStart}
+              onSelect={onSelect}
+              isSelected={selectedBlock && selectedBlock.level === level && selectedBlock.index === i}
+              isDragging={draggingIdx && draggingIdx.level === level && draggingIdx.index === i}
+              isResizing={resizingIdx && resizingIdx.level === level && resizingIdx.index === i}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LEGEND ──
+function Legend({ mode }) {
+  const items = mode === 'cruise' ? cLeg : ncLeg;
+  const title = mode === 'cruise' ? 'Cruise-Day Program' : 'Non-Cruise-Day Program';
+  const color = mode === 'cruise' ? '#8fb5cc' : '#cc8878';
+
+  const swatchStyle = (item) => {
+    if (item.sw === 'sw-core') return { background: 'linear-gradient(180deg,#e8eaed,#dde0e4)', border: '1px solid rgba(0,0,0,0.08)' };
+    if (item.sw === 'sw-stair') return { border: '1.5px solid rgba(201,169,89,0.5)', background: 'linear-gradient(135deg,rgba(201,169,89,0.2),#f5f5f5)' };
+    if (item.sw === 'sw-deck') return { border: '1.5px dashed rgba(122,184,122,0.45)', background: 'repeating-linear-gradient(45deg,rgba(122,184,122,0.12),rgba(122,184,122,0.12) 2px,transparent 2px,transparent 4px)' };
+    return { background: item.color, border: '1px solid rgba(0,0,0,0.08)' };
+  };
+
+  return (
+    <div style={{ maxWidth: '100%', margin: '0 auto 24px', padding: '0 16px' }}>
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: 14 }}>
+        <h3 style={{
+          fontFamily: "'Space Mono',monospace", fontSize: 9, letterSpacing: '0.15em',
+          textTransform: 'uppercase', marginBottom: 8, paddingBottom: 5,
+          borderBottom: '1px solid var(--border)', fontWeight: 400, color,
+        }}>{title}</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 4 }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 2, flexShrink: 0, ...swatchStyle(item) }} />
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: 'var(--text-dim)' }}>{item.label}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 10, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+          {[{c:'rgba(122,184,122,0.9)',l:'Full'},{c:'rgba(201,169,89,0.9)',l:'Partial'},{c:'rgba(136,136,136,0.8)',l:'Fixed'}].map(({c,l}) => (
+            <div key={l} style={{ display:'flex', alignItems:'center', gap:4, fontFamily:"'Space Mono',monospace", fontSize:9, color:'var(--text-muted)' }}>
+              <div style={{ width:8, height:8, borderRadius:2, background:c }} /> {l}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──
+function App() {
+  const [mode, setMode] = useState('cruise');
+  const [L1pos, setL1pos] = useState(() => initPositions(L1C));
+  const [L2pos, setL2pos] = useState(() => initPositions(L2C));
+  const [L1fp, setL1fp] = useState({...DEFAULT_L1_FP});
+  const [L2fp, setL2fp] = useState({...DEFAULT_L2_FP});
+  const [history, setHistory] = useState([]);
+  const [selectedBlock, setSelectedBlock] = useState(null);
+  const [dragging, setDragging] = useState(null);
+  const [resizing, setResizing] = useState(null);
+
+  const dragRef = useRef(null);
+  const resizeRef = useRef(null);
+  const fpDragRef = useRef(null);
+  const fpResizeRef = useRef(null);
+
+  const getFootprint = useCallback((level) => level === 'L1' ? L1fp : L2fp, [L1fp, L2fp]);
+  const setFootprint = useCallback((level, fp) => {
+    if (level === 'L1') setL1fp(fp); else setL2fp(fp);
+  }, []);
+
+  const pushHistory = useCallback(() => {
+    setHistory(h => [...h.slice(-19), {
+      L1: L1pos.map(p => ({...p})), L2: L2pos.map(p => ({...p})),
+      L1fp: {...L1fp}, L2fp: {...L2fp},
+    }]);
+  }, [L1pos, L2pos, L1fp, L2fp]);
+
+  const getPositions = useCallback((level) => level === 'L1' ? L1pos : L2pos, [L1pos, L2pos]);
+  const setPositions = useCallback((level, pos) => {
+    if (level === 'L1') setL1pos(pos);
+    else setL2pos(pos);
+  }, []);
+
+  const getFrameRect = (level) => {
+    const frame = document.querySelector(`[data-level="${level}"]`);
+    return frame ? frame.getBoundingClientRect() : null;
+  };
+
+  // ── DRAG ──
+  const handleDragStart = useCallback((e, index, level) => {
+    const frameRect = getFrameRect(level);
+    if (!frameRect) return;
+    const positions = level === 'L1' ? L1pos : L2pos;
+    const pos = positions[index];
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+    dragRef.current = {
+      index, level, frameRect,
+      startX: clientX, startY: clientY,
+      origLeft: pos.left, origTop: pos.top,
+      origPositions: positions.map(p => ({...p})),
+    };
+    setDragging({ index, level });
+    pushHistory();
+  }, [L1pos, L2pos, pushHistory]);
+
+  const handleDragMove = useCallback((e) => {
+    if (!dragRef.current) return;
+    e.preventDefault();
+    const { index, level, frameRect, startX, startY, origLeft, origTop, origPositions } = dragRef.current;
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+    const dx = ((clientX - startX) / frameRect.width) * 100;
+    const dy = ((clientY - startY) / frameRect.height) * 100;
+
+    const block = origPositions[index];
+    const newLeft = clamp(origLeft + dx, 0, 100 - block.width);
+    const newTop  = clamp(origTop  + dy, 0, 100 - block.height);
+
+    // Place dragged block, then push other blocks out of the way
+    const working = origPositions.map(p => ({...p}));
+    working[index] = { ...block, left: newLeft, top: newTop };
+    const resolved = resolvePushes(working, index);
+    // Only apply if no overlaps remain; otherwise keep last valid state
+    if (!hasAnyPairOverlap(resolved)) {
+      dragRef.current.lastValid = resolved;
+      setPositions(level, resolved);
+    } else if (dragRef.current.lastValid) {
+      setPositions(level, dragRef.current.lastValid);
+    }
+  }, [setPositions]);
+
+  const handleDragEnd = useCallback(() => {
+    if (!dragRef.current) return;
+    const { index, level } = dragRef.current;
+    const lastValid = dragRef.current.lastValid;
+    dragRef.current = null;
+    setDragging(null);
+    const fp = level === 'L1' ? L1fp : L2fp;
+    const curPos = level === 'L1' ? L1pos : L2pos;
+    // Snap released block to nearby edges (incl. footprint)
+    let snapped = curPos.map(p => ({...p}));
+    snapped[index] = snapPos(snapped[index], snapped, index, fp);
+    // If snap introduced overlaps, revert the snap
+    if (hasAnyPairOverlap(snapped)) {
+      snapped = curPos.map(p => ({...p}));
+    }
+    // If block ended up inside footprint, pack everything together
+    if (!isDisconnected(snapped[index], fp)) {
+      const packed = packIntoFootprint(snapped, fp);
+      // Only apply pack if it doesn't introduce overlaps
+      if (!hasAnyPairOverlap(packed)) {
+        snapped = packed;
+      }
+    }
+    // Final safety: if overlaps still exist, use last valid from drag
+    if (hasAnyPairOverlap(snapped) && lastValid && !hasAnyPairOverlap(lastValid)) {
+      snapped = lastValid;
+    }
+    setPositions(level, snapped);
+  }, [L1pos, L2pos, L1fp, L2fp, setPositions]);
+
+  // ── RESIZE ──
+  const handleResizeStart = useCallback((e, index, level, corner) => {
+    const frameRect = getFrameRect(level);
+    if (!frameRect) return;
+    const positions = level === 'L1' ? L1pos : L2pos;
+    const pos = positions[index];
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+
+    resizeRef.current = {
+      index, level, corner, frameRect,
+      startX: clientX, startY: clientY,
+      origLeft: pos.left, origTop: pos.top,
+      origWidth: pos.width, origHeight: pos.height,
+      origArea: pos.width * pos.height,
+      origPositions: positions.map(p => ({...p})),
+    };
+    setResizing({ index, level });
+    pushHistory();
+  }, [L1pos, L2pos, pushHistory]);
+
+  const handleResizeMove = useCallback((e) => {
+    if (!resizeRef.current) return;
+    e.preventDefault();
+    const { index, level, corner, frameRect, startX, startY, origLeft, origTop, origWidth, origHeight, origArea, origPositions } = resizeRef.current;
+    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
+    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
+    const dx = ((clientX - startX) / frameRect.width) * 100;
+    const dy = ((clientY - startY) / frameRect.height) * 100;
+
+    // Compute new width based on which corner, then derive height from area
+    let newWidth, newHeight, newLeft, newTop;
+
+    if (corner === 'br') {
+      newWidth = clamp(origWidth + dx, MIN_DIM, 97);
+    } else if (corner === 'bl') {
+      newWidth = clamp(origWidth - dx, MIN_DIM, 97);
+    } else if (corner === 'tr') {
+      newWidth = clamp(origWidth + dx, MIN_DIM, 97);
+    } else { // tl
+      newWidth = clamp(origWidth - dx, MIN_DIM, 97);
+    }
+
+    newHeight = origArea / newWidth;
+    if (newHeight < MIN_DIM) { newHeight = MIN_DIM; newWidth = origArea / newHeight; }
+
+    // Anchor left/top based on corner
+    if (corner === 'br' || corner === 'tr') {
+      newLeft = origLeft;
+    } else { // bl, tl — left edge moves
+      newLeft = clamp(origLeft + (origWidth - newWidth), 0, 100 - newWidth);
+    }
+    if (corner === 'br' || corner === 'bl') {
+      newTop = origTop;
+    } else { // tr, tl — top edge moves
+      newTop = clamp(origTop + (origHeight - newHeight), 0, 100 - newHeight);
+    }
+
+    // Clamp to frame
+    newLeft = clamp(newLeft, 0, 100 - newWidth);
+    newTop = clamp(newTop, 0, 100 - newHeight);
+
+    const positions = origPositions.map(p => ({...p}));
+    const candidate = { left: newLeft, top: newTop, width: newWidth, height: newHeight };
+    if (!hasAnyOverlap(positions, index, candidate)) {
+      positions[index] = candidate;
+      setPositions(level, positions);
+    }
+  }, [setPositions]);
+
+  const handleResizeEnd = useCallback(() => {
+    if (!resizeRef.current) return;
+    const { index, level } = resizeRef.current;
+    resizeRef.current = null;
+    setResizing(null);
+    const fp = level === 'L1' ? L1fp : L2fp;
+    const curPos = level === 'L1' ? L1pos : L2pos;
+    const snapped = curPos.map(p => ({...p}));
+    snapped[index] = snapPos(snapped[index], snapped, index, fp);
+    // Only apply snap if it doesn't create overlaps
+    if (!hasAnyPairOverlap(snapped)) {
+      setPositions(level, snapped);
+    }
+    // else keep curPos as-is (already overlap-free from resize move checks)
+  }, [L1pos, L2pos, L1fp, L2fp, setPositions]);
+
+  // ── FOOTPRINT HANDLERS ──
+  const handleFpMoveStart = useCallback((e, level) => {
+    const frameRect = getFrameRect(level);
+    if (!frameRect) return;
+    const fp = level === 'L1' ? L1fp : L2fp;
+    fpDragRef.current = {
+      level, frameRect, fp: {...fp},
+      startX: e.clientX, startY: e.clientY,
+      origPositions: (level === 'L1' ? L1pos : L2pos).map(p => ({...p})),
+    };
+    pushHistory();
+  }, [L1fp, L2fp, L1pos, L2pos, pushHistory]);
+
+  const handleFpCornerStart = useCallback((e, level, corner) => {
+    const frameRect = getFrameRect(level);
+    if (!frameRect) return;
+    const fp = level === 'L1' ? L1fp : L2fp;
+    fpResizeRef.current = { level, frameRect, corner, fp: {...fp}, startX: e.clientX, startY: e.clientY };
+    pushHistory();
+  }, [L1fp, L2fp, pushHistory]);
+
+  const handleFpEdgeStart = useCallback((e, level, edge) => {
+    const frameRect = getFrameRect(level);
+    if (!frameRect) return;
+    const fp = level === 'L1' ? L1fp : L2fp;
+    fpResizeRef.current = { level, frameRect, corner: edge, fp: {...fp}, startX: e.clientX, startY: e.clientY };
+    pushHistory();
+  }, [L1fp, L2fp, pushHistory]);
+
+  const handleFpMove = useCallback((e) => {
+    if (fpDragRef.current) {
+      const { level, frameRect, fp, startX, startY, origPositions } = fpDragRef.current;
+      const dx = ((e.clientX - startX) / frameRect.width) * 100;
+      const dy = ((e.clientY - startY) / frameRect.height) * 100;
+      const newFp = {
+        ...fp,
+        left: clamp(fp.left + dx, 0, 100 - fp.width),
+        top:  clamp(fp.top  + dy, 0, 100 - fp.height),
+      };
+      // Move all blocks with the footprint
+      const ddx = newFp.left - fp.left;
+      const ddy = newFp.top  - fp.top;
+      const moved = origPositions.map(p => ({
+        ...p,
+        left: clamp(p.left + ddx, 0, 100 - p.width),
+        top:  clamp(p.top  + ddy, 0, 100 - p.height),
+      }));
+      setFootprint(level, newFp);
+      setPositions(level, moved);
+    }
+    if (fpResizeRef.current) {
+      const { level, frameRect, corner, fp, startX, startY } = fpResizeRef.current;
+      const dx = ((e.clientX - startX) / frameRect.width) * 100;
+      const dy = ((e.clientY - startY) / frameRect.height) * 100;
+      let { left, top, width, height } = fp;
+      if (corner === 'br') { width = clamp(width + dx, 8, 98 - left); height = clamp(height + dy, 8, 98 - top); }
+      else if (corner === 'bl') { const nw = clamp(width - dx, 8, 98); left = clamp(fp.left + fp.width - nw, 0, 95); width = nw; height = clamp(height + dy, 8, 98 - top); }
+      else if (corner === 'tr') { width = clamp(width + dx, 8, 98 - left); const nh = clamp(height - dy, 8, 98); top = clamp(fp.top + fp.height - nh, 0, 95); height = nh; }
+      else if (corner === 'tl') { const nw = clamp(width - dx, 8, 98); left = clamp(fp.left + fp.width - nw, 0, 95); width = nw; const nh = clamp(height - dy, 8, 98); top = clamp(fp.top + fp.height - nh, 0, 95); height = nh; }
+      else if (corner === 't') { const nh = clamp(height - dy, 8, 98); top = clamp(fp.top + fp.height - nh, 0, 95); height = nh; }
+      else if (corner === 'b') { height = clamp(height + dy, 8, 98 - top); }
+      else if (corner === 'l') { const nw = clamp(width - dx, 8, 98); left = clamp(fp.left + fp.width - nw, 0, 95); width = nw; }
+      else if (corner === 'r') { width = clamp(width + dx, 8, 98 - left); }
+      setFootprint(level, { left, top, width, height });
+    }
+  }, [setFootprint, setPositions]);
+
+  const handleFpUp = useCallback(() => {
+    if (fpDragRef.current) { fpDragRef.current = null; }
+    if (fpResizeRef.current) {
+      const { level } = fpResizeRef.current;
+      fpResizeRef.current = null;
+      const fp = level === 'L1' ? L1fp : L2fp;
+      const curPos = level === 'L1' ? L1pos : L2pos;
+      const packed = packIntoFootprint(curPos, fp);
+      // Only apply pack if it doesn't introduce overlaps
+      if (!hasAnyPairOverlap(packed)) {
+        setPositions(level, packed);
+      }
+    }
+  }, [L1fp, L2fp, L1pos, L2pos, setPositions]);
+
+  // ── POINTER EVENTS ──
+  useEffect(() => {
+    const onMove = (e) => {
+      if (dragRef.current) handleDragMove(e);
+      if (resizeRef.current) handleResizeMove(e);
+      if (fpDragRef.current || fpResizeRef.current) handleFpMove(e);
+    };
+    const onUp = () => {
+      if (dragRef.current) handleDragEnd();
+      if (resizeRef.current) handleResizeEnd();
+      if (fpDragRef.current || fpResizeRef.current) handleFpUp();
+    };
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [handleDragMove, handleDragEnd, handleResizeMove, handleResizeEnd, handleFpMove, handleFpUp]);
+
+  const handleSelect = useCallback((index, level) => {
+    if (index === null) { setSelectedBlock(null); return; }
+    setSelectedBlock(prev => (prev && prev.index === index && prev.level === level) ? null : { index, level });
+  }, []);
+
+  const handleReset = () => {
+    pushHistory();
+    const l1 = initPositions(L1C);
+    const l2 = initPositions(L2C);
+    const l1packed = packIntoFootprint(l1, DEFAULT_L1_FP);
+    const l2packed = packIntoFootprint(l2, DEFAULT_L2_FP);
+    // Use packed if overlap-free, otherwise use raw initial positions
+    setL1pos(!hasAnyPairOverlap(l1packed) ? l1packed : l1);
+    setL2pos(!hasAnyPairOverlap(l2packed) ? l2packed : l2);
+    setL1fp({...DEFAULT_L1_FP});
+    setL2fp({...DEFAULT_L2_FP});
+    setSelectedBlock(null);
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const last = history[history.length - 1];
+    setL1pos(last.L1); setL2pos(last.L2);
+    if (last.L1fp) setL1fp(last.L1fp);
+    if (last.L2fp) setL2fp(last.L2fp);
+    setHistory(h => h.slice(0, -1));
+  };
+
+  const l1Blocks = mode === 'cruise' ? L1C : L1NC;
+  const l2Blocks = mode === 'cruise' ? L2C : L2NC;
+
+  const selectedData = selectedBlock ? (
+    selectedBlock.level === 'L1' ? l1Blocks[selectedBlock.index] : l2Blocks[selectedBlock.index]
+  ) : null;
+
+  return (
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', padding: '28px 20px 6px' }}>
+        <h1 style={{
+          fontFamily: "'Cormorant Garamond',serif", fontWeight: 300,
+          fontSize: 'clamp(18px, 3vw, 32px)', letterSpacing: '0.12em',
+          textTransform: 'uppercase', color: 'var(--text)',
+        }}>Program Color Plans</h1>
+        <div style={{
+          fontFamily: "'Space Mono',monospace", fontSize: 10, color: 'var(--text-muted)',
+          letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 4,
+        }}>Port Tampa Bay · Cruise Terminal 5 · RFQ 006-26</div>
+      </div>
+
+      {/* Mode Tabs + Controls */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, margin: '18px auto 0', flexWrap: 'wrap', padding: '0 16px' }}>
+        <div style={{ display: 'flex', gap: 3 }}>
+          <button onClick={() => setMode('cruise')} style={{
+            padding: '10px 32px', border: '1px solid ' + (mode === 'cruise' ? '#8fb5cc' : 'var(--border)'),
+            background: mode === 'cruise' ? '#8fb5cc' : 'transparent',
+            color: mode === 'cruise' ? '#fff' : 'var(--text-muted)',
+            fontFamily: "'Space Mono',monospace", fontSize: 11, fontWeight: 400,
+            cursor: 'pointer', letterSpacing: '0.12em', textTransform: 'uppercase',
+            transition: 'all 0.2s',
+          }}>Cruise Day</button>
+          <button onClick={() => setMode('nc')} style={{
+            padding: '10px 32px', border: '1px solid ' + (mode === 'nc' ? '#cc8878' : 'var(--border)'),
+            background: mode === 'nc' ? '#cc8878' : 'transparent',
+            color: mode === 'nc' ? '#fff' : 'var(--text-muted)',
+            fontFamily: "'Space Mono',monospace", fontSize: 11, fontWeight: 400,
+            cursor: 'pointer', letterSpacing: '0.12em', textTransform: 'uppercase',
+            transition: 'all 0.2s',
+          }}>Non-Cruise Day</button>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={handleUndo} disabled={history.length === 0} style={{
+            padding: '6px 14px', border: '1px solid var(--border)', background: 'transparent',
+            color: history.length ? 'var(--text-dim)' : 'var(--border)',
+            fontFamily: "'Space Mono',monospace", fontSize: 9, cursor: history.length ? 'pointer' : 'default',
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>Undo</button>
+          <button onClick={handleReset} style={{
+            padding: '6px 14px', border: '1px solid var(--border)', background: 'transparent',
+            color: 'var(--text-dim)', fontFamily: "'Space Mono',monospace", fontSize: 9,
+            cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>Reset Layout</button>
+        </div>
+      </div>
+
+      {/* Plans Grid */}
+      <div className="plans-grid">
+        <PlanView
+          title="Level 1 — Grade"
+          blocks={l1Blocks} positions={L1pos} level="L1" mode={mode} fp={L1fp}
+          onDragStart={handleDragStart} onResizeStart={handleResizeStart}
+          onFpMoveStart={handleFpMoveStart} onFpCornerStart={handleFpCornerStart} onFpEdgeStart={handleFpEdgeStart}
+          selectedBlock={selectedBlock} onSelect={handleSelect}
+          draggingIdx={dragging} resizingIdx={resizing}
+        />
+        <PlanView
+          title="Level 2 — Upper"
+          blocks={l2Blocks} positions={L2pos} level="L2" mode={mode} fp={L2fp}
+          onDragStart={handleDragStart} onResizeStart={handleResizeStart}
+          onFpMoveStart={handleFpMoveStart} onFpCornerStart={handleFpCornerStart} onFpEdgeStart={handleFpEdgeStart}
+          selectedBlock={selectedBlock} onSelect={handleSelect}
+          draggingIdx={dragging} resizingIdx={resizing}
+        />
+      </div>
+
+      {/* Revenue Bar */}
+      <div style={{ maxWidth: '100%', margin: '0 auto 12px', padding: '0 16px' }}>
+        <div style={{
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          padding: '10px 16px', display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap',
+        }}>
+          {[
+            { val: '$1.5M–$5M+', label: 'Event Venue' },
+            { val: '$500K–$1M+', label: 'Parking' },
+            { val: '$15K–$50K+', label: 'Per Event' },
+            { val: '285–305', label: 'Non-Cruise Days' },
+          ].map(r => (
+            <div key={r.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, fontWeight: 300, color: 'var(--accent)' }}>{r.val}</div>
+              <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 1 }}>{r.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <Legend mode={mode} />
+
+      {/* Tooltip for selected block */}
+      {selectedData && <Tooltip block={selectedData} />}
+
+      {/* Hover styles */}
+      <style>{`
+        .interactive-block:hover {
+          transform: scale(1.03);
+          z-index: 10 !important;
+          border-color: rgba(0,0,0,0.2) !important;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+          opacity: 0.85 !important;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
