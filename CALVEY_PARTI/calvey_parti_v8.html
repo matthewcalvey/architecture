@@ -786,6 +786,9 @@ function App() {
   const [corrNextId, setCorrNextId] = useState(10);
   const [activeNode, setActiveNode] = useState(null); // "x,y" key of selected node
   const [addingSeg, setAddingSeg] = useState(null); // { fromX, fromY, toX, toY } during drag-to-add
+  const [barH, setBarH] = useState(220); // bottom bar height in px
+  const [barMinimized, setBarMinimized] = useState(false);
+  const barDragRef = useRef(null); // { sy, startH }
   const [address, setAddress] = useState("");
   const [parcelData, setParcelData] = useState(null); // { parcelFt, widthFt, depthFt, ... }
   const [parcelLoading, setParcelLoading] = useState(false);
@@ -1116,6 +1119,27 @@ function App() {
     };
   }, [scr]);
 
+  // ─── BOTTOM BAR DRAG-TO-MINIMIZE ───
+  useEffect(() => {
+    const onMove = (e) => {
+      const d = barDragRef.current;
+      if (!d) return;
+      const dy = d.sy - e.clientY; // dragging down = negative dy = shrink
+      const newH = Math.max(36, Math.min(400, d.startH + dy));
+      setBarH(newH);
+      setBarMinimized(newH <= 44);
+    };
+    const onUp = () => { barDragRef.current = null; };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+  }, []);
+
+  const onBarHandleDown = (e) => {
+    e.preventDefault();
+    barDragRef.current = { sy: e.clientY, startH: barH };
+  };
+
   // ─── THEME ───
   const lbg = "#FAFAF8", lsf = "#FFFFFF", lbd = "#E0DDD8", lbd2 = "#F0EDE8";
   const lt1 = "#1A1A1A", lt2 = "#555555", lt3 = "#888888";
@@ -1261,19 +1285,177 @@ function App() {
         </div>
       </div>
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* Sidebar */}
-        <div style={{ width: 220, borderRight: "1px solid " + lbd, display: "flex", flexDirection: "column", background: lsf, flexShrink: 0 }}>
+      {/* Canvas — zoomable and pannable (full width above bottom bar) */}
+      <div ref={canvasRef}
+        style={{ flex: 1, overflow: "hidden", position: "relative", cursor: gestureRef.current ? "grabbing" : "default", touchAction: "none" }}
+        onWheel={handleWheel}
+        onPointerDown={handleCanvasPointerDown}
+        onPointerMove={handleCanvasPointerMove}
+        onPointerUp={handleCanvasPointerUp}
+        onClick={handleCorrCanvasClick}>
+        {/* Grid background (fixed) */}
+        <div className="canvas-bg" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(" + lbd2 + " 1px, transparent 1px), linear-gradient(90deg, " + lbd2 + " 1px, transparent 1px)", backgroundSize: (G * zoom) + "px " + (G * zoom) + "px", backgroundPosition: pan.x + "px " + pan.y + "px", pointerEvents: "none" }} />
 
-          {/* Properties Panel — pinned at top */}
-          <div style={{ borderBottom: "1px solid " + lbd, padding: "12px 12px", flexShrink: 0, minHeight: 52 }}>
+        {/* Zoom hint */}
+        <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", zIndex: 5, background: lsf + "cc", padding: "3px 8px", borderRadius: 4 }}>
+          Scroll to zoom {"\u00B7"} Drag to pan {"\u00B7"} Pinch on mobile
+        </div>
+
+        <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", padding: 24 }}>
+          <svg width={gridW * G} height={gridH * G} style={{ display: "block", touchAction: "none", overflow: "visible" }}>
+
+            {/* Parcel boundary overlay */}
+            {parcelData && (() => {
+              const pts = parcelData.parcelFt.map(([fx, fy]) => (fx / cFt * G) + "," + (fy / cFt * G));
+              return <polygon points={pts.join(" ")} fill="none" stroke="#c9a959" strokeWidth={2} strokeDasharray="8,6" opacity={0.7} style={{ pointerEvents: "none" }} />;
+            })()}
+
+            {/* Adjacency lines */}
+            {showAdj && planMeta && planMeta.adjE.map(e => {
+              const ra = rooms.find(r => r.name === e.a);
+              const rb = rooms.find(r => r.name === e.b);
+              if (!ra || !rb) return null;
+              const ax = (ra.x + ra.w / 2) * G, ay = (ra.y + ra.h / 2) * G;
+              const bx = (rb.x + rb.w / 2) * G, by = (rb.y + rb.h / 2) * G;
+              return <line key={e.key} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke={e.met ? "#4D8F4D" : "#C45C3E"} strokeWidth={e.met ? 1.5 : 1}
+                strokeDasharray={e.met ? "none" : "4,4"} opacity={0.35} />;
+            })}
+
+            {/* Room boxes */}
+            {rooms.map((r, i) => {
+              const vis = i < reveal;
+              const isH = hov === r.name;
+              const isA = active === i;
+              const act = isH || isA;
+              const isCorridor = r.zone === "corridor";
+              const isCore = r.zone === "core";
+
+              if (isCorridor) {
+                return (
+                  <rect key={i} x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G}
+                    fill={corrColor} fillOpacity={0.18} stroke="none"
+                    style={{ pointerEvents: "none", opacity: vis ? 1 : 0, transition: "opacity 0.3s ease" }} />
+                );
+              }
+
+              const opacity = isCore ? 0.5 : act ? 0.55 : 0.38;
+              const roomIdx = rooms.slice(0, i).filter(r2 => r2.zone !== "corridor").length;
+
+              return (
+                <g key={i} style={{
+                  opacity: vis ? 1 : 0,
+                  transform: vis ? "scale(1)" : "scale(0.85)",
+                  transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
+                  transition: "opacity 0.3s ease " + (roomIdx * 20) + "ms, transform 0.4s cubic-bezier(.34,1.4,.64,1) " + (roomIdx * 20) + "ms",
+                }}
+                  onMouseEnter={() => setHov(r.name)}
+                  onMouseLeave={() => setHov(null)}>
+
+                  <rect x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G} rx={5}
+                    fill={r.color} fillOpacity={opacity}
+                    stroke={r.color + (isA ? "cc" : act ? "99" : "55")}
+                    strokeWidth={isA ? 2 : act ? 1.5 : 1}
+                    style={{ cursor: r.fixed ? "default" : "grab", touchAction: "none", transition: "fill-opacity 0.15s" }}
+                    onPointerDown={e => { if (!r.fixed) onBodyDown(i, e); else { e.stopPropagation(); setActive(i); } }} />
+
+                  {r.w * G > 40 && r.h * G > 24 && (
+                    <text x={r.x * G + 7} y={r.y * G + 14} fill={act ? "#fff" : r.color + "dd"}
+                      style={{ fontFamily: f2, fontSize: 7, textTransform: "uppercase", letterSpacing: "0.04em", pointerEvents: "none", userSelect: "none" }}>
+                      {r.name.length > Math.floor(r.w * G / 7) ? r.name.slice(0, Math.floor(r.w * G / 7) - 1) + "\u2026" : r.name}
+                    </text>
+                  )}
+                  {r.w * G > 40 && r.h * G > 36 && (
+                    <text x={r.x * G + 7} y={r.y * G + 24} fill="#ffffffaa"
+                      style={{ fontFamily: f2, fontSize: 6, pointerEvents: "none", userSelect: "none" }}>
+                      {dimFt(r.w) + "'\u00D7" + dimFt(r.h) + "'" + " \u00B7 " + areaSF(r.area) + " SF"}
+                    </text>
+                  )}
+
+                  {isA && !r.fixed && [
+                    { hx: r.x, hy: r.y, co: "tl" },
+                    { hx: r.x + r.w, hy: r.y, co: "tr" },
+                    { hx: r.x, hy: r.y + r.h, co: "bl" },
+                    { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
+                  ].map(h => (
+                    <circle key={h.co} cx={h.hx * G} cy={h.hy * G} r={12} fill="transparent"
+                      style={{ cursor: h.co === "tl" || h.co === "br" ? "nwse-resize" : "nesw-resize", touchAction: "none" }}
+                      onPointerDown={e => onHandleDown(i, h.co, e)} />
+                  ))}
+                  {isA && !r.fixed && [
+                    { hx: r.x, hy: r.y, co: "tl" },
+                    { hx: r.x + r.w, hy: r.y, co: "tr" },
+                    { hx: r.x, hy: r.y + r.h, co: "bl" },
+                    { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
+                  ].map(h => (
+                    <g key={h.co + "v"} style={{ pointerEvents: "none" }}>
+                      <circle cx={h.hx * G} cy={h.hy * G} r={6} fill={lsf} stroke={r.color} strokeWidth={1.5} style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))" }} />
+                      <circle cx={h.hx * G} cy={h.hy * G} r={2.5} fill={r.color} />
+                    </g>
+                  ))}
+                </g>
+              );
+            })}
+
+            {editMode === "corridor" && corrSegs.map(seg => {
+              const x1p = seg.x1 * G, y1p = seg.y1 * G, x2p = seg.x2 * G, y2p = seg.y2 * G;
+              return (
+                <line key={"cs" + seg.id} x1={x1p} y1={y1p} x2={x2p} y2={y2p}
+                  stroke={corrColor} strokeWidth={Math.max(2, seg.width * 3)} strokeLinecap="round" opacity={0.5} style={{ pointerEvents: "none" }} />
+              );
+            })}
+            {editMode === "corridor" && (() => {
+              const nodes = getCorridorNodes(corrSegs);
+              return nodes.map((nd, ni) => {
+                const nk = nd.x + "," + nd.y;
+                const isAct = activeNode === nk;
+                const isLobby = nd.type === "lobby";
+                return (
+                  <g key={"cn" + ni}>
+                    <circle cx={nd.x * G} cy={nd.y * G} r={16} fill="transparent"
+                      style={{ cursor: "grab", touchAction: "none" }}
+                      onPointerDown={e => {
+                        e.preventDefault(); e.stopPropagation();
+                        e.target.setPointerCapture(e.pointerId);
+                        setActiveNode(nk);
+                        corrNodeMode.current = { type: "pending", nk, sx: e.clientX, sy: e.clientY, ox: nd.x, oy: nd.y, lastX: nd.x, lastY: nd.y, segIds: nd.segIds };
+                      }} />
+                    <circle cx={nd.x * G} cy={nd.y * G} r={isLobby ? 10 : 7}
+                      fill={isAct ? corrColor : lsf} stroke={corrColor} strokeWidth={isAct ? 2.5 : 1.5}
+                      style={{ pointerEvents: "none", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.15))" }} />
+                    {isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={4} fill={corrColor} style={{ pointerEvents: "none" }} />}
+                    {!isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={3} fill={corrColor} style={{ pointerEvents: "none" }} />}
+                  </g>
+                );
+              });
+            })()}
+            {addingSeg && (
+              <line x1={addingSeg.fromX * G} y1={addingSeg.fromY * G}
+                x2={addingSeg.toX * G} y2={addingSeg.toY * G}
+                stroke={corrColor} strokeWidth={3} strokeDasharray="6,4" opacity={0.6} style={{ pointerEvents: "none" }} />
+            )}
+          </svg>
+        </div>
+      </div>
+
+      {/* Bottom Bar — drag handle to minimize, horizontal scroll */}
+      <div style={{ height: barH, borderTop: "1px solid " + lbd, background: lsf, flexShrink: 0, display: "flex", flexDirection: "column", transition: barDragRef.current ? "none" : "height 0.2s ease" }}>
+        {/* Drag handle */}
+        <div onPointerDown={onBarHandleDown}
+          style={{ height: 12, cursor: "ns-resize", display: "flex", alignItems: "center", justifyContent: "center", background: lbd2, flexShrink: 0, userSelect: "none", touchAction: "none" }}>
+          <div style={{ width: 32, height: 3, borderRadius: 2, background: lbd }} />
+        </div>
+
+        {/* Bar content — horizontal layout: properties left, program scrolls right */}
+        <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+          {/* Properties Panel — pinned left */}
+          {!barMinimized && <div style={{ width: 240, borderRight: "1px solid " + lbd, padding: "10px 12px", flexShrink: 0, overflowY: "auto" }}>
             <div style={{ fontFamily: f2, fontSize: 7, color: editMode === "corridor" ? corrColor : ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>
               {editMode === "corridor" ? "Corridor" : "Properties"}
             </div>
             {editMode === "corridor" ? (
               <div>
                 <div style={{ fontFamily: f1, fontSize: 14, fontWeight: 300, color: lt1, marginBottom: 6 }}>{corrSegs.length} segment{corrSegs.length !== 1 ? "s" : ""}</div>
-                {/* Segment list */}
                 {corrSegs.map((seg, si) => {
                   const isHoriz = Math.abs(seg.x2 - seg.x1) >= Math.abs(seg.y2 - seg.y1);
                   const len = Math.max(Math.abs(seg.x2 - seg.x1), Math.abs(seg.y2 - seg.y1)) + 1;
@@ -1292,10 +1474,8 @@ function App() {
                     </div>
                   );
                 })}
-                {/* Node type toggle for active node */}
                 {activeNode && (() => {
                   const [anx, any] = activeNode.split(",").map(Number);
-                  // Find segments with this node and their node type
                   const touching = corrSegs.filter(s => (s.x1 === anx && s.y1 === any) || (s.x2 === anx && s.y2 === any));
                   if (!touching.length) return null;
                   const curType = touching[0].x1 === anx && touching[0].y1 === any ? touching[0].nodeType1 : touching[0].nodeType2;
@@ -1360,203 +1540,52 @@ function App() {
             ) : (
               <div style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: lt3 }}>{editMode === "corridor" ? "Edit corridor nodes" : "Click a room to inspect"}</div>
             )}
-          </div>
+          </div>}
 
-          {/* Room List — collapsible departments, scrollable */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "10px 12px" }}>
-            <div style={{ fontFamily: f2, fontSize: 7, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>Program</div>
+          {/* Room List — horizontal scroll with department columns */}
+          {!barMinimized && <div style={{ flex: 1, overflowX: "auto", overflowY: "hidden", display: "flex", padding: "10px 12px", gap: 16 }}>
             {depts.map((d, di) => {
               const dRooms = rooms.filter(r => r.dept === d.n && !r.fixed);
               if (!dRooms.length) return null;
               const isOpen = !collapsed[d.n];
               const dArea = dRooms.reduce((s, r) => s + r.area, 0);
               return (
-                <div key={di} style={{ marginBottom: 6 }}>
+                <div key={di} style={{ minWidth: 160, flexShrink: 0 }}>
                   <button onClick={() => toggleDept(d.n)} style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", background: "none", border: "none", padding: "4px 0", cursor: "pointer" }}>
                     <span style={{ fontSize: 7, color: lt3, display: "inline-block", transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.2s", width: 8, textAlign: "center" }}>{"\u25B6"}</span>
                     <div style={{ width: 8, height: 8, borderRadius: 2, background: d.c, flexShrink: 0 }} />
-                    <span style={{ fontFamily: f2, fontSize: 7, color: lt2, textTransform: "uppercase", letterSpacing: "0.06em" }}>{d.n}</span>
-                    <span style={{ fontFamily: f2, fontSize: 6, color: lt3, marginLeft: "auto" }}>{dRooms.length} rm {"\u00B7"} {areaSF(dArea)} SF</span>
+                    <span style={{ fontFamily: f2, fontSize: 7, color: lt2, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{d.n}</span>
+                    <span style={{ fontFamily: f2, fontSize: 6, color: lt3, marginLeft: "auto", whiteSpace: "nowrap" }}>{dRooms.length} rm {"\u00B7"} {areaSF(dArea)} SF</span>
                   </button>
-                  {isOpen && dRooms.map((r, j) => {
-                    const idx = rooms.indexOf(r);
-                    const isA = active === idx;
-                    return (
-                      <div key={j} onMouseEnter={() => setHov(r.name)} onMouseLeave={() => setHov(null)}
-                        onClick={e => { e.stopPropagation(); setActive(idx); }}
-                        style={{ fontFamily: f1, fontSize: 12, fontWeight: 300, color: isA ? lt1 : hov === r.name ? lt1 : lt2, padding: "2px 0 2px 22px", cursor: "pointer", transition: "all 0.15s", borderLeft: isA ? "2px solid " + d.c : hov === r.name ? "2px solid " + d.c + "55" : "2px solid transparent", marginLeft: 6, background: isA ? d.c + "10" : "transparent", display: "flex", justifyContent: "space-between" }}>
-                        <span>{r.name}</span>
-                        <span style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>{dimFt(r.w) + "'" + "\u00D7" + dimFt(r.h) + "'"}</span>
-                      </div>
-                    );
-                  })}
+                  {isOpen && <div style={{ overflowY: "auto", maxHeight: barH - 56 }}>
+                    {dRooms.map((r, j) => {
+                      const idx = rooms.indexOf(r);
+                      const isA = active === idx;
+                      return (
+                        <div key={j} onMouseEnter={() => setHov(r.name)} onMouseLeave={() => setHov(null)}
+                          onClick={e => { e.stopPropagation(); setActive(idx); }}
+                          style={{ fontFamily: f1, fontSize: 12, fontWeight: 300, color: isA ? lt1 : hov === r.name ? lt1 : lt2, padding: "2px 0 2px 14px", cursor: "pointer", transition: "all 0.15s", borderLeft: isA ? "2px solid " + d.c : hov === r.name ? "2px solid " + d.c + "55" : "2px solid transparent", background: isA ? d.c + "10" : "transparent", display: "flex", justifyContent: "space-between", gap: 8, whiteSpace: "nowrap" }}>
+                          <span>{r.name}</span>
+                          <span style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>{dimFt(r.w) + "'" + "\u00D7" + dimFt(r.h) + "'"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>}
                 </div>
               );
             })}
-          </div>
-        </div>
+          </div>}
 
-        {/* Canvas — zoomable and pannable */}
-        <div ref={canvasRef}
-          style={{ flex: 1, overflow: "hidden", position: "relative", cursor: gestureRef.current ? "grabbing" : "default", touchAction: "none" }}
-          onWheel={handleWheel}
-          onPointerDown={handleCanvasPointerDown}
-          onPointerMove={handleCanvasPointerMove}
-          onPointerUp={handleCanvasPointerUp}
-          onClick={handleCorrCanvasClick}>
-          {/* Grid background (fixed) */}
-          <div className="canvas-bg" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(" + lbd2 + " 1px, transparent 1px), linear-gradient(90deg, " + lbd2 + " 1px, transparent 1px)", backgroundSize: (G * zoom) + "px " + (G * zoom) + "px", backgroundPosition: pan.x + "px " + pan.y + "px", pointerEvents: "none" }} />
-
-          {/* Zoom hint */}
-          <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", zIndex: 5, background: lsf + "cc", padding: "3px 8px", borderRadius: 4 }}>
-            Scroll to zoom {"\u00B7"} Drag to pan {"\u00B7"} Pinch on mobile
-          </div>
-
-          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", padding: 24 }}>
-            <svg width={gridW * G} height={gridH * G} style={{ display: "block", touchAction: "none", overflow: "visible" }}>
-
-              {/* Parcel boundary overlay */}
-              {parcelData && (() => {
-                const pts = parcelData.parcelFt.map(([fx, fy]) => (fx / cFt * G) + "," + (fy / cFt * G));
-                return <polygon points={pts.join(" ")} fill="none" stroke="#c9a959" strokeWidth={2} strokeDasharray="8,6" opacity={0.7} style={{ pointerEvents: "none" }} />;
-              })()}
-
-              {/* Adjacency lines */}
-              {showAdj && planMeta && planMeta.adjE.map(e => {
-                const ra = rooms.find(r => r.name === e.a);
-                const rb = rooms.find(r => r.name === e.b);
-                if (!ra || !rb) return null;
-                const ax = (ra.x + ra.w / 2) * G, ay = (ra.y + ra.h / 2) * G;
-                const bx = (rb.x + rb.w / 2) * G, by = (rb.y + rb.h / 2) * G;
-                return <line key={e.key} x1={ax} y1={ay} x2={bx} y2={by}
-                  stroke={e.met ? "#4D8F4D" : "#C45C3E"} strokeWidth={e.met ? 1.5 : 1}
-                  strokeDasharray={e.met ? "none" : "4,4"} opacity={0.35} />;
-              })}
-
-              {/* Room boxes */}
-              {rooms.map((r, i) => {
-                const vis = i < reveal;
-                const isH = hov === r.name;
-                const isA = active === i;
-                const act = isH || isA;
-                const isCorridor = r.zone === "corridor";
-                const isCore = r.zone === "core";
-
-                // Corridor cells: flat fill, no stroke, no labels, no animation stagger
-                if (isCorridor) {
-                  return (
-                    <rect key={i} x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G}
-                      fill={corrColor} fillOpacity={0.18} stroke="none"
-                      style={{ pointerEvents: "none", opacity: vis ? 1 : 0, transition: "opacity 0.3s ease" }} />
-                  );
-                }
-
-                const opacity = isCore ? 0.5 : act ? 0.55 : 0.38;
-                // Non-corridor animation: cap stagger index to room count (skip corridor cells)
-                const roomIdx = rooms.slice(0, i).filter(r2 => r2.zone !== "corridor").length;
-
-                return (
-                  <g key={i} style={{
-                    opacity: vis ? 1 : 0,
-                    transform: vis ? "scale(1)" : "scale(0.85)",
-                    transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
-                    transition: "opacity 0.3s ease " + (roomIdx * 20) + "ms, transform 0.4s cubic-bezier(.34,1.4,.64,1) " + (roomIdx * 20) + "ms",
-                  }}
-                    onMouseEnter={() => setHov(r.name)}
-                    onMouseLeave={() => setHov(null)}>
-
-                    <rect x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G} rx={5}
-                      fill={r.color} fillOpacity={opacity}
-                      stroke={r.color + (isA ? "cc" : act ? "99" : "55")}
-                      strokeWidth={isA ? 2 : act ? 1.5 : 1}
-                      style={{ cursor: r.fixed ? "default" : "grab", touchAction: "none", transition: "fill-opacity 0.15s" }}
-                      onPointerDown={e => { if (!r.fixed) onBodyDown(i, e); else { e.stopPropagation(); setActive(i); } }} />
-
-                    {/* Label */}
-                    {r.w * G > 40 && r.h * G > 24 && (
-                      <text x={r.x * G + 7} y={r.y * G + 14} fill={act ? "#fff" : r.color + "dd"}
-                        style={{ fontFamily: f2, fontSize: 7, textTransform: "uppercase", letterSpacing: "0.04em", pointerEvents: "none", userSelect: "none" }}>
-                        {r.name.length > Math.floor(r.w * G / 7) ? r.name.slice(0, Math.floor(r.w * G / 7) - 1) + "\u2026" : r.name}
-                      </text>
-                    )}
-                    {r.w * G > 40 && r.h * G > 36 && (
-                      <text x={r.x * G + 7} y={r.y * G + 24} fill="#ffffffaa"
-                        style={{ fontFamily: f2, fontSize: 6, pointerEvents: "none", userSelect: "none" }}>
-                        {dimFt(r.w) + "'\u00D7" + dimFt(r.h) + "'" + " \u00B7 " + areaSF(r.area) + " SF"}
-                      </text>
-                    )}
-
-                    {/* Corner handles when active */}
-                    {isA && !r.fixed && [
-                      { hx: r.x, hy: r.y, co: "tl" },
-                      { hx: r.x + r.w, hy: r.y, co: "tr" },
-                      { hx: r.x, hy: r.y + r.h, co: "bl" },
-                      { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
-                    ].map(h => (
-                      <circle key={h.co} cx={h.hx * G} cy={h.hy * G} r={12} fill="transparent"
-                        style={{ cursor: h.co === "tl" || h.co === "br" ? "nwse-resize" : "nesw-resize", touchAction: "none" }}
-                        onPointerDown={e => onHandleDown(i, h.co, e)} />
-                    ))}
-                    {isA && !r.fixed && [
-                      { hx: r.x, hy: r.y, co: "tl" },
-                      { hx: r.x + r.w, hy: r.y, co: "tr" },
-                      { hx: r.x, hy: r.y + r.h, co: "bl" },
-                      { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
-                    ].map(h => (
-                      <g key={h.co + "v"} style={{ pointerEvents: "none" }}>
-                        <circle cx={h.hx * G} cy={h.hy * G} r={6} fill={lsf} stroke={r.color} strokeWidth={1.5} style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))" }} />
-                        <circle cx={h.hx * G} cy={h.hy * G} r={2.5} fill={r.color} />
-                      </g>
-                    ))}
-                  </g>
-                );
-              })}
-
-              {/* Corridor nodes & segments — visible in corridor edit mode */}
-              {editMode === "corridor" && corrSegs.map(seg => {
-                const x1p = seg.x1 * G, y1p = seg.y1 * G, x2p = seg.x2 * G, y2p = seg.y2 * G;
-                return (
-                  <line key={"cs" + seg.id} x1={x1p} y1={y1p} x2={x2p} y2={y2p}
-                    stroke={corrColor} strokeWidth={Math.max(2, seg.width * 3)} strokeLinecap="round" opacity={0.5} style={{ pointerEvents: "none" }} />
-                );
-              })}
-              {editMode === "corridor" && (() => {
-                const nodes = getCorridorNodes(corrSegs);
-                return nodes.map((nd, ni) => {
-                  const nk = nd.x + "," + nd.y;
-                  const isAct = activeNode === nk;
-                  const isLobby = nd.type === "lobby";
-                  return (
-                    <g key={"cn" + ni}>
-                      {/* Hit area */}
-                      <circle cx={nd.x * G} cy={nd.y * G} r={16} fill="transparent"
-                        style={{ cursor: "grab", touchAction: "none" }}
-                        onPointerDown={e => {
-                          e.preventDefault(); e.stopPropagation();
-                          e.target.setPointerCapture(e.pointerId);
-                          setActiveNode(nk);
-                          corrNodeMode.current = { type: "pending", nk, sx: e.clientX, sy: e.clientY, ox: nd.x, oy: nd.y, lastX: nd.x, lastY: nd.y, segIds: nd.segIds };
-                        }} />
-                      {/* Visual */}
-                      <circle cx={nd.x * G} cy={nd.y * G} r={isLobby ? 10 : 7}
-                        fill={isAct ? corrColor : lsf} stroke={corrColor} strokeWidth={isAct ? 2.5 : 1.5}
-                        style={{ pointerEvents: "none", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.15))" }} />
-                      {isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={4} fill={corrColor} style={{ pointerEvents: "none" }} />}
-                      {!isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={3} fill={corrColor} style={{ pointerEvents: "none" }} />}
-                    </g>
-                  );
-                });
-              })()}
-              {/* Adding segment preview line */}
-              {addingSeg && (
-                <line x1={addingSeg.fromX * G} y1={addingSeg.fromY * G}
-                  x2={addingSeg.toX * G} y2={addingSeg.toY * G}
-                  stroke={corrColor} strokeWidth={3} strokeDasharray="6,4" opacity={0.6} style={{ pointerEvents: "none" }} />
-              )}
-            </svg>
-          </div>
+          {/* Minimized state */}
+          {barMinimized && <div onClick={() => { setBarH(220); setBarMinimized(false); }}
+            style={{ flex: 1, display: "flex", alignItems: "center", padding: "0 16px", cursor: "pointer", gap: 12 }}>
+            <span style={{ fontFamily: f2, fontSize: 7, color: ac, textTransform: "uppercase", letterSpacing: "0.15em" }}>Program</span>
+            <span style={{ fontFamily: f2, fontSize: 7, color: lt3 }}>{rooms.filter(r => !r.fixed).length} rooms {"\u00B7"} {sf.toLocaleString()} SF</span>
+            <span style={{ fontFamily: f2, fontSize: 7, color: lt3, marginLeft: "auto" }}>Drag up to expand</span>
+          </div>}
         </div>
       </div>
+
     </div>
   );
 }
