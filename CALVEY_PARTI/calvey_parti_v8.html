@@ -1145,30 +1145,14 @@ function App() {
         <div style={{ width: 36, height: 1, background: ac, margin: "14px auto 0" }} />
       </div></Fade>
       <Fade i={1} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
-        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>01 &nbsp;Site Address <span style={{ textTransform: "none", color: lt3 }}>(optional)</span></div>
-        <div style={{ background: lsf, border: "1px solid " + lbd, borderRadius: 10, padding: "12px 16px", marginBottom: 10 }}>
-          <input value={address} onChange={e => setAddress(e.target.value)} placeholder='e.g. "27 Holyoke St, Boston, MA"' onKeyDown={e => { if (e.key === "Enter") doFetchParcel(); }}
-            style={{ width: "100%", background: "transparent", border: "none", fontFamily: f1, fontSize: 16, fontWeight: 300, color: lt1, outline: "none" }} />
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={doFetchParcel} disabled={!address.trim() || parcelLoading}
-            style={{ fontFamily: f2, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", background: address.trim() ? ac + "18" : "transparent", border: "1px solid " + (address.trim() ? ac : lbd), borderRadius: 8, padding: "8px 16px", color: address.trim() ? ac : lt3, cursor: address.trim() ? "pointer" : "not-allowed" }}>
-            {parcelLoading ? "Searching..." : "Find Parcel"}
-          </button>
-          {parcelData && <span style={{ fontFamily: f2, fontSize: 7, color: "#4D8F4D" }}>{"\u2713"} {Math.round(parcelData.widthFt)}{"'"} {"\u00D7"} {Math.round(parcelData.depthFt)}{"'"}</span>}
-          {parcelError && <span style={{ fontFamily: f2, fontSize: 7, color: "#C45C3E" }}>{parcelError}</span>}
-        </div>
-        <div style={{ fontFamily: f2, fontSize: 7, color: lt3, marginTop: 8 }}>Searches MA/NY ArcGIS + Esri USA national parcels. Parcel displays as reference overlay on the plan.</div>
-      </div></Fade>
-      <Fade i={2} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
-        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>02 &nbsp;Building Type</div>
+        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>01 &nbsp;Building Type</div>
         <button ref={ddBtnRef} onClick={e => { e.stopPropagation(); openDd(); }} style={{ width: "100%", background: lsf, border: "1px solid " + (ddOpen ? ac : lbd), borderRadius: 10, padding: "12px 16px", color: type ? lt1 : lt3, fontFamily: f1, fontSize: 16, fontWeight: 300, cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span>{type ? (pr.icon + "  " + type) : "Select building type..."}</span>
           <span style={{ fontSize: 10, color: lt3, transform: ddOpen ? "rotate(180deg)" : "", transition: "transform 0.25s", display: "inline-block" }}>{"\u25BC"}</span>
         </button>
       </div></Fade>
-      <Fade i={3} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
-        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>03 &nbsp;Building Size</div>
+      <Fade i={2} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
+        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>02 &nbsp;Building Size</div>
         <div style={{ background: lsf, border: "1px solid " + lbd, borderRadius: 10, padding: "16px 18px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div style={{ fontFamily: f1, fontSize: 28, fontWeight: 300 }}>{sf.toLocaleString()} SF</div>
@@ -1186,7 +1170,7 @@ function App() {
           </div>
         </div>
       </div></Fade>
-      <Fade i={4} show={mounted}>
+      <Fade i={3} show={mounted}>
         <button onClick={() => doGenerate(false)} disabled={!type} style={{ fontFamily: f2, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", background: type ? ac : lbd, color: type ? "#FAFAF8" : lt3, border: "none", borderRadius: 10, padding: "14px 44px", cursor: type ? "pointer" : "not-allowed", boxShadow: type ? "0 4px 20px " + ac + "44" : "none" }}>Generate Plan {"\u2192"}</button>
       </Fade>
       {ddOpen && (<>
