@@ -121,36 +121,7 @@ async function fetchParcel(address) {
 // PDF EXPORT (jsPDF with CALVEY aesthetics)
 // =============================================
 
-// Cache for embedded font data
-let _cormorantFontBase64 = null;
-
-async function loadCormorantFont() {
-  if (_cormorantFontBase64) return _cormorantFontBase64;
-  try {
-    // Fetch Google Fonts CSS with user-agent that triggers TTF format
-    const cssResp = await fetch(
-      "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&display=swap",
-      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }
-    );
-    const css = await cssResp.text();
-    const urlMatch = css.match(/url\(([^)]+)\)/);
-    if (!urlMatch) throw new Error("Font URL not found");
-    const fontUrl = urlMatch[1].replace(/['"]/g, "");
-    const fontResp = await fetch(fontUrl);
-    const buf = await fontResp.arrayBuffer();
-    const bytes = new Uint8Array(buf);
-    let binary = "";
-    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-    _cormorantFontBase64 = btoa(binary);
-    return _cormorantFontBase64;
-  } catch (e) {
-    console.warn("Could not load Cormorant Garamond for PDF:", e);
-    return null;
-  }
-}
-
-async function exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs) {
-  const fontData = await loadCormorantFont();
+function exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter" });
   const W = doc.internal.pageSize.getWidth();
@@ -159,17 +130,6 @@ async function exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs) {
   const FT_TO_M = 0.3048;
   const fHead = "helvetica";
   const fMono = "courier";
-  const fSerif = "CormorantGaramond";
-
-  // Embed Cormorant Garamond if loaded
-  let hasSerif = false;
-  if (fontData) {
-    try {
-      doc.addFileToVFS("CormorantGaramond-Light.ttf", fontData);
-      doc.addFont("CormorantGaramond-Light.ttf", fSerif, "normal");
-      hasSerif = true;
-    } catch (e) { console.warn("Font embed failed:", e); }
-  }
 
   // Background
   doc.setFillColor(250, 250, 248);
@@ -180,15 +140,9 @@ async function exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs) {
   for (let gx = 0; gx < W; gx += 18) doc.line(gx, 0, gx, H);
   for (let gy = 0; gy < H; gy += 18) doc.line(0, gy, W, gy);
 
-  // Header — "CALVEY PARTI" in Cormorant Garamond above title
-  if (hasSerif) {
-    doc.setFont(fSerif, "normal"); doc.setFontSize(14); doc.setTextColor(26, 26, 26);
-  } else {
-    doc.setFont(fHead, "normal"); doc.setFontSize(14); doc.setTextColor(26, 26, 26);
-  }
-  doc.text("CALVEY  PARTI", margin, 28, { charSpace: 4.5 });
-
+  // Header
   doc.setFont(fMono); doc.setFontSize(7); doc.setTextColor(136, 136, 136);
+  doc.text("CALVEY  \u00B7  PARTI", margin, 28);
   doc.text(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }).toUpperCase(), W - margin, 28, { align: "right" });
 
   doc.setFont(fHead, "normal"); doc.setFontSize(22); doc.setTextColor(26, 26, 26);
