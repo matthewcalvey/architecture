@@ -823,6 +823,33 @@ function resolveCollisions(rooms, movedIdx) {
 // 12  REACT UI — v7c
 // ============================================
 
+function computePinwheel(programKey) {
+  const pr = PROGRAMS[programKey];
+  if (!pr) return {};
+  const depts = pr.deptOrder;
+  const n = depts.length;
+  const angleStep = (2 * Math.PI) / n;
+  const map = {};
+  depts.forEach((dept, di) => {
+    const baseAngle = di * angleStep - Math.PI / 2;
+    const deptRooms = pr.rooms.filter(r => r.dept === dept.n);
+    deptRooms.forEach((room, ri) => {
+      const radius = 80 + ri * 46;
+      const spread = deptRooms.length > 1 ? (ri - (deptRooms.length - 1) / 2) * 0.14 : 0;
+      const angle = baseAngle + spread;
+      const s = Math.sqrt(room.area) * 7.5;
+      map[room.name] = {
+        cx: Math.cos(angle) * radius,
+        cy: Math.sin(angle) * radius,
+        w: s * 1.4, h: s * 0.85,
+        color: dept.c, dept: dept.n,
+        area: room.area, name: room.name,
+      };
+    });
+  });
+  return map;
+}
+
 function Fade({ children, i = 0, show = true }) {
   return <div style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(14px)", transition: "opacity 0.5s ease " + (i * 90) + "ms, transform 0.5s ease " + (i * 90) + "ms" }}>{children}</div>;
 }
@@ -856,6 +883,9 @@ function App() {
   const [parcelData, setParcelData] = useState(null); // { parcelFt, widthFt, depthFt, ... }
   const [parcelLoading, setParcelLoading] = useState(false);
   const [parcelError, setParcelError] = useState(null);
+  const [animPhase, setAnimPhase] = useState(null); // "assembling" | "assembled" | null
+  const [pinwheelMap, setPinwheelMap] = useState({});
+  const [pinwheelReveal, setPinwheelReveal] = useState(0);
   const ddBtnRef = useRef(null);
   const [ddPos, setDdPos] = useState({ top: 0, left: 0, width: 0 });
   const modeRef = useRef(null); // drag/resize room
@@ -898,6 +928,52 @@ function App() {
     if (!rooms.length || !planMeta) return;
     exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs);
   };
+
+  const doShowPinwheel = () => {
+    if (!type) return;
+    const pw = computePinwheel(type);
+    setPinwheelMap(pw);
+    setPinwheelReveal(0);
+    setScr("pinwheel");
+    const count = Object.keys(pw).length;
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => setPinwheelReveal(r => r + 1), 35 * i + 100);
+    }
+  };
+
+  const doGeneratePlan = () => {
+    const plan = generatePlan(type, site, sf, null);
+    if (plan) {
+      const usedSegs = plan.segs;
+      setCorrSegs(usedSegs);
+      setCorrNextId(Math.max(10, ...usedSegs.map(s => s.id)) + 1);
+      const rms = engineToRooms(plan, PROGRAMS[type], usedSegs);
+      setRooms(rms);
+      const totalBoundaryCells = plan.cells.length;
+      const cellSF = (sf * PROGRAMS[type].grossing) / totalBoundaryCells;
+      const cellFt = Math.sqrt(cellSF);
+      setPlanMeta({ adjE: plan.adjE, score: plan.planScore, co: plan.co, ro: plan.ro, typology: plan.typology, cellFt });
+      setReveal(rms.length);
+      setAnimPhase("assembling");
+      setScr("plan");
+      setZoom(1); setPan({ x: 0, y: 0 });
+      setCollapsed({}); setEditMode("rooms"); setActiveNode(null); setAddingSeg(null);
+    }
+  };
+
+  // Animation phase transitions: assembling → assembled → null
+  useEffect(() => {
+    if (animPhase === "assembling") {
+      const raf = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimPhase("assembled"));
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    if (animPhase === "assembled") {
+      const timer = setTimeout(() => setAnimPhase(null), 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [animPhase]);
 
   const doGenerate = (useExistingCorr) => {
     if (!type) return;
@@ -1258,7 +1334,7 @@ function App() {
         </div>
       </div></Fade>
       <Fade i={3} show={mounted}>
-        <button onClick={() => doGenerate(false)} disabled={!type} style={{ fontFamily: f2, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", background: type ? ac : lbd, color: type ? "#FAFAF8" : lt3, border: "none", borderRadius: 10, padding: "14px 44px", cursor: type ? "pointer" : "not-allowed", boxShadow: type ? "0 4px 20px " + ac + "44" : "none" }}>Generate Plan {"\u2192"}</button>
+        <button onClick={doShowPinwheel} disabled={!type} style={{ fontFamily: f2, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", background: type ? ac : lbd, color: type ? "#FAFAF8" : lt3, border: "none", borderRadius: 10, padding: "14px 44px", cursor: type ? "pointer" : "not-allowed", boxShadow: type ? "0 4px 20px " + ac + "44" : "none" }}>Generate</button>
       </Fade>
       {ddOpen && (<>
         <div onClick={() => setDdOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9998 }} />
@@ -1274,6 +1350,107 @@ function App() {
       </>)}
     </div>
   );
+
+  // ═══ PINWHEEL ═══
+  if (scr === "pinwheel") {
+    const pwEntries = Object.values(pinwheelMap);
+    const deptCount = pr ? pr.deptOrder.length : 1;
+    const angleStep = (2 * Math.PI) / deptCount;
+
+    return (
+      <div style={{ minHeight: "100vh", background: lbg, color: lt1, fontFamily: f1, display: "flex", flexDirection: "column", alignItems: "center", ...sgrid }}>
+        {fontLink}
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "20px 24px", alignSelf: "stretch" }}>
+          <button onClick={() => setScr("setup")} style={{ background: "none", border: "1px solid " + lbd, borderRadius: 7, padding: "5px 12px", color: lt2, fontFamily: f2, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer" }}>{"\u2190"} Back</button>
+          <div style={{ flex: 1, textAlign: "center" }}>
+            <div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase", letterSpacing: "0.15em" }}>{type} {"\u00B7"} {sf.toLocaleString()} SF ({fmtSM(sf)} m{"\u00B2"})</div>
+            <div style={{ fontFamily: f1, fontWeight: 300, fontSize: 24, textTransform: "uppercase", letterSpacing: "0.06em" }}>Program</div>
+          </div>
+          <div style={{ width: 72 }} />
+        </div>
+
+        {/* Pinwheel Canvas */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: 0 }}>
+          <svg viewBox="-420 -370 840 740" style={{ width: "100%", maxWidth: 900, maxHeight: "calc(100vh - 220px)" }} preserveAspectRatio="xMidYMid meet">
+            {/* Center mark */}
+            <circle cx={0} cy={0} r={3} fill={ac} opacity={0.4} />
+
+            {/* Sector dividers */}
+            {pr && pr.deptOrder.map((dept, di) => {
+              const angle = (di + 0.5) * angleStep - Math.PI / 2;
+              const x2 = Math.cos(angle) * 340;
+              const y2 = Math.sin(angle) * 340;
+              return <line key={"div" + di} x1={0} y1={0} x2={x2} y2={y2} stroke={lbd} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.4} />;
+            })}
+
+            {/* Department labels */}
+            {pr && pr.deptOrder.map((dept, di) => {
+              const angle = di * angleStep - Math.PI / 2;
+              const deptRooms = pr.rooms.filter(r => r.dept === dept.n);
+              const maxRi = deptRooms.length - 1;
+              const labelR = Math.max(160, 80 + maxRi * 46 + 50);
+              const lx = Math.cos(angle) * labelR;
+              const ly = Math.sin(angle) * labelR;
+              return (
+                <g key={"label" + dept.n}>
+                  <text x={lx} y={ly - 7} textAnchor="middle" dominantBaseline="middle"
+                    fill={dept.c} style={{ fontFamily: f2, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                    {dept.n}
+                  </text>
+                  <text x={lx} y={ly + 6} textAnchor="middle" dominantBaseline="middle"
+                    fill={lt3} style={{ fontFamily: f2, fontSize: 6.5 }}>
+                    {deptRooms.length} room{deptRooms.length !== 1 ? "s" : ""}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Room boxes */}
+            {pwEntries.map((pw, i) => {
+              const vis = i < pinwheelReveal;
+              return (
+                <g key={pw.name} style={{
+                  opacity: vis ? 1 : 0,
+                  transform: vis ? "scale(1)" : "scale(0.7)",
+                  transformOrigin: pw.cx + "px " + pw.cy + "px",
+                  transition: "opacity 0.4s ease " + (i * 35) + "ms, transform 0.5s cubic-bezier(.34,1.4,.64,1) " + (i * 35) + "ms",
+                }}>
+                  <rect
+                    x={pw.cx - pw.w / 2} y={pw.cy - pw.h / 2}
+                    width={pw.w} height={pw.h}
+                    rx={4}
+                    fill={pw.color} fillOpacity={0.35}
+                    stroke={pw.color + "77"} strokeWidth={1}
+                  />
+                  {pw.w > 28 && (
+                    <text x={pw.cx} y={pw.cy + 1}
+                      textAnchor="middle" dominantBaseline="middle"
+                      fill={pw.color + "dd"}
+                      style={{ fontFamily: f2, fontSize: Math.min(7, pw.w / 6), textTransform: "uppercase", pointerEvents: "none", userSelect: "none" }}>
+                      {pw.name.length > Math.floor(pw.w / 5) ? pw.name.slice(0, Math.floor(pw.w / 5)) + "\u2026" : pw.name}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Generate Plan Button */}
+        <div style={{ padding: "16px 0 36px", textAlign: "center" }}>
+          <button onClick={doGeneratePlan} style={{
+            fontFamily: f2, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em",
+            background: ac, color: "#FAFAF8", border: "none", borderRadius: 10,
+            padding: "14px 44px", cursor: "pointer",
+            boxShadow: "0 4px 20px " + ac + "44",
+          }}>
+            Generate Plan
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ═══ GENERATING ═══
   if (scr === "gen") return (
@@ -1315,7 +1492,7 @@ function App() {
     <div style={{ minHeight: "100vh", background: lbg, color: lt1, fontFamily: f1, display: "flex", flexDirection: "column" }}>
       {fontLink}
       {/* Toolbar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid " + lbd, background: lsf + "ee", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 30, flexWrap: "wrap", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid " + lbd, background: lsf + "ee", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 30, flexWrap: "wrap", gap: 8, transform: animPhase ? "translateY(-100%)" : "translateY(0)", opacity: animPhase ? 0 : 1, transition: "transform 0.6s ease 0.3s, opacity 0.5s ease 0.3s" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button onClick={() => { setScr("setup"); setRooms([]); setActive(null); }} style={{ background: "none", border: "1px solid " + lbd, borderRadius: 7, padding: "5px 12px", color: lt2, fontFamily: f2, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer" }}>{"\u2190"} Back</button>
           <div>
@@ -1360,21 +1537,21 @@ function App() {
         <div className="canvas-bg" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(" + lbd2 + " 1px, transparent 1px), linear-gradient(90deg, " + lbd2 + " 1px, transparent 1px)", backgroundSize: (G * zoom) + "px " + (G * zoom) + "px", backgroundPosition: pan.x + "px " + pan.y + "px", pointerEvents: "none" }} />
 
         {/* Zoom hint */}
-        <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", zIndex: 5, background: lsf + "cc", padding: "3px 8px", borderRadius: 4 }}>
+        {!animPhase && <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", zIndex: 5, background: lsf + "cc", padding: "3px 8px", borderRadius: 4 }}>
           Scroll to zoom {"\u00B7"} Drag to pan {"\u00B7"} Pinch on mobile
-        </div>
+        </div>}
 
         <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", padding: 24 }}>
           <svg width={gridW * G} height={gridH * G} style={{ display: "block", touchAction: "none", overflow: "visible" }}>
 
             {/* Parcel boundary overlay */}
-            {parcelData && (() => {
+            {parcelData && !animPhase && (() => {
               const pts = parcelData.parcelFt.map(([fx, fy]) => (fx / cFt * G) + "," + (fy / cFt * G));
               return <polygon points={pts.join(" ")} fill="none" stroke="#c9a959" strokeWidth={2} strokeDasharray="8,6" opacity={0.7} style={{ pointerEvents: "none" }} />;
             })()}
 
             {/* Adjacency lines */}
-            {showAdj && planMeta && planMeta.adjE.map(e => {
+            {showAdj && !animPhase && planMeta && planMeta.adjE.map(e => {
               const ra = rooms.find(r => r.name === e.a);
               const rb = rooms.find(r => r.name === e.b);
               if (!ra || !rb) return null;
@@ -1398,20 +1575,47 @@ function App() {
                 return (
                   <rect key={i} x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G}
                     fill={corrColor} fillOpacity={0.18} stroke="none"
-                    style={{ pointerEvents: "none", opacity: vis ? 1 : 0, transition: "opacity 0.3s ease" }} />
+                    style={{ pointerEvents: "none", opacity: animPhase ? 0 : (vis ? 1 : 0), transition: "opacity 0.8s ease" }} />
                 );
               }
 
               const opacity = isCore ? 0.5 : act ? 0.55 : 0.38;
               const roomIdx = rooms.slice(0, i).filter(r2 => r2.zone !== "corridor").length;
 
-              return (
-                <g key={i} style={{
+              // Pinwheel-to-plan animation
+              const pw = pinwheelMap[r.name];
+              let gStyle;
+              if (animPhase && pw && planMeta) {
+                const gridCX = planMeta.co * G / 2;
+                const gridCY = planMeta.ro * G / 2;
+                const pwScale = Math.max(planMeta.co, planMeta.ro) * G / 600;
+                const dx = gridCX + pw.cx * pwScale - ((r.x + r.w / 2) * G);
+                const dy = gridCY + pw.cy * pwScale - ((r.y + r.h / 2) * G);
+                if (animPhase === "assembling") {
+                  gStyle = {
+                    opacity: 0.55,
+                    transform: "translate(" + dx + "px," + dy + "px) scale(0.6)",
+                    transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
+                  };
+                } else {
+                  gStyle = {
+                    opacity: 1,
+                    transform: "translate(0,0) scale(1)",
+                    transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
+                    transition: "transform 1.4s cubic-bezier(.22,1,.36,1) " + (roomIdx * 25) + "ms, opacity 0.6s ease " + (roomIdx * 25) + "ms",
+                  };
+                }
+              } else {
+                gStyle = {
                   opacity: vis ? 1 : 0,
                   transform: vis ? "scale(1)" : "scale(0.85)",
                   transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
                   transition: "opacity 0.3s ease " + (roomIdx * 20) + "ms, transform 0.4s cubic-bezier(.34,1.4,.64,1) " + (roomIdx * 20) + "ms",
-                }}
+                };
+              }
+
+              return (
+                <g key={i} style={gStyle}
                   onMouseEnter={() => setHov(r.name)}
                   onMouseLeave={() => setHov(null)}>
 
@@ -1502,7 +1706,7 @@ function App() {
       </div>
 
       {/* Bottom Bar — drag handle to minimize, horizontal scroll */}
-      <div style={{ height: barH, borderTop: "1px solid " + lbd, background: lsf, flexShrink: 0, display: "flex", flexDirection: "column", transition: barDragRef.current ? "none" : "height 0.2s ease" }}>
+      <div style={{ height: animPhase ? 0 : barH, borderTop: animPhase ? "none" : "1px solid " + lbd, background: lsf, flexShrink: 0, display: "flex", flexDirection: "column", overflow: "hidden", opacity: animPhase ? 0 : 1, transition: barDragRef.current ? "none" : "height 0.5s ease 0.3s, opacity 0.5s ease 0.3s" }}>
         {/* Drag handle */}
         <div onPointerDown={onBarHandleDown}
           style={{ height: 12, cursor: "ns-resize", display: "flex", alignItems: "center", justifyContent: "center", background: lbd2, flexShrink: 0, userSelect: "none", touchAction: "none" }}>
