@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALVEY PARTI v8</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Space+Mono&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+
+// =============================================
+// GIS PARCEL FETCHING (from CALVEY FORM 01_SITE)
+// =============================================
+
+const PARCEL_SVC = {
+  MA: { name: "MA — MassGIS L3", layerUrl: "https://services1.arcgis.com/hGdibHYSPO59RG1h/ArcGIS/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0" },
+  NY: { name: "NY — NYS Tax Parcels", layerUrl: "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1" },
+};
+const ESRI_USA_FALLBACK = "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Parcels/FeatureServer/0";
+
+async function nominatimGeocode(q) {
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("q", q); url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1"); url.searchParams.set("limit", "1");
+  const r = await fetch(url.toString(), { headers: { "Accept": "application/json" } });
+  if (!r.ok) throw new Error("Geocode failed: " + r.status);
+  const j = await r.json();
+  if (!j || !j.length) throw new Error("No results found.");
+  return j[0];
+}
+
+function pickStateCode(g) {
+  const a = g?.address || {};
+  const code = String(a.state_code || "").toUpperCase().trim();
+  if (code) return code;
+  const st = String(a.state || "").toUpperCase();
+  if (st.includes("MASSACHUSETTS")) return "MA";
+  if (st.includes("NEW YORK")) return "NY";
+  return null;
+}
+
+function esriRingsToGeoJSON(rings) {
+  return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: rings.map(r => r.map(pt => [pt[0], pt[1]])) } };
+}
+
+function pickBestParcel(features, lat, lon) {
+  if (!features || !features.length) return null;
+  const pt = turf.point([lon, lat]);
+  const containing = features.filter(f => { try { return turf.booleanPointInPolygon(pt, f); } catch (e) { return false; } });
+  if (containing.length) {
+    return containing.reduce((best, f) => turf.area(f) < turf.area(best) ? f : best);
+  }
+  return features.reduce((best, f) => turf.area(f) < turf.area(best) ? f : best);
+}
+
+async function arcgisQueryParcel(layerUrl, lat, lon) {
+  const u = new URL(layerUrl + "/query");
+  u.searchParams.set("f", "geojson"); u.searchParams.set("geometry", lon + "," + lat);
+  u.searchParams.set("geometryType", "esriGeometryPoint"); u.searchParams.set("inSR", "4326");
+  u.searchParams.set("spatialRel", "esriSpatialRelIntersects"); u.searchParams.set("outFields", "*");
+  u.searchParams.set("returnGeometry", "true"); u.searchParams.set("outSR", "4326");
+  u.searchParams.set("resultRecordCount", "10");
+  try {
+    const r = await fetch(u.toString(), { headers: { "Accept": "application/geo+json, application/json" } });
+    if (r.ok) {
+      const gj = await r.json();
+      const feats = (gj && gj.features) ? gj.features : [];
+      const best = pickBestParcel(feats, lat, lon);
+      if (best) return best;
+    }
+  } catch (e) {}
+  // ESRI JSON fallback
+  const u2 = new URL(layerUrl + "/query");
+  u2.searchParams.set("f", "json"); u2.searchParams.set("geometry", lon + "," + lat);
+  u2.searchParams.set("geometryType", "esriGeometryPoint"); u2.searchParams.set("inSR", "4326");
+  u2.searchParams.set("spatialRel", "esriSpatialRelIntersects"); u2.searchParams.set("outFields", "*");
+  u2.searchParams.set("returnGeometry", "true"); u2.searchParams.set("outSR", "4326");
+  u2.searchParams.set("resultRecordCount", "10");
+  try {
+    const r = await fetch(u2.toString()); if (!r.ok) return null;
+    const j = await r.json(); if (!j?.features?.length) return null;
+    const feats = j.features.filter(f => f?.geometry?.rings).map(f => { const feat = esriRingsToGeoJSON(f.geometry.rings); feat.properties = f.attributes || {}; return feat; });
+    return pickBestParcel(feats, lat, lon);
+  } catch (e) { return null; }
+}
+
+async function fetchParcel(address) {
+  const g = await nominatimGeocode(address);
+  const lat = parseFloat(g.lat), lon = parseFloat(g.lon);
+  const stateCode = pickStateCode(g);
+  const svc = PARCEL_SVC[stateCode];
+  let parcel = null;
+  if (svc) { parcel = await arcgisQueryParcel(svc.layerUrl, lat, lon); }
+  if (!parcel) { parcel = await arcgisQueryParcel(ESRI_USA_FALLBACK, lat, lon); }
+  if (!parcel) throw new Error("No parcel found. Try a different address.");
+  // Convert parcel to feet centered at origin
+  const coords = parcel.geometry.coordinates[0];
+  const ftPerDegLon = Math.cos(lat * Math.PI / 180) * 364567.2;
+  const ftPerDegLat = 364567.2;
+  const parcelFt = coords.map(([plon, plat]) => [(plon - lon) * ftPerDegLon, -(plat - lat) * ftPerDegLat]);
+  // Compute bounding box in feet
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  parcelFt.forEach(([x, y]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); });
+  return { parcelFt, lat, lon, stateCode, widthFt: maxX - minX, depthFt: maxY - minY, minX, minY, maxX, maxY, address, raw: parcel };
+}
+
+// =============================================
+// PDF EXPORT (jsPDF with CALVEY aesthetics)
+// =============================================
+
+function exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const FT_TO_M = 0.3048;
+  const fHead = "helvetica";
+  const fMono = "courier";
+
+  // Background
+  doc.setFillColor(250, 250, 248);
+  doc.rect(0, 0, W, H, "F");
+
+  // Grid background
+  doc.setDrawColor(240, 237, 232); doc.setLineWidth(0.25);
+  for (let gx = 0; gx < W; gx += 18) doc.line(gx, 0, gx, H);
+  for (let gy = 0; gy < H; gy += 18) doc.line(0, gy, W, gy);
+
+  // Header
+  doc.setFont(fMono); doc.setFontSize(7); doc.setTextColor(136, 136, 136);
+  doc.text("CALVEY  \u00B7  PARTI", margin, 28);
+  doc.text(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }).toUpperCase(), W - margin, 28, { align: "right" });
+
+  doc.setFont(fHead, "normal"); doc.setFontSize(22); doc.setTextColor(26, 26, 26);
+  doc.text(type.toUpperCase(), margin, 52);
+  doc.setFontSize(11); doc.setTextColor(85, 85, 85);
+  doc.text(sf.toLocaleString() + " SF  (" + Math.round(sf * FT_TO_M * FT_TO_M).toLocaleString() + " m\u00B2)", margin, 68);
+
+  const progRooms = rooms.filter(r => !r.fixed && r.zone !== "corridor");
+  const adjMet = planMeta ? planMeta.adjE.filter(e => e.met).length : 0;
+  const adjTotal = planMeta ? planMeta.adjE.length : 0;
+  doc.setFont(fMono); doc.setFontSize(7); doc.setTextColor(106, 156, 196);
+  doc.text("ROOMS " + progRooms.length + "   \u00B7   ADJ " + adjMet + "/" + adjTotal + "   \u00B7   " + (planMeta?.typology || "\u2014").toUpperCase(), margin, 82);
+
+  doc.setDrawColor(221, 221, 221); doc.setLineWidth(0.5);
+  doc.line(margin, 90, W - margin, 90);
+
+  // Plan area
+  const planY = 100, planH = H - planY - 60, planW = (W - margin * 2) * 0.58;
+  let maxRx = 1, maxRy = 1;
+  rooms.forEach(r => { maxRx = Math.max(maxRx, r.x + r.w); maxRy = Math.max(maxRy, r.y + r.h); });
+  const sc = Math.min(planW / maxRx, planH / maxRy) * 0.9;
+  const ox = margin + (planW - maxRx * sc) / 2;
+  const oy = planY + (planH - maxRy * sc) / 2;
+
+  // Parcel boundary
+  if (parcelData) {
+    doc.setDrawColor(201, 169, 89); doc.setLineWidth(1.2);
+    doc.setLineDashPattern([6, 4], 0);
+    const pts = parcelData.parcelFt;
+    for (let i = 0; i < pts.length; i++) {
+      const ni = (i + 1) % pts.length;
+      doc.line(ox + pts[i][0] / cFt * sc, oy + pts[i][1] / cFt * sc, ox + pts[ni][0] / cFt * sc, oy + pts[ni][1] / cFt * sc);
+    }
+    doc.setLineDashPattern([], 0);
+  }
+
+  // Corridor cells
+  rooms.filter(r => r.zone === "corridor").forEach(r => {
+    doc.setFillColor(96, 112, 128);
+    doc.setGState(new doc.GState({ opacity: 0.15 }));
+    doc.rect(ox + r.x * sc, oy + r.y * sc, r.w * sc, r.h * sc, "F");
+  });
+  doc.setGState(new doc.GState({ opacity: 1.0 }));
+
+  // Room blocks with rounded corners
+  const allRooms = rooms.filter(r => r.zone !== "corridor");
+  allRooms.forEach(r => {
+    const hex = r.color || "#6B6B6B";
+    const R = parseInt(hex.slice(1, 3), 16), G2 = parseInt(hex.slice(3, 5), 16), B = parseInt(hex.slice(5, 7), 16);
+    const rx = ox + r.x * sc, ry = oy + r.y * sc, rw = r.w * sc, rh = r.h * sc;
+    const rad = Math.min(3, rw * 0.06, rh * 0.06);
+
+    doc.setGState(new doc.GState({ opacity: r.zone === "core" ? 0.45 : 0.32 }));
+    doc.setFillColor(R, G2, B);
+    doc.roundedRect(rx, ry, rw, rh, rad, rad, "F");
+
+    doc.setGState(new doc.GState({ opacity: 0.55 }));
+    doc.setDrawColor(R, G2, B); doc.setLineWidth(0.5);
+    doc.roundedRect(rx, ry, rw, rh, rad, rad, "S");
+    doc.setGState(new doc.GState({ opacity: 1.0 }));
+
+    if (rw > 28 && rh > 14) {
+      doc.setFont(fMono); doc.setFontSize(4.5); doc.setTextColor(R, G2, B);
+      const label = r.name.length > Math.floor(rw / 4) ? r.name.slice(0, Math.floor(rw / 4) - 1) + "\u2026" : r.name;
+      doc.text(label.toUpperCase(), rx + 3, ry + 8);
+    }
+    if (rw > 36 && rh > 22) {
+      const areaSf = Math.round(r.area * cFt * cFt);
+      const dimW = Math.round(r.w * cFt), dimH = Math.round(r.h * cFt);
+      doc.setFontSize(3.5); doc.setTextColor(180, 180, 180);
+      doc.text(dimW + "'\u00D7" + dimH + "'  \u00B7  " + areaSf.toLocaleString() + " SF", rx + 3, ry + 14);
+    }
+  });
+
+  // Scale bar
+  const scaleBarFt = 50;
+  const scaleBarPx = scaleBarFt / cFt * sc;
+  const sbx = margin, sby = H - 52;
+  doc.setDrawColor(26, 26, 26); doc.setLineWidth(1);
+  doc.line(sbx, sby, sbx + scaleBarPx, sby);
+  doc.line(sbx, sby - 3, sbx, sby + 3);
+  doc.line(sbx + scaleBarPx, sby - 3, sbx + scaleBarPx, sby + 3);
+  doc.setFont(fMono); doc.setFontSize(6); doc.setTextColor(26, 26, 26);
+  doc.text("0", sbx, sby + 10);
+  doc.text(scaleBarFt + "' (" + Math.round(scaleBarFt * FT_TO_M) + "m)", sbx + scaleBarPx, sby + 10, { align: "right" });
+  doc.setFontSize(5); doc.setTextColor(136, 136, 136);
+  doc.text("1 cell = " + Math.round(cFt) + "' (" + (cFt * FT_TO_M).toFixed(1) + "m)", sbx, sby + 18);
+
+  // Room schedule
+  const tableX = margin + planW + 24;
+  const tableW = W - tableX - margin;
+  let ty = planY;
+  doc.setFont(fMono); doc.setFontSize(7); doc.setTextColor(106, 156, 196);
+  doc.text("ROOM SCHEDULE", tableX, ty); ty += 12;
+  doc.setDrawColor(221, 221, 221); doc.setLineWidth(0.5);
+  doc.line(tableX, ty, tableX + tableW, ty); ty += 10;
+
+  const depts = {};
+  progRooms.forEach(r => { if (!depts[r.dept]) depts[r.dept] = []; depts[r.dept].push(r); });
+  let totalArea = 0;
+
+  for (const [dept, dRooms] of Object.entries(depts)) {
+    if (ty > H - 80) break;
+    const deptArea = dRooms.reduce((s, r) => s + r.area * cFt * cFt, 0);
+    totalArea += deptArea;
+    const dHex = dRooms[0]?.color || "#6B6B6B";
+    doc.setFillColor(parseInt(dHex.slice(1,3),16), parseInt(dHex.slice(3,5),16), parseInt(dHex.slice(5,7),16));
+    doc.roundedRect(tableX, ty - 5, 5, 5, 1, 1, "F");
+    doc.setFont(fMono); doc.setFontSize(6); doc.setTextColor(85, 85, 85);
+    doc.text(dept.toUpperCase(), tableX + 8, ty);
+    doc.setTextColor(136, 136, 136);
+    doc.text(Math.round(deptArea).toLocaleString() + " SF", tableX + tableW, ty, { align: "right" });
+    ty += 10;
+    dRooms.forEach(r => {
+      if (ty > H - 80) return;
+      const areaSf = Math.round(r.area * cFt * cFt);
+      const dimW = Math.round(r.w * cFt), dimH = Math.round(r.h * cFt);
+      doc.setFont(fHead, "normal"); doc.setFontSize(6); doc.setTextColor(26, 26, 26);
+      doc.text(r.name, tableX + 10, ty);
+      doc.setFont(fMono); doc.setFontSize(5); doc.setTextColor(136, 136, 136);
+      doc.text(dimW + "'\u00D7" + dimH + "'", tableX + tableW * 0.55, ty);
+      doc.text(areaSf.toLocaleString() + " SF", tableX + tableW, ty, { align: "right" });
+      ty += 8;
+    });
+    doc.setDrawColor(240, 237, 232); doc.setLineWidth(0.3);
+    doc.line(tableX, ty, tableX + tableW, ty);
+    ty += 6;
+  }
+
+  if (ty < H - 70) {
+    doc.setDrawColor(106, 156, 196); doc.setLineWidth(0.5);
+    doc.line(tableX, ty, tableX + tableW, ty); ty += 10;
+    doc.setFont(fMono); doc.setFontSize(6); doc.setTextColor(106, 156, 196);
+    doc.text("TOTAL PROGRAM", tableX, ty);
+    doc.text(Math.round(totalArea).toLocaleString() + " SF (" + Math.round(totalArea * FT_TO_M * FT_TO_M).toLocaleString() + " m\u00B2)", tableX + tableW, ty, { align: "right" });
+  }
+
+  if (parcelData?.address) {
+    doc.setFont(fMono); doc.setFontSize(5); doc.setTextColor(136, 136, 136);
+    doc.text(parcelData.address.toUpperCase(), tableX, planY + planH - 4);
+  }
+
+  // Footer
+  doc.setDrawColor(221, 221, 221); doc.setLineWidth(0.5);
+  doc.line(margin, H - 32, W - margin, H - 32);
+  doc.setFont(fMono); doc.setFontSize(6); doc.setTextColor(136, 136, 136);
+  doc.text("CALVEY  \u00B7  " + new Date().getFullYear(), margin, H - 20);
+  doc.text("CALVEY PARTI v8", W - margin, H - 20, { align: "right" });
+
+  doc.save("CALVEY_PARTI_" + type.replace(/\s+/g, "_") + ".pdf");
+}
+
+// =============================================
+// V7G ENGINE + UI (converted from JSX)
+// =============================================
+
+// =============================================
+// CALVEY PARTI v8
+// - Stairs, restrooms, mech are draggable program rooms (not fixed core)
+// - placePref scoring: stairs seek corridor ends, restrooms seek corridor center
+// - All building types have Stair A/B, Restrooms, Mech as editable rooms
+// - Removed small stair artifacts from old placeCores single-cell fallback
+// - Corridor stored as draggable segments with nodes
+// - Click node + drag to add new segment (branch/extend)
+// - Drag nodes to reshape corridor path
+// - Widen nodes to create lobbies
+// - Toggle between room edit and corridor edit modes
+// - Engine reads corridor segments instead of hardcoded row
+// =============================================
+
+const f1 = "'Cormorant Garamond', Georgia, serif";
+const f2 = "'Space Mono', 'Courier New', monospace";
+const ac = "#6A9CC4";
+const corrColor = "#607080";
+const G = 22; // px per grid unit
+
+// ======================
+// 01  PROGRAM DATABASE
+// ======================
+
+const PROGRAMS = {
+  "K-12 Elementary": {
+    range: [25000, 95000], def: 55000, icon: "\u{1F3EB}",
+    grossing: 1.50, typology: "double-loaded",
+    deptOrder: [
+      { n: "Admin",      c: "#4A7FA8", place: "entry" },
+      { n: "Commons",    c: "#B07D4A", place: "bridge" },
+      { n: "Classrooms", c: "#4D8F4D", place: "wing" },
+      { n: "Support",    c: "#A05A7A", place: "entry" },
+      { n: "Assembly",   c: "#8F7A4A", place: "anchor" },
+      { n: "Core",       c: "#6B6B6B", place: "service" },
+    ],
+    rooms: [
+      { name: "Main Office",  dept: "Admin",      zone: "foh",     area: 12, daylight: true,  adj: ["Lobby","Principal","Conference"], minW: 3, minH: 2, maxAspect: 2.5 },
+      { name: "Principal",    dept: "Admin",      zone: "foh",     area: 8,  daylight: true,  adj: ["Main Office"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Conference",   dept: "Admin",      zone: "foh",     area: 10, daylight: false, adj: ["Main Office"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Records",      dept: "Admin",      zone: "support", area: 6,  daylight: false, adj: ["Main Office"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Class A",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class B"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class B",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class A","Class C"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class C",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class B","Class D"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class D",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class C","Class E"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class E",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class D","Class F"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class F",      dept: "Classrooms", zone: "primary", area: 14, daylight: true,  adj: ["Class E"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Cafeteria",    dept: "Commons",    zone: "foh",     area: 20, daylight: true,  adj: ["Kitchen","Lobby"], minW: 4, minH: 3, maxAspect: 2 },
+      { name: "Kitchen",      dept: "Commons",    zone: "support", area: 12, daylight: false, adj: ["Cafeteria"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Media Center", dept: "Commons",    zone: "primary", area: 16, daylight: true,  adj: ["Lobby"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Nurse",        dept: "Support",    zone: "foh",     area: 6,  daylight: true,  adj: ["Main Office","Lobby"], minW: 2, minH: 2, maxAspect: 2.5 },
+      { name: "Counselor",    dept: "Support",    zone: "support", area: 6,  daylight: true,  adj: ["Main Office"], minW: 2, minH: 2, maxAspect: 2.5 },
+      { name: "Storage",      dept: "Support",    zone: "support", area: 4,  daylight: false, adj: [], minW: 2, minH: 1, maxAspect: 3 },
+      { name: "Gymnasium",    dept: "Assembly",   zone: "primary", area: 28, daylight: false, adj: ["Stage"], minW: 5, minH: 4, maxAspect: 1.6 },
+      { name: "Stage",        dept: "Assembly",   zone: "primary", area: 12, daylight: false, adj: ["Gymnasium"], minW: 3, minH: 2, maxAspect: 2.5 },
+      { name: "Lobby",        dept: "Core",       zone: "foh",     area: 10, daylight: true,  adj: ["Main Office","Cafeteria"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Stair A",      dept: "Core",       zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Stair B",      dept: "Core",       zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Restrooms A",  dept: "Core",       zone: "support", area: 8,  daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Restrooms B",  dept: "Core",       zone: "support", area: 6,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Mech",         dept: "Core",       zone: "support",    area: 4,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 3, placePref: "corr-end" },
+    ],
+  },
+  "Office": {
+    range: [5000, 120000], def: 35000, icon: "\u{1F4BC}",
+    grossing: 1.35, typology: "central-core",
+    deptOrder: [
+      { n: "Support",   c: "#B07D4A", place: "entry" },
+      { n: "Meeting",   c: "#4D8F4D", place: "bridge" },
+      { n: "Workspace", c: "#4A7FA8", place: "wing" },
+      { n: "Core",      c: "#6B6B6B", place: "service" },
+    ],
+    rooms: [
+      { name: "Open Office A", dept: "Workspace", zone: "primary", area: 18, daylight: true,  adj: ["Open Office B","Huddle"], minW: 3, minH: 3, maxAspect: 3 },
+      { name: "Open Office B", dept: "Workspace", zone: "primary", area: 18, daylight: true,  adj: ["Open Office A"], minW: 3, minH: 3, maxAspect: 3 },
+      { name: "Private",       dept: "Workspace", zone: "primary", area: 8,  daylight: true,  adj: ["Exec Suite"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Exec Suite",    dept: "Workspace", zone: "primary", area: 12, daylight: true,  adj: ["Private","Board Room"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Board Room",    dept: "Meeting",   zone: "primary", area: 14, daylight: true,  adj: ["Exec Suite","Conf A"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Conf A",        dept: "Meeting",   zone: "primary", area: 10, daylight: false, adj: ["Board Room","Conf B"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Conf B",        dept: "Meeting",   zone: "primary", area: 8,  daylight: false, adj: ["Conf A"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Huddle",        dept: "Meeting",   zone: "support", area: 4,  daylight: false, adj: ["Open Office A"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Reception",     dept: "Support",   zone: "foh",     area: 10, daylight: true,  adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Break Room",    dept: "Support",   zone: "support", area: 8,  daylight: true,  adj: [], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Copy Room",     dept: "Support",   zone: "support", area: 4,  daylight: false, adj: [], minW: 2, minH: 1, maxAspect: 3 },
+      { name: "Lobby",         dept: "Core",      zone: "foh",     area: 8,  daylight: true,  adj: ["Reception","Elevator"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Stair A",      dept: "Core",      zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Stair B",      dept: "Core",      zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Elevator",     dept: "Core",      zone: "core",    area: 4,  daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 1.5 },
+      { name: "Restrooms",    dept: "Core",      zone: "support", area: 6,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 2, placePref: "corr-mid" },
+      { name: "Mech",         dept: "Core",      zone: "support",    area: 4,  daylight: false, adj: [], minW: 2, minH: 1, maxAspect: 3, placePref: "corr-end" },
+    ],
+  },
+  "Multifamily": {
+    range: [15000, 200000], def: 60000, icon: "\u{1F3E0}",
+    grossing: 1.25, typology: "double-loaded",
+    deptOrder: [
+      { n: "Amenity", c: "#B07D4A", place: "entry" },
+      { n: "Units",   c: "#4D8F4D", place: "wing" },
+      { n: "Core",    c: "#6B6B6B", place: "service" },
+    ],
+    rooms: [
+      { name: "1BR-A",     dept: "Units",   zone: "primary", area: 12, daylight: true,  adj: [], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "1BR-B",     dept: "Units",   zone: "primary", area: 12, daylight: true,  adj: [], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "2BR-A",     dept: "Units",   zone: "primary", area: 16, daylight: true,  adj: [], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "2BR-B",     dept: "Units",   zone: "primary", area: 16, daylight: true,  adj: [], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Studio A",  dept: "Units",   zone: "primary", area: 8,  daylight: true,  adj: [], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Studio B",  dept: "Units",   zone: "primary", area: 8,  daylight: true,  adj: [], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Lobby",     dept: "Amenity", zone: "foh",     area: 10, daylight: true,  adj: ["Elevator"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Fitness",   dept: "Amenity", zone: "primary", area: 10, daylight: true,  adj: ["Lobby"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Club Room", dept: "Amenity", zone: "primary", area: 10, daylight: true,  adj: ["Lobby"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Stair A",   dept: "Core",    zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Stair B",   dept: "Core",    zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Elevator",  dept: "Core",    zone: "core",    area: 4,  daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 1.5 },
+      { name: "Restrooms", dept: "Core",   zone: "support", area: 4,  daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 2, placePref: "corr-mid" },
+      { name: "Mech",      dept: "Core",    zone: "support",    area: 4,  daylight: false, adj: [], minW: 2, minH: 1, maxAspect: 3, placePref: "corr-end" },
+    ],
+  },
+  "K-12 Middle School": {
+    range: [75000, 180000], def: 120000, icon: "\u{1F3E2}",
+    grossing: 1.50, typology: "double-loaded",
+    deptOrder: [
+      { n: "Admin",     c: "#4A7FA8", place: "entry" },
+      { n: "Commons",   c: "#B07D4A", place: "bridge" },
+      { n: "Academics", c: "#4D8F4D", place: "wing" },
+      { n: "Athletics", c: "#8F7A4A", place: "anchor" },
+      { n: "Core",      c: "#6B6B6B", place: "service" },
+    ],
+    rooms: [
+      { name: "Main Office",  dept: "Admin",     zone: "foh",     area: 12, daylight: true,  adj: ["Principal","Lobby"], minW: 3, minH: 2, maxAspect: 2.5 },
+      { name: "Principal",    dept: "Admin",     zone: "foh",     area: 8,  daylight: true,  adj: ["Main Office","AP Office"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "AP Office",    dept: "Admin",     zone: "foh",     area: 6,  daylight: true,  adj: ["Principal"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Conference",   dept: "Admin",     zone: "foh",     area: 10, daylight: false, adj: ["Main Office"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Class A",      dept: "Academics", zone: "primary", area: 14, daylight: true,  adj: ["Class B"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Class B",      dept: "Academics", zone: "primary", area: 14, daylight: true,  adj: ["Class A","Science Lab"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Science Lab",  dept: "Academics", zone: "primary", area: 16, daylight: true,  adj: ["Class B","Art Room"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Art Room",     dept: "Academics", zone: "primary", area: 14, daylight: true,  adj: ["Science Lab","Music"], minW: 3, minH: 3, maxAspect: 1.8 },
+      { name: "Music",        dept: "Academics", zone: "primary", area: 14, daylight: false, adj: ["Art Room"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Cafeteria",    dept: "Commons",   zone: "foh",     area: 20, daylight: true,  adj: ["Kitchen","Media Center"], minW: 4, minH: 3, maxAspect: 2 },
+      { name: "Kitchen",      dept: "Commons",   zone: "support", area: 12, daylight: false, adj: ["Cafeteria"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Media Center", dept: "Commons",   zone: "primary", area: 16, daylight: true,  adj: ["Lobby"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Gymnasium",    dept: "Athletics", zone: "primary", area: 28, daylight: false, adj: ["Lockers"], minW: 5, minH: 4, maxAspect: 1.6 },
+      { name: "Lockers",      dept: "Athletics", zone: "support", area: 10, daylight: false, adj: ["Gymnasium","Weight Room"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Weight Room",  dept: "Athletics", zone: "primary", area: 10, daylight: false, adj: ["Lockers"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Lobby",        dept: "Core",      zone: "foh",     area: 10, daylight: true,  adj: ["Main Office","Cafeteria"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Stair A",      dept: "Core",      zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Stair B",      dept: "Core",      zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Restrooms A",  dept: "Core",      zone: "support", area: 8,  daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Restrooms B",  dept: "Core",      zone: "support", area: 6,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Mech",         dept: "Core",      zone: "support",    area: 4,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 3, placePref: "corr-end" },
+    ],
+  },
+  "K-12 High School": {
+    range: [150000, 400000], def: 250000, icon: "\u{1F393}",
+    grossing: 1.50, typology: "double-loaded",
+    deptOrder: [
+      { n: "Admin",      c: "#4A7FA8", place: "entry" },
+      { n: "Commons",    c: "#B07D4A", place: "bridge" },
+      { n: "Academics",  c: "#4D8F4D", place: "wing" },
+      { n: "Athletics",  c: "#8F7A4A", place: "anchor" },
+      { n: "Perf. Arts", c: "#A05A7A", place: "anchor" },
+      { n: "Core",       c: "#6B6B6B", place: "service" },
+    ],
+    rooms: [
+      { name: "Main Office",    dept: "Admin",      zone: "foh",     area: 14, daylight: true,  adj: ["Principal Suite","Lobby"], minW: 3, minH: 3, maxAspect: 2.5 },
+      { name: "Principal Suite", dept: "Admin",     zone: "foh",     area: 10, daylight: true,  adj: ["Main Office","Guidance"], minW: 3, minH: 2, maxAspect: 2 },
+      { name: "Guidance",        dept: "Admin",     zone: "foh",     area: 10, daylight: true,  adj: ["Principal Suite"], minW: 2, minH: 2, maxAspect: 2 },
+      { name: "Wing A",          dept: "Academics", zone: "primary", area: 20, daylight: true,  adj: ["Wing B"], minW: 4, minH: 3, maxAspect: 2 },
+      { name: "Wing B",          dept: "Academics", zone: "primary", area: 20, daylight: true,  adj: ["Wing A","Science Labs"], minW: 4, minH: 3, maxAspect: 2 },
+      { name: "Science Labs",    dept: "Academics", zone: "primary", area: 18, daylight: true,  adj: ["Wing B"], minW: 4, minH: 3, maxAspect: 2 },
+      { name: "Art Studios",     dept: "Academics", zone: "primary", area: 14, daylight: true,  adj: [], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Cafeteria",       dept: "Commons",   zone: "foh",     area: 24, daylight: true,  adj: ["Kitchen","Student Commons"], minW: 4, minH: 4, maxAspect: 2 },
+      { name: "Kitchen",         dept: "Commons",   zone: "support", area: 14, daylight: false, adj: ["Cafeteria"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Student Commons", dept: "Commons",   zone: "foh",     area: 16, daylight: true,  adj: ["Cafeteria","Lobby"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Main Gym",        dept: "Athletics", zone: "primary", area: 30, daylight: false, adj: ["Aux Gym","Lockers"], minW: 5, minH: 5, maxAspect: 1.5 },
+      { name: "Aux Gym",         dept: "Athletics", zone: "primary", area: 18, daylight: false, adj: ["Main Gym"], minW: 4, minH: 3, maxAspect: 1.5 },
+      { name: "Lockers",         dept: "Athletics", zone: "support", area: 12, daylight: false, adj: ["Main Gym"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Auditorium",      dept: "Perf. Arts", zone: "primary", area: 24, daylight: false, adj: ["Band","Choir"], minW: 4, minH: 4, maxAspect: 1.5 },
+      { name: "Band",            dept: "Perf. Arts", zone: "primary", area: 14, daylight: false, adj: ["Auditorium"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Choir",           dept: "Perf. Arts", zone: "primary", area: 12, daylight: false, adj: ["Auditorium"], minW: 3, minH: 3, maxAspect: 2 },
+      { name: "Lobby",           dept: "Core",      zone: "foh",     area: 12, daylight: true,  adj: ["Main Office","Student Commons"], minW: 2, minH: 2, maxAspect: 3 },
+      { name: "Stair A",        dept: "Core",      zone: "support",    area: 8,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Stair B",        dept: "Core",      zone: "support",    area: 8,  daylight: false, adj: [], minW: 2, minH: 3, maxAspect: 2, placePref: "corr-end" },
+      { name: "Restrooms A",    dept: "Core",      zone: "support", area: 10, daylight: false, adj: ["Lobby"], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Restrooms B",    dept: "Core",      zone: "support", area: 8,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 2.5, placePref: "corr-mid" },
+      { name: "Mech",           dept: "Core",      zone: "support",    area: 6,  daylight: false, adj: [], minW: 2, minH: 2, maxAspect: 3, placePref: "corr-end" },
+    ],
+  },
+};
+
+const SITES = [
+  { id: "rect",   label: "Rectangle", d: "M4 6h16v12H4z" },
+  { id: "lshape", label: "L-Shape",   d: "M4 6h10v6h6v6H4z" },
+  { id: "corner", label: "Corner",    d: "M4 6h16v6h-8v6H4z" },
+  { id: "narrow", label: "Narrow",    d: "M6 4h12v16H6z" },
+];
+
+// ============================================
+// 02-09  V7 ENGINE (from v7b)
+// ============================================
+
+function makeBoundary(sid, co, ro) { const s = new Set(); for (let r = 0; r < ro; r++) for (let c = 0; c < co; c++) { let ok = true; if (sid === "lshape") ok = r >= Math.floor(ro * 0.45) || c < Math.floor(co * 0.55); else if (sid === "corner") ok = r < Math.floor(ro * 0.55) || c < Math.floor(co * 0.55); else if (sid === "narrow") { const t = Math.floor(co * 0.2); ok = c >= t && c < co - t; } if (ok) s.add(c + "," + r); } return s; }
+
+function buildField(sid, co, ro) { const ins = makeBoundary(sid, co, ro); const cells = []; for (let r = 0; r < ro; r++) for (let c = 0; c < co; c++) { if (!ins.has(c + "," + r)) continue; let p = false; for (const [nc, nr] of [[c-1,r],[c+1,r],[c,r-1],[c,r+1]]) { if (nc < 0 || nr < 0 || nc >= co || nr >= ro || !ins.has(nc + "," + nr)) { p = true; break; } } cells.push({ col: c, row: r, key: c + "," + r, perimeter: p, type: "open", roomId: null, deptId: null }); } return cells; }
+
+function cellMap(cells) { const m = {}; cells.forEach(c => { m[c.key] = c; }); return m; }
+function n4(c, r) { return [[c-1,r],[c+1,r],[c,r-1],[c,r+1]]; }
+
+// Generate default corridor segments from typology
+function defaultCorridorSegments(typ, co, ro) {
+  const mr = Math.floor(ro / 2), mc = Math.floor(co / 2);
+  let id = 1;
+  const segs = [];
+  if (typ === "double-loaded") {
+    segs.push({ id: id++, x1: 0, y1: mr, x2: co - 1, y2: mr, width: 1, nodeType1: "passage", nodeType2: "passage" });
+  } else if (typ === "central-core") {
+    segs.push({ id: id++, x1: 0, y1: mr, x2: co - 1, y2: mr, width: 1, nodeType1: "passage", nodeType2: "passage" });
+    segs.push({ id: id++, x1: mc, y1: 0, x2: mc, y2: ro - 1, width: 1, nodeType1: "passage", nodeType2: "passage" });
+  }
+  return segs;
+}
+
+// Get unique corridor nodes from segments
+function getCorridorNodes(segs) {
+  const nodeMap = {};
+  segs.forEach(s => {
+    const k1 = s.x1 + "," + s.y1;
+    const k2 = s.x2 + "," + s.y2;
+    if (!nodeMap[k1]) nodeMap[k1] = { x: s.x1, y: s.y1, type: s.nodeType1 || "passage", segIds: [] };
+    if (!nodeMap[k2]) nodeMap[k2] = { x: s.x2, y: s.y2, type: s.nodeType2 || "passage", segIds: [] };
+    nodeMap[k1].segIds.push(s.id);
+    nodeMap[k2].segIds.push(s.id);
+  });
+  return Object.values(nodeMap);
+}
+
+// Paint corridor cells from segments
+function layCorridorFromSegments(cells, segs) {
+  for (const seg of segs) {
+    const dx = seg.x2 - seg.x1;
+    const dy = seg.y2 - seg.y1;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps === 0) continue;
+    const sx = dx / steps, sy = dy / steps;
+    const hw = Math.floor((seg.width || 1) / 2);
+    for (let i = 0; i <= steps; i++) {
+      const cx = Math.round(seg.x1 + sx * i);
+      const cy = Math.round(seg.y1 + sy * i);
+      // Paint corridor cells with width
+      for (let ow = -hw; ow <= hw; ow++) {
+        for (const c of cells) {
+          // For horizontal segments, widen vertically; for vertical, widen horizontally
+          const isHoriz = Math.abs(dx) >= Math.abs(dy);
+          const matchCol = isHoriz ? c.col === cx && c.row === cy + ow : c.col === cx + ow && c.row === cy;
+          if (matchCol && c.type === "open") {
+            c.type = "corridor";
+          }
+        }
+      }
+    }
+    // Also widen at endpoints based on node type
+    for (const [nx, ny, nt] of [[seg.x1, seg.y1, seg.nodeType1], [seg.x2, seg.y2, seg.nodeType2]]) {
+      const extra = nt === "lobby" ? 1 : 0;
+      if (extra > 0) {
+        for (const c of cells) {
+          if (Math.abs(c.col - nx) <= extra && Math.abs(c.row - ny) <= extra && c.type === "open") {
+            c.type = "corridor";
+          }
+        }
+      }
+    }
+  }
+  return cells;
+}
+
+function layCorridor(cells, typ, co, ro) { const segs = defaultCorridorSegments(typ, co, ro); return layCorridorFromSegments(cells, segs); }
+
+function findEntry(cells) { let mx = -1; for (const c of cells) if (c.type !== "corridor" && c.row > mx) mx = c.row; return mx; }
+
+function placeCores(cells, coreRooms, co, ro) {
+  const cc = cells.filter(c => c.type === "corridor");
+  if (!cc.length) return cells;
+  const cm = cellMap(cells);
+
+  // Find corridor endpoints (leftmost + rightmost corridor cells) and midpoint
+  const sorted = [...cc].sort((a, b) => a.col - b.col || a.row - b.row);
+  const endL = sorted[0];
+  const endR = sorted[sorted.length - 1];
+  const midCol = Math.round((endL.col + endR.col) / 2);
+  const midRow = Math.round((endL.row + endR.row) / 2);
+  const midCell = cc.reduce((best, c) => {
+    const d = Math.abs(c.col - midCol) + Math.abs(c.row - midRow);
+    return d < best.d ? { c, d } : best;
+  }, { c: cc[0], d: Infinity }).c;
+
+  // Place a core block adjacent to an anchor corridor cell
+  const placeAt = (anchor, room) => {
+    const offsets = [
+      [0, -1], [0, 1], [-1, 0], [1, 0],          // directly adjacent
+      [0, -2], [0, 2], [-2, 0], [2, 0],           // one gap
+      [1, -1], [-1, -1], [1, 1], [-1, 1],         // diagonal
+    ];
+    for (const [dc, dr] of offsets) {
+      const k = (anchor.col + dc) + "," + (anchor.row + dr);
+      const cell = cm[k];
+      if (cell && cell.type === "open") {
+        cell.type = "core";
+        cell.roomId = room.name;
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Split rooms by placement preference
+  const endRooms = coreRooms.filter(r => r.placePref === "corr-end");
+  const midRooms = coreRooms.filter(r => r.placePref === "corr-mid");
+  const otherRooms = coreRooms.filter(r => !r.placePref);
+
+  // Place corr-end rooms at alternating corridor endpoints (for egress separation)
+  const endpoints = [endL, endR];
+  endRooms.forEach((room, i) => {
+    const anchor = endpoints[i % endpoints.length];
+    // Try to place multi-cell block
+    const w = room.minW || 2, h = room.minH || 2;
+    let placed = false;
+    for (const [dc, dr] of [[0, -h], [0, 1], [-w, 0], [1, 0], [0, -h-1], [0, 2]]) {
+      const sc = anchor.col + dc, sr = anchor.row + dr;
+      let fits = true;
+      for (let rr = sr; rr < sr + h && fits; rr++)
+        for (let cc2 = sc; cc2 < sc + w && fits; cc2++) {
+          const cell = cm[cc2 + "," + rr];
+          if (!cell || cell.type !== "open") fits = false;
+        }
+      if (fits) {
+        for (let rr = sr; rr < sr + h; rr++)
+          for (let cc2 = sc; cc2 < sc + w; cc2++) {
+            const cell = cm[cc2 + "," + rr];
+            cell.type = "core"; cell.roomId = room.name;
+          }
+        placed = true; break;
+      }
+    }
+    if (!placed) placeAt(anchor, room);
+  });
+
+  // Place corr-mid rooms near corridor midpoint
+  midRooms.forEach(room => {
+    const w = room.minW || 2, h = room.minH || 2;
+    let placed = false;
+    for (const [dc, dr] of [[0, -h], [0, 1], [-w, 0], [1, 0], [1, -h], [-w, 1]]) {
+      const sc = midCell.col + dc, sr = midCell.row + dr;
+      let fits = true;
+      for (let rr = sr; rr < sr + h && fits; rr++)
+        for (let cc2 = sc; cc2 < sc + w && fits; cc2++) {
+          const cell = cm[cc2 + "," + rr];
+          if (!cell || cell.type !== "open") fits = false;
+        }
+      if (fits) {
+        for (let rr = sr; rr < sr + h; rr++)
+          for (let cc2 = sc; cc2 < sc + w; cc2++) {
+            const cell = cm[cc2 + "," + rr];
+            cell.type = "core"; cell.roomId = room.name;
+          }
+        placed = true; break;
+      }
+    }
+    if (!placed) placeAt(midCell, room);
+  });
+
+  // Place remaining core rooms at nearest available spot
+  otherRooms.forEach((room, i) => {
+    const anchor = i % 2 === 0 ? endL : endR;
+    placeAt(anchor, room);
+  });
+
+  return cells;
+}
+
+function claimTerritories(cells, deptOrder, rooms, entryRow, typ, co, ro, sf) { const cm = cellMap(cells); const midRow = Math.floor(ro / 2); const midCol = Math.floor(co / 2); const needs = {}; for (const d of deptOrder) { if (d.place === "service") continue; const dr = rooms.filter(r => r.dept === d.n && r.zone !== "core"); needs[d.n] = Math.round(dr.reduce((s, r) => s + Math.max(2, Math.round(r.area * sf)), 0) * 1.08); } let minOC = co, maxOC = 0; for (const c of cells) if (c.type === "open") { minOC = Math.min(minOC, c.col); maxOC = Math.max(maxOC, c.col); } const placements = []; let lc = minOC; const anchorD = deptOrder.filter(d => d.place === "anchor"); const entryD = deptOrder.filter(d => d.place === "entry"); const bridgeD = deptOrder.filter(d => d.place === "bridge"); const wingD = deptOrder.filter(d => d.place === "wing"); for (const d of anchorD) { const need = needs[d.n] || 0; const w = Math.max(3, Math.ceil(need / ro)); placements.push({ dept: d.n, c0: lc, c1: lc + w - 1, r0: 0, r1: ro - 1 }); lc += w; } for (const d of entryD) { const need = needs[d.n] || 0; const w = Math.max(2, Math.ceil(need / Math.max(1, ro - midRow))); const cs = Math.max(lc, midCol - Math.floor(w / 2)); placements.push({ dept: d.n, c0: cs, c1: Math.min(maxOC, cs + w - 1), r0: midRow + 1, r1: ro - 1 }); } for (const d of bridgeD) { const need = needs[d.n] || 0; const w = Math.max(3, Math.ceil(need / ro)); const used = new Set(); placements.forEach(p => { for (let c = p.c0; c <= p.c1; c++) used.add(c); }); const t = midCol - Math.floor(w / 2); const bs = Math.max(lc, Math.min(t, maxOC - w + 1)); placements.push({ dept: d.n, c0: bs, c1: bs + w - 1, r0: 0, r1: ro - 1 }); } const claimed = new Set(); placements.forEach(p => { for (let c = p.c0; c <= p.c1; c++) claimed.add(c); }); const wCols = []; for (let c = minOC; c <= maxOC; c++) if (!claimed.has(c)) wCols.push(c); if (wingD.length > 0 && wCols.length > 0) { const pw = Math.ceil(wCols.length / wingD.length); for (let i = 0; i < wingD.length; i++) { const s = wCols[i * pw] || wCols[wCols.length - 1]; const e = wCols[Math.min((i + 1) * pw - 1, wCols.length - 1)] || wCols[wCols.length - 1]; placements.push({ dept: wingD[i].n, c0: s, c1: e, r0: 0, r1: ro - 1 }); } } for (const p of placements) { for (const c of cells) { if (c.type !== "open" || c.deptId) continue; if (c.col >= p.c0 && c.col <= p.c1 && c.row >= p.r0 && c.row <= p.r1) c.deptId = p.dept; } } for (const c of cells) { if (c.type === "open" && !c.deptId) { let best = Infinity, bd = null; for (const oc of cells) { if (!oc.deptId) continue; const d = Math.abs(c.col - oc.col) + Math.abs(c.row - oc.row); if (d < best) { best = d; bd = oc.deptId; } } if (bd) c.deptId = bd; } } return cells; }
+
+function findValidShapes(area, minW, minH, maxA) { const shapes = [], seen = new Set(); for (let w = minW; w <= area; w++) { const h = Math.round(area / w); if (h < minH) continue; if (w * h < area * 0.8 || w * h > area * 1.3) continue; const asp = Math.max(w, h) / Math.min(w, h); if (asp > maxA) continue; const k = w + "x" + h; if (!seen.has(k)) { seen.add(k); shapes.push({ w, h }); } if (w !== h) { const k2 = h + "x" + w; if (h >= minW && w >= minH && !seen.has(k2)) { seen.add(k2); shapes.push({ w: h, h: w }); } } } return shapes; }
+
+function fitsAt(cm, c, r, w, h, used) { for (let rr = r; rr < r + h; rr++) for (let cc = c; cc < c + w; cc++) { const k = cc + "," + rr; if (used.has(k)) return false; const cell = cm[k]; if (!cell || cell.type !== "open") return false; } return true; }
+
+function scoreCandidate(c, r, w, h, room, cm, cells, placed, midRow, co) { let score = 0; let inT = 0; for (let rr = r; rr < r + h; rr++) for (let cc = c; cc < c + w; cc++) { const cell = cm[cc + "," + rr]; if (cell && cell.deptId === room.dept) inT++; } score += (inT / (w * h)) * 30; if (room.daylight) { let pc = 0; for (let rr = r; rr < r + h; rr++) for (let cc = c; cc < c + w; cc++) { const cell = cm[cc + "," + rr]; if (cell && cell.perimeter) pc++; } score += (pc / (w * h)) * 25; } let tc = false; for (let rr = r; rr < r + h && !tc; rr++) for (let cc = c; cc < c + w && !tc; cc++) { for (const [nc, nr] of n4(cc, rr)) { const n = cm[nc + "," + nr]; if (n && n.type === "corridor") { tc = true; break; } } } if (tc) score += 15; for (const an of (room.adj || [])) { const p = placed[an]; if (!p) continue; let adj = false; for (let rr = r; rr < r + h && !adj; rr++) for (let cc = c; cc < c + w && !adj; cc++) { for (const [nc, nr] of n4(cc, rr)) { const n = cm[nc + "," + nr]; if (n && n.roomId === an) { adj = true; break; } if (n && n.type === "corridor") { for (const [bc, br] of n4(nc, nr)) { const b = cm[bc + "," + br]; if (b && b.roomId === an) { adj = true; break; } } } } } if (adj) score += 20; } /* placePref scoring */ if (room.placePref && co) { const cx = c + w / 2; const mid = co / 2; if (room.placePref === "corr-end") { const distFromEnd = Math.min(cx, co - cx); score += (1 - distFromEnd / mid) * 25; } else if (room.placePref === "corr-mid") { const distFromMid = Math.abs(cx - mid); score += (1 - distFromMid / mid) * 25; } } score += Math.random() * 3; return score; }
+
+function assignRoomsGeo(cells, rooms, sf, midRow, entryRow, co) { const cm2 = cellMap(cells); const used = new Set(); const placed = {}; const scaled = rooms.filter(r => r.zone !== "core").map(r => ({ ...r, targetArea: Math.max(2, Math.round(r.area * sf)) })); const zo = { foh: 0, primary: 1, support: 2 }; scaled.sort((a, b) => { const pa = a.placePref ? -1 : 0, pb = b.placePref ? -1 : 0; if (pa !== pb) return pa - pb; return (zo[a.zone] || 2) - (zo[b.zone] || 2) || b.targetArea - a.targetArea; }); for (const room of scaled) { const shapes = findValidShapes(room.targetArea, room.minW || 2, room.minH || 2, room.maxAspect || 3); if (!shapes.length) continue; let bestS = -Infinity, bestP = null; const anchors = cells.filter(c => c.type === "open" && !used.has(c.key) && c.deptId === room.dept); const fb = cells.filter(c => c.type === "open" && !used.has(c.key)); const pool = anchors.length > 0 ? anchors : fb; const step = Math.max(1, Math.floor(pool.length / 40)); for (let pi = 0; pi < pool.length; pi += step) { const a = pool[pi]; for (const sh of shapes) { if (fitsAt(cm2, a.col, a.row, sh.w, sh.h, used)) { const s = scoreCandidate(a.col, a.row, sh.w, sh.h, room, cm2, cells, placed, midRow, co); if (s > bestS) { bestS = s; bestP = { col: a.col, row: a.row, w: sh.w, h: sh.h }; } } const cc2 = a.col - Math.floor(sh.w / 2), cr2 = a.row - Math.floor(sh.h / 2); if (cc2 >= 0 && cr2 >= 0 && fitsAt(cm2, cc2, cr2, sh.w, sh.h, used)) { const s = scoreCandidate(cc2, cr2, sh.w, sh.h, room, cm2, cells, placed, midRow, co); if (s > bestS) { bestS = s; bestP = { col: cc2, row: cr2, w: sh.w, h: sh.h }; } } } } if (!bestP) continue; for (let rr = bestP.row; rr < bestP.row + bestP.h; rr++) for (let cc = bestP.col; cc < bestP.col + bestP.w; cc++) { const k = cc + "," + rr; const cell = cm2[k]; if (cell) { cell.type = "assigned"; cell.roomId = room.name; } used.add(k); } placed[room.name] = bestP; } return cells; }
+
+function repairOrphans(cells) { const cm2 = cellMap(cells); let changed = true, p = 0; while (changed && p < 5) { changed = false; p++; for (const c of cells) { if (c.type !== "open") continue; const nb = {}; for (const [nc, nr] of n4(c.col, c.row)) { const n = cm2[nc + "," + nr]; if (n && n.roomId && n.type === "assigned") nb[n.roomId] = (nb[n.roomId] || 0) + 1; } let br = null, bc = 0; for (const [rn, cnt] of Object.entries(nb)) { if (cnt > bc) { bc = cnt; br = rn; } } if (br && bc >= 2) { c.type = "assigned"; c.roomId = br; changed = true; } } } return cells; }
+
+function scoreAdj(rooms, cells) { const cm2 = cellMap(cells); const rc = {}; cells.forEach(c => { if (c.roomId) { if (!rc[c.roomId]) rc[c.roomId] = []; rc[c.roomId].push(c); } }); const edges = [], seen = new Set(); for (const room of rooms) { for (const an of (room.adj || [])) { const ek = [room.name, an].sort().join("|"); if (seen.has(ek)) continue; seen.add(ek); if (!rc[room.name] || !rc[an]) { edges.push({ key: ek, a: room.name, b: an, met: false }); continue; } let met = false; outer: for (const ac2 of rc[room.name]) { for (const [nc, nr] of n4(ac2.col, ac2.row)) { const n = cm2[nc + "," + nr]; if (n && n.roomId === an) { met = true; break outer; } if (n && n.type === "corridor") { for (const [bc, br] of n4(nc, nr)) { const b = cm2[bc + "," + br]; if (b && b.roomId === an) { met = true; break outer; } } } } } edges.push({ key: ek, a: room.name, b: an, met }); } } return edges; }
+
+function scorePlan(cells, adjE, rooms) { const adjS = adjE.length > 0 ? adjE.filter(e => e.met).length / adjE.length : 1; const usable = cells.filter(c => c.type !== "corridor" && c.type !== "core").length; const assigned = cells.filter(c => c.type === "assigned").length; const effS = usable > 0 ? assigned / usable : 0; let dlN = 0, dlM = 0; for (const r of rooms) { if (!r.daylight) continue; dlN++; if (cells.filter(c => c.roomId === r.name).some(c => c.perimeter)) dlM++; } const dlS = dlN > 0 ? dlM / dlN : 1; const rg = {}; cells.forEach(c => { if (c.roomId && c.type === "assigned") { if (!rg[c.roomId]) rg[c.roomId] = []; rg[c.roomId].push(c); } }); let cs = 0, cn = 0; for (const rc2 of Object.values(rg)) { let a = Infinity, b = -1, d = Infinity, e = -1; for (const c of rc2) { a = Math.min(a, c.col); b = Math.max(b, c.col); d = Math.min(d, c.row); e = Math.max(e, c.row); } cs += rc2.length / ((b - a + 1) * (e - d + 1)); cn++; } return adjS * 35 + effS * 25 + dlS * 25 + (cn > 0 ? cs / cn : 0) * 15; }
+
+function generateOnce(key, siteId, targetSF, corrSegs) { const prog = PROGRAMS[key]; if (!prog) return null; const sf = targetSF / prog.def; const gross = targetSF * prog.grossing; const tc = Math.round(gross / 350); const asp = siteId === "narrow" ? 0.6 : siteId === "rect" ? 1.5 : 1.3; const co = Math.max(10, Math.min(42, Math.round(Math.sqrt(tc * asp)))); const ro = Math.max(8, Math.min(32, Math.round(tc / co))); let cells = buildField(siteId, co, ro); const segs = corrSegs || defaultCorridorSegments(prog.typology, co, ro); cells = layCorridorFromSegments(cells, segs); cells = placeCores(cells, prog.rooms.filter(r => r.zone === "core"), co, ro); const entryRow = findEntry(cells); cells = claimTerritories(cells, prog.deptOrder, prog.rooms, entryRow, prog.typology, co, ro, sf); cells = assignRoomsGeo(cells, prog.rooms, sf, Math.floor(ro / 2), entryRow, co); cells = repairOrphans(cells); const adjE = scoreAdj(prog.rooms, cells); const ps = scorePlan(cells, adjE, prog.rooms); const roomMap = {}; cells.forEach(c => { if (c.roomId && c.type !== "corridor") { if (!roomMap[c.roomId]) roomMap[c.roomId] = { cells: [], minCol: Infinity, minRow: Infinity, maxCol: -1, maxRow: -1 }; const rm = roomMap[c.roomId]; rm.cells.push(c); rm.minCol = Math.min(rm.minCol, c.col); rm.minRow = Math.min(rm.minRow, c.row); rm.maxCol = Math.max(rm.maxCol, c.col); rm.maxRow = Math.max(rm.maxRow, c.row); } }); return { cells, co, ro, adjE, roomMap, typology: prog.typology, entryRow, planScore: ps, segs }; }
+
+function generatePlan(key, siteId, targetSF, corrSegs) { let best = null; for (let i = 0; i < 8; i++) { const c = generateOnce(key, siteId, targetSF, corrSegs); if (c && (!best || c.planScore > best.planScore)) best = c; } return best; }
+
+// ============================================
+// 10  CONVERT ENGINE OUTPUT TO DRAGGABLE ROOMS
+// ============================================
+
+function engineToRooms(plan, prog, corrSegs) {
+  if (!plan || !prog) return [];
+  const deptColor = {};
+  prog.deptOrder.forEach(d => { deptColor[d.n] = d.c; });
+  const roomDB = {};
+  prog.rooms.forEach(r => { roomDB[r.name] = r; });
+  const rooms = [];
+  // Corridor as individual cells — renders as a clean uniform fill, no overlaps
+  const corrCells = plan.cells.filter(c => c.type === "corridor");
+  corrCells.forEach((c, ci) => {
+    rooms.push({ name: "Corridor", dept: "Core", color: corrColor, x: c.col, y: c.row, w: 1, h: 1, area: 1, fixed: true, zone: "corridor", _corrCell: true });
+  });
+  for (const [name, rm] of Object.entries(plan.roomMap)) {
+    const spec = roomDB[name];
+    const dept = spec ? spec.dept : "Core";
+    const color = deptColor[dept] || "#6B6B6B";
+    const w = rm.maxCol - rm.minCol + 1;
+    const h = rm.maxRow - rm.minRow + 1;
+    rooms.push({ name, dept, color, x: rm.minCol, y: rm.minRow, w, h, area: w * h, fixed: spec ? spec.zone === "core" : false, zone: spec ? spec.zone : "core", daylight: spec ? spec.daylight : false });
+  }
+  return rooms;
+}
+
+// ============================================
+// 11  COLLISION RESOLUTION
+// ============================================
+
+function rectsOverlap(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
+
+function resolveCollisions(rooms, movedIdx) {
+  let rs = rooms.map(r => ({ ...r }));
+  for (let it = 0; it < 30; it++) {
+    let any = false;
+    for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) {
+      if (!rectsOverlap(rs[i], rs[j])) continue;
+      any = true;
+      const ox = Math.min(rs[i].x + rs[i].w, rs[j].x + rs[j].w) - Math.max(rs[i].x, rs[j].x);
+      const oy = Math.min(rs[i].y + rs[i].h, rs[j].y + rs[j].h) - Math.max(rs[i].y, rs[j].y);
+      const pu = i === movedIdx ? j : j === movedIdx ? i : j;
+      const ot = pu === j ? i : j;
+      if (rs[pu].fixed) continue;
+      // Push exactly the overlap so rooms end up touching, not separated
+      if (ox <= oy) {
+        const d = (rs[pu].x + rs[pu].w / 2) >= (rs[ot].x + rs[ot].w / 2) ? 1 : -1;
+        rs[pu] = { ...rs[pu], x: rs[pu].x + ox * d };
+      } else {
+        const d = (rs[pu].y + rs[pu].h / 2) >= (rs[ot].y + rs[ot].h / 2) ? 1 : -1;
+        rs[pu] = { ...rs[pu], y: rs[pu].y + oy * d };
+      }
+    }
+    if (!any) break;
+  }
+  return rs;
+}
+
+// ============================================
+// 12  REACT UI — v7c
+// ============================================
+
+function Fade({ children, i = 0, show = true }) {
+  return <div style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(14px)", transition: "opacity 0.5s ease " + (i * 90) + "ms, transform 0.5s ease " + (i * 90) + "ms" }}>{children}</div>;
+}
+
+function App() {
+  const [scr, setScr] = useState("setup");
+  const [site, setSite] = useState("rect");
+  const [type, setType] = useState("");
+  const [sf, setSf] = useState(55000);
+  const [ddOpen, setDdOpen] = useState(false);
+  const [rooms, setRooms] = useState([]);
+  const [reveal, setReveal] = useState(0);
+  const [hov, setHov] = useState(null);
+  const [active, setActive] = useState(null);
+  const [prog, setProg] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [showAdj, setShowAdj] = useState(true);
+  const [planMeta, setPlanMeta] = useState(null);
+  const [collapsed, setCollapsed] = useState({}); // dept name -> boolean
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [editMode, setEditMode] = useState("rooms"); // "rooms" | "corridor"
+  const [corrSegs, setCorrSegs] = useState([]); // corridor segments
+  const [corrNextId, setCorrNextId] = useState(10);
+  const [activeNode, setActiveNode] = useState(null); // "x,y" key of selected node
+  const [addingSeg, setAddingSeg] = useState(null); // { fromX, fromY, toX, toY } during drag-to-add
+  const [address, setAddress] = useState("");
+  const [parcelData, setParcelData] = useState(null); // { parcelFt, widthFt, depthFt, ... }
+  const [parcelLoading, setParcelLoading] = useState(false);
+  const [parcelError, setParcelError] = useState(null);
+  const ddBtnRef = useRef(null);
+  const [ddPos, setDdPos] = useState({ top: 0, left: 0, width: 0 });
+  const modeRef = useRef(null); // drag/resize room
+  const canvasRef = useRef(null);
+  // Pan/zoom refs (use refs to avoid re-render during gesture)
+  const gestureRef = useRef(null); // null | { type:'pan', sx, sy, px, py } | { type:'pinch', d0, z0 }
+  const zoomRef = useRef(1);
+  const panRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => { setMounted(true); }, []);
+  const pr = PROGRAMS[type];
+  const rng = pr ? pr.range : [10000, 200000];
+  useEffect(() => { if (pr) setSf(pr.def); }, [type]);
+
+  const openDd = () => {
+    if (ddBtnRef.current) { const r = ddBtnRef.current.getBoundingClientRect(); setDdPos({ top: r.bottom + 4, left: r.left, width: r.width }); }
+    setDdOpen(o => !o);
+  };
+
+  // Keep refs in sync with state
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+  useEffect(() => { panRef.current = pan; }, [pan]);
+
+  // ─── PARCEL FETCH ───
+  const doFetchParcel = async () => {
+    if (!address.trim()) return;
+    setParcelLoading(true); setParcelError(null);
+    try {
+      const data = await fetchParcel(address.trim());
+      setParcelData(data);
+    } catch (e) {
+      setParcelError(e.message || "Parcel not found");
+      setParcelData(null);
+    }
+    setParcelLoading(false);
+  };
+
+  // ─── PDF EXPORT ───
+  const doExportPDF = () => {
+    if (!rooms.length || !planMeta) return;
+    exportPDF(rooms, planMeta, sf, type, cFt, parcelData, corrSegs);
+  };
+
+  const doGenerate = (useExistingCorr) => {
+    if (!type) return;
+    setScr("gen"); setProg(0);
+    let s = 0;
+    const iv = setInterval(() => {
+      s++; setProg(s / 28);
+      if (s >= 28) {
+        clearInterval(iv);
+        // Use existing corridor segments if regenerating, otherwise generate defaults
+        const segsToUse = useExistingCorr && corrSegs.length > 0 ? corrSegs : null;
+        const plan = generatePlan(type, site, sf, segsToUse);
+        if (plan) {
+          const usedSegs = plan.segs;
+          setCorrSegs(usedSegs);
+          setCorrNextId(Math.max(10, ...usedSegs.map(s => s.id)) + 1);
+          const rms = engineToRooms(plan, PROGRAMS[type], usedSegs);
+          setRooms(rms);
+          const totalBoundaryCells = plan.cells.length;
+          const cellSF = (sf * PROGRAMS[type].grossing) / totalBoundaryCells;
+          const cellFt = Math.sqrt(cellSF);
+          setPlanMeta({ adjE: plan.adjE, score: plan.planScore, co: plan.co, ro: plan.ro, typology: plan.typology, cellFt });
+          setReveal(0); setScr("plan"); setZoom(1); setPan({ x: 0, y: 0 });
+          setCollapsed({}); setEditMode("rooms"); setActiveNode(null); setAddingSeg(null);
+          rms.forEach((_, i) => setTimeout(() => setReveal(r => r + 1), 50 * i + 100));
+        }
+      }
+    }, 36);
+  };
+
+  // Regenerate rooms only (keep corridor, re-run engine)
+  const regenWithCorridor = () => {
+    if (!type || !planMeta) return;
+    const plan = generatePlan(type, site, sf, corrSegs);
+    if (plan) {
+      const rms = engineToRooms(plan, PROGRAMS[type], corrSegs);
+      setRooms(rms);
+      const totalBoundaryCells = plan.cells.length;
+      const cellSF = (sf * PROGRAMS[type].grossing) / totalBoundaryCells;
+      const cellFt = Math.sqrt(cellSF);
+      setPlanMeta({ adjE: plan.adjE, score: plan.planScore, co: planMeta.co, ro: planMeta.ro, typology: plan.typology, cellFt });
+      setReveal(0); rms.forEach((_, i) => setTimeout(() => setReveal(r => r + 1), 30 * i + 50));
+    }
+  };
+
+  // ─── DRAG / RESIZE HANDLERS ───
+  const onBodyDown = (idx, e) => {
+    if (rooms[idx].fixed) return;
+    e.preventDefault(); e.stopPropagation();
+    e.target.setPointerCapture(e.pointerId);
+    setActive(idx);
+    modeRef.current = { type: "pending", idx, sx: e.clientX, sy: e.clientY, ox: rooms[idx].x, oy: rooms[idx].y };
+  };
+
+  const onHandleDown = (idx, corner, e) => {
+    if (rooms[idx].fixed) return;
+    e.preventDefault(); e.stopPropagation();
+    e.target.setPointerCapture(e.pointerId);
+    const r = rooms[idx];
+    modeRef.current = { type: "resize", idx, corner, sx: e.clientX, sy: e.clientY, ow: r.w, oh: r.h, area: r.area || r.w * r.h, ox: r.x, oy: r.y };
+  };
+
+  useEffect(() => {
+    const onMove = (e) => {
+      const m = modeRef.current;
+      if (!m) return;
+      if (m.type === "pending") {
+        if (Math.abs(e.clientX - m.sx) + Math.abs(e.clientY - m.sy) > 4) modeRef.current = { ...m, type: "drag" };
+        else return;
+      }
+      const z = zoomRef.current;
+      if (modeRef.current.type === "drag") {
+        const dx = (e.clientX - m.sx) / (G * z), dy = (e.clientY - m.sy) / (G * z);
+        setRooms(p => { const c = [...p]; c[m.idx] = { ...c[m.idx], x: Math.round(m.ox + dx), y: Math.round(m.oy + dy) }; return c; });
+      }
+      if (modeRef.current.type === "resize") {
+        const dxC = (e.clientX - m.sx) / (G * z);
+        // Allow approximate area-preserving shapes (within ±20%)
+        const targetArea = m.area;
+        const valid = [];
+        for (let tw = 2; tw <= targetArea; tw++) {
+          const th = Math.round(targetArea / tw);
+          if (th < 2) continue;
+          if (tw * th < targetArea * 0.8 || tw * th > targetArea * 1.2) continue;
+          valid.push({ w: tw, h: th, a: tw * th });
+        }
+        if (!valid.length) return;
+        let targetW = (m.corner === "br" || m.corner === "tr") ? m.ow + dxC : m.ow - dxC;
+        let best = valid[0], bestD = Math.abs(targetW - best.w);
+        for (const v of valid) { const d = Math.abs(targetW - v.w); if (d < bestD) { best = v; bestD = d; } }
+        let nx, ny;
+        if (m.corner === "br") { nx = m.ox; ny = m.oy; }
+        else if (m.corner === "bl") { nx = m.ox + (m.ow - best.w); ny = m.oy; }
+        else if (m.corner === "tr") { nx = m.ox; ny = m.oy + (m.oh - best.h); }
+        else { nx = m.ox + (m.ow - best.w); ny = m.oy + (m.oh - best.h); }
+        setRooms(p => { const c = [...p]; c[m.idx] = { ...c[m.idx], w: best.w, h: best.h, area: best.a, x: nx, y: ny }; return c; });
+      }
+    };
+    const onUp = () => {
+      const m = modeRef.current;
+      if (m && (m.type === "drag" || m.type === "resize")) setRooms(p => resolveCollisions(p, m.idx));
+      modeRef.current = null;
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => { window.removeEventListener("pointermove", onMove); window.removeEventListener("pointerup", onUp); };
+  }, []);
+
+  // ─── CORRIDOR NODE DRAG ───
+  useEffect(() => {
+    const onCorrMove = (e) => {
+      const m = corrNodeMode.current;
+      if (!m) return;
+      const z = zoomRef.current;
+      const dx = (e.clientX - m.sx) / (G * z);
+      const dy = (e.clientY - m.sy) / (G * z);
+
+      if (m.type === "pending") {
+        if (Math.abs(dx) + Math.abs(dy) > 0.8) {
+          corrNodeMode.current = { ...m, type: "drag" };
+        } else return;
+      }
+
+      if (m.type === "drag") {
+        const rawX = Math.round(m.ox + dx);
+        const rawY = Math.round(m.oy + dy);
+        setCorrSegs(prev => prev.map(s => {
+          const ns = { ...s };
+          if (s.x1 === m.lastX && s.y1 === m.lastY) { ns.x1 = rawX; ns.y1 = rawY; }
+          if (s.x2 === m.lastX && s.y2 === m.lastY) { ns.x2 = rawX; ns.y2 = rawY; }
+          return ns;
+        }));
+        corrNodeMode.current.lastX = rawX;
+        corrNodeMode.current.lastY = rawY;
+        setActiveNode(rawX + "," + rawY);
+      }
+    };
+
+    const onCorrUp = () => {
+      const m = corrNodeMode.current;
+      if (m && m.type === "pending") setActiveNode(m.nk);
+      corrNodeMode.current = null;
+    };
+
+    window.addEventListener("pointermove", onCorrMove);
+    window.addEventListener("pointerup", onCorrUp);
+    return () => { window.removeEventListener("pointermove", onCorrMove); window.removeEventListener("pointerup", onCorrUp); };
+  }, []);
+
+  // ─── ADD SEGMENT: double-click canvas in corridor mode from active node ───
+  const handleCorrCanvasClick = useCallback((e) => {
+    if (editMode !== "corridor" || !activeNode) return;
+    if (e.detail !== 2) return; // only on double-click
+    const rect = canvasRef.current.getBoundingClientRect();
+    const z = zoomRef.current;
+    const p = panRef.current;
+    const rawX = (e.clientX - rect.left - p.x - 24) / (G * z);
+    const rawY = (e.clientY - rect.top - p.y - 24) / (G * z);
+    const gx = Math.round(rawX);
+    const gy = Math.round(rawY);
+    const [anx, any] = activeNode.split(",").map(Number);
+    if (Math.abs(gx - anx) + Math.abs(gy - any) < 2) return;
+    // Snap to H or V
+    let tx, ty;
+    if (Math.abs(gx - anx) >= Math.abs(gy - any)) { tx = gx; ty = any; }
+    else { tx = anx; ty = gy; }
+    const newId = corrNextId;
+    setCorrNextId(newId + 1);
+    setCorrSegs(prev => [...prev, { id: newId, x1: anx, y1: any, x2: tx, y2: ty, width: 1, nodeType1: "passage", nodeType2: "passage" }]);
+    setActiveNode(tx + "," + ty);
+  }, [editMode, activeNode, corrNextId]);
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    // Pinch-zoom on trackpad fires with ctrlKey + small deltaY
+    // Regular scroll wheel fires without ctrlKey + larger deltaY
+    // We handle both the same way — deltaY controls zoom
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const oldZ = zoomRef.current;
+    const delta = e.ctrlKey ? e.deltaY * 0.01 : e.deltaY * 0.003;
+    const newZ = Math.min(5, Math.max(0.2, oldZ - delta));
+    // Zoom toward cursor position
+    const scale = newZ / oldZ;
+    const newPx = mx - (mx - panRef.current.x) * scale;
+    const newPy = my - (my - panRef.current.y) * scale;
+    setZoom(newZ);
+    setPan({ x: newPx, y: newPy });
+  }, []);
+
+  // ─── PAN: click+drag on empty canvas, or two-finger drag on touch ───
+  const handleCanvasPointerDown = useCallback((e) => {
+    // Only start pan if clicking empty canvas (not a room)
+    if (e.target === canvasRef.current || e.target.classList.contains("canvas-bg")) {
+      setActive(null);
+      // Start pan gesture
+      gestureRef.current = { type: "pan", sx: e.clientX, sy: e.clientY, px: panRef.current.x, py: panRef.current.y };
+      canvasRef.current.setPointerCapture(e.pointerId);
+    }
+  }, []);
+
+  const handleCanvasPointerMove = useCallback((e) => {
+    const g = gestureRef.current;
+    if (!g || g.type !== "pan") return;
+    setPan({
+      x: g.px + (e.clientX - g.sx),
+      y: g.py + (e.clientY - g.sy),
+    });
+  }, []);
+
+  const handleCanvasPointerUp = useCallback(() => {
+    gestureRef.current = null;
+  }, []);
+
+  // ─── TOUCH: pinch-to-zoom (iPhone/iPad) ───
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+
+    let lastTouchDist = null;
+    let lastTouchCenter = null;
+    let lastZoom = null;
+    let lastPan = null;
+
+    const getTouchDist = (t) => {
+      const dx = t[0].clientX - t[1].clientX;
+      const dy = t[0].clientY - t[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+    const getTouchCenter = (t) => ({
+      x: (t[0].clientX + t[1].clientX) / 2,
+      y: (t[0].clientY + t[1].clientY) / 2,
+    });
+
+    const onTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        lastTouchDist = getTouchDist(e.touches);
+        lastTouchCenter = getTouchCenter(e.touches);
+        lastZoom = zoomRef.current;
+        lastPan = { ...panRef.current };
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length === 2 && lastTouchDist !== null) {
+        e.preventDefault();
+        const dist = getTouchDist(e.touches);
+        const center = getTouchCenter(e.touches);
+        const rect = el.getBoundingClientRect();
+        const mx = center.x - rect.left;
+        const my = center.y - rect.top;
+
+        // Zoom
+        const scale = dist / lastTouchDist;
+        const newZ = Math.min(5, Math.max(0.2, lastZoom * scale));
+        const zScale = newZ / lastZoom;
+
+        // Pan (zoom toward center + translate)
+        const newPx = mx - (mx - lastPan.x) * zScale + (center.x - lastTouchCenter.x);
+        const newPy = my - (my - lastPan.y) * zScale + (center.y - lastTouchCenter.y);
+
+        setZoom(newZ);
+        setPan({ x: newPx, y: newPy });
+      }
+    };
+
+    const onTouchEnd = () => {
+      lastTouchDist = null;
+      lastTouchCenter = null;
+      lastZoom = null;
+      lastPan = null;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [scr]);
+
+  // ─── THEME ───
+  const lbg = "#FAFAF8", lsf = "#FFFFFF", lbd = "#E0DDD8", lbd2 = "#F0EDE8";
+  const lt1 = "#1A1A1A", lt2 = "#555555", lt3 = "#888888";
+  const pct = sf > rng[0] ? ((sf - rng[0]) / (rng[1] - rng[0])) * 100 : 0;
+  const sgrid = { backgroundImage: "linear-gradient(" + lbd2 + " 1px, transparent 1px), linear-gradient(90deg, " + lbd2 + " 1px, transparent 1px)", backgroundSize: "36px 36px" };
+  const fontLink = <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Space+Mono&display=swap" rel="stylesheet" />;
+
+  // ─── UNIT CONVERSION HELPERS ───
+  const cFt = planMeta ? planMeta.cellFt : 18.7; // feet per cell side (fallback ~sqrt(350))
+  const FT_TO_M = 0.3048;
+  const fmtFt = (ft) => Math.round(ft).toLocaleString();
+  const fmtM = (ft) => (ft * FT_TO_M).toFixed(1);
+  const fmtSF = (sfVal) => Math.round(sfVal).toLocaleString();
+  const fmtSM = (sfVal) => Math.round(sfVal * FT_TO_M * FT_TO_M).toLocaleString();
+  const dimFt = (cells) => fmtFt(cells * cFt);
+  const dimM = (cells) => fmtM(cells * cFt);
+  const areaSF = (cellArea) => fmtSF(cellArea * cFt * cFt);
+  const areaSM = (cellArea) => fmtSM(cellArea * cFt * cFt);
+
+  // ═══ SETUP ═══
+  if (scr === "setup") return (
+    <div style={{ minHeight: "100vh", background: lbg, color: lt1, fontFamily: f1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, ...sgrid }} onClick={() => { if (ddOpen) setDdOpen(false); }}>
+      {fontLink}
+      <Fade i={0} show={mounted}><div style={{ textAlign: "center", marginBottom: 40 }}>
+        <div style={{ fontFamily: f2, fontSize: 9, color: lt3, textTransform: "uppercase", letterSpacing: "0.25em", marginBottom: 10 }}>Build Your Plan</div>
+        <h1 style={{ fontFamily: f1, fontWeight: 300, fontSize: 38, textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>CALVEY {"\u00B7"} PARTI</h1>
+        <div style={{ width: 36, height: 1, background: ac, margin: "14px auto 0" }} />
+      </div></Fade>
+      <Fade i={1} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
+        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>01 &nbsp;Site Address <span style={{ textTransform: "none", color: lt3 }}>(optional)</span></div>
+        <div style={{ background: lsf, border: "1px solid " + lbd, borderRadius: 10, padding: "12px 16px", marginBottom: 10 }}>
+          <input value={address} onChange={e => setAddress(e.target.value)} placeholder='e.g. "27 Holyoke St, Boston, MA"' onKeyDown={e => { if (e.key === "Enter") doFetchParcel(); }}
+            style={{ width: "100%", background: "transparent", border: "none", fontFamily: f1, fontSize: 16, fontWeight: 300, color: lt1, outline: "none" }} />
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button onClick={doFetchParcel} disabled={!address.trim() || parcelLoading}
+            style={{ fontFamily: f2, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", background: address.trim() ? ac + "18" : "transparent", border: "1px solid " + (address.trim() ? ac : lbd), borderRadius: 8, padding: "8px 16px", color: address.trim() ? ac : lt3, cursor: address.trim() ? "pointer" : "not-allowed" }}>
+            {parcelLoading ? "Searching..." : "Find Parcel"}
+          </button>
+          {parcelData && <span style={{ fontFamily: f2, fontSize: 7, color: "#4D8F4D" }}>{"\u2713"} {Math.round(parcelData.widthFt)}{"'"} {"\u00D7"} {Math.round(parcelData.depthFt)}{"'"}</span>}
+          {parcelError && <span style={{ fontFamily: f2, fontSize: 7, color: "#C45C3E" }}>{parcelError}</span>}
+        </div>
+        <div style={{ fontFamily: f2, fontSize: 7, color: lt3, marginTop: 8 }}>Searches MA/NY ArcGIS + Esri USA national parcels. Parcel displays as reference overlay on the plan.</div>
+      </div></Fade>
+      <Fade i={2} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 32 }}>
+        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>02 &nbsp;Building Type</div>
+        <button ref={ddBtnRef} onClick={e => { e.stopPropagation(); openDd(); }} style={{ width: "100%", background: lsf, border: "1px solid " + (ddOpen ? ac : lbd), borderRadius: 10, padding: "12px 16px", color: type ? lt1 : lt3, fontFamily: f1, fontSize: 16, fontWeight: 300, cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{type ? (pr.icon + "  " + type) : "Select building type..."}</span>
+          <span style={{ fontSize: 10, color: lt3, transform: ddOpen ? "rotate(180deg)" : "", transition: "transform 0.25s", display: "inline-block" }}>{"\u25BC"}</span>
+        </button>
+      </div></Fade>
+      <Fade i={3} show={mounted}><div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
+        <div style={{ fontFamily: f2, fontSize: 9, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>03 &nbsp;Building Size</div>
+        <div style={{ background: lsf, border: "1px solid " + lbd, borderRadius: 10, padding: "16px 18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+            <div style={{ fontFamily: f1, fontSize: 28, fontWeight: 300 }}>{sf.toLocaleString()} SF</div>
+            <div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase" }}>Gross Area <span style={{ textTransform: "none" }}>({fmtSM(sf)} m{"\u00B2"})</span></div>
+          </div>
+          <div style={{ position: "relative", height: 20, display: "flex", alignItems: "center" }}>
+            <div style={{ position: "absolute", left: 0, right: 0, height: 4, background: lbd, borderRadius: 2 }} />
+            <div style={{ position: "absolute", left: 0, width: pct + "%", height: 4, background: ac, borderRadius: 2 }} />
+            <input type="range" min={rng[0]} max={rng[1]} step={500} value={sf} onChange={e => setSf(+e.target.value)} style={{ position: "absolute", left: 0, right: 0, width: "100%", height: 20, opacity: 0, cursor: "pointer", zIndex: 2 }} />
+            <div style={{ position: "absolute", left: pct + "%", width: 16, height: 16, borderRadius: "50%", background: ac, border: "2px solid " + lbg, transform: "translateX(-50%)", boxShadow: "0 0 10px " + ac + "55", pointerEvents: "none" }} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+            <span style={{ fontFamily: f2, fontSize: 7, color: lt3 }}>{rng[0].toLocaleString()} SF ({fmtSM(rng[0])} m{"\u00B2"})</span>
+            <span style={{ fontFamily: f2, fontSize: 7, color: lt3 }}>{rng[1].toLocaleString()} SF ({fmtSM(rng[1])} m{"\u00B2"})</span>
+          </div>
+        </div>
+      </div></Fade>
+      <Fade i={4} show={mounted}>
+        <button onClick={() => doGenerate(false)} disabled={!type} style={{ fontFamily: f2, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", background: type ? ac : lbd, color: type ? "#FAFAF8" : lt3, border: "none", borderRadius: 10, padding: "14px 44px", cursor: type ? "pointer" : "not-allowed", boxShadow: type ? "0 4px 20px " + ac + "44" : "none" }}>Generate Plan {"\u2192"}</button>
+      </Fade>
+      {ddOpen && (<>
+        <div onClick={() => setDdOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9998 }} />
+        <div style={{ position: "fixed", top: ddPos.top, left: ddPos.left, width: ddPos.width, background: lsf, border: "1px solid " + lbd, borderRadius: 10, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 9999, maxHeight: 320, overflowY: "auto" }}>
+          {Object.entries(PROGRAMS).map(([k, v], i) => (
+            <button key={k} onClick={() => { setType(k); setDdOpen(false); }} style={{ width: "100%", background: "transparent", border: "none", borderBottom: i < Object.keys(PROGRAMS).length - 1 ? "1px solid " + lbd : "none", padding: "10px 16px", color: lt1, fontFamily: f1, fontSize: 15, fontWeight: 300, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 10 }}
+              onMouseEnter={e => { e.currentTarget.style.background = lbd2; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}>
+              <span style={{ fontSize: 18 }}>{v.icon}</span>
+              <div><div>{k}</div><div style={{ fontFamily: f2, fontSize: 7, color: lt3 }}>{v.range[0].toLocaleString()} {"\u2013"} {v.range[1].toLocaleString()} SF ({fmtSM(v.range[0])} {"\u2013"} {fmtSM(v.range[1])} m{"\u00B2"}) {"\u00B7"} {v.typology}</div></div>
+            </button>
+          ))}
+        </div>
+      </>)}
+    </div>
+  );
+
+  // ═══ GENERATING ═══
+  if (scr === "gen") return (
+    <div style={{ minHeight: "100vh", background: lbg, color: lt1, fontFamily: f1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", ...sgrid }}>
+      {fontLink}
+      <div style={{ width: 48, height: 48, borderRadius: "50%", border: "2px solid " + lbd, borderTopColor: ac, margin: "0 auto 20px", animation: "spin 0.8s linear infinite" }} />
+      <div style={{ fontSize: 22, fontWeight: 300, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Generating Plan</div>
+      <div style={{ fontFamily: f2, fontSize: 8, color: lt3, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 20 }}>{type} {"\u00B7"} {sf.toLocaleString()} SF ({fmtSM(sf)} m{"\u00B2"})</div>
+      <div style={{ width: 160, height: 3, background: lbd, borderRadius: 2, overflow: "hidden" }}><div style={{ width: (prog * 100) + "%", height: "100%", background: ac }} /></div>
+      <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style>
+    </div>
+  );
+
+  // ═══ PLAN VIEW — v7c ═══
+  const depts = pr ? pr.deptOrder : [];
+  // Compute grid bounds from actual room positions (not just engine grid)
+  // SVG size — large enough for rooms to move freely
+  let maxX = 0, maxY = 0;
+  rooms.forEach(r => { maxX = Math.max(maxX, r.x + r.w); maxY = Math.max(maxY, r.y + r.h); });
+  const gridW = Math.max(planMeta ? planMeta.co + 4 : 34, maxX + 4);
+  const gridH = Math.max(planMeta ? planMeta.ro + 4 : 26, maxY + 4);
+  const adjMet = planMeta ? planMeta.adjE.filter(e => e.met).length : 0;
+  const adjTotal = planMeta ? planMeta.adjE.length : 0;
+
+  // Active room data for properties panel
+  const activeRoom = active !== null && rooms[active] ? rooms[active] : null;
+  const activeSpec = activeRoom && pr ? pr.rooms.find(r => r.name === activeRoom.name) : null;
+
+  // Adjacency partners for active room
+  const activeAdj = activeSpec ? (activeSpec.adj || []) : [];
+  const activeAdjMet = activeAdj.filter(an => {
+    if (!planMeta) return false;
+    return planMeta.adjE.some(e => e.met && (e.a === activeRoom.name && e.b === an || e.b === activeRoom.name && e.a === an));
+  });
+
+  const toggleDept = (dn) => setCollapsed(c => ({ ...c, [dn]: !c[dn] }));
+
+  return (
+    <div style={{ minHeight: "100vh", background: lbg, color: lt1, fontFamily: f1, display: "flex", flexDirection: "column" }}>
+      {fontLink}
+      {/* Toolbar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", borderBottom: "1px solid " + lbd, background: lsf + "ee", backdropFilter: "blur(10px)", position: "sticky", top: 0, zIndex: 30, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={() => { setScr("setup"); setRooms([]); setActive(null); }} style={{ background: "none", border: "1px solid " + lbd, borderRadius: 7, padding: "5px 12px", color: lt2, fontFamily: f2, fontSize: 8, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer" }}>{"\u2190"} Back</button>
+          <div>
+            <div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase", letterSpacing: "0.15em" }}>CALVEY PARTI v8</div>
+            <div style={{ fontFamily: f1, fontSize: 15, fontWeight: 300 }}>{type}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {/* Edit mode toggle */}
+          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: "1px solid " + lbd }}>
+            <button onClick={() => setEditMode("rooms")} style={{ background: editMode === "rooms" ? ac + "18" : "transparent", border: "none", padding: "4px 10px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: editMode === "rooms" ? ac : lt3 }}>Rooms</button>
+            <button onClick={() => setEditMode("corridor")} style={{ background: editMode === "corridor" ? corrColor + "30" : "transparent", border: "none", borderLeft: "1px solid " + lbd, padding: "4px 10px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: editMode === "corridor" ? corrColor : lt3 }}>Corridor</button>
+          </div>
+          <div style={{ width: 1, height: 22, background: lbd }} />
+          <div style={{ textAlign: "right" }}><div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase" }}>Area</div><div style={{ fontSize: 15, fontWeight: 300 }}>{sf.toLocaleString()} SF</div><div style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>({fmtSM(sf)} m{"\u00B2"})</div></div>
+          <div style={{ width: 1, height: 22, background: lbd }} />
+          <div style={{ textAlign: "right" }}><div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase" }}>Rooms</div><div style={{ fontSize: 15, fontWeight: 300 }}>{rooms.filter(r => !r.fixed).length}</div></div>
+          <div style={{ width: 1, height: 22, background: lbd }} />
+          {planMeta && <div style={{ textAlign: "right" }}><div style={{ fontFamily: f2, fontSize: 7, color: lt3, textTransform: "uppercase" }}>Adj</div><div style={{ fontSize: 14, fontWeight: 300, color: adjMet === adjTotal ? "#4D8F4D" : "#B07D4A" }}>{adjMet}/{adjTotal}</div></div>}
+          <div style={{ width: 1, height: 22, background: lbd }} />
+          <button onClick={() => setShowAdj(v => !v)} style={{ background: showAdj ? ac + "18" : "transparent", border: "1px solid " + (showAdj ? ac : lbd), borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: showAdj ? ac : lt3 }}>adj</button>
+          <button onClick={() => doGenerate(true)} style={{ background: ac + "18", border: "1px solid " + ac, borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: ac }}>{"\u21BB"} regen</button>
+          <button onClick={doExportPDF} style={{ background: "#4D8F4D18", border: "1px solid #4D8F4D", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: "#4D8F4D" }}>{"\u2193"} PDF</button>
+          {/* Zoom controls */}
+          <div style={{ width: 1, height: 22, background: lbd }} />
+          <button onClick={() => setZoom(z => Math.min(4, z + 0.2))} style={{ background: "transparent", border: "1px solid " + lbd, borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 9, color: lt2, lineHeight: 1 }}>+</button>
+          <div style={{ fontFamily: f2, fontSize: 7, color: lt3, minWidth: 32, textAlign: "center" }}>{Math.round(zoom * 100)}%</div>
+          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} style={{ background: "transparent", border: "1px solid " + lbd, borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 9, color: lt2, lineHeight: 1 }}>{"\u2013"}</button>
+          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} style={{ background: "transparent", border: "1px solid " + lbd, borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontFamily: f2, fontSize: 7, textTransform: "uppercase", color: lt3 }}>fit</button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Sidebar */}
+        <div style={{ width: 220, borderRight: "1px solid " + lbd, display: "flex", flexDirection: "column", background: lsf, flexShrink: 0 }}>
+
+          {/* Properties Panel — pinned at top */}
+          <div style={{ borderBottom: "1px solid " + lbd, padding: "12px 12px", flexShrink: 0, minHeight: 52 }}>
+            <div style={{ fontFamily: f2, fontSize: 7, color: editMode === "corridor" ? corrColor : ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>
+              {editMode === "corridor" ? "Corridor" : "Properties"}
+            </div>
+            {editMode === "corridor" ? (
+              <div>
+                <div style={{ fontFamily: f1, fontSize: 14, fontWeight: 300, color: lt1, marginBottom: 6 }}>{corrSegs.length} segment{corrSegs.length !== 1 ? "s" : ""}</div>
+                {/* Segment list */}
+                {corrSegs.map((seg, si) => {
+                  const isHoriz = Math.abs(seg.x2 - seg.x1) >= Math.abs(seg.y2 - seg.y1);
+                  const len = Math.max(Math.abs(seg.x2 - seg.x1), Math.abs(seg.y2 - seg.y1)) + 1;
+                  const nk1 = seg.x1 + "," + seg.y1, nk2 = seg.x2 + "," + seg.y2;
+                  const isActive = activeNode === nk1 || activeNode === nk2;
+                  return (
+                    <div key={seg.id} style={{ padding: "4px 0 4px 8px", borderLeft: "2px solid " + (isActive ? corrColor : "transparent"), marginBottom: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontFamily: f2, fontSize: 7, color: isActive ? lt1 : lt2 }}>{isHoriz ? "Horizontal" : "Vertical"} {"\u00B7"} {dimFt(len)}{"'"}</div>
+                        <div style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>w{seg.width} {"\u00B7"} {seg.nodeType1}/{seg.nodeType2}</div>
+                      </div>
+                      <button onClick={() => {
+                        const ns = corrSegs.filter(s => s.id !== seg.id);
+                        setCorrSegs(ns);
+                      }} style={{ background: "none", border: "none", color: "#C45C3E", fontFamily: f2, fontSize: 8, cursor: "pointer", padding: "2px 4px" }}>{"\u2715"}</button>
+                    </div>
+                  );
+                })}
+                {/* Node type toggle for active node */}
+                {activeNode && (() => {
+                  const [anx, any] = activeNode.split(",").map(Number);
+                  // Find segments with this node and their node type
+                  const touching = corrSegs.filter(s => (s.x1 === anx && s.y1 === any) || (s.x2 === anx && s.y2 === any));
+                  if (!touching.length) return null;
+                  const curType = touching[0].x1 === anx && touching[0].y1 === any ? touching[0].nodeType1 : touching[0].nodeType2;
+                  return (
+                    <div style={{ marginTop: 8, padding: "8px", background: lbd2, borderRadius: 6 }}>
+                      <div style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", marginBottom: 4 }}>Node at ({anx}, {any})</div>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {["passage", "lobby"].map(nt => (
+                          <button key={nt} onClick={() => {
+                            setCorrSegs(corrSegs.map(s => {
+                              const ns = { ...s };
+                              if (s.x1 === anx && s.y1 === any) ns.nodeType1 = nt;
+                              if (s.x2 === anx && s.y2 === any) ns.nodeType2 = nt;
+                              return ns;
+                            }));
+                          }} style={{ fontFamily: f2, fontSize: 7, textTransform: "uppercase", padding: "3px 8px", borderRadius: 4, border: "1px solid " + (curType === nt ? corrColor : lbd), background: curType === nt ? corrColor + "20" : "transparent", color: curType === nt ? corrColor : lt3, cursor: "pointer" }}>{nt}</button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+                <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
+                  <button onClick={regenWithCorridor} style={{ flex: 1, fontFamily: f2, fontSize: 7, textTransform: "uppercase", padding: "6px 8px", borderRadius: 6, border: "1px solid " + ac, background: ac + "18", color: ac, cursor: "pointer" }}>Apply {"\u2192"} Regen Rooms</button>
+                </div>
+                <div style={{ fontFamily: f2, fontSize: 6.5, color: lt3, marginTop: 8, fontStyle: "italic" }}>Drag nodes to move {"\u00B7"} Drag from node to extend {"\u00B7"} Click node to select</div>
+              </div>
+            ) : activeRoom && !activeRoom.fixed ? (
+              <div>
+                <div style={{ fontFamily: f1, fontSize: 18, fontWeight: 300, color: lt1, marginBottom: 2 }}>{activeRoom.name}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: activeRoom.color }} />
+                  <span style={{ fontFamily: f2, fontSize: 7, color: lt2, textTransform: "uppercase" }}>{activeRoom.dept}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "3px 10px", marginBottom: 8 }}>
+                  <span style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase" }}>Size</span>
+                  <span style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: lt1 }}>{dimFt(activeRoom.w)}{"'"} {"\u00D7"} {dimFt(activeRoom.h)}{"'"} <span style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>({dimM(activeRoom.w)} {"\u00D7"} {dimM(activeRoom.h)} m)</span></span>
+                  <span style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase" }}>Area</span>
+                  <span style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: lt1 }}>{areaSF(activeRoom.area)} SF <span style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>({areaSM(activeRoom.area)} m{"\u00B2"})</span></span>
+                  <span style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase" }}>Zone</span>
+                  <span style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: lt1 }}>{activeRoom.zone}</span>
+                  <span style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase" }}>Daylight</span>
+                  <span style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: activeRoom.daylight ? "#4D8F4D" : lt3 }}>{activeRoom.daylight ? "Required" : "No"}</span>
+                </div>
+                {activeAdj.length > 0 && (
+                  <div>
+                    <div style={{ fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", marginBottom: 3 }}>Adjacencies</div>
+                    {activeAdj.map(an => {
+                      const met = activeAdjMet.includes(an);
+                      return <div key={an} style={{ fontFamily: f2, fontSize: 7, color: met ? "#4D8F4D" : "#C45C3E", padding: "1px 0", display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ fontSize: 8 }}>{met ? "\u2713" : "\u2717"}</span> {an}
+                      </div>;
+                    })}
+                  </div>
+                )}
+                <div style={{ fontFamily: f2, fontSize: 6.5, color: lt3, marginTop: 8, fontStyle: "italic" }}>Drag to move {"\u00B7"} Corners to reshape</div>
+              </div>
+            ) : activeRoom && activeRoom.fixed ? (
+              <div>
+                <div style={{ fontFamily: f1, fontSize: 16, fontWeight: 300, color: lt3 }}>{activeRoom.name}</div>
+                <div style={{ fontFamily: f2, fontSize: 7, color: lt3, fontStyle: "italic", marginTop: 4 }}>Fixed element</div>
+              </div>
+            ) : (
+              <div style={{ fontFamily: f1, fontSize: 13, fontWeight: 300, color: lt3 }}>{editMode === "corridor" ? "Edit corridor nodes" : "Click a room to inspect"}</div>
+            )}
+          </div>
+
+          {/* Room List — collapsible departments, scrollable */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "10px 12px" }}>
+            <div style={{ fontFamily: f2, fontSize: 7, color: ac, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 10 }}>Program</div>
+            {depts.map((d, di) => {
+              const dRooms = rooms.filter(r => r.dept === d.n && !r.fixed);
+              if (!dRooms.length) return null;
+              const isOpen = !collapsed[d.n];
+              const dArea = dRooms.reduce((s, r) => s + r.area, 0);
+              return (
+                <div key={di} style={{ marginBottom: 6 }}>
+                  <button onClick={() => toggleDept(d.n)} style={{ display: "flex", alignItems: "center", gap: 6, width: "100%", background: "none", border: "none", padding: "4px 0", cursor: "pointer" }}>
+                    <span style={{ fontSize: 7, color: lt3, display: "inline-block", transform: isOpen ? "rotate(90deg)" : "rotate(0)", transition: "transform 0.2s", width: 8, textAlign: "center" }}>{"\u25B6"}</span>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: d.c, flexShrink: 0 }} />
+                    <span style={{ fontFamily: f2, fontSize: 7, color: lt2, textTransform: "uppercase", letterSpacing: "0.06em" }}>{d.n}</span>
+                    <span style={{ fontFamily: f2, fontSize: 6, color: lt3, marginLeft: "auto" }}>{dRooms.length} rm {"\u00B7"} {areaSF(dArea)} SF</span>
+                  </button>
+                  {isOpen && dRooms.map((r, j) => {
+                    const idx = rooms.indexOf(r);
+                    const isA = active === idx;
+                    return (
+                      <div key={j} onMouseEnter={() => setHov(r.name)} onMouseLeave={() => setHov(null)}
+                        onClick={e => { e.stopPropagation(); setActive(idx); }}
+                        style={{ fontFamily: f1, fontSize: 12, fontWeight: 300, color: isA ? lt1 : hov === r.name ? lt1 : lt2, padding: "2px 0 2px 22px", cursor: "pointer", transition: "all 0.15s", borderLeft: isA ? "2px solid " + d.c : hov === r.name ? "2px solid " + d.c + "55" : "2px solid transparent", marginLeft: 6, background: isA ? d.c + "10" : "transparent", display: "flex", justifyContent: "space-between" }}>
+                        <span>{r.name}</span>
+                        <span style={{ fontFamily: f2, fontSize: 6, color: lt3 }}>{dimFt(r.w) + "'" + "\u00D7" + dimFt(r.h) + "'"}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Canvas — zoomable and pannable */}
+        <div ref={canvasRef}
+          style={{ flex: 1, overflow: "hidden", position: "relative", cursor: gestureRef.current ? "grabbing" : "default", touchAction: "none" }}
+          onWheel={handleWheel}
+          onPointerDown={handleCanvasPointerDown}
+          onPointerMove={handleCanvasPointerMove}
+          onPointerUp={handleCanvasPointerUp}
+          onClick={handleCorrCanvasClick}>
+          {/* Grid background (fixed) */}
+          <div className="canvas-bg" style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(" + lbd2 + " 1px, transparent 1px), linear-gradient(90deg, " + lbd2 + " 1px, transparent 1px)", backgroundSize: (G * zoom) + "px " + (G * zoom) + "px", backgroundPosition: pan.x + "px " + pan.y + "px", pointerEvents: "none" }} />
+
+          {/* Zoom hint */}
+          <div style={{ position: "absolute", bottom: 10, right: 14, fontFamily: f2, fontSize: 6.5, color: lt3, textTransform: "uppercase", letterSpacing: "0.06em", pointerEvents: "none", zIndex: 5, background: lsf + "cc", padding: "3px 8px", borderRadius: 4 }}>
+            Scroll to zoom {"\u00B7"} Drag to pan {"\u00B7"} Pinch on mobile
+          </div>
+
+          <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: "0 0", padding: 24 }}>
+            <svg width={gridW * G} height={gridH * G} style={{ display: "block", touchAction: "none", overflow: "visible" }}>
+
+              {/* Parcel boundary overlay */}
+              {parcelData && (() => {
+                const pts = parcelData.parcelFt.map(([fx, fy]) => (fx / cFt * G) + "," + (fy / cFt * G));
+                return <polygon points={pts.join(" ")} fill="none" stroke="#c9a959" strokeWidth={2} strokeDasharray="8,6" opacity={0.7} style={{ pointerEvents: "none" }} />;
+              })()}
+
+              {/* Adjacency lines */}
+              {showAdj && planMeta && planMeta.adjE.map(e => {
+                const ra = rooms.find(r => r.name === e.a);
+                const rb = rooms.find(r => r.name === e.b);
+                if (!ra || !rb) return null;
+                const ax = (ra.x + ra.w / 2) * G, ay = (ra.y + ra.h / 2) * G;
+                const bx = (rb.x + rb.w / 2) * G, by = (rb.y + rb.h / 2) * G;
+                return <line key={e.key} x1={ax} y1={ay} x2={bx} y2={by}
+                  stroke={e.met ? "#4D8F4D" : "#C45C3E"} strokeWidth={e.met ? 1.5 : 1}
+                  strokeDasharray={e.met ? "none" : "4,4"} opacity={0.35} />;
+              })}
+
+              {/* Room boxes */}
+              {rooms.map((r, i) => {
+                const vis = i < reveal;
+                const isH = hov === r.name;
+                const isA = active === i;
+                const act = isH || isA;
+                const isCorridor = r.zone === "corridor";
+                const isCore = r.zone === "core";
+
+                // Corridor cells: flat fill, no stroke, no labels, no animation stagger
+                if (isCorridor) {
+                  return (
+                    <rect key={i} x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G}
+                      fill={corrColor} fillOpacity={0.18} stroke="none"
+                      style={{ pointerEvents: "none", opacity: vis ? 1 : 0, transition: "opacity 0.3s ease" }} />
+                  );
+                }
+
+                const opacity = isCore ? 0.5 : act ? 0.55 : 0.38;
+                // Non-corridor animation: cap stagger index to room count (skip corridor cells)
+                const roomIdx = rooms.slice(0, i).filter(r2 => r2.zone !== "corridor").length;
+
+                return (
+                  <g key={i} style={{
+                    opacity: vis ? 1 : 0,
+                    transform: vis ? "scale(1)" : "scale(0.85)",
+                    transformOrigin: ((r.x + r.w / 2) * G) + "px " + ((r.y + r.h / 2) * G) + "px",
+                    transition: "opacity 0.3s ease " + (roomIdx * 20) + "ms, transform 0.4s cubic-bezier(.34,1.4,.64,1) " + (roomIdx * 20) + "ms",
+                  }}
+                    onMouseEnter={() => setHov(r.name)}
+                    onMouseLeave={() => setHov(null)}>
+
+                    <rect x={r.x * G} y={r.y * G} width={r.w * G} height={r.h * G} rx={5}
+                      fill={r.color} fillOpacity={opacity}
+                      stroke={r.color + (isA ? "cc" : act ? "99" : "55")}
+                      strokeWidth={isA ? 2 : act ? 1.5 : 1}
+                      style={{ cursor: r.fixed ? "default" : "grab", touchAction: "none", transition: "fill-opacity 0.15s" }}
+                      onPointerDown={e => { if (!r.fixed) onBodyDown(i, e); else { e.stopPropagation(); setActive(i); } }} />
+
+                    {/* Label */}
+                    {r.w * G > 40 && r.h * G > 24 && (
+                      <text x={r.x * G + 7} y={r.y * G + 14} fill={act ? "#fff" : r.color + "dd"}
+                        style={{ fontFamily: f2, fontSize: 7, textTransform: "uppercase", letterSpacing: "0.04em", pointerEvents: "none", userSelect: "none" }}>
+                        {r.name.length > Math.floor(r.w * G / 7) ? r.name.slice(0, Math.floor(r.w * G / 7) - 1) + "\u2026" : r.name}
+                      </text>
+                    )}
+                    {r.w * G > 40 && r.h * G > 36 && (
+                      <text x={r.x * G + 7} y={r.y * G + 24} fill="#ffffffaa"
+                        style={{ fontFamily: f2, fontSize: 6, pointerEvents: "none", userSelect: "none" }}>
+                        {dimFt(r.w) + "'\u00D7" + dimFt(r.h) + "'" + " \u00B7 " + areaSF(r.area) + " SF"}
+                      </text>
+                    )}
+
+                    {/* Corner handles when active */}
+                    {isA && !r.fixed && [
+                      { hx: r.x, hy: r.y, co: "tl" },
+                      { hx: r.x + r.w, hy: r.y, co: "tr" },
+                      { hx: r.x, hy: r.y + r.h, co: "bl" },
+                      { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
+                    ].map(h => (
+                      <circle key={h.co} cx={h.hx * G} cy={h.hy * G} r={12} fill="transparent"
+                        style={{ cursor: h.co === "tl" || h.co === "br" ? "nwse-resize" : "nesw-resize", touchAction: "none" }}
+                        onPointerDown={e => onHandleDown(i, h.co, e)} />
+                    ))}
+                    {isA && !r.fixed && [
+                      { hx: r.x, hy: r.y, co: "tl" },
+                      { hx: r.x + r.w, hy: r.y, co: "tr" },
+                      { hx: r.x, hy: r.y + r.h, co: "bl" },
+                      { hx: r.x + r.w, hy: r.y + r.h, co: "br" },
+                    ].map(h => (
+                      <g key={h.co + "v"} style={{ pointerEvents: "none" }}>
+                        <circle cx={h.hx * G} cy={h.hy * G} r={6} fill={lsf} stroke={r.color} strokeWidth={1.5} style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.12))" }} />
+                        <circle cx={h.hx * G} cy={h.hy * G} r={2.5} fill={r.color} />
+                      </g>
+                    ))}
+                  </g>
+                );
+              })}
+
+              {/* Corridor nodes & segments — visible in corridor edit mode */}
+              {editMode === "corridor" && corrSegs.map(seg => {
+                const x1p = seg.x1 * G, y1p = seg.y1 * G, x2p = seg.x2 * G, y2p = seg.y2 * G;
+                return (
+                  <line key={"cs" + seg.id} x1={x1p} y1={y1p} x2={x2p} y2={y2p}
+                    stroke={corrColor} strokeWidth={Math.max(2, seg.width * 3)} strokeLinecap="round" opacity={0.5} style={{ pointerEvents: "none" }} />
+                );
+              })}
+              {editMode === "corridor" && (() => {
+                const nodes = getCorridorNodes(corrSegs);
+                return nodes.map((nd, ni) => {
+                  const nk = nd.x + "," + nd.y;
+                  const isAct = activeNode === nk;
+                  const isLobby = nd.type === "lobby";
+                  return (
+                    <g key={"cn" + ni}>
+                      {/* Hit area */}
+                      <circle cx={nd.x * G} cy={nd.y * G} r={16} fill="transparent"
+                        style={{ cursor: "grab", touchAction: "none" }}
+                        onPointerDown={e => {
+                          e.preventDefault(); e.stopPropagation();
+                          e.target.setPointerCapture(e.pointerId);
+                          setActiveNode(nk);
+                          corrNodeMode.current = { type: "pending", nk, sx: e.clientX, sy: e.clientY, ox: nd.x, oy: nd.y, lastX: nd.x, lastY: nd.y, segIds: nd.segIds };
+                        }} />
+                      {/* Visual */}
+                      <circle cx={nd.x * G} cy={nd.y * G} r={isLobby ? 10 : 7}
+                        fill={isAct ? corrColor : lsf} stroke={corrColor} strokeWidth={isAct ? 2.5 : 1.5}
+                        style={{ pointerEvents: "none", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.15))" }} />
+                      {isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={4} fill={corrColor} style={{ pointerEvents: "none" }} />}
+                      {!isLobby && <circle cx={nd.x * G} cy={nd.y * G} r={3} fill={corrColor} style={{ pointerEvents: "none" }} />}
+                    </g>
+                  );
+                });
+              })()}
+              {/* Adding segment preview line */}
+              {addingSeg && (
+                <line x1={addingSeg.fromX * G} y1={addingSeg.fromY * G}
+                  x2={addingSeg.toX * G} y2={addingSeg.toY * G}
+                  stroke={corrColor} strokeWidth={3} strokeDasharray="6,4" opacity={0.6} style={{ pointerEvents: "none" }} />
+              )}
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// =============================================
+// MOUNT
+// =============================================
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
