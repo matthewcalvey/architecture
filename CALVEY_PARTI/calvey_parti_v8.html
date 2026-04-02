@@ -921,6 +921,7 @@ function App() {
   const [ddPos, setDdPos] = useState({ top: 0, left: 0, width: 0 });
   const modeRef = useRef(null); // drag/resize room
   const canvasRef = useRef(null);
+  const touchCountRef = useRef(0); // track active touches to distinguish drag from pinch
   // Pan/zoom refs (use refs to avoid re-render during gesture)
   const gestureRef = useRef(null); // null | { type:'pan', sx, sy, px, py } | { type:'pinch', d0, z0 }
   const zoomRef = useRef(1);
@@ -1103,6 +1104,7 @@ function App() {
   // ─── DRAG / RESIZE HANDLERS ───
   const onBodyDown = (idx, e) => {
     if (rooms[idx].fixed) return;
+    if (touchCountRef.current >= 2) return; // pinch in progress, don't drag
     e.preventDefault(); e.stopPropagation();
     e.target.setPointerCapture(e.pointerId);
     setActive(idx);
@@ -1111,6 +1113,7 @@ function App() {
 
   const onHandleDown = (idx, corner, e) => {
     if (rooms[idx].fixed) return;
+    if (touchCountRef.current >= 2) return; // pinch in progress, don't resize
     e.preventDefault(); e.stopPropagation();
     e.target.setPointerCapture(e.pointerId);
     const r = rooms[idx];
@@ -1121,6 +1124,17 @@ function App() {
     const onMove = (e) => {
       const m = modeRef.current;
       if (!m) return;
+      // Cancel drag/resize if a second finger arrived (pinch-to-zoom)
+      if (touchCountRef.current >= 2) {
+        if (m.type === "pending" || m.type === "drag" || m.type === "resize") {
+          // Restore original position if drag was in progress
+          if (m.type === "drag") {
+            setRooms(p => { const c = [...p]; c[m.idx] = { ...c[m.idx], x: m.ox, y: m.oy }; return c; });
+          }
+          modeRef.current = null;
+        }
+        return;
+      }
       if (m.type === "pending") {
         if (Math.abs(e.clientX - m.sx) + Math.abs(e.clientY - m.sy) > 4) modeRef.current = { ...m, type: "drag" };
         else return;
@@ -1168,6 +1182,7 @@ function App() {
     const onCorrMove = (e) => {
       const m = corrNodeMode.current;
       if (!m) return;
+      if (touchCountRef.current >= 2) { corrNodeMode.current = null; return; } // cancel during pinch
       const z = zoomRef.current;
       const dx = (e.clientX - m.sx) / (G * z);
       const dy = (e.clientY - m.sy) / (G * z);
@@ -1247,6 +1262,7 @@ function App() {
 
   // ─── PAN: click+drag on empty canvas, or two-finger drag on touch ───
   const handleCanvasPointerDown = useCallback((e) => {
+    if (touchCountRef.current >= 2) return; // pinch in progress, don't start pan
     // Only start pan if clicking empty canvas (not a room)
     if (e.target === canvasRef.current || e.target.classList.contains("canvas-bg")) {
       setActive(null);
@@ -1259,6 +1275,7 @@ function App() {
   const handleCanvasPointerMove = useCallback((e) => {
     const g = gestureRef.current;
     if (!g || g.type !== "pan") return;
+    if (touchCountRef.current >= 2) { gestureRef.current = null; return; } // cancel pan during pinch
     setPan({
       x: g.px + (e.clientX - g.sx),
       y: g.py + (e.clientY - g.sy),
@@ -1290,8 +1307,17 @@ function App() {
     });
 
     const onTouchStart = (e) => {
+      touchCountRef.current = e.touches.length;
       if (e.touches.length === 2) {
         e.preventDefault();
+        // Cancel any in-progress block drag/resize or canvas pan
+        if (modeRef.current) {
+          if (modeRef.current.type === "drag") {
+            setRooms(p => { const c = [...p]; const m = modeRef.current; c[m.idx] = { ...c[m.idx], x: m.ox, y: m.oy }; return c; });
+          }
+          modeRef.current = null;
+        }
+        gestureRef.current = null;
         lastTouchDist = getTouchDist(e.touches);
         lastTouchCenter = getTouchCenter(e.touches);
         lastZoom = zoomRef.current;
@@ -1300,6 +1326,7 @@ function App() {
     };
 
     const onTouchMove = (e) => {
+      touchCountRef.current = e.touches.length;
       if (e.touches.length === 2 && lastTouchDist !== null) {
         e.preventDefault();
         const dist = getTouchDist(e.touches);
@@ -1322,7 +1349,8 @@ function App() {
       }
     };
 
-    const onTouchEnd = () => {
+    const onTouchEnd = (e) => {
+      touchCountRef.current = e.touches.length;
       lastTouchDist = null;
       lastTouchCenter = null;
       lastZoom = null;
