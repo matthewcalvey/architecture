@@ -829,47 +829,65 @@ function computeScatteredLayout(programKey, targetSF) {
   const depts = pr.deptOrder;
   const n = depts.length;
 
-  // Estimate grid size based on target SF
-  const tc = Math.round((targetSF * pr.grossing) / 350);
-  const baseCo = Math.max(10, Math.round(Math.sqrt(tc * 1.5)));
-  const baseRo = Math.max(8, Math.round(tc / baseCo));
-  // Spread groups across a larger area
-  const cx = baseCo * 0.9, cy = baseRo * 0.9;
-  const groupR = Math.min(baseCo, baseRo) * 0.6;
-
-  const angleStep = (2 * Math.PI) / n;
-  const allRooms = [];
-
-  depts.forEach((dept, di) => {
-    const angle = di * angleStep - Math.PI / 2;
-    const gcx = cx + Math.cos(angle) * groupR;
-    const gcy = cy + Math.sin(angle) * groupR;
+  // Pre-compute each department cluster's local layout and bounding box
+  const clusters = depts.map((dept) => {
     const deptRooms = pr.rooms.filter(r => r.dept === dept.n);
-
-    // Layout rooms in a loose cluster
-    let ox = 0, oy = 0, rowH = 0;
     const maxW = Math.ceil(Math.sqrt(deptRooms.length)) * 5 + 4;
-
+    let ox = 0, oy = 0, rowH = 0;
+    const localRooms = [];
     deptRooms.forEach((room) => {
       const w = Math.max(room.minW || 2, Math.ceil(Math.sqrt(room.area)));
       const h = Math.max(room.minH || 2, Math.ceil(room.area / w));
       if (ox + w > maxW) { ox = 0; oy += rowH + 1; rowH = 0; }
-      allRooms.push({
-        name: room.name, dept: dept.n, color: dept.c,
-        zone: room.zone, daylight: room.daylight || false,
-        area: w * h, w, h,
-        x: Math.round(gcx + ox - maxW / 2),
-        y: Math.round(gcy + oy - 2),
-        fixed: false,
-      });
+      localRooms.push({ room, w, h, lx: ox, ly: oy });
       ox += w + 1;
       rowH = Math.max(rowH, h);
     });
+    // Bounding box of local layout
+    let bw = 0, bh = 0;
+    localRooms.forEach(r => { bw = Math.max(bw, r.lx + r.w); bh = Math.max(bh, r.ly + r.h); });
+    return { dept, localRooms, bw, bh };
   });
 
-  // Compute bounds
-  let maxX = 0, maxY = 0;
-  allRooms.forEach(r => { maxX = Math.max(maxX, r.x + r.w); maxY = Math.max(maxY, r.y + r.h); });
+  // Compute circle radius large enough so clusters don't overlap
+  const maxDim = Math.max(...clusters.map(c => Math.max(c.bw, c.bh)));
+  const angleStep = (2 * Math.PI) / n;
+  // Minimum radius so adjacent clusters (separated by angleStep) don't touch
+  // Distance between adjacent centers on circle = 2*R*sin(angleStep/2) >= maxDim + gap
+  const gap = 2;
+  const groupR = n <= 1 ? 0 : Math.max(maxDim * 0.8, (maxDim + gap) / (2 * Math.sin(angleStep / 2)));
+
+  // Center point
+  const cx = groupR + maxDim / 2 + 2;
+  const cy = groupR + maxDim / 2 + 2;
+
+  const allRooms = [];
+  clusters.forEach((cl, di) => {
+    const angle = di * angleStep - Math.PI / 2;
+    const gcx = cx + Math.cos(angle) * groupR;
+    const gcy = cy + Math.sin(angle) * groupR;
+
+    cl.localRooms.forEach(({ room, w, h, lx, ly }) => {
+      allRooms.push({
+        name: room.name, dept: cl.dept.n, color: cl.dept.c,
+        zone: room.zone, daylight: room.daylight || false,
+        area: w * h, w, h,
+        x: Math.round(gcx + lx - cl.bw / 2),
+        y: Math.round(gcy + ly - cl.bh / 2),
+        fixed: false,
+      });
+    });
+  });
+
+  // Compute bounds, shift so nothing is negative
+  let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+  allRooms.forEach(r => { minX = Math.min(minX, r.x); minY = Math.min(minY, r.y); maxX = Math.max(maxX, r.x + r.w); maxY = Math.max(maxY, r.y + r.h); });
+  if (minX < 0 || minY < 0) {
+    const dx = minX < 0 ? -minX + 1 : 0;
+    const dy = minY < 0 ? -minY + 1 : 0;
+    allRooms.forEach(r => { r.x += dx; r.y += dy; });
+    maxX += dx; maxY += dy;
+  }
   return { rooms: allRooms, co: maxX + 4, ro: maxY + 4 };
 }
 
