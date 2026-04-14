@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent: #c9a959;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0c0c0c" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="CALVEY FORM" />
+<title>CALVEY FORMING — Render</title>
+<link rel="manifest" href="/CALVEY_FORM/manifest.json">
+<link rel="apple-touch-icon" href="/CALVEY_FORM/icons/icon-180.svg">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./vendor/three.min.js"></script>
+<script>if(typeof THREE==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<style>
+:root{
+  --bg:#0c0c0c;--surface:#131313;--border:#222;
+  --text:#ddd8d0;--text-dim:#8a857e;--text-muted:#504c46;
+  --accent:#c9a959;--cold:#6a9cc4;--hot:#c45c3e;
+  --balanced:#8a7abf;--glass:#6bb8d4
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+h1,.hero-title{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text)}
+h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4vw,42px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:24px;line-height:1.3}
+h3{font-family:'Space Mono',monospace;font-size:12px;font-weight:400;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-top:36px;margin-bottom:12px}
+p{font-size:18px;font-weight:300;color:var(--text-dim);margin-bottom:20px;line-height:1.85}
+p strong{color:var(--text);font-weight:600}
+
+.hero{min-height:50vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 24px;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(201,169,89,0.04) 0%,transparent 70%)}
+.hero-topline{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:18px}
+.hero-line{width:40px;height:1px;background:var(--accent);margin:0 auto 18px;position:relative}
+.hero-title{font-size:clamp(48px,9vw,100px);line-height:1.1;margin-bottom:12px;position:relative}
+.hero-sub2{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;position:relative}
+.hero-sub{font-size:clamp(15px,2vw,20px);font-weight:300;font-style:italic;color:var(--text-dim);max-width:560px;line-height:1.7;position:relative}
+
+.content{max-width:960px;margin:0 auto;padding:0 24px calc(80px + env(safe-area-inset-bottom, 0px))}
+.section{padding:48px 0;border-top:1px solid var(--border)}
+.section:first-child{border-top:none}
+.section-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px}
+
+.render-layout{display:flex;flex-direction:column;gap:16px}
+.controls-row{display:flex;gap:12px;flex-wrap:wrap}
+.controls-row .slb{flex:1;min-width:200px}
+
+.slb{background:var(--surface);border:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.slb label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;min-width:70px}
+.slb input[type=range]{flex:1;accent-color:var(--accent)}
+.slb .val{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--text);min-width:40px;text-align:right}
+.slb select{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:4px 8px;font-family:'Space Mono',monospace;font-size:10px;flex:1}
+.slb input[type=url]{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:8px 10px;font-family:'Space Mono',monospace;font-size:11px;flex:1;width:100%}
+.slb textarea{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:8px 10px;font-family:'Space Mono',monospace;font-size:12px;flex:1;resize:vertical;min-height:120px;line-height:1.6}
+.prompt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.prompt-head label{min-width:0}
+.prompt-helper{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.06em}
+.result-title{margin-top:10px}
+
+.viewport{position:relative;background:#060606;border:1px solid var(--border);overflow:hidden;aspect-ratio:16/9}
+.viewport canvas{display:block;width:100%!important;height:100%!important}
+.viewport img{display:block;width:100%;height:100%;object-fit:contain}
+
+.btn{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-primary:hover{background:#d4b86a}
+.btn:disabled{opacity:0.3;cursor:not-allowed}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:24px}
+.gallery-item{background:var(--surface);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color 0.2s}
+.gallery-item:hover{border-color:var(--accent)}
+.gallery-item img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.gallery-item .caption{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);padding:8px 10px;letter-spacing:0.08em}
+
+.status{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;padding:10px 0}
+.status.active{color:var(--accent)}
+.status.error{color:var(--hot)}
+.inline-error{display:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--hot);margin-top:6px}
+
+.install-note{background:rgba(201,169,89,0.08);border:1px solid rgba(201,169,89,0.25);padding:10px 12px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;color:var(--text-dim);line-height:1.7}
+
+.summary{background:var(--surface);border:1px solid var(--border);padding:20px;margin-top:24px}
+.summary pre{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);white-space:pre-wrap;line-height:1.8}
+
+.footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
+.footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
+
+@media(max-width:768px){
+  .controls-row{flex-direction:column}
+  .controls-row .slb{min-width:0}
+  .slb{flex-wrap:wrap;padding:10px 14px;gap:8px}
+  .slb label{min-width:auto;width:100%;margin-bottom:0}
+  .slb select,.slb textarea{width:100%;min-width:0}
+  .slb input[type=range]{flex:1 1 100%;min-width:0;height:36px}
+  .slb .val{min-width:auto;text-align:left;font-size:16px}
+  .viewport{min-height:50vw;aspect-ratio:16/10}
+  .gallery{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .content{padding:0 16px calc(60px + env(safe-area-inset-bottom, 0px))}
+  .hero{padding:calc(40px + env(safe-area-inset-top, 0px)) 16px 40px;min-height:40vh}
+  .hero-title{font-size:clamp(40px,12vw,72px)}
+  .render-layout{gap:12px}
+  .install-note{padding:12px}
+  .prompt-head{flex-wrap:wrap}
+  .btn{width:100%;text-align:center}
+  .viewport{min-height:220px;aspect-ratio:auto}
+  .gallery{grid-template-columns:1fr}
+  .summary pre{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <nav style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px;position:relative">
+    <a href="00_DATA.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">00 Data</a>
+    <a href="01_SITE.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">01 Site</a>
+    <a href="02_PROGRAM.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">02 Program</a>
+    <a href="03_SUN.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">03 Sun</a>
+    <a href="04_WIND.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">04 Wind</a>
+    <a href="05_RENDER.html" style="color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid var(--accent)">05 Render</a>
+  </nav>
+  <div class="hero-topline">SUN / EARTH / PEOPLE</div>
+  <div class="hero-line"></div>
+  <h1 class="hero-title">CALVEY<br>FORMING</h1>
+  <div class="hero-sub2">05 — RENDER</div>
+  <div class="hero-sub">AI visualization — the climate-shaped form rendered as architecture. Capture the 3D model and generate photorealistic imagery.</div>
+</div>
+
+<div class="content">
+
+<div class="section" id="no-data-section" style="display:none">
+  <div class="section-num">Missing Data</div>
+  <h2>Complete Previous Steps First</h2>
+  <p>The render page needs building data from the pipeline. Complete steps 00–04 first.</p>
+  <a href="00_DATA.html" class="btn">Start at 00 Data</a>
+</div>
+
+<div class="section" id="render-section" style="display:none">
+  <div class="section-num">05 — AI Visualization</div>
+  <h2>Generate Rendering</h2>
+  <p>The climate-shaped, wind-profiled form is captured as a 3D wireframe and sent to an AI image generator. The wireframe acts as a compositional guide — the AI fills in materiality, context, light, and atmosphere.</p>
+
+  <div class="render-layout">
+    <div class="controls-row">
+      <div class="slb" style="flex-direction:column;align-items:stretch;gap:8px">
+        <label>Style Preset</label>
+        <select id="stylePreset" onchange="updatePrompt()">
+          <option value="photorealistic">Photorealistic Architecture</option>
+          <option value="magazine">Magazine Editorial</option>
+          <option value="sketch">Architectural Sketch</option>
+          <option value="watercolor">Watercolor Study</option>
+          <option value="night">Night Rendering</option>
+          <option value="aerial">Aerial View</option>
+          <option value="massing">White Massing Model</option>
+          <option value="custom">Custom Prompt</option>
+        </select>
+      </div>
+
+      <div class="slb" style="flex-direction:column;align-items:stretch;gap:8px">
+        <label>Camera Angle</label>
+        <select id="cameraAngle" onchange="setCameraPreset()">
+          <option value="perspective">3/4 Perspective</option>
+          <option value="eye">Eye Level</option>
+          <option value="worm">Worm's Eye</option>
+          <option value="bird">Bird's Eye</option>
+          <option value="elevation">South Elevation</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="slb" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div class="prompt-head">
+        <label for="promptInput">Rendering Prompt</label>
+        <button class="btn" id="regenPromptBtn" type="button">Regenerate Prompt</button>
+      </div>
+      <textarea id="promptInput" rows="6">Watercolor architectural rendering of a building, located at the project site, temperate climate, with south-conscious solar orientation, 4-story mixed-use building, property oriented along east-west axis, soft washes of color, showing surrounding landscape and street context, architectural illustration, loose expressive brushwork, urban sketch style.</textarea>
+      <div class="prompt-helper">Prompt is auto-generated from project data and remains fully editable before rendering.</div>
+    </div>
+
+    <div class="slb" style="flex-direction:column;align-items:stretch;gap:8px">
+      <label for="renderApiUrl">Render API Endpoint</label>
+      <input id="renderApiUrl" type="url" placeholder="/api/render" autocomplete="off" spellcheck="false" />
+      <div id="apiEndpointError" class="inline-error"></div>
+    </div>
+
+    <div class="install-note">For the cleanest full-screen experience on iPhone, add this page to your Home Screen and launch it as a web app.</div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="captureBtn" type="button">
+        Capture &amp; Render
+      </button>
+      <button class="btn" id="downloadRenderBtn" type="button" disabled>Download Render</button>
+    </div>
+
+    <div class="viewport" id="renderViewport" style="min-height:400px">
+      <canvas id="renderCanvas"></canvas>
+    </div>
+
+    <div id="statusLine" class="status"></div>
+
+    <h3 class="result-title">Rendered Output</h3>
+    <div class="viewport" id="aiResult" style="display:none;min-height:400px;background:var(--surface)">
+      <img id="aiImage" alt="AI Rendering" />
+    </div>
+
+    <div class="summary" id="buildSummary" style="display:none">
+      <pre id="summaryText"></pre>
+    </div>
+  </div>
+
+  <h3>Render Gallery</h3>
+  <div class="gallery" id="renderGallery">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);padding:20px">
+      Renders will appear here after generation.
+    </div>
+  </div>
+</div>
+
+<div class="section" id="pipeline-section" style="display:none">
+  <div class="section-num">Pipeline Summary</div>
+  <h2>Full Design Cascade</h2>
+  <p>The complete Calvey Forming pipeline derives building form from location and environment alone. Every decision flows from the one before it — no arbitrary choices, no style preferences, just the inevitable form of a building shaped by its environment.</p>
+
+  <div id="pipelineSummary" class="summary">
+    <pre id="pipelineText"></pre>
+  </div>
+
+  <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn" onclick="downloadSummary()">Download Summary</button>
+    <a href="00_DATA.html" class="btn">Restart Pipeline</a>
+  </div>
+</div>
+
+<div class="section" id="export-section" style="display:none">
+  <div class="section-num">Export</div>
+  <h2>Download Model</h2>
+  <p>Export the climate-shaped building form for use in Rhino, Grasshopper, and Revit. The model includes the wind-profiled, sun-leaned geometry with floor plates and program block data.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:20px">
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Rhino / General</div>
+      <p style="font-size:14px;margin-bottom:12px">OBJ mesh file — import directly into Rhino, SketchUp, Blender, or any 3D software.</p>
+      <button class="btn" onclick="exportOBJ()">Save .OBJ</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Grasshopper</div>
+      <p style="font-size:14px;margin-bottom:12px">C# script component — rebuilds the parametric model in Grasshopper with sliders for lean and wind.</p>
+      <button class="btn" onclick="exportGH()">Save GH Script</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Revit / BIM</div>
+      <p style="font-size:14px;margin-bottom:12px">IFC file (Industry Foundation Classes) — import into Revit, ArchiCAD, or any BIM platform.</p>
+      <button class="btn" onclick="exportIFC()">Save .IFC</button>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="ai-services-section">
+  <div class="section-num">AI Render Services</div>
+  <h2>Available Rendering APIs</h2>
+  <p>These AI services can transform the 3D massing model into photorealistic architectural renders. Services marked <strong>structure-preserving</strong> use the canvas screenshot as a structural guide, keeping the building geometry while adding materials and context.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:20px">
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Stability AI <span style="color:var(--hot)">· Recommended</span></div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>Structure-preserving.</strong> The <code>control/structure</code> endpoint sends your canvas screenshot as a structural guide. The AI preserves the building massing while adding photorealistic materials. <code>control_strength</code> parameter (0.01–1.0) controls geometry fidelity.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">$0.03–$0.08/image · API key from <a href="https://platform.stability.ai" target="_blank" style="color:var(--accent)">platform.stability.ai</a></p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Replicate FLUX</div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>Depth-aware.</strong> The <code>flux-depth-pro</code> model accepts a depth map from the THREE.js scene, preserving exact 3D geometry. Also supports <code>flux-canny-pro</code> for edge/wireframe input.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">~$0.05/image · API key from <a href="https://replicate.com" target="_blank" style="color:var(--accent)">replicate.com</a></p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">fal.ai FLUX</div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>ControlNet + LoRA.</strong> FLUX with multiple ControlNet modes (depth, canny, structure) in a single unified endpoint. Good JavaScript SDK.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">~$0.03–$0.075/image · API key from <a href="https://fal.ai" target="_blank" style="color:var(--accent)">fal.ai</a></p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">mnml.ai</div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>Architecture-specific.</strong> Purpose-built for architectural rendering with <code>/sketch-to-img</code> and <code>/exterior</code> endpoints. Trained on architectural imagery. 30% student discount.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">~$0.10–$0.29/image · API at <a href="https://mnmlai.dev" target="_blank" style="color:var(--accent)">mnmlai.dev</a></p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Pollinations <span style="color:var(--glass)">· Free</span></div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>Text-to-image only.</strong> Free, no API key needed. Uses FLUX/Turbo models. Does not use the 3D massing as input — generates from text prompt only. Good for quick concepts.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Free · No key · <a href="https://pollinations.ai" target="_blank" style="color:var(--accent)">pollinations.ai</a></p>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);padding:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">OpenAI GPT-Image</div>
+      <p style="font-size:14px;margin-bottom:8px"><strong>Image editing.</strong> Send screenshot + prompt for general-purpose image editing. Less structural control than ControlNet-based options, but understands architecture well.</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px">$0.02–$0.19/image · <a href="https://platform.openai.com" target="_blank" style="color:var(--accent)">platform.openai.com</a></p>
+    </div>
+
+  </div>
+
+  <div style="margin-top:20px;background:var(--surface);border:1px solid var(--border);padding:16px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px">Integration Note</div>
+    <p style="font-size:14px;margin-bottom:0">Paid API services require a server-side proxy to keep API keys secret (e.g. a Cloudflare Worker or Vercel Edge Function, free tier). Select your service above and paste your API key to use structure-preserving renders directly from this page. Pollinations works without any setup.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>CALVEY FORMING · Render · Part V</p>
+  <p style="margin-top:6px">© 2026 Matthew Calvey</p>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+============================================================ */
+const DEFAULT_RENDER_API_URL = "https://calvey-render-api.vercel.app/api/render";
+
+var windData = null;
+var outline = null;
+var siteData = null;
+var sunData = null;
+var siteGeo = null;
+var programData = null;
+var scene, renderer, camera;
+var model;
+var orbitState = {yaw:Math.PI*0.25, pitch:0.4, distance:500, panX:0, panZ:0, pointers:new Map(), prevSingle:null};
+var gallery = [];
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  try{ windData = JSON.parse(localStorage.getItem('calvey_wind_data')); }catch(e){}
+  try{ outline = JSON.parse(localStorage.getItem('calvey_leaned_outline')); }catch(e){}
+  try{ siteData = JSON.parse(localStorage.getItem('calvey_site_data')); }catch(e){}
+  try{ sunData = JSON.parse(localStorage.getItem('calvey_sun_data')); }catch(e){}
+  try{ siteGeo = JSON.parse(localStorage.getItem('calvey_site_geo')); }catch(e){}
+  try{ programData = JSON.parse(localStorage.getItem('calvey_program_data')); }catch(e){}
+
+  if(!outline || !outline.floorOutlines){
+    try{ outline = JSON.parse(localStorage.getItem('calvey_building_outline')); }catch(e){}
+  }
+
+  if(!outline && programData){
+    var nF = programData.nFloors || 1;
+    var fHt = programData.floorHeight || 12;
+    var pW2 = programData.buildingWidth || 100;
+    var pD2 = programData.buildingDepth || 80;
+    var floors2 = [];
+    for(var fIdx = 0; fIdx < nF; fIdx++){
+      floors2.push({
+        blocks: [{id:'fallback_'+fIdx, name:'Floor '+(fIdx+1), category:'Work',
+                   area_sf: pW2*pD2, widthFraction:1, x_ft:0, y_ft:0, w_ft:pW2, d_ft:pD2}],
+        usedArea: pW2*pD2
+      });
+    }
+    outline = {
+      nFloors: nF,
+      floorHeight: fHt,
+      totalHeight: programData.totalHeight || nF * fHt,
+      buildingWidth: pW2,
+      buildingDepth: pD2,
+      leanAngle: 0,
+      floorOutlines: floors2
+    };
+  }
+
+  if(!outline){
+    document.getElementById('no-data-section').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('render-section').style.display = 'block';
+  document.getElementById('pipeline-section').style.display = 'block';
+  document.getElementById('export-section').style.display = 'block';
+
+  var apiInput = document.getElementById('renderApiUrl');
+  if(apiInput && !apiInput.value){
+    apiInput.value = DEFAULT_RENDER_API_URL;
+  }
+
+  buildSummary();
+  initScene();
+  buildModel();
+  updatePrompt();
+}
+
+/* ============================================================
+   SUMMARY
+============================================================ */
+function buildSummary(){
+  var lines = [];
+  lines.push('CALVEY FORMING — Pipeline Summary');
+  lines.push('═'.repeat(40));
+
+  if(siteData){
+    lines.push('');
+    lines.push('00 SITE');
+    if(siteData.address) lines.push('  Address: ' + siteData.address);
+    if(siteData.lat) lines.push('  Lat: ' + siteData.lat.toFixed(4) + '°');
+    if(siteData.lng) lines.push('  Lng: ' + siteData.lng.toFixed(4) + '°');
+    if(siteData.elevation && siteData.elevation.ft) lines.push('  Elevation: ' + siteData.elevation.ft + ' ft');
+    else if(siteData.elevation_ft) lines.push('  Elevation: ' + siteData.elevation_ft + ' ft');
+  }
+
+  if(siteGeo){
+    lines.push('');
+    lines.push('01 PARCEL');
+    if(siteGeo._siteW) lines.push('  Parcel Width: ' + Math.round(siteGeo._siteW) + ' ft');
+    if(siteGeo._siteH) lines.push('  Parcel Depth: ' + Math.round(siteGeo._siteH) + ' ft');
+    if(siteGeo._siteAreaSf) lines.push('  Parcel Area: ~' + Math.round(siteGeo._siteAreaSf).toLocaleString() + ' sf');
+  }
+
+  if(outline){
+    lines.push('');
+    lines.push('02 PROGRAM');
+    lines.push('  Width: ' + (outline.buildingWidth||0).toFixed(1) + ' ft');
+    lines.push('  Depth: ' + (outline.buildingDepth||0).toFixed(1) + ' ft');
+    lines.push('  Floors: ' + (outline.nFloors||1));
+    lines.push('  Height: ' + (outline.totalHeight||0).toFixed(1) + ' ft');
+  }
+
+  if(sunData || outline){
+    lines.push('');
+    lines.push('03 SUN');
+    var lean = outline.leanAngle || 0;
+    lines.push('  Lean: ' + (lean > 0 ? 'Back ' : lean < 0 ? 'Forward ' : '') + Math.abs(lean) + '°');
+    if(sunData){
+      if(sunData.hdd !== undefined) lines.push('  HDD: ' + sunData.hdd);
+      if(sunData.cdd !== undefined) lines.push('  CDD: ' + sunData.cdd);
+      if(sunData.heatFrac !== undefined) lines.push('  Heat Fraction: ' + (sunData.heatFrac * 100).toFixed(0) + '%');
+    }
+  }
+
+  if(windData){
+    lines.push('');
+    lines.push('04 WIND');
+    lines.push('  Intensity: ' + windData.intensity + '%');
+    lines.push('  Height Effect: ' + windData.heightEffect + '%');
+    lines.push('  Width Effect: ' + windData.widthEffect + '%');
+    lines.push('  Twist: ' + windData.twist + '°');
+    lines.push('  Drag Reduction: −' + windData.dragReduction + '%');
+  }
+
+  lines.push('');
+  lines.push('═'.repeat(40));
+  lines.push('Model: HDD R²=0.887, CDD R²=0.629');
+  lines.push('65-city regression · Matthew Calvey 2026');
+
+  var text = lines.join('\n');
+  document.getElementById('pipelineText').textContent = text;
+
+  var el = document.getElementById('buildSummary');
+  el.style.display = 'block';
+  document.getElementById('summaryText').textContent = text;
+}
+
+/* ============================================================
+   THREE.JS SCENE
+============================================================ */
+function initScene(){
+  var host = document.getElementById('renderViewport');
+  if(!host || !window.THREE) return;
+
+  scene = new THREE.Scene();
+
+  var skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 2; skyCanvas.height = 512;
+  var skyCtx = skyCanvas.getContext('2d');
+  var grad = skyCtx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, '#1a2a40');
+  grad.addColorStop(0.3, '#2a3a55');
+  grad.addColorStop(0.6, '#4a5a70');
+  grad.addColorStop(0.85, '#8a7a6a');
+  grad.addColorStop(1.0, '#bfaa8a');
+  skyCtx.fillStyle = grad;
+  skyCtx.fillRect(0, 0, 2, 512);
+  var skyTex = new THREE.CanvasTexture(skyCanvas);
+  scene.background = skyTex;
+
+  scene.fog = new THREE.FogExp2(0x2a3a55, 0.00035);
+
+  renderer = new THREE.WebGLRenderer({canvas:document.getElementById('renderCanvas'), antialias:true, preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping !== undefined ? THREE.ACESFilmicToneMapping : 4;
+  renderer.toneMappingExposure = 1.1;
+  if(THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
+  else if(THREE.sRGBEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+
+  var w = host.clientWidth || 800;
+  var h = host.clientHeight || 450;
+  renderer.setSize(w, h, false);
+
+  camera = new THREE.PerspectiveCamera(50, w/Math.max(h,1), 1, 9000);
+
+  scene.add(new THREE.AmbientLight(0xd0c8b8, 0.4));
+
+  var hemi = new THREE.HemisphereLight(0x6688cc, 0x886644, 0.35);
+  scene.add(hemi);
+
+  var sun1 = new THREE.DirectionalLight(0xffeedd, 1.0);
+  sun1.position.set(250, 500, -200);
+  sun1.castShadow = true;
+  sun1.shadow.mapSize.width = 2048;
+  sun1.shadow.mapSize.height = 2048;
+  sun1.shadow.camera.near = 10;
+  sun1.shadow.camera.far = 2000;
+  sun1.shadow.camera.left = -600;
+  sun1.shadow.camera.right = 600;
+  sun1.shadow.camera.top = 600;
+  sun1.shadow.camera.bottom = -600;
+  sun1.shadow.bias = -0.0005;
+  sun1.shadow.normalBias = 0.02;
+  scene.add(sun1);
+
+  var sun2 = new THREE.DirectionalLight(0x8899bb, 0.3);
+  sun2.position.set(-200, 200, 300);
+  scene.add(sun2);
+
+  var rim = new THREE.DirectionalLight(0xffd8a0, 0.2);
+  rim.position.set(-100, 300, -400);
+  scene.add(rim);
+
+  var groundGeo = new THREE.PlaneGeometry(2000, 2000);
+  var groundMat = new THREE.MeshStandardMaterial({color: 0x3a3a38, roughness: 0.95, metalness: 0.0});
+  var groundMesh = new THREE.Mesh(groundGeo, groundMat);
+  groundMesh.rotation.x = -Math.PI / 2;
+  groundMesh.position.y = -0.5;
+  groundMesh.receiveShadow = true;
+  scene.add(groundMesh);
+
+  var ground = new THREE.GridHelper(800, 40, 0x4a4a48, 0x333330);
+  ground.position.y = 0;
+  scene.add(ground);
+
+  model = new THREE.Group();
+  scene.add(model);
+
+  host.style.touchAction = 'none';
+  host.addEventListener('pointerdown', function(ev){
+    host.setPointerCapture(ev.pointerId);
+    orbitState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    orbitState.prevSingle = {x:ev.clientX, y:ev.clientY};
+    orbitState.isPan = (ev.button === 2 || ev.shiftKey);
+    orbitState.prevPinchDist = null;
+  });
+  host.addEventListener('pointermove', function(ev){
+    if(!orbitState.pointers.has(ev.pointerId)) return;
+    ev.preventDefault();
+    orbitState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    var pts = Array.from(orbitState.pointers.values());
+    if(pts.length === 2){
+      var dx = pts[1].x - pts[0].x, dy = pts[1].y - pts[0].y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if(orbitState.prevPinchDist !== null){
+        var scale = orbitState.prevPinchDist / Math.max(dist, 1);
+        orbitState.distance = Math.max(80, Math.min(2600, orbitState.distance * scale));
+      }
+      orbitState.prevPinchDist = dist;
+      var mx = (pts[0].x + pts[1].x) / 2, my = (pts[0].y + pts[1].y) / 2;
+      if(orbitState.prevMid){
+        var panScale = orbitState.distance * 0.003;
+        orbitState.panX -= (mx - orbitState.prevMid.x) * panScale * Math.cos(orbitState.yaw);
+        orbitState.panZ -= (mx - orbitState.prevMid.x) * panScale * Math.sin(orbitState.yaw);
+        orbitState.panX += (my - orbitState.prevMid.y) * panScale * Math.sin(orbitState.yaw) * Math.cos(orbitState.pitch);
+        orbitState.panZ -= (my - orbitState.prevMid.y) * panScale * Math.cos(orbitState.yaw) * Math.cos(orbitState.pitch);
+      }
+      orbitState.prevMid = {x:mx, y:my};
+    } else if(pts.length === 1){
+      var prev = orbitState.prevSingle || pts[0];
+      var ddx = pts[0].x - prev.x, ddy = pts[0].y - prev.y;
+      if(orbitState.isPan || ev.shiftKey){
+        var panScale = orbitState.distance * 0.003;
+        orbitState.panX -= ddx * panScale * Math.cos(orbitState.yaw);
+        orbitState.panZ -= ddx * panScale * Math.sin(orbitState.yaw);
+        orbitState.panX += ddy * panScale * Math.sin(orbitState.yaw) * Math.cos(orbitState.pitch);
+        orbitState.panZ -= ddy * panScale * Math.cos(orbitState.yaw) * Math.cos(orbitState.pitch);
+      } else {
+        orbitState.yaw -= ddx * 0.008;
+        orbitState.pitch = Math.max(0.05, Math.min(1.5, orbitState.pitch + ddy * 0.006));
+      }
+      orbitState.prevSingle = {x:pts[0].x, y:pts[0].y};
+    }
+    updateCam();
+  }, {passive:false});
+  host.addEventListener('contextmenu', function(ev){ ev.preventDefault(); });
+  function onPointerEnd(ev){
+    orbitState.pointers.delete(ev.pointerId);
+    orbitState.prevSingle = null;
+    orbitState.prevPinchDist = null;
+    orbitState.prevMid = null;
+    orbitState.isPan = false;
+    try{host.releasePointerCapture(ev.pointerId);}catch(e){}
+  }
+  host.addEventListener('pointerup', onPointerEnd);
+  host.addEventListener('pointercancel', onPointerEnd);
+  host.addEventListener('wheel', function(ev){
+    ev.preventDefault();
+    orbitState.distance = Math.max(80, Math.min(2600, orbitState.distance * Math.exp(ev.deltaY * 0.001)));
+    updateCam();
+  }, {passive:false});
+
+  window.addEventListener('resize', function(){
+    var w2 = host.clientWidth || 1;
+    var h2 = host.clientHeight || 1;
+    renderer.setSize(w2, h2, false);
+    camera.aspect = w2/Math.max(h2,1);
+    camera.updateProjectionMatrix();
+  });
+
+  setCameraPreset();
+  loop();
+}
+
+function updateCam(){
+  if(!camera) return;
+  var totalH = outline ? outline.totalHeight : 100;
+  var ty = totalH * 0.4;
+  var st = orbitState;
+  camera.position.set(
+    st.panX + st.distance * Math.cos(st.pitch) * Math.cos(st.yaw),
+    ty + st.distance * Math.sin(st.pitch),
+    st.panZ + st.distance * Math.cos(st.pitch) * Math.sin(st.yaw)
+  );
+  camera.lookAt(st.panX, ty, st.panZ);
+}
+
+function loop(){
+  if(renderer && scene && camera) renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+
+function setCameraPreset(){
+  var preset = document.getElementById('cameraAngle').value;
+  var totalH = outline ? outline.totalHeight : 100;
+  var bW = outline ? outline.buildingWidth : 100;
+
+  switch(preset){
+    case 'eye':
+      orbitState.yaw = Math.PI * 0.35;
+      orbitState.pitch = 0.15;
+      orbitState.distance = Math.max(bW * 2, 300);
+      break;
+    case 'worm':
+      orbitState.yaw = Math.PI * 0.3;
+      orbitState.pitch = 0.05;
+      orbitState.distance = Math.max(bW * 1.5, 200);
+      break;
+    case 'bird':
+      orbitState.yaw = Math.PI * 0.25;
+      orbitState.pitch = 1.2;
+      orbitState.distance = Math.max(totalH * 2, 500);
+      break;
+    case 'elevation':
+      orbitState.yaw = 0;
+      orbitState.pitch = 0.2;
+      orbitState.distance = Math.max(bW * 2.5, 400);
+      break;
+    default:
+      orbitState.yaw = Math.PI * 0.25;
+      orbitState.pitch = 0.4;
+      orbitState.distance = Math.max(Math.hypot(bW, totalH) * 1.3, 400);
+  }
+  updateCam();
+}
+
+/* ============================================================
+   CATEGORY COLORS (mirrored from 02_PROGRAM)
+============================================================ */
+var CATEGORY_COLORS = {
+  "Public/Entry":"#c9a959","Public/Commons":"#b5a06a","Public/Support":"#a08a55",
+  "Administration":"#8a7abf","Work":"#6bb8d4","Meeting":"#5aa8c4",
+  "Learning":"#74c07a","Instruction":"#74c07a",
+  "Clinical":"#c45c3e","Clinical/Support":"#b65335","Clinical/Diagnostics":"#a84e36",
+  "Food Service":"#d0a36a","Amenity":"#6a9cc4","Amenity/Outdoor":"#6a9cc4",
+  "Operations":"#7e7e7e","Operations/Circulation":"#6f6f6f",
+  "Circulation":"#505050","Circulation/Core":"#4a4a4a",
+  "MEP":"#3a3a3a","MEP/Tech":"#3a3a3a",
+  "Mobility":"#8aa0a8","Parking":"#2f2f2f","Safety/Operations":"#6b3b3b",
+  "Rooms":"#6a9cc4","Support":"#7e7e7e"
+};
+function colorHexCat(cat){ return 0xd0cdc8; }
+
+/* ============================================================
+   SITE BOUNDARY HELPERS
+============================================================ */
+function getSiteFootprintFt(){
+  if(!siteGeo) return null;
+  var feature = siteGeo.parcel || siteGeo.footprint || siteGeo.userBoundary;
+  if(!feature || !feature.geometry) return null;
+  var coords = feature.geometry.type === 'Polygon' ? feature.geometry.coordinates[0] :
+               feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates[0][0] : null;
+  if(!coords || coords.length < 3) return null;
+  var lat0 = siteGeo.lat, lon0 = siteGeo.lon;
+  var mPerDegLat = 111320;
+  var mPerDegLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+  var mCoords = coords.map(function(c){ return [(c[0] - lon0) * mPerDegLon, (c[1] - lat0) * mPerDegLat]; });
+  var ftCoords = mCoords.map(function(c){ return [c[0] * 3.28084, c[1] * 3.28084]; });
+  var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  ftCoords.forEach(function(c){
+    if(c[0]<minX) minX=c[0]; if(c[0]>maxX) maxX=c[0];
+    if(c[1]<minY) minY=c[1]; if(c[1]>maxY) maxY=c[1];
+  });
+  var cx=(minX+maxX)/2, cy=(minY+maxY)/2;
+  return ftCoords.map(function(c){ return [c[0]-cx, c[1]-cy]; });
+}
+
+/* ============================================================
+   BUILD 3D MODEL
+============================================================ */
+function buildModel(){
+  if(!model || !outline) return;
+
+  function disposeGroup(g){
+    while(g.children.length){
+      var ch = g.children.pop();
+      if(ch.children && ch.children.length) disposeGroup(ch);
+      if(ch.geometry) ch.geometry.dispose();
+      if(ch.material){
+        if(Array.isArray(ch.material)) ch.material.forEach(function(m){m.dispose();});
+        else ch.material.dispose();
+      }
+    }
+  }
+  disposeGroup(model);
+
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight || 12;
+  var totalH = outline.totalHeight || nFloors * fH;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+  var leanAngle = outline.leanAngle || 0;
+  var leanRad = leanAngle * Math.PI / 180;
+
+  var buildingGroup = new THREE.Group();
+  model.add(buildingGroup);
+
+  var wI = windData ? windData.intensity : 0;
+  var wH = windData ? windData.heightEffect : 0;
+  var wW = windData ? windData.widthEffect : 0;
+  var twist = windData ? windData.twist : 0;
+  var combinedI = windData ? windData.combinedIntensity : 0;
+
+  function windProfile(t){
+    var I = combinedI / 100;
+    var Iw = wW / 100;
+    var baseTop = 0.15 + I*0.05, swellPos = 0.35 + I*0.06;
+    var neckPos = 0.60 + I*0.04, crownStart = 0.80;
+    var baseW2 = 1.0-I*0.25-Iw*0.15, swellW2 = 1.0+I*0.15+Iw*0.1;
+    var neckW2 = 1.0-I*0.35-Iw*0.2, crownW2 = 1.0-I*0.45-Iw*0.15;
+    function sm(x){return x*x*(3-2*x);}
+    function lp(a,b,x){return a+(b-a)*x;}
+    if(t<baseTop){return lp(baseW2, swellW2*0.7+baseW2*0.3, sm(t/baseTop));}
+    if(t<swellPos){return lp(baseW2*0.3+swellW2*0.7, swellW2, sm((t-baseTop)/(swellPos-baseTop)));}
+    if(t<neckPos){return lp(swellW2, neckW2, sm((t-swellPos)/(neckPos-swellPos)));}
+    if(t<crownStart){return lp(neckW2, neckW2*0.8+crownW2*0.2, sm((t-neckPos)/(crownStart-neckPos)));}
+    return lp(neckW2*0.2+crownW2*0.8, crownW2*0.7, sm((t-crownStart)/(1-crownStart)));
+  }
+
+  var hasBlocks = outline.floorOutlines && outline.floorOutlines.length > 0;
+
+  if(hasBlocks){
+    for(var fi=0; fi<outline.floorOutlines.length; fi++){
+      var fl = outline.floorOutlines[fi];
+      if(!fl || !fl.blocks) continue;
+      var floorY = fi * fH;
+      var southShift = fi * fH * Math.tan(leanRad);
+      var wMult = windData ? windProfile(nFloors>1 ? fi/(nFloors-1) : 0) : 1.0;
+      var twistRad2 = windData ? (twist * (nFloors>1 ? fi/(nFloors-1) : 0)) * Math.PI/180 : 0;
+
+      fl.blocks.forEach(function(bl){
+        var blW = (bl.w_ft || 10) * wMult;
+        var blD = (bl.d_ft || 10) * wMult;
+        var blX = (bl.x_ft || 0) * wMult;
+        var blY = (bl.y_ft || 0) * wMult;
+        var geo = new THREE.BoxGeometry(blW, fH * 0.95, blD);
+        var catColor = colorHexCat(bl.category);
+        var isSouthFace = (bl.y_ft || 0) + (bl.d_ft || 0) >= (bD * 0.7);
+        var mat = new THREE.MeshStandardMaterial({
+          color: catColor,
+          roughness: isSouthFace ? 0.15 : 0.65,
+          metalness: isSouthFace ? 0.1 : 0.02,
+          transparent: true,
+          opacity: isSouthFace ? 0.75 : 0.92
+        });
+        var mesh = new THREE.Mesh(geo, mat);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        var posX = blX + blW/2;
+        var posZ = -(blY + blD/2) - southShift;
+        if(twist > 0 && twistRad2 !== 0){
+          var cz = -southShift;
+          var dx = posX, dz = posZ - cz;
+          posX = dx * Math.cos(twistRad2) - dz * Math.sin(twistRad2);
+          posZ = cz + dx * Math.sin(twistRad2) + dz * Math.cos(twistRad2);
+        }
+        mesh.position.set(posX, floorY + fH * 0.475, posZ);
+        if(twist > 0) mesh.rotation.y = -twistRad2;
+        buildingGroup.add(mesh);
+        var edge = new THREE.LineSegments(
+          new THREE.EdgesGeometry(geo),
+          new THREE.LineBasicMaterial({color:0x0a0a0a, transparent:true, opacity:0.9})
+        );
+        mesh.add(edge);
+      });
+    }
+  }
+
+  for(var fi2=0; fi2<nFloors; fi2++){
+    var t = nFloors>1 ? fi2/(nFloors-1) : 0;
+    var wMult2 = windData ? windProfile(t) : 1.0;
+    var twistRad = (twist * t) * Math.PI/180;
+    var floorY2 = fi2 * fH;
+    var southShift2 = fi2 * fH * Math.tan(leanRad);
+    var pW = bW * wMult2, pD = bD * wMult2;
+
+    var corners = [
+      {x:-pW/2, z:-pD/2 - southShift2},
+      {x:pW/2, z:-pD/2 - southShift2},
+      {x:pW/2, z:pD/2 - southShift2},
+      {x:-pW/2, z:pD/2 - southShift2}
+    ];
+
+    if(twist > 0){
+      var cz = -southShift2;
+      corners = corners.map(function(c){
+        var dx=c.x, dz=c.z-cz;
+        return{x:dx*Math.cos(twistRad)-dz*Math.sin(twistRad), z:cz+dx*Math.sin(twistRad)+dz*Math.cos(twistRad)};
+      });
+    }
+
+    var pts = corners.map(function(c){return new THREE.Vector3(c.x, floorY2, c.z);});
+    pts.push(pts[0].clone());
+    buildingGroup.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color:0xc9a959, transparent:true, opacity: hasBlocks ? 0.35 : 0.6})
+    ));
+
+    var shape = new THREE.Shape();
+    shape.moveTo(corners[0].x, corners[0].z);
+    for(var ci=1; ci<corners.length; ci++) shape.lineTo(corners[ci].x, corners[ci].z);
+    shape.closePath();
+    var fillGeo = new THREE.ShapeGeometry(shape);
+    fillGeo.rotateX(-Math.PI/2);
+    var fillMesh = new THREE.Mesh(fillGeo, new THREE.MeshStandardMaterial({
+      color:0xffffff, transparent:true, opacity:0.04, side:THREE.DoubleSide
+    }));
+    fillMesh.position.y = floorY2;
+    buildingGroup.add(fillMesh);
+  }
+
+  for(var ec=0; ec<4; ec++){
+    var ePts = [];
+    for(var ef=0; ef<nFloors; ef++){
+      var et = nFloors>1 ? ef/(nFloors-1) : 0;
+      var ew = windData ? windProfile(et) : 1.0;
+      var etr = (twist*et)*Math.PI/180;
+      var ey = ef*fH;
+      var es = ef*fH*Math.tan(leanRad);
+      var epW=bW*ew, epD=bD*ew;
+      var ecr = [{x:-epW/2,z:-epD/2-es},{x:epW/2,z:-epD/2-es},{x:epW/2,z:epD/2-es},{x:-epW/2,z:epD/2-es}];
+      if(twist>0){
+        var ecz2=-es, edx=ecr[ec].x, edz=ecr[ec].z-ecz2;
+        ecr[ec]={x:edx*Math.cos(etr)-edz*Math.sin(etr), z:ecz2+edx*Math.sin(etr)+edz*Math.cos(etr)};
+      }
+      ePts.push(new THREE.Vector3(ecr[ec].x, ey, ecr[ec].z));
+    }
+    var isGlass = (ec===2 || ec===3);
+    buildingGroup.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(ePts),
+      new THREE.LineBasicMaterial({color:isGlass?0x6bb8d4:0x666666, transparent:true, opacity:0.7})
+    ));
+  }
+
+  var sitePoly = getSiteFootprintFt();
+  if(sitePoly && sitePoly.length >= 3){
+    var sitePts = sitePoly.map(function(pt){ return new THREE.Vector3(pt[0], 0.3, -pt[1]); });
+    sitePts.push(sitePts[0].clone());
+    var siteGeo2 = new THREE.BufferGeometry().setFromPoints(sitePts);
+    var siteMat = new THREE.LineDashedMaterial({color:0xc9a959, dashSize:8, gapSize:5, transparent:true, opacity:0.7});
+    var siteLine = new THREE.Line(siteGeo2, siteMat);
+    siteLine.computeLineDistances();
+    model.add(siteLine);
+  }
+
+  orbitState.distance = Math.max(200, Math.hypot(bW, bD, totalH) * 1.3);
+  updateCam();
+}
+
+/* ============================================================
+   PROMPTS
+============================================================ */
+function getSiteContext(){
+  var ctx = '';
+  if(siteData && siteData.address) ctx += ', located at ' + siteData.address;
+  if(siteData && siteData.lat){
+    var lat = siteData.lat;
+    if(lat > 40) ctx += ', northern temperate climate';
+    else if(lat > 25) ctx += ', warm temperate climate';
+    else ctx += ', subtropical climate';
+  }
+  if(sunData){
+    if(sunData.hdd > sunData.cdd) ctx += ', cold-dominant climate with south-facing glazing';
+    else if(sunData.cdd > sunData.hdd) ctx += ', hot climate with sun-shading and overhangs';
+    else ctx += ', balanced climate with mixed fenestration';
+  }
+  if(outline){
+    ctx += ', ' + (outline.nFloors || 1) + '-story building';
+    ctx += ' approximately ' + Math.round(outline.totalHeight || 48) + ' feet tall';
+  }
+  if(programData && programData.buildingType){
+    ctx += ', ' + programData.buildingType.toLowerCase() + ' building type';
+  }
+  return ctx;
+}
+
+function getOrientationContext(){
+  if(!siteGeo) return '';
+  var feature = siteGeo.parcel || siteGeo.footprint || siteGeo.userBoundary;
+  if(!feature || !feature.geometry) return '';
+  var coords = feature.geometry.type === 'Polygon' ? feature.geometry.coordinates[0] :
+               feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates[0][0] : null;
+  if(!coords || coords.length < 3) return '';
+  var maxLen = 0, angle = 0;
+  for(var i=0; i<coords.length-1; i++){
+    var dx = coords[i+1][0] - coords[i][0];
+    var dy = coords[i+1][1] - coords[i][1];
+    var len = Math.sqrt(dx*dx + dy*dy);
+    if(len > maxLen){ maxLen = len; angle = Math.atan2(dy, dx) * 180 / Math.PI; }
+  }
+  var bearing = (90 - angle + 360) % 360;
+  var dirs = ['north','northeast','east','southeast','south','southwest','west','northwest'];
+  var idx = Math.round(bearing / 45) % 8;
+  return ', property oriented along ' + dirs[idx] + '-' + dirs[(idx+4)%8] + ' axis';
+}
+
+var STYLE_PROMPTS = {};
+
+function buildStylePrompts(){
+  var site = getSiteContext();
+  var orient = getOrientationContext();
+  var loc = site + orient;
+  var anchor = 'CRITICAL: The input image is a 3D massing model. You MUST exactly follow its silhouette, shape, proportions, setbacks, and stepped/twisted geometry block-for-block. Do not invent a different building form. Keep the same camera angle and outline. ';
+  STYLE_PROMPTS = {
+    photorealistic: anchor + 'Render this 3D model as a photorealistic building with glass facade, concrete and wood materials' + loc + ', applying materials and detail directly onto the exact massing shown, set in urban context with landscaping, golden hour lighting, architectural photography, 8k',
+    magazine: anchor + 'Render this 3D model as editorial architectural photography, glass and steel' + loc + ', applying facade detail onto the exact massing shown, wide angle with neighborhood context, Archdaily magazine cover style, professional photography, sharp details',
+    sketch: anchor + 'Render this 3D model as a hand sketch' + loc + ', pencil and ink on white paper, drawing the exact same building form shown, construction lines visible, professional architectural illustration style',
+    watercolor: anchor + 'Render this 3D model as a watercolor architectural rendering' + loc + ', painting the exact same building form shown with soft washes of color, surrounding landscape and street context, loose expressive brushwork, urban sketch style',
+    night: anchor + 'Render this 3D model as night photography' + loc + ', the exact same building form with interior lights glowing through glass facade, dramatic uplighting, surrounding neighborhood lights, cinematic atmosphere',
+    aerial: anchor + 'Render this 3D model as aerial drone photography' + loc + ', bird eye view of the exact same building form showing roof, surrounding streets and landscape, urban planning perspective, high resolution',
+    massing: anchor + 'Render this 3D model as a white architectural massing model photograph' + loc + ', clean studio lighting, pure white 3D printed model preserving the exact form, soft shadows on white background, minimal',
+    custom: ''
+  };
+}
+
+function updatePrompt(){
+  buildStylePrompts();
+  var preset = document.getElementById('stylePreset').value;
+  if(preset !== 'custom'){
+    document.getElementById('promptInput').value = STYLE_PROMPTS[preset];
+  }
+}
+
+/* ============================================================
+   CAPTURE & RENDER
+============================================================ */
+function captureAndRender(){
+  if(!renderer) return;
+
+  var btn = document.getElementById('captureBtn');
+  btn.disabled = true;
+  setStatus('Rendering high-quality capture...', 'active');
+
+  var host = document.getElementById('renderViewport');
+  var origW = host.clientWidth || 800;
+  var origH = host.clientHeight || 450;
+  var origPixelRatio = renderer.getPixelRatio();
+
+  var scale = 2;
+  renderer.setPixelRatio(scale);
+  renderer.setSize(origW, origH, false);
+
+  renderer.render(scene, camera);
+  var dataUrl = renderer.domElement.toDataURL('image/png');
+
+  renderer.setPixelRatio(origPixelRatio);
+  renderer.setSize(origW, origH, false);
+
+  document.getElementById('aiResult').style.display = 'block';
+  document.getElementById('aiImage').src = dataUrl;
+  setStatus('High-quality render captured', '');
+  btn.disabled = false;
+
+  var style = document.getElementById('stylePreset').value;
+  addToGallery(dataUrl, style + ' · ' + new Date().toLocaleTimeString());
+}
+
+(function(){
+  var svcSelect = document.getElementById('aiService');
+  var keyBox = document.getElementById('apiKeyBox');
+  if(svcSelect && keyBox){
+    var savedSvc = localStorage.getItem('calvey_ai_service');
+    var savedKey = localStorage.getItem('calvey_ai_key');
+    if(savedSvc) svcSelect.value = savedSvc;
+    if(savedKey) document.getElementById('aiApiKey').value = savedKey;
+
+    function updateKeyVisibility(){
+      var needs = svcSelect.value !== 'pollinations';
+      keyBox.style.display = needs ? 'flex' : 'none';
+      localStorage.setItem('calvey_ai_service', svcSelect.value);
+    }
+    svcSelect.addEventListener('change', updateKeyVisibility);
+    updateKeyVisibility();
+
+    var keyInput = document.getElementById('aiApiKey');
+    if(keyInput) keyInput.addEventListener('change', function(){
+      localStorage.setItem('calvey_ai_key', keyInput.value);
+    });
+  }
+})();
+
+function tryAIRender(){
+  if(!renderer) return;
+  var service = document.getElementById('aiService').value;
+  if(service === 'pollinations') return tryPollinationsRender();
+  if(service === 'stability') return tryStabilityRender();
+  if(service === 'replicate') return tryReplicateRender();
+  if(service === 'fal') return tryFalRender();
+  tryPollinationsRender();
+}
+
+function tryStabilityRender(){
+  var btn = document.getElementById('aiBtn');
+  var apiKey = (document.getElementById('aiApiKey').value || '').trim();
+  if(!apiKey){
+    setStatus('Stability AI requires an API key — get one at platform.stability.ai', 'error');
+    return;
+  }
+  btn.disabled = true;
+
+  var userPrompt = document.getElementById('promptInput').value;
+  var cameraDesc = getCameraAngleDescription();
+  var fullPrompt = userPrompt + ', ' + cameraDesc + ', architectural visualization, high quality rendering';
+
+  setStatus('Capturing scene for Stability AI structure control...', 'active');
+  renderer.render(scene, camera);
+  var dataUrl = renderer.domElement.toDataURL('image/png');
+
+  fetch(dataUrl).then(function(r){ return r.blob(); }).then(function(blob){
+    var formData = new FormData();
+    formData.append('image', blob, 'massing.png');
+    formData.append('prompt', fullPrompt.substring(0, 500));
+    formData.append('control_strength', '0.65');
+    formData.append('output_format', 'png');
+
+    setStatus('Rendering with Stability AI (structure-preserving)...', 'active');
+
+    return fetch('https://api.stability.ai/v2beta/stable-image/control/structure', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + apiKey, 'Accept': 'image/*' },
+      body: formData
+    });
+  }).then(function(resp){
+    if(!resp.ok) throw new Error('Stability API ' + resp.status + ': ' + resp.statusText);
+    return resp.blob();
+  }).then(function(imgBlob){
+    var url = URL.createObjectURL(imgBlob);
+    document.getElementById('aiResult').style.display = 'block';
+    document.getElementById('aiImage').src = url;
+    setStatus('Stability AI render complete (structure-preserving)', '');
+    btn.disabled = false;
+    addToGallery(url, 'Stability AI · ' + userPrompt.substring(0, 30) + '...');
+  }).catch(function(err){
+    setStatus('Stability AI error: ' + err.message, 'error');
+    btn.disabled = false;
+  });
+}
+
+function tryReplicateRender(){
+  var btn = document.getElementById('aiBtn');
+  var apiKey = (document.getElementById('aiApiKey').value || '').trim();
+  if(!apiKey){
+    setStatus('Replicate requires an API key — get one at replicate.com', 'error');
+    return;
+  }
+  btn.disabled = true;
+
+  var userPrompt = document.getElementById('promptInput').value;
+  var cameraDesc = getCameraAngleDescription();
+  var fullPrompt = userPrompt + ', ' + cameraDesc + ', architectural visualization';
+
+  setStatus('Capturing scene for Replicate...', 'active');
+  renderer.render(scene, camera);
+  var dataUrl = renderer.domElement.toDataURL('image/png');
+
+  setStatus('Submitting to Replicate FLUX...', 'active');
+
+  fetch('https://api.replicate.com/v1/predictions', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + apiKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'wait'
+    },
+    body: JSON.stringify({
+      version: 'black-forest-labs/flux-depth-pro',
+      input: {
+        control_image: dataUrl,
+        prompt: fullPrompt.substring(0, 500),
+        num_outputs: 1,
+        guidance_scale: 7.5,
+        num_inference_steps: 28
+      }
+    })
+  }).then(function(resp){
+    if(!resp.ok) throw new Error('Replicate API ' + resp.status);
+    return resp.json();
+  }).then(function(data){
+    if(data.output && data.output.length){
+      var imgUrl = data.output[0];
+      document.getElementById('aiResult').style.display = 'block';
+      document.getElementById('aiImage').src = imgUrl;
+      setStatus('Replicate FLUX render complete', '');
+      addToGallery(imgUrl, 'Replicate · ' + userPrompt.substring(0, 30) + '...');
+    } else if(data.urls && data.urls.get){
+      setStatus('Replicate processing — polling for result...', 'active');
+      pollReplicate(data.urls.get, apiKey, userPrompt, 0);
+    } else {
+      throw new Error('Unexpected Replicate response');
+    }
+    btn.disabled = false;
+  }).catch(function(err){
+    setStatus('Replicate error: ' + err.message, 'error');
+    btn.disabled = false;
+  });
+}
+
+function pollReplicate(url, apiKey, prompt, attempt){
+  if(attempt > 30){
+    setStatus('Replicate timed out after polling', 'error');
+    return;
+  }
+  setTimeout(function(){
+    fetch(url, { headers: { 'Authorization': 'Bearer ' + apiKey } })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.status === 'succeeded' && data.output && data.output.length){
+        var imgUrl = data.output[0];
+        document.getElementById('aiResult').style.display = 'block';
+        document.getElementById('aiImage').src = imgUrl;
+        setStatus('Replicate FLUX render complete', '');
+        addToGallery(imgUrl, 'Replicate · ' + prompt.substring(0, 30) + '...');
+      } else if(data.status === 'failed'){
+        setStatus('Replicate prediction failed: ' + (data.error || 'unknown'), 'error');
+      } else {
+        setStatus('Replicate processing (' + data.status + ')...', 'active');
+        pollReplicate(url, apiKey, prompt, attempt + 1);
+      }
+    }).catch(function(err){
+      setStatus('Replicate poll error: ' + err.message, 'error');
+    });
+  }, 3000);
+}
+
+function tryFalRender(){
+  var btn = document.getElementById('aiBtn');
+  var apiKey = (document.getElementById('aiApiKey').value || '').trim();
+  if(!apiKey){
+    setStatus('fal.ai requires an API key — get one at fal.ai', 'error');
+    return;
+  }
+  btn.disabled = true;
+
+  var userPrompt = document.getElementById('promptInput').value;
+  var cameraDesc = getCameraAngleDescription();
+  var fullPrompt = userPrompt + ', ' + cameraDesc + ', architectural visualization';
+
+  setStatus('Capturing scene for fal.ai...', 'active');
+  renderer.render(scene, camera);
+  var dataUrl = renderer.domElement.toDataURL('image/png');
+
+  setStatus('Rendering with fal.ai FLUX ControlNet...', 'active');
+
+  fetch('https://queue.fal.run/fal-ai/flux-general/image-to-image', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Key ' + apiKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      image_url: dataUrl,
+      prompt: fullPrompt.substring(0, 500),
+      strength: 0.65,
+      num_inference_steps: 28,
+      image_size: { width: 1024, height: 576 }
+    })
+  }).then(function(resp){
+    if(!resp.ok) throw new Error('fal.ai API ' + resp.status);
+    return resp.json();
+  }).then(function(data){
+    var imgUrl = data.images && data.images[0] ? data.images[0].url : null;
+    if(imgUrl){
+      document.getElementById('aiResult').style.display = 'block';
+      document.getElementById('aiImage').src = imgUrl;
+      setStatus('fal.ai FLUX render complete', '');
+      addToGallery(imgUrl, 'fal.ai · ' + userPrompt.substring(0, 30) + '...');
+    } else if(data.request_id){
+      setStatus('fal.ai processing — polling...', 'active');
+      pollFal(data.request_id, apiKey, userPrompt, 0);
+    } else {
+      throw new Error('Unexpected fal.ai response');
+    }
+    btn.disabled = false;
+  }).catch(function(err){
+    setStatus('fal.ai error: ' + err.message + ' — Note: CORS may require a server proxy.', 'error');
+    btn.disabled = false;
+  });
+}
+
+function pollFal(requestId, apiKey, prompt, attempt){
+  if(attempt > 30){
+    setStatus('fal.ai timed out', 'error');
+    return;
+  }
+  setTimeout(function(){
+    fetch('https://queue.fal.run/fal-ai/flux-general/requests/' + requestId + '/status', {
+      headers: { 'Authorization': 'Key ' + apiKey }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.status === 'COMPLETED'){
+        fetch('https://queue.fal.run/fal-ai/flux-general/requests/' + requestId, {
+          headers: { 'Authorization': 'Key ' + apiKey }
+        }).then(function(r){ return r.json(); }).then(function(result){
+          var imgUrl = result.images && result.images[0] ? result.images[0].url : null;
+          if(imgUrl){
+            document.getElementById('aiResult').style.display = 'block';
+            document.getElementById('aiImage').src = imgUrl;
+            setStatus('fal.ai FLUX render complete', '');
+            addToGallery(imgUrl, 'fal.ai · ' + prompt.substring(0, 30) + '...');
+          }
+        });
+      } else if(data.status === 'FAILED'){
+        setStatus('fal.ai failed', 'error');
+      } else {
+        setStatus('fal.ai processing (' + (data.status || 'queued') + ')...', 'active');
+        pollFal(requestId, apiKey, prompt, attempt + 1);
+      }
+    }).catch(function(err){
+      setStatus('fal.ai poll error: ' + err.message, 'error');
+    });
+  }, 3000);
+}
+
+function tryPollinationsRender(){
+  if(!renderer) return;
+
+  var btn = document.getElementById('aiBtn');
+  btn.disabled = true;
+
+  var userPrompt = document.getElementById('promptInput').value;
+  var cameraDesc = getCameraAngleDescription();
+  var fullPrompt = userPrompt + ', ' + cameraDesc + ', architectural visualization, high quality';
+  if(fullPrompt.length > 480) fullPrompt = fullPrompt.substring(0, 480);
+
+  setStatus('Requesting AI render — this may take 30–90 seconds...', 'active');
+
+  renderer.render(scene, camera);
+
+  var models = ['flux', 'turbo'];
+  var modelIdx = 0;
+  var currentTimer = null;
+
+  function tryModel(){
+    if(modelIdx >= models.length){
+      setStatus('AI unavailable — use Capture & Render for local render.', 'error');
+      btn.disabled = false;
+      return;
+    }
+
+    var modelName = models[modelIdx];
+    var seed = Math.floor(Math.random() * 99999);
+    var encodedPrompt = encodeURIComponent(fullPrompt);
+    var imgUrl = 'https://image.pollinations.ai/prompt/' + encodedPrompt +
+                 '?model=' + modelName + '&width=1024&height=576&seed=' + seed +
+                 '&enhance=true&nologo=true';
+
+    setStatus('AI rendering with ' + modelName + '...', 'active');
+
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    var done = false;
+
+    var timeout = modelIdx === 0 ? 90000 : 60000;
+    currentTimer = setTimeout(function(){
+      if(done) return;
+      done = true;
+      img.onload = img.onerror = null;
+      img.src = '';
+      modelIdx++;
+      if(modelIdx < models.length){
+        setStatus(modelName + ' timed out — trying ' + models[modelIdx] + '...', 'active');
+      }
+      tryModel();
+    }, timeout);
+
+    img.onload = function(){
+      if(done) return;
+      done = true;
+      clearTimeout(currentTimer);
+      if(img.naturalWidth < 2){ modelIdx++; tryModel(); return; }
+      document.getElementById('aiResult').style.display = 'block';
+      document.getElementById('aiImage').src = imgUrl;
+      setStatus('AI render complete (' + modelName + ')', '');
+      btn.disabled = false;
+      addToGallery(imgUrl, 'AI · ' + userPrompt.substring(0, 40) + '...');
+    };
+
+    img.onerror = function(){
+      if(done) return;
+      done = true;
+      clearTimeout(currentTimer);
+      modelIdx++;
+      if(modelIdx < models.length){
+        setStatus(modelName + ' unavailable — trying ' + models[modelIdx] + '...', 'active');
+        setTimeout(tryModel, 16000);
+      } else {
+        tryModel();
+      }
+    };
+
+    img.src = imgUrl;
+  }
+
+  tryModel();
+}
+
+function getCameraAngleDescription(){
+  var preset = document.getElementById('cameraAngle').value;
+  switch(preset){
+    case 'eye': return 'eye-level street view perspective, standing human height';
+    case 'worm': return 'dramatic low-angle worms-eye view looking upward';
+    case 'bird': return 'aerial birds-eye view from above, looking down';
+    case 'elevation': return 'straight-on south elevation, orthographic facade view';
+    default: return 'three-quarter perspective view, slightly elevated';
+  }
+}
+
+function setStatus(msg, cls){
+  var el = document.getElementById('statusLine');
+  el.textContent = msg;
+  el.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+function addToGallery(src, caption){
+  gallery.push({src:src, caption:caption, time:new Date().toLocaleTimeString()});
+
+  var container = document.getElementById('renderGallery');
+  container.innerHTML = gallery.map(function(item, i){
+    return '<div class="gallery-item" onclick="showLarge('+i+')">' +
+      '<img src="'+item.src+'" alt="Render '+i+'" />' +
+      '<div class="caption">'+item.caption+' · '+item.time+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function showLarge(i){
+  if(!gallery[i]) return;
+  document.getElementById('aiResult').style.display = 'block';
+  document.getElementById('aiImage').src = gallery[i].src;
+}
+
+function downloadImage(){
+  var img = document.getElementById('aiImage');
+  if(!img.src || img.src === '') return;
+
+  var a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'calvey_form_render_' + Date.now() + '.png';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function downloadSummary(){
+  var text = document.getElementById('pipelineText').textContent;
+  var blob = new Blob([text], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_form_summary.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/* ============================================================
+   EXPORT: OBJ
+============================================================ */
+function exportOBJ(){
+  if(!outline) return;
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight || 12;
+  var totalH = outline.totalHeight || nFloors * fH;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+  var leanAngle = outline.leanAngle || 0;
+  var leanRad = leanAngle * Math.PI / 180;
+  var wI = windData ? windData.combinedIntensity : 0;
+  var wW = windData ? windData.widthEffect : 0;
+  var twist = windData ? windData.twist : 0;
+
+  function windProf(t){
+    var I = wI/100, Iw = wW/100;
+    var baseTop=0.15+I*0.05, swellPos=0.35+I*0.06, neckPos=0.60+I*0.04;
+    var bW2=1-I*0.25-Iw*0.15, sW2=1+I*0.15+Iw*0.1;
+    var nW2=1-I*0.35-Iw*0.2, cW2=1-I*0.45-Iw*0.15;
+    function sm(x){return x*x*(3-2*x);} function lp(a,b,x){return a+(b-a)*x;}
+    if(t<baseTop) return lp(bW2, sW2*0.7+bW2*0.3, sm(t/baseTop));
+    if(t<swellPos) return lp(bW2*0.3+sW2*0.7, sW2, sm((t-baseTop)/(swellPos-baseTop)));
+    if(t<neckPos) return lp(sW2, nW2, sm((t-swellPos)/(neckPos-swellPos)));
+    if(t<0.8) return lp(nW2, nW2*0.8+cW2*0.2, sm((t-neckPos)/(0.8-neckPos)));
+    return lp(nW2*0.2+cW2*0.8, cW2*0.7, sm((t-0.8)/0.2));
+  }
+
+  var verts = [], faces = [], vi = 1;
+  var ox = -bW/2, oz = -bD/2;
+
+  for(var fi=0; fi<nFloors; fi++){
+    var t = nFloors>1 ? fi/(nFloors-1) : 0;
+    var t1 = nFloors>1 ? (fi+1)/(nFloors-1) : 1;
+    var y0 = fi*fH, y1 = (fi+1)*fH;
+    var w0 = windData ? windProf(t) : 1, w1 = windData ? windProf(Math.min(t1,1)) : 1;
+    var s0 = fi*fH*Math.tan(leanRad), s1 = (fi+1)*fH*Math.tan(leanRad);
+    var tw0 = (twist*t)*Math.PI/180, tw1 = (twist*Math.min(t1,1))*Math.PI/180;
+
+    function rotPt(x,z,cz,tw){ var dx=x,dz=z-cz; return [dx*Math.cos(tw)-dz*Math.sin(tw), cz+dx*Math.sin(tw)+dz*Math.cos(tw)]; }
+
+    var corners0 = [[ox*w0,-s0+oz*w0],[ox*w0,-s0+(-oz)*w0],[(ox+bW)*w0,-s0+(-oz)*w0],[(ox+bW)*w0,-s0+oz*w0]];
+    var corners1 = [[ox*w1,-s1+oz*w1],[ox*w1,-s1+(-oz)*w1],[(ox+bW)*w1,-s1+(-oz)*w1],[(ox+bW)*w1,-s1+oz*w1]];
+
+    if(twist>0){
+      corners0 = corners0.map(function(c){ var r=rotPt(c[0],c[1],-s0,tw0); return r; });
+      corners1 = corners1.map(function(c){ var r=rotPt(c[0],c[1],-s1,tw1); return r; });
+    }
+
+    for(var ci=0;ci<4;ci++) verts.push('v '+corners0[ci][0].toFixed(4)+' '+y0.toFixed(4)+' '+corners0[ci][1].toFixed(4));
+    for(var ci2=0;ci2<4;ci2++) verts.push('v '+corners1[ci2][0].toFixed(4)+' '+y1.toFixed(4)+' '+corners1[ci2][1].toFixed(4));
+
+    var b = vi;
+    faces.push('f '+b+' '+(b+1)+' '+(b+5)+' '+(b+4));
+    faces.push('f '+(b+1)+' '+(b+2)+' '+(b+6)+' '+(b+5));
+    faces.push('f '+(b+2)+' '+(b+3)+' '+(b+7)+' '+(b+6));
+    faces.push('f '+(b+3)+' '+b+' '+(b+4)+' '+(b+7));
+    if(fi===0) faces.push('f '+b+' '+(b+3)+' '+(b+2)+' '+(b+1));
+    if(fi===nFloors-1) faces.push('f '+(b+4)+' '+(b+5)+' '+(b+6)+' '+(b+7));
+    vi += 8;
+  }
+
+  var obj = '# CALVEY FORM — Wind+Sun Model\n# Lean: '+leanAngle+'° | Wind: '+(wI||0)+'%\n# Floors: '+nFloors+' | Height: '+totalH+' ft\n\n'+verts.join('\n')+'\n\n'+faces.join('\n')+'\n';
+  var blob = new Blob([obj], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_form_model.obj';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================================================
+   EXPORT: Grasshopper C# Script
+============================================================ */
+function exportGH(){
+  if(!outline) return;
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight || 12;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+  var lean = outline.leanAngle || 0;
+  var wI = windData ? windData.combinedIntensity : 0;
+  var wW = windData ? windData.widthEffect : 0;
+  var twist = windData ? windData.twist : 0;
+
+  var s = '// CALVEY FORM — Grasshopper C# Script Component\n';
+  s += '// Paste into a C# Script component in Grasshopper\n';
+  s += '// Inputs: none (parameters embedded). Add sliders to override.\n\n';
+  s += 'using System;\nusing System.Collections.Generic;\nusing Rhino.Geometry;\n\n';
+  s += 'private void RunScript(ref object Floors, ref object Envelope, ref object Edges)\n{\n';
+  s += '  // === CALVEY FORM PARAMETERS ===\n';
+  s += '  int nFloors = ' + nFloors + ';\n';
+  s += '  double fH = ' + fH + ';  // floor height (ft)\n';
+  s += '  double bW = ' + bW.toFixed(2) + ';  // building width (ft)\n';
+  s += '  double bD = ' + bD.toFixed(2) + ';  // building depth (ft)\n';
+  s += '  double leanAngle = ' + lean + ';  // degrees (positive=back, negative=forward)\n';
+  s += '  double leanRad = ' + (lean * Math.PI / 180).toFixed(6) + ';\n';
+  s += '  double windIntensity = ' + wI + ';  // combined wind intensity (0-100)\n';
+  s += '  double widthEffect = ' + wW + ';\n';
+  s += '  double twist = ' + twist + ';  // twist degrees over full height\n\n';
+  s += '  // Wind profile function\n';
+  s += '  Func<double,double> windProfile = (t) => {\n';
+  s += '    double I = windIntensity/100.0, Iw = widthEffect/100.0;\n';
+  s += '    double baseTop=0.15+I*0.05, swellPos=0.35+I*0.06, neckPos=0.60+I*0.04;\n';
+  s += '    double bw=1-I*0.25-Iw*0.15, sw=1+I*0.15+Iw*0.1;\n';
+  s += '    double nw=1-I*0.35-Iw*0.2, cw=1-I*0.45-Iw*0.15;\n';
+  s += '    Func<double,double> sm = x => x*x*(3-2*x);\n';
+  s += '    Func<double,double,double,double> lp = (a,b,x) => a+(b-a)*x;\n';
+  s += '    if(t<baseTop) return lp(bw, sw*0.7+bw*0.3, sm(t/baseTop));\n';
+  s += '    if(t<swellPos) return lp(bw*0.3+sw*0.7, sw, sm((t-baseTop)/(swellPos-baseTop)));\n';
+  s += '    if(t<neckPos) return lp(sw, nw, sm((t-swellPos)/(neckPos-swellPos)));\n';
+  s += '    if(t<0.8) return lp(nw, nw*0.8+cw*0.2, sm((t-neckPos)/(0.8-neckPos)));\n';
+  s += '    return lp(nw*0.2+cw*0.8, cw*0.7, sm((t-0.8)/0.2));\n';
+  s += '  };\n\n';
+  s += '  var floorCurves = new List<Curve>();\n';
+  s += '  var edgePts = new List<List<Point3d>>(){new List<Point3d>(), new List<Point3d>(), new List<Point3d>(), new List<Point3d>()};\n\n';
+  s += '  for(int fi = 0; fi <= nFloors; fi++){\n';
+  s += '    double t = nFloors > 1 ? (double)fi/(nFloors-1) : 0;\n';
+  s += '    double wM = windProfile(Math.Min(t, 1.0));\n';
+  s += '    double y = fi * fH;\n';
+  s += '    double sShift = y * Math.Tan(leanRad);\n';
+  s += '    double tw = (twist * Math.Min(t,1.0)) * Math.PI / 180.0;\n';
+  s += '    double pW = bW * wM, pD = bD * wM;\n\n';
+  s += '    var corners = new Point3d[]{\n';
+  s += '      new Point3d(-pW/2, -pD/2 - sShift, y),\n';
+  s += '      new Point3d(pW/2, -pD/2 - sShift, y),\n';
+  s += '      new Point3d(pW/2, pD/2 - sShift, y),\n';
+  s += '      new Point3d(-pW/2, pD/2 - sShift, y)\n';
+  s += '    };\n\n';
+  s += '    if(twist > 0){\n';
+  s += '      double cz = -sShift;\n';
+  s += '      for(int ci=0; ci<4; ci++){\n';
+  s += '        double dx = corners[ci].X, dz = corners[ci].Y - cz;\n';
+  s += '        corners[ci] = new Point3d(dx*Math.Cos(tw)-dz*Math.Sin(tw), cz+dx*Math.Sin(tw)+dz*Math.Cos(tw), y);\n';
+  s += '      }\n';
+  s += '    }\n\n';
+  s += '    var pts = new List<Point3d>(corners);\n';
+  s += '    pts.Add(corners[0]);\n';
+  s += '    floorCurves.Add(new PolylineCurve(pts));\n';
+  s += '    for(int ei=0; ei<4; ei++) edgePts[ei].Add(corners[ei]);\n';
+  s += '  }\n\n';
+  s += '  var edgeCurves = new List<Curve>();\n';
+  s += '  foreach(var ep in edgePts) edgeCurves.Add(new PolylineCurve(ep));\n\n';
+  s += '  // Loft envelope\n';
+  s += '  var breps = Brep.CreateFromLoft(floorCurves, Point3d.Unset, Point3d.Unset, LoftType.Normal, false);\n\n';
+  s += '  Floors = floorCurves;\n';
+  s += '  Envelope = breps.Length > 0 ? breps[0] : null;\n';
+  s += '  Edges = edgeCurves;\n';
+  s += '}\n';
+
+  var blob = new Blob([s], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_form_model_gh.cs';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================================================
+   EXPORT: IFC
+============================================================ */
+function exportIFC(){
+  if(!outline) return;
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight || 12;
+  var totalH = outline.totalHeight || nFloors * fH;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+  var lean = outline.leanAngle || 0;
+  var leanRad = lean * Math.PI / 180;
+
+  var wW = windData ? windData.widthEffect : 0;
+  var twistDeg = windData ? windData.twist : 0;
+  var combinedI = windData ? windData.combinedIntensity : 0;
+
+  function windProfile(t){
+    var I = combinedI / 100;
+    var Iw = wW / 100;
+    var baseTop = 0.15 + I*0.05, swellPos = 0.35 + I*0.06;
+    var neckPos = 0.60 + I*0.04, crownStart = 0.80;
+    var baseW2 = 1.0-I*0.25-Iw*0.15, swellW2 = 1.0+I*0.15+Iw*0.1;
+    var neckW2 = 1.0-I*0.35-Iw*0.2, crownW2 = 1.0-I*0.45-Iw*0.15;
+    function sm(x){return x*x*(3-2*x);}
+    function lp(a,b,x){return a+(b-a)*x;}
+    if(t<baseTop){return lp(baseW2, swellW2*0.7+baseW2*0.3, sm(t/baseTop));}
+    if(t<swellPos){return lp(baseW2*0.3+swellW2*0.7, swellW2, sm((t-baseTop)/(swellPos-baseTop)));}
+    if(t<neckPos){return lp(swellW2, neckW2, sm((t-swellPos)/(neckPos-swellPos)));}
+    if(t<crownStart){return lp(neckW2, neckW2*0.8+crownW2*0.2, sm((t-neckPos)/(crownStart-neckPos)));}
+    return lp(neckW2*0.2+crownW2*0.8, crownW2*0.7, sm((t-crownStart)/(1-crownStart)));
+  }
+
+  var ftToM = 0.3048;
+  var fHm = fH * ftToM;
+
+  var ts = new Date().toISOString().replace(/[-:]/g,'').split('.')[0];
+  var id = 1;
+  function nid(){ return '#' + (id++); }
+
+  var lines = [];
+  lines.push("ISO-10303-21;");
+  lines.push("HEADER;");
+  lines.push("FILE_DESCRIPTION(('ViewDefinition [CoordinationView]'),'2;1');");
+  lines.push("FILE_NAME('calvey_form_model.ifc','" + ts + "',('Matthew Calvey'),('Calvey Form'),'','Calvey Form Pipeline','');");
+  lines.push("FILE_SCHEMA(('IFC2X3'));");
+  lines.push("ENDSEC;");
+  lines.push("DATA;");
+
+  var ownerHistId = nid();
+  var personId = nid();
+  var orgId = nid();
+  var personOrgId = nid();
+  var appId = nid();
+  lines.push(personId + "= IFCPERSON($,$,'Calvey',$,$,$,$,$);");
+  lines.push(orgId + "= IFCORGANIZATION($,'Calvey Form',$,$,$);");
+  lines.push(personOrgId + "= IFCPERSONANDORGANIZATION(" + personId + "," + orgId + ",$);");
+  lines.push(appId + "= IFCAPPLICATION(" + orgId + ",'1.0','Calvey Form Pipeline','CalveyForm');");
+  lines.push(ownerHistId + "= IFCOWNERHISTORY(" + personOrgId + "," + appId + ",$,.NOCHANGE.,$,$,$,0);");
+
+  var dimId = nid();
+  var dir1Id = nid();
+  var dir2Id = nid();
+  var originId = nid();
+  var axis2Id = nid();
+  var contextId = nid();
+  lines.push(dimId + "= IFCDIMENSIONALEXPONENTS(0,0,0,0,0,0,0);");
+  lines.push(dir1Id + "= IFCDIRECTION((0.,0.,1.));");
+  lines.push(dir2Id + "= IFCDIRECTION((1.,0.,0.));");
+  lines.push(originId + "= IFCCARTESIANPOINT((0.,0.,0.));");
+  lines.push(axis2Id + "= IFCAXIS2PLACEMENT3D(" + originId + "," + dir1Id + "," + dir2Id + ");");
+  lines.push(contextId + "= IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-5," + axis2Id + ",$);");
+
+  var siLenId = nid();
+  var siAreaId = nid();
+  var siVolId = nid();
+  var unitAssId = nid();
+  lines.push(siLenId + "= IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);");
+  lines.push(siAreaId + "= IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);");
+  lines.push(siVolId + "= IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);");
+  lines.push(unitAssId + "= IFCUNITASSIGNMENT((" + siLenId + "," + siAreaId + "," + siVolId + "));");
+
+  var projectId = nid();
+  lines.push(projectId + "= IFCPROJECT('" + generateGuid() + "'," + ownerHistId + ",'Calvey Form',$,$,$,$,(" + contextId + ")," + unitAssId + ");");
+
+  var sitePlaceId = nid();
+  var siteId = nid();
+  lines.push(sitePlaceId + "= IFCLOCALPLACEMENT($," + axis2Id + ");");
+  lines.push(siteId + "= IFCSITE('" + generateGuid() + "'," + ownerHistId + ",'Site',$,$," + sitePlaceId + ",$,$,.ELEMENT.,$,$,$,$,$);");
+
+  var buildPlaceId = nid();
+  var buildId = nid();
+  lines.push(buildPlaceId + "= IFCLOCALPLACEMENT(" + sitePlaceId + "," + axis2Id + ");");
+  lines.push(buildId + "= IFCBUILDING('" + generateGuid() + "'," + ownerHistId + ",'Calvey Form Building','Lean: " + lean + " deg',$," + buildPlaceId + ",$,$,.ELEMENT.,$,$,$);");
+
+  var storyIds = [];
+  for(var fi = 0; fi < nFloors; fi++){
+    var t = nFloors > 1 ? fi / (nFloors - 1) : 0;
+    var wMult = windData ? windProfile(t) : 1.0;
+    var twistRad = (twistDeg * t) * Math.PI / 180;
+    var elev = fi * fHm;
+    var southShiftFt = fi * fH * Math.tan(leanRad);
+    var southShiftM = southShiftFt * ftToM;
+
+    var storyOriginId = nid();
+    var storyAxisId = nid();
+    var storyPlaceId = nid();
+    var storyId = nid();
+    lines.push(storyOriginId + "= IFCCARTESIANPOINT((0.,0.," + elev.toFixed(4) + "));");
+    lines.push(storyAxisId + "= IFCAXIS2PLACEMENT3D(" + storyOriginId + "," + dir1Id + "," + dir2Id + ");");
+    lines.push(storyPlaceId + "= IFCLOCALPLACEMENT(" + buildPlaceId + "," + storyAxisId + ");");
+    lines.push(storyId + "= IFCBUILDINGSTOREY('" + generateGuid() + "'," + ownerHistId + ",'Floor " + (fi+1) + "','Level " + (fi+1) + "',$," + storyPlaceId + ",$,$,.ELEMENT.," + elev.toFixed(4) + ");");
+    storyIds.push(storyId);
+
+    var pW = bW * wMult;
+    var pD = bD * wMult;
+    var hw = (pW * ftToM) / 2;
+    var hd = (pD * ftToM) / 2;
+
+    var corners = [
+      { x: -hw, y: -hd - southShiftM },
+      { x:  hw, y: -hd - southShiftM },
+      { x:  hw, y:  hd - southShiftM },
+      { x: -hw, y:  hd - southShiftM }
+    ];
+
+    if(twistDeg > 0 && twistRad !== 0){
+      var cy = -southShiftM;
+      corners = corners.map(function(c){
+        var dx = c.x, dy = c.y - cy;
+        return {
+          x: dx * Math.cos(twistRad) - dy * Math.sin(twistRad),
+          y: cy + dx * Math.sin(twistRad) + dy * Math.cos(twistRad)
+        };
+      });
+    }
+
+    var ptIds = [];
+    for(var pi = 0; pi < 4; pi++){
+      var ptId = nid();
+      lines.push(ptId + "= IFCCARTESIANPOINT((" + corners[pi].x.toFixed(4) + "," + corners[pi].y.toFixed(4) + "));");
+      ptIds.push(ptId);
+    }
+    var polyId = nid();
+    lines.push(polyId + "= IFCPOLYLINE((" + ptIds.join(',') + "," + ptIds[0] + "));");
+
+    var profileId = nid();
+    lines.push(profileId + "= IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$," + polyId + ");");
+
+    var extDirId = nid();
+    lines.push(extDirId + "= IFCDIRECTION((0.,0.,1.));");
+
+    var solidId = nid();
+    lines.push(solidId + "= IFCEXTRUDEDAREASOLID(" + profileId + "," + axis2Id + "," + extDirId + "," + fHm.toFixed(4) + ");");
+
+    var shapeId = nid();
+    lines.push(shapeId + "= IFCSHAPEREPRESENTATION(" + contextId + ",'Body','SweptSolid',(" + solidId + "));");
+
+    var prodShapeId = nid();
+    lines.push(prodShapeId + "= IFCPRODUCTDEFINITIONSHAPE($,$,(" + shapeId + "));");
+
+    var slabId = nid();
+    lines.push(slabId + "= IFCSLAB('" + generateGuid() + "'," + ownerHistId + ",'Floor " + (fi+1) + " Slab',$,$," + storyPlaceId + "," + prodShapeId + ",$,.FLOOR.);");
+
+    var relId = nid();
+    lines.push(relId + "= IFCRELCONTAINEDINSPATIALSTRUCTURE('" + generateGuid() + "'," + ownerHistId + ",$,$,(" + slabId + ")," + storyId + ");");
+  }
+
+  var relAggBuild = nid();
+  lines.push(relAggBuild + "= IFCRELAGGREGATES('" + generateGuid() + "'," + ownerHistId + ",$,$," + buildId + ",(" + storyIds.join(',') + "));");
+
+  var relAggSite = nid();
+  lines.push(relAggSite + "= IFCRELAGGREGATES('" + generateGuid() + "'," + ownerHistId + ",$,$," + siteId + ",(" + buildId + "));");
+
+  var relAggProj = nid();
+  lines.push(relAggProj + "= IFCRELAGGREGATES('" + generateGuid() + "'," + ownerHistId + ",$,$," + projectId + ",(" + siteId + "));");
+
+  lines.push("ENDSEC;");
+  lines.push("END-ISO-10303-21;");
+
+  var ifc = lines.join('\n');
+  var blob = new Blob([ifc], {type:'application/x-step'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_form_model.ifc';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function generateGuid(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+    var r = Math.random()*16|0, v = c==='x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  }).toUpperCase().replace(/-/g,'').substring(0,22);
+}
+
+init();
+</script>
+<script src="./render-api.js"></script>
+</body>
+</html>

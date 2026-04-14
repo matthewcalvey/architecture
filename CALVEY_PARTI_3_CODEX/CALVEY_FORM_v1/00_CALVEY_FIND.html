@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALVEY FIND — RFP & RFQ Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #f8f7f4;
+            --bg-card: #eeedea;
+            --border: #d8d6d0;
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b6b65;
+            --accent-airport: #e85a24;
+            --accent-academic: #0d9488;
+            --accent-laboratory: #9333ea;
+            --accent-civic: #2563eb;
+            --accent-landscape: #16a34a;
+            --accent-urgent: #dc2626;
+            --grain-opacity: 0.02;
+        }
+
+```
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'DM Mono', monospace;
+        background: var(--bg-light);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: var(--grain-opacity);
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .grid-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 80px 24px 48px;
+        position: relative;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 40%, rgba(106,156,196,0.06) 0%, transparent 70%);
+    }
+
+    .htl {
+        font-family: 'Space Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        position: relative;
+        margin-bottom: 18px;
+    }
+
+    .hln {
+        width: 40px;
+        height: 1px;
+        background: var(--text-secondary);
+        margin: 0 auto 18px;
+        position: relative;
+    }
+
+    .ht {
+        font-family: 'Cormorant Garamond', serif;
+        font-weight: 300;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--text-primary);
+        font-size: clamp(48px, 9vw, 100px);
+        line-height: 1.05;
+        margin-bottom: 16px;
+        position: relative;
+    }
+
+    .hs2 {
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        position: relative;
+        margin-bottom: 12px;
+    }
+
+    .header-meta {
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        position: relative;
+        margin-top: 16px;
+    }
+
+    .refresh-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 0.75rem;
+    }
+
+    .refresh-btn:hover {
+        background: var(--text-primary);
+        color: var(--bg-light);
+    }
+
+    .refresh-btn svg {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.5s ease;
+    }
+
+    .refresh-btn:hover svg {
+        transform: rotate(180deg);
+    }
+
+    .filters {
+        display: flex;
+        gap: 0.5rem;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border);
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: var(--text-primary);
+        color: var(--bg-light);
+        border-color: var(--text-primary);
+    }
+
+    .filter-btn.airport.active {
+        background: var(--accent-airport);
+        border-color: var(--accent-airport);
+    }
+
+    .filter-btn.academic.active {
+        background: var(--accent-academic);
+        border-color: var(--accent-academic);
+    }
+
+    .filter-btn.laboratory.active {
+        background: var(--accent-laboratory);
+        border-color: var(--accent-laboratory);
+    }
+
+    .filter-btn.civic.active {
+        background: var(--accent-civic);
+        border-color: var(--accent-civic);
+    }
+
+    .filter-btn.landscape.active {
+        background: var(--accent-landscape);
+        border-color: var(--accent-landscape);
+    }
+
+    .solicitation-filters {
+        padding-bottom: 0.5rem;
+    }
+
+    .filters:not(.solicitation-filters) {
+        border-top: none;
+        padding-top: 0.5rem;
+    }
+
+    .sol-filter.rfp.active {
+        background: #f59e0b;
+        border-color: #f59e0b;
+    }
+
+    .sol-filter.rfq.active {
+        background: #8b5cf6;
+        border-color: #8b5cf6;
+    }
+
+    .sol-badge {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 2px;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+
+    .sol-badge.rfp {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+
+    .sol-badge.rfq {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+    }
+
+    main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        position: relative;
+    }
+
+    .timeline-line {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, var(--border) 10%, var(--border) 90%, transparent);
+        transform: translateX(-50%);
+    }
+
+    @media (max-width: 768px) {
+        .timeline-line {
+            left: 2rem;
+        }
+    }
+
+    .leads-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .lead-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.75rem;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        overflow: hidden;
+    }
+
+    .lead-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .lead-card.airport::before {
+        background: var(--accent-airport);
+    }
+
+    .lead-card.academic::before {
+        background: var(--accent-academic);
+    }
+
+    .lead-card.laboratory::before {
+        background: var(--accent-laboratory);
+    }
+
+    .lead-card.civic::before {
+        background: var(--accent-civic);
+    }
+
+    .lead-card.landscape::before {
+        background: var(--accent-landscape);
+    }
+
+    .lead-card:hover {
+        transform: translateY(-4px) scale(1.01);
+        border-color: var(--text-secondary);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    }
+
+    .lead-card:hover::before {
+        width: 6px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-type {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        padding: 0.3rem 0.6rem;
+        border-radius: 2px;
+        font-weight: 500;
+    }
+
+    .card-type.airport {
+        background: rgba(255, 107, 53, 0.15);
+        color: var(--accent-airport);
+    }
+
+    .card-type.academic {
+        background: rgba(78, 205, 196, 0.15);
+        color: var(--accent-academic);
+    }
+
+    .card-type.laboratory {
+        background: rgba(168, 85, 247, 0.15);
+        color: var(--accent-laboratory);
+    }
+
+    .card-type.civic {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-civic);
+    }
+
+    .card-type.landscape {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--accent-landscape);
+    }
+
+    .due-date {
+        text-align: right;
+    }
+
+    .due-label {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .due-value {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .due-value.urgent {
+        color: var(--accent-urgent);
+    }
+
+    .due-value.soon {
+        color: var(--accent-airport);
+    }
+
+    .card-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        line-height: 1.3;
+        margin-bottom: 0.75rem;
+    }
+
+    .card-location {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .card-location svg {
+        width: 12px;
+        height: 12px;
+        opacity: 0.6;
+    }
+
+    .card-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .detail-label {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-secondary);
+    }
+
+    .detail-value {
+        font-size: 0.8rem;
+    }
+
+    .detail-value.na {
+        opacity: 0.4;
+        font-style: italic;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .contact-info {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+
+    .contact-info strong {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .view-rfp {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    .lead-card:hover .view-rfp {
+        color: var(--text-primary);
+    }
+
+    .view-rfp svg {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.3s ease;
+    }
+
+    .lead-card:hover .view-rfp svg {
+        transform: translateX(4px);
+    }
+
+    .loading {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--border);
+        border-top-color: var(--text-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+            .days-remaining {
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        margin-top: 0.15rem;
+    }
+
+    footer {
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--border);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .lead-card {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    .lead-card:nth-child(1) { animation-delay: 0.1s; }
+    .lead-card:nth-child(2) { animation-delay: 0.15s; }
+    .lead-card:nth-child(3) { animation-delay: 0.2s; }
+    .lead-card:nth-child(4) { animation-delay: 0.25s; }
+    .lead-card:nth-child(5) { animation-delay: 0.3s; }
+    .lead-card:nth-child(6) { animation-delay: 0.35s; }
+    .lead-card:nth-child(7) { animation-delay: 0.4s; }
+    .lead-card:nth-child(8) { animation-delay: 0.45s; }
+</style>
+```
+
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+```
+<div class="hero">
+    <div class="htl">RFP &amp; RFQ / ARCHITECTURE / INTELLIGENCE</div>
+    <div class="hln"></div>
+    <h1 class="ht">CALVEY<br>FIND</h1>
+    <div class="hs2">PROCUREMENT OPPORTUNITIES — ACTIVE</div>
+    <div class="header-meta">
+        <div id="last-updated">Loading...</div>
+        <button class="refresh-btn" onclick="location.reload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Refresh
+        </button>
+    </div>
+</div>
+
+    <div class="filters solicitation-filters">
+    <button class="filter-btn sol-filter active" data-sol="all">All Types</button>
+    <button class="filter-btn sol-filter rfq" data-sol="rfq">RFQ - Request for Qualifications</button>
+    <button class="filter-btn sol-filter rfp" data-sol="rfp">RFP - Request for Proposal</button>
+</div>
+
+<div class="filters">
+    <button class="filter-btn active" data-filter="all">All Projects</button>
+    <button class="filter-btn airport" data-filter="airport">Aviation / Airport</button>
+    <button class="filter-btn academic" data-filter="academic">Academic / Education</button>
+    <button class="filter-btn laboratory" data-filter="laboratory">Laboratory / Research</button>
+    <button class="filter-btn civic" data-filter="civic">Civic / Government</button>
+    <button class="filter-btn landscape" data-filter="landscape">Landscape / Public Space</button>
+</div>
+
+<main>
+    <div class="timeline-line"></div>
+    <div class="leads-container" id="leads-container">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Fetching RFP opportunities...</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>CALVEY FIND &middot; Links connect to official procurement portals &middot; Verify deadlines on source sites</p>
+    <p style="margin-top: 0.5rem; opacity: 0.6;">Sources: SAM.gov &middot; FAA IIJA &middot; GSA &middot; NIH &middot; University procurement offices &middot; Updated March 2026</p>
+</footer>
+
+<script>
+    // Current RFP & RFQ data — Updated March 2026
+    // Sources: SAM.gov, FAA, GSA, university procurement portals, state/local procurement sites
+    const sampleRFPs = [
+        // AIRPORT
+        {
+            id: 1,
+            type: 'airport',
+            solType: 'rfp',
+            title: 'FY 2026 Airport Terminal Program (ATP) — Final Round',
+            location: 'Nationwide — FAA Competitive Grant',
+            dueDate: '2026-06-30',
+            projectValue: '$1B Total Program',
+            size: 'Various terminal projects',
+            contact: 'FAA IIJA Airport Terminals Branch',
+            email: 'IIJA.Airports@faa.gov',
+            phone: '(202) 267-8328',
+            url: 'https://www.faa.gov/iija/airport-terminals',
+            description: 'Final year of $5B IIJA terminal modernization program — competitive grants for terminal development'
+        },
+        {
+            id: 2,
+            type: 'airport',
+            solType: 'rfq',
+            title: 'Sustainable Airport Master Plan (SAMP) — NorthSTAR Program',
+            location: 'Seattle-Tacoma International (SEA), WA',
+            dueDate: '2026-06-01',
+            projectValue: '$600M–$750M',
+            size: '19 new gates + second terminal',
+            contact: 'Port of Seattle Aviation Capital',
+            email: null,
+            phone: '(206) 787-5388',
+            url: 'https://www.portseattle.org/plans/sustainable-airport-master-plan-samp',
+            description: 'Second terminal, ground transportation center, and airfield extensions'
+        },
+        {
+            id: 3,
+            type: 'airport',
+            solType: 'rfq',
+            title: 'SMForward Terminal Modernization — Concourse B Expansion',
+            location: 'Sacramento International Airport (SMF), CA',
+            dueDate: '2026-04-15',
+            projectValue: '$500M+ Program',
+            size: '6 new gates + concourse',
+            contact: 'Sacramento County Dept. of Airports',
+            email: null,
+            phone: null,
+            url: 'https://sacramento.aero/opportunities/bids_and_requests',
+            description: 'CMAR for terminal expansion, inline baggage system, and concourse improvements'
+        },
+        {
+            id: 4,
+            type: 'airport',
+            solType: 'rfq',
+            title: 'Roanoke-Blacksburg Regional Airport Terminal Architectural Services',
+            location: 'Roanoke, VA',
+            dueDate: '2026-04-30',
+            projectValue: 'TBD',
+            size: 'Terminal renovation',
+            contact: 'Roanoke Regional Airport Commission',
+            email: null,
+            phone: null,
+            url: 'https://www.flyroa.com',
+            description: 'A/E services for terminal modernization and expansion'
+        },
+        // ACADEMIC
+        {
+            id: 5,
+            type: 'academic',
+            solType: 'rfp',
+            title: 'Montclair State Interdisciplinary Science Building',
+            location: 'Montclair State University, NJ',
+            dueDate: '2026-03-13',
+            projectValue: 'TBD',
+            size: 'Multi-story new construction',
+            contact: 'MSU Procurement Services',
+            email: null,
+            phone: null,
+            url: 'https://www.montclair.edu/procurement/2026/01/30/rfp-1636-interdisciplinary-science-building/',
+            description: 'RFP 1636 — New multi-story interdisciplinary science building on Montclair campus'
+        },
+        {
+            id: 6,
+            type: 'academic',
+            solType: 'rfp',
+            title: 'ASU Student Union Renovation',
+            location: 'Arizona State University, Tempe, AZ',
+            dueDate: '2026-05-01',
+            projectValue: '$66M',
+            size: 'Major renovation + addition',
+            contact: 'ASU Capital Programs',
+            email: null,
+            phone: null,
+            url: 'https://cfo.asu.edu/construction-facilities-bid-board',
+            description: 'Renovation of dining, bookstore, lounges, classrooms, and meeting rooms'
+        },
+        {
+            id: 7,
+            type: 'academic',
+            solType: 'rfp',
+            title: 'Ball State North Campus Buildings Renovation',
+            location: 'Ball State University, Muncie, IN',
+            dueDate: '2026-04-15',
+            projectValue: '$81M',
+            size: 'Theatre, Arts, Architecture Bldgs',
+            contact: 'BSU Purchasing',
+            email: null,
+            phone: null,
+            url: 'https://www.bsu.edu/-/media/www/departmentalcontent/purchasing/pdfs/publicworks/rfp-north-campus-building-renovation-cap/bid-notice-for-rfp-cmc--n-campus-building-renovation-cap.pdf',
+            description: 'Major mechanical/electrical upgrades, glazing replacement, 6 new design studios'
+        },
+        {
+            id: 8,
+            type: 'academic',
+            solType: 'rfq',
+            title: 'UW Facilities — Multiple Active Solicitations',
+            location: 'University of Washington, Seattle, WA',
+            dueDate: '2026-04-01',
+            projectValue: 'Various',
+            size: 'Various renovations',
+            contact: 'UW Facilities Project Delivery',
+            email: null,
+            phone: null,
+            url: 'https://facilities.uw.edu/projects/business-opportunities/solicitations',
+            description: 'UWMC energy upgrades, Sieg Hall renovation, Alaska Airlines Arena locker rooms'
+        },
+        {
+            id: 9,
+            type: 'academic',
+            solType: 'rfq',
+            title: 'San Francisco State University — Capital Projects RFQ',
+            location: 'San Francisco State University, CA',
+            dueDate: '2026-05-15',
+            projectValue: 'Various',
+            size: 'Various',
+            contact: 'SFSU Campus Planning',
+            email: null,
+            phone: null,
+            url: 'https://plan.sfsu.edu/rfq',
+            description: 'Ongoing RFQ for design professional and consultant services'
+        },
+        // LABORATORY
+        {
+            id: 10,
+            type: 'laboratory',
+            solType: 'rfp',
+            title: 'NIH Biomedical Research Facilities (C06) — FY 2026',
+            location: 'Nationwide — NIH Grant Program',
+            dueDate: '2026-05-25',
+            projectValue: '$3M–$8M per award',
+            size: 'Core facilities & labs',
+            contact: 'NIH Office of Research Infrastructure',
+            email: 'drm@mail.nih.gov',
+            phone: null,
+            url: 'https://orip.nih.gov/construction-and-instruments/extramural-construction-programs/c06-program-frequently-asked-questions',
+            description: 'Construction grants for biomedical research facility modernization'
+        },
+        {
+            id: 11,
+            type: 'laboratory',
+            solType: 'rfq',
+            title: 'UWMC Montlake Energy Efficiency Upgrades — GC/CM',
+            location: 'UW Medical Center Montlake, Seattle, WA',
+            dueDate: '2026-03-31',
+            projectValue: 'TBD',
+            size: 'Medical campus mechanical systems',
+            contact: 'UW Facilities Project Delivery',
+            email: null,
+            phone: null,
+            url: 'https://facilities.uw.edu/projects/business-opportunities/solicitations',
+            description: 'DDC controls, VFDs, damper upgrades across multiple mechanical rooms'
+        },
+        {
+            id: 12,
+            type: 'laboratory',
+            solType: 'rfp',
+            title: 'NIH Guide — Research Facility Grants & Contracts',
+            location: 'Federal — Nationwide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Research facilities',
+            contact: 'NIH Division of Technical Resources',
+            email: 'drm@mail.nih.gov',
+            phone: null,
+            url: 'https://grants.nih.gov/funding/nih-guide-for-grants-and-contracts',
+            description: 'Rolling NIH funding announcements for lab construction and renovation'
+        },
+        {
+            id: 13,
+            type: 'laboratory',
+            solType: 'rfp',
+            title: 'Farmingdale Sinclair Hall Gut Renovation',
+            location: 'Farmingdale State College, NY',
+            dueDate: '2026-04-30',
+            projectValue: 'TBD',
+            size: '~45,000 GSF renovation + addition',
+            contact: 'Farmingdale Capital Projects',
+            email: null,
+            phone: null,
+            url: 'https://www.farmingdale.edu/capital-projects-and-construction/current-projects.shtml',
+            description: 'Complete interior gut renovation with new HVAC, electrical, plumbing, and 2-story steel addition'
+        },
+        // CIVIC
+        {
+            id: 14,
+            type: 'civic',
+            solType: 'rfq',
+            title: 'Massachusetts Statewide A/E Professional Services — 2026',
+            location: 'Commonwealth of Massachusetts',
+            dueDate: '2026-03-10',
+            projectValue: 'Various',
+            size: 'Statewide facilities',
+            contact: 'DCAMM',
+            email: null,
+            phone: null,
+            url: 'https://www.mass.gov/doc/commbuys-home-page-bid-count/download',
+            description: 'RFQ for architectural/engineering professional services across state facilities'
+        },
+        {
+            id: 15,
+            type: 'civic',
+            solType: 'rfq',
+            title: 'Norfolk County On-Call Design & Engineering Services',
+            location: 'Norfolk County, MA',
+            dueDate: '2026-03-11',
+            projectValue: 'IDIQ Contract',
+            size: 'County facilities',
+            contact: 'Norfolk County Procurement',
+            email: null,
+            phone: null,
+            url: 'https://www.norfolkcounty.org',
+            description: 'On-call A/E services for various county building projects'
+        },
+        {
+            id: 16,
+            type: 'civic',
+            solType: 'rfq',
+            title: 'Rockdale County A/E Indefinite Delivery Contract',
+            location: 'Rockdale County, GA',
+            dueDate: '2026-03-31',
+            projectValue: 'IDIQ Contract',
+            size: 'Various county projects',
+            contact: 'Rockdale County Procurement',
+            email: null,
+            phone: null,
+            url: 'https://www.rockdalecountyga.gov/wp-content/uploads/2025/12/25-30-Architectural-Engineering-Services-for-Various-County-Projects.pdf',
+            description: 'RFQ #25-30 — A/E services for various county building projects'
+        },
+        {
+            id: 17,
+            type: 'civic',
+            solType: 'rfp',
+            title: 'Tomochichi Federal Building & Courthouse Renovation',
+            location: 'Savannah, GA',
+            dueDate: '2026-06-01',
+            projectValue: '$90.9M',
+            size: 'Historic renovation',
+            contact: 'GSA Region 4',
+            email: null,
+            phone: null,
+            url: 'https://www.gsa.gov/real-estate/gsa-properties/ongoing-construction-projects/tomochichi-fb-and-savannah-us-courthouse',
+            description: 'Historic federal courthouse modernization — operational late 2026'
+        },
+        {
+            id: 18,
+            type: 'civic',
+            solType: 'rfp',
+            title: 'SAM.gov A/E Contract Opportunities (NAICS 541310)',
+            location: 'Federal — Nationwide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Various federal facilities',
+            contact: 'SAM.gov',
+            email: null,
+            phone: null,
+            url: 'https://sam.gov/content/opportunities',
+            description: 'Search NAICS 541310 for architecture and engineering services — updated daily'
+        },
+        // LANDSCAPE
+        {
+            id: 19,
+            type: 'landscape',
+            solType: 'rfq',
+            title: 'City of Brainerd — Professional Architecture & Engineering Pool',
+            location: 'Brainerd, MN',
+            dueDate: '2026-03-04',
+            projectValue: 'Annual on-call',
+            size: 'Municipal projects',
+            contact: 'City of Brainerd',
+            email: null,
+            phone: null,
+            url: 'https://www.lmc.org/marketplace/requests-for-proposals/',
+            description: 'LOI/SOQ for on-call engineering and architecture services roster'
+        },
+        {
+            id: 20,
+            type: 'landscape',
+            solType: 'rfq',
+            title: 'ASLA RFQ & Opportunity Listings — 2026',
+            location: 'Nationwide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Various',
+            contact: 'ASLA Professional Practice',
+            email: 'propractice@asla.org',
+            phone: null,
+            url: 'https://www.asla.org/land/LandArticle.aspx?id=64606',
+            description: 'Curated landscape architecture RFP and RFQ listings — updated regularly'
+        },
+        {
+            id: 21,
+            type: 'landscape',
+            solType: 'rfp',
+            title: 'Planetizen Urban Planning & Public Space RFP Board',
+            location: 'Nationwide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Various',
+            contact: 'Planetizen',
+            email: null,
+            phone: null,
+            url: 'https://www.planetizen.com/rfps',
+            description: 'Urban planning, landscape, and public space design RFPs — updated weekly'
+        },
+        {
+            id: 22,
+            type: 'landscape',
+            solType: 'rfp',
+            title: 'FindRFP Landscape Architecture Bids',
+            location: 'Nationwide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Various',
+            contact: 'FindRFP',
+            email: null,
+            phone: null,
+            url: 'https://www.findrfp.com/landscaping-bids/landscape-architecture.aspx',
+            description: 'Aggregated landscape architecture bids from federal, state, and local government'
+        },
+        {
+            id: 23,
+            type: 'landscape',
+            solType: 'rfq',
+            title: 'AIA Florida — Current RFQ & RFP Listings',
+            location: 'Florida Statewide',
+            dueDate: '2026-06-30',
+            projectValue: 'Various',
+            size: 'Various',
+            contact: 'AIA Florida',
+            email: null,
+            phone: null,
+            url: 'https://www.aiafla.org/Member-Resources_RFQs-RFPs.cfm',
+            description: 'Architecture, landscape, and public space RFQs across Florida'
+        }
+    ];
+
+    // Helper functions
+    function formatDate(dateStr) {
+        const date = new Date(dateStr + 'T00:00:00');
+        return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+
+    function getDaysUntil(dateStr) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dueDate = new Date(dateStr + 'T00:00:00');
+        const diffTime = dueDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+
+    function getDueDateClass(dateStr) {
+        const days = getDaysUntil(dateStr);
+        if (days <= 7) return 'urgent';
+        if (days <= 14) return 'soon';
+        return '';
+    }
+
+    function createLeadCard(lead) {
+        const daysUntil = getDaysUntil(lead.dueDate);
+        const dueDateClass = getDueDateClass(lead.dueDate);
+        const daysText = daysUntil === 0 ? 'Due today' : 
+                        daysUntil === 1 ? '1 day left' : 
+                        daysUntil < 0 ? 'Past due' :
+                        `${daysUntil} days left`;
+
+        const typeLabels = {
+            airport: '✈ Aviation',
+            academic: '🎓 Academic',
+            laboratory: '🔬 Laboratory',
+            civic: '🏛 Civic',
+            landscape: '🌿 Landscape'
+        };
+
+        const solLabel = lead.solType === 'rfq' ? 'RFQ' : 'RFP';
+
+        return `
+            <a href="${lead.url}" target="_blank" rel="noopener noreferrer" class="lead-card ${lead.type}" data-type="${lead.type}" data-sol="${lead.solType}">
+                <div class="card-header">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                        <span class="card-type ${lead.type}">${typeLabels[lead.type]}</span>
+                        <span class="sol-badge ${lead.solType}">${solLabel}</span>
+                    </div>
+                    <div class="due-date">
+                        <div class="due-label">Deadline</div>
+                        <div class="due-value ${dueDateClass}">${formatDate(lead.dueDate)}</div>
+                        <div class="days-remaining">${daysText}</div>
+                    </div>
+                </div>
+                
+                <h2 class="card-title">${lead.title}</h2>
+                
+                <div class="card-location">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    ${lead.location}
+                </div>
+                
+                <div class="card-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Est. Value</span>
+                        <span class="detail-value">${lead.projectValue || '<span class="na">TBD</span>'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Size</span>
+                        <span class="detail-value">${lead.size || '<span class="na">TBD</span>'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Scope</span>
+                        <span class="detail-value">${lead.description}</span>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="contact-info">
+                        ${lead.contact ? `<strong>${lead.contact}</strong><br>${lead.email || ''}` : '<span class="na">Contact info not available</span>'}
+                    </div>
+                    <div class="view-rfp">
+                        View RFP
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    let currentCategoryFilter = 'all';
+    let currentSolFilter = 'all';
+
+    function renderLeads() {
+        const container = document.getElementById('leads-container');
+        
+        // Filter leads by both category and solicitation type
+        let filteredLeads = sampleRFPs.filter(lead => {
+            const categoryMatch = currentCategoryFilter === 'all' || lead.type === currentCategoryFilter;
+            const solMatch = currentSolFilter === 'all' || lead.solType === currentSolFilter;
+            return categoryMatch && solMatch;
+        });
+        
+        // Sort by due date - soonest at BOTTOM (descending order, so furthest dates first)
+        filteredLeads.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+        
+        if (filteredLeads.length === 0) {
+            container.innerHTML = '<div class="no-results">No RFPs or RFQs found matching your criteria.</div>';
+            return;
+        }
+        
+        container.innerHTML = filteredLeads.map(createLeadCard).join('');
+    }
+
+    function updateStats() {
+        const now = new Date();
+        document.getElementById('last-updated').textContent = 
+            `Last updated: ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    // Category filter button handlers
+    document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentCategoryFilter = this.dataset.filter;
+            renderLeads();
+        });
+    });
+
+    // Solicitation type filter button handlers
+    document.querySelectorAll('.filter-btn[data-sol]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn[data-sol]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSolFilter = this.dataset.sol;
+            renderLeads();
+        });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        updateStats();
+        renderLeads();
+    });
+</script>
+```
+
+</body>
+</html>

@@ -1,0 +1,489 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Small Town Hall", "location": "Various US", "approx_sf": 15000, "notes": "Town meeting room; clerk offices; building department; police sub-station"},
+    "medium": {"name": "Cambridge City Hall Annex", "location": "Cambridge, MA", "approx_sf": 65000, "notes": "Municipal offices; public service counters; council chambers; community meeting rooms"},
+    "large": {"name": "San Francisco City Hall", "location": "San Francisco, CA", "approx_sf": 500000, "notes": "Beaux-Arts landmark; Board of Supervisors; Mayor's office; ceremonial rotunda; multiple departments"}
+  },
+  "building_type": "Civic / Government",
+  "subtypes": [
+    {
+      "id": "CIV_CITY",
+      "name": "City Hall / Municipal Building",
+      "gross_sf_typical": [
+        20000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.7,
+        0.84
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "CIV_LIBRARY",
+      "name": "Public Library",
+      "gross_sf_typical": [
+        15000,
+        180000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.82
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "CIV_COURT",
+      "name": "Courthouse (basic)",
+      "gross_sf_typical": [
+        40000,
+        400000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.78
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "CIV_ENTRY",
+      "name": "Main Entry / Security Screening",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        2500
+      ],
+      "percent_of_gross_range": [
+        0.004,
+        0.03
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Security screening drives queue space"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CIV_LOBBY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "CIV_SECURITY",
+          "weight": 0.8,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "CIV_SECURITY",
+      "name": "Security Screening Area",
+      "category": "Public/Support",
+      "nsf_range": [
+        200,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.02
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_ENTRY",
+          "weight": 0.8,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "CIV_LOBBY",
+      "name": "Lobby / Public Hall",
+      "category": "Public/Commons",
+      "nsf_range": [
+        800,
+        10000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_SERVICE",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CIV_MEETING",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_SERVICE",
+      "name": "Public Service Counters",
+      "category": "Public/Service",
+      "nsf_range": [
+        400,
+        5000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Permitting, licensing, clerk functions"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CIV_LOBBY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CIV_BACK_OFFICE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_MEETING",
+      "name": "Public Meeting / Council Chamber",
+      "category": "Assembly",
+      "nsf_range": [
+        1000,
+        8000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.06
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "AV + dais + prefunction"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CIV_LOBBY",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CIV_AV",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_BACK_OFFICE",
+      "name": "Back Office / Staff Work",
+      "category": "Administration",
+      "nsf_range": [
+        1500,
+        30000
+      ],
+      "percent_of_gross_range": [
+        0.15,
+        0.45
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_SERVICE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_CONF",
+      "name": "Conference Rooms",
+      "category": "Administration",
+      "nsf_range": [
+        200,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_BACK_OFFICE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_AV",
+      "name": "AV / Control Room",
+      "category": "Support",
+      "nsf_range": [
+        80,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.01
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_MEETING",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_RESTROOM",
+      "name": "Public Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        250,
+        1800
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "CIV_LOBBY",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CIV_MECH",
+      "name": "Main Mechanical",
+      "category": "MEP",
+      "nsf_range": [
+        800,
+        8000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "CIV_ENTRY",
+      "to": "CIV_LOBBY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "CIV_ENTRY",
+      "to": "CIV_SECURITY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "CIV_SECURITY",
+      "to": "CIV_ENTRY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "CIV_LOBBY",
+      "to": "CIV_SERVICE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_LOBBY",
+      "to": "CIV_MEETING",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_SERVICE",
+      "to": "CIV_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_SERVICE",
+      "to": "CIV_BACK_OFFICE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_MEETING",
+      "to": "CIV_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_MEETING",
+      "to": "CIV_AV",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_BACK_OFFICE",
+      "to": "CIV_SERVICE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_CONF",
+      "to": "CIV_BACK_OFFICE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_AV",
+      "to": "CIV_MEETING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CIV_RESTROOM",
+      "to": "CIV_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "CIVIC__DEFAULT__US-NATIONAL",
+    "cost": "CIVIC__DEFAULT__US-NE",
+    "parking": "CIVIC__DEFAULT__BOSTON-MA"
+  }
+}

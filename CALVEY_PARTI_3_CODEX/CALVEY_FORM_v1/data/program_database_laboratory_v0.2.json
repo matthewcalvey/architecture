@@ -1,0 +1,468 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Startup Lab Suite", "location": "Various US", "approx_sf": 20000, "notes": "Incubator or small pharma; shared core equipment; 4-6 lab bays; write-up space"},
+    "medium": {"name": "Broad Institute (75 Ames Street)", "location": "Cambridge, MA", "approx_sf": 200000, "notes": "Genomics research; BSL-2 labs; computational space; open collaboration"},
+    "large": {"name": "NIH Building 10 (Clinical Center)", "location": "Bethesda, MD", "approx_sf": 2500000, "notes": "Largest clinical research hospital; BSL-3/4; imaging; vivarium; clinical trials"}
+  },
+  "building_type": "Laboratory",
+  "subtypes": [
+    {
+      "id": "LAB_DRY",
+      "name": "Dry Lab (Computational / Instrumentation)",
+      "gross_sf_typical": [
+        20000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.58,
+        0.72
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "LAB_WET",
+      "name": "Wet Lab (Bench + Fume Hood)",
+      "gross_sf_typical": [
+        30000,
+        400000
+      ],
+      "efficiency_ratio_target_range": [
+        0.55,
+        0.7
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "LAB_GMP",
+      "name": "GMP / Cleanroom (Basic)",
+      "gross_sf_typical": [
+        20000,
+        300000
+      ],
+      "efficiency_ratio_target_range": [
+        0.5,
+        0.68
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "LAB_ENTRY",
+      "name": "Entry / Reception",
+      "category": "Public/Entry",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Control access; visitor processing"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LAB_ADMIN",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LAB_CORRIDOR",
+          "weight": 0.8,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_CORRIDOR",
+      "name": "Lab Corridor / Spine",
+      "category": "Circulation",
+      "nsf_range": [
+        800,
+        12000
+      ],
+      "percent_of_gross_range": [
+        0.08,
+        0.18
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Separate clean/dirty where required"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LAB_MODULE",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "LAB_SUPPORT",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_MODULE",
+      "name": "Lab Module / Open Lab Bays",
+      "category": "Laboratory",
+      "nsf_range": [
+        1000,
+        25000
+      ],
+      "percent_of_gross_range": [
+        0.25,
+        0.55
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "Bench + equipment; high ventilation drives MEP"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LAB_SUPPORT",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LAB_OFFICE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_SUPPORT",
+      "name": "Lab Support Rooms (shared)",
+      "category": "Laboratory/Support",
+      "nsf_range": [
+        500,
+        10000
+      ],
+      "percent_of_gross_range": [
+        0.08,
+        0.2
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Glasswash, cold rooms, write-up, storage, etc. Split in v0.2"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LAB_MODULE",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LAB_WASTE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_WASTE",
+      "name": "Hazardous Waste / Soiled Holding",
+      "category": "Safety/Operations",
+      "nsf_range": [
+        100,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.03
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Code and EHS-driven separation"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LAB_SUPPORT",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LAB_LOADING",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_OFFICE",
+      "name": "Write-Up / Office (Lab Adjacent)",
+      "category": "Work",
+      "nsf_range": [
+        300,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.05,
+        0.2
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LAB_MODULE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_ADMIN",
+      "name": "Admin / Conference",
+      "category": "Administration",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LAB_ENTRY",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_LOADING",
+      "name": "Loading / Receiving (Controlled)",
+      "category": "Operations",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LAB_WASTE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LAB_MECH",
+      "name": "Central Mechanical (High)",
+      "category": "MEP",
+      "nsf_range": [
+        2000,
+        40000
+      ],
+      "percent_of_gross_range": [
+        0.1,
+        0.25
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Roof/Penthouse",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Exhaust, AHUs, heat recovery; often major building volume"
+      ],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "LAB_ENTRY",
+      "to": "LAB_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_ENTRY",
+      "to": "LAB_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_CORRIDOR",
+      "to": "LAB_MODULE",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LAB_CORRIDOR",
+      "to": "LAB_SUPPORT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_MODULE",
+      "to": "LAB_SUPPORT",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_MODULE",
+      "to": "LAB_OFFICE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_SUPPORT",
+      "to": "LAB_MODULE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_SUPPORT",
+      "to": "LAB_WASTE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_WASTE",
+      "to": "LAB_SUPPORT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_WASTE",
+      "to": "LAB_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_OFFICE",
+      "to": "LAB_MODULE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_ADMIN",
+      "to": "LAB_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAB_LOADING",
+      "to": "LAB_WASTE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "LABORATORY__DEFAULT__US-NATIONAL",
+    "cost": "LABORATORY__DEFAULT__US-NE",
+    "parking": "LABORATORY__DEFAULT__BOSTON-MA"
+  }
+}

@@ -1,0 +1,918 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "units": {
+    "area": "sf",
+    "distance": "ft"
+  },
+  "notes": [
+    "v0.2 wraps the v0.1 per-building-type libraries into a graph-native Program Database format.",
+    "Adjacency edges are stored as weighted edges with relationship enums suitable for bubble diagram solvers.",
+    "Benchmarks in v0.2 are templates/placeholders to be populated with verified data (EUI, cost, parking).",
+    "Calibration hooks are included for importing and normalizing your firm's project schedules."
+  ],
+  "relationship_enum": [
+    "must_adjoin",
+    "should_adjoin",
+    "near",
+    "optional",
+    "separate",
+    "avoid",
+    "secure_separation",
+    "vertical_stack"
+  ],
+  "databases": [
+    {
+      "category": "Office",
+      "building_type": "Office",
+      "json": "program_database_office_v0.2.json",
+      "space_count": 15,
+      "edge_count": 29,
+      "tiers_present": [
+        "Class_A",
+        "Class_B",
+        "Class_C"
+      ]
+    },
+    {
+      "category": "Multifamily",
+      "building_type": "Multifamily Residential",
+      "json": "program_database_multifamily_v0.2.json",
+      "space_count": 46,
+      "edge_count": 104,
+      "tiers_present": [
+        "Affordable",
+        "Luxury",
+        "Market"
+      ]
+    },
+    {
+      "category": "K12",
+      "building_type": "K-12 School",
+      "json": "program_database_k12_v0.2.json",
+      "space_count": 17,
+      "edge_count": 28,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "HigherEd",
+      "building_type": "Higher Education",
+      "json": "program_database_higher_ed_v0.2.json",
+      "space_count": 14,
+      "edge_count": 19,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "building_type": "Healthcare (Outpatient / Inpatient mix)",
+      "json": "program_database_healthcare_v0.2.json",
+      "space_count": 13,
+      "edge_count": 19,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "Civic",
+      "building_type": "Civic / Government",
+      "json": "program_database_civic_v0.2.json",
+      "space_count": 10,
+      "edge_count": 13,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "Laboratory",
+      "building_type": "Laboratory",
+      "json": "program_database_laboratory_v0.2.json",
+      "space_count": 9,
+      "edge_count": 13,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "Hospitality",
+      "building_type": "Hospitality (Hotel)",
+      "json": "program_database_hospitality_v0.2.json",
+      "space_count": 14,
+      "edge_count": 20,
+      "tiers_present": [
+        "Budget",
+        "Full_Service",
+        "Luxury",
+        "Select_Service"
+      ]
+    },
+    {
+      "category": "Retail",
+      "building_type": "Retail / Mixed-Use",
+      "json": "program_database_retail_v0.2.json",
+      "space_count": 16,
+      "edge_count": 34,
+      "tiers_present": [
+        "Budget",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "Industrial",
+      "building_type": "Industrial / Warehouse",
+      "json": "program_database_industrial_v0.2.json",
+      "space_count": 16,
+      "edge_count": 31,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "Cultural",
+      "building_type": "Cultural / Museum",
+      "json": "program_database_cultural_v0.2.json",
+      "space_count": 24,
+      "edge_count": 36,
+      "tiers_present": [
+        "Community",
+        "Regional",
+        "Major"
+      ]
+    },
+    {
+      "category": "Religious",
+      "building_type": "Religious / Worship",
+      "json": "program_database_religious_v0.2.json",
+      "space_count": 18,
+      "edge_count": 31,
+      "tiers_present": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "category": "Recreation",
+      "building_type": "Recreation / Sports",
+      "json": "program_database_recreation_v0.2.json",
+      "space_count": 19,
+      "edge_count": 29,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "DataCenter",
+      "building_type": "Data Center / Tech",
+      "json": "program_database_datacenter_v0.2.json",
+      "space_count": 17,
+      "edge_count": 26,
+      "tiers_present": [
+        "Tier_II",
+        "Tier_III",
+        "Tier_IV"
+      ]
+    },
+    {
+      "category": "Parking",
+      "building_type": "Parking Structure",
+      "json": "program_database_parking_v0.2.json",
+      "space_count": 12,
+      "edge_count": 18,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "Transit",
+      "building_type": "Transit / Transportation",
+      "json": "program_database_transit_v0.2.json",
+      "space_count": 19,
+      "edge_count": 27,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "SeniorLiving",
+      "building_type": "Senior Living / Assisted Living",
+      "json": "program_database_senior_living_v0.2.json",
+      "space_count": 18,
+      "edge_count": 36,
+      "tiers_present": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "category": "StudentHousing",
+      "building_type": "Student Housing / Dormitory",
+      "json": "program_database_student_housing_v0.2.json",
+      "space_count": 18,
+      "edge_count": 36,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "category": "ConventionCenter",
+      "building_type": "Convention Center / Exhibition Hall",
+      "json": "program_database_convention_center_v0.2.json",
+      "space_count": 18,
+      "edge_count": 29,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "category": "FireStation",
+      "building_type": "Fire Station / Emergency Services",
+      "json": "program_database_fire_station_v0.2.json",
+      "space_count": 18,
+      "edge_count": 24,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    }
+  ],
+  "benchmarks": {
+    "eui_targets": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__US-NATIONAL",
+        "building_type": "Office",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__US-NATIONAL",
+        "building_type": "Multifamily Residential",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "K12__DEFAULT__US-NATIONAL",
+        "building_type": "K-12 School",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "HIGHERED__DEFAULT__US-NATIONAL",
+        "building_type": "Higher Education",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__US-NATIONAL",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__US-NATIONAL",
+        "building_type": "Civic / Government",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__US-NATIONAL",
+        "building_type": "Laboratory",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__US-NATIONAL",
+        "building_type": "Hospitality (Hotel)",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__US-NATIONAL",
+        "building_type": "Retail / Mixed-Use",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__US-NATIONAL",
+        "building_type": "Industrial / Warehouse",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__US-NATIONAL",
+        "building_type": "Cultural / Museum",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__US-NATIONAL",
+        "building_type": "Religious / Worship",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__US-NATIONAL",
+        "building_type": "Recreation / Sports",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "DATACENTER__DEFAULT__US-NATIONAL",
+        "building_type": "Data Center / Tech",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__US-NATIONAL",
+        "building_type": "Parking Structure",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__US-NATIONAL",
+        "building_type": "Transit / Transportation",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__US-NATIONAL",
+        "building_type": "Senior Living / Assisted Living",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__US-NATIONAL",
+        "building_type": "Student Housing / Dormitory",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__US-NATIONAL",
+        "building_type": "Convention Center / Exhibition Hall",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__US-NATIONAL",
+        "building_type": "Fire Station / Emergency Services",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from verified source (ENERGY STAR, CBECS, utility/owner targets)."
+      }
+    ],
+    "cost_per_sf": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__US-NE",
+        "building_type": "Office",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__US-NE",
+        "building_type": "Multifamily Residential",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "K12__DEFAULT__US-NE",
+        "building_type": "K-12 School",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "HIGHERED__DEFAULT__US-NE",
+        "building_type": "Higher Education",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__US-NE",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__US-NE",
+        "building_type": "Civic / Government",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__US-NE",
+        "building_type": "Laboratory",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__US-NE",
+        "building_type": "Hospitality (Hotel)",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__US-NE",
+        "building_type": "Retail / Mixed-Use",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__US-NE",
+        "building_type": "Industrial / Warehouse",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__US-NE",
+        "building_type": "Cultural / Museum",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__US-NE",
+        "building_type": "Religious / Worship",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__US-NE",
+        "building_type": "Recreation / Sports",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "DATACENTER__DEFAULT__US-NE",
+        "building_type": "Data Center / Tech",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__US-NE",
+        "building_type": "Parking Structure",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__US-NE",
+        "building_type": "Transit / Transportation",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__US-NE",
+        "building_type": "Senior Living / Assisted Living",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__US-NE",
+        "building_type": "Student Housing / Dormitory",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__US-NE",
+        "building_type": "Convention Center / Exhibition Hall",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__US-NE",
+        "building_type": "Fire Station / Emergency Services",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": null,
+        "median": null,
+        "p75": null,
+        "source": null,
+        "notes": "Populate from estimator history / RSMeans / project cost reports; align to escalation year."
+      }
+    ],
+    "parking_ratios": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__BOSTON-MA",
+        "building_type": "Office",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__BOSTON-MA",
+        "building_type": "Multifamily Residential",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "K12__DEFAULT__BOSTON-MA",
+        "building_type": "K-12 School",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "HIGHERED__DEFAULT__BOSTON-MA",
+        "building_type": "Higher Education",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__BOSTON-MA",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__BOSTON-MA",
+        "building_type": "Civic / Government",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__BOSTON-MA",
+        "building_type": "Laboratory",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__BOSTON-MA",
+        "building_type": "Hospitality (Hotel)",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__BOSTON-MA",
+        "building_type": "Retail / Mixed-Use",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__BOSTON-MA",
+        "building_type": "Industrial / Warehouse",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__BOSTON-MA",
+        "building_type": "Cultural / Museum",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__BOSTON-MA",
+        "building_type": "Religious / Worship",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__BOSTON-MA",
+        "building_type": "Recreation / Sports",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "DATACENTER__DEFAULT__BOSTON-MA",
+        "building_type": "Data Center / Tech",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__BOSTON-MA",
+        "building_type": "Parking Structure",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__BOSTON-MA",
+        "building_type": "Transit / Transportation",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__BOSTON-MA",
+        "building_type": "Senior Living / Assisted Living",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__BOSTON-MA",
+        "building_type": "Student Housing / Dormitory",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__BOSTON-MA",
+        "building_type": "Convention Center / Exhibition Hall",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__BOSTON-MA",
+        "building_type": "Fire Station / Emergency Services",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_unit_or_1000sf",
+        "ratio": null,
+        "rule_type": "zoning_minimum_or_target",
+        "source": null,
+        "notes": "Populate per jurisdiction and date; consider transit overlays."
+      }
+    ]
+  },
+  "normalization": {
+    "space_id_map_template": [],
+    "space_type_taxonomy_notes": [
+      "space_id is a stable canonical identifier (e.g., OFF_OPEN_WORK).",
+      "raw_name is the original room name from your project export.",
+      "map raw_name -> space_id; store confidence and notes."
+    ]
+  }
+}

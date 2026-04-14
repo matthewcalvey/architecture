@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent: #6a9cc4;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CALVEY DATA — Site Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./vendor/three.min.js"></script>
+<script>if(typeof THREE==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<style>
+:root{
+  --bg:#ffffff;
+  --surface:#f5f5f5;
+  --border:#ddd;
+  --text:#1a1a1a;
+  --text-dim:#555;
+  --text-muted:#888;
+  --accent:#6a9cc4;
+  --sun:#c9a959;
+  --cold:#6a9cc4;
+  --hot:#c45c3e;
+  --balanced:#8a7abf;
+  --green:#7ab87a;
+  --glass:#6bb8d4;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(106,156,196,0.25);color:#1a1a1a}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+.seq-nav{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px}
+.seq-nav a{color:var(--text-muted);text-decoration:none;border-bottom:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s}
+.seq-nav a:hover{border-color:var(--accent);color:var(--accent)}
+.seq-nav .active{color:var(--accent);border-color:var(--accent)}
+.next-btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:16px 40px;color:#fff;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none;margin-top:32px}
+.next-btn:hover{background:#5889b0;transform:translateY(-2px)}
+h1,.ht{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text)}
+h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4vw,42px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:24px;line-height:1.3}
+h3{font-family:'Space Mono',monospace;font-size:12px;font-weight:400;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-top:36px;margin-bottom:12px}
+p{font-size:18px;font-weight:300;color:var(--text-dim);margin-bottom:20px;line-height:1.85}
+p strong{color:var(--text);font-weight:600}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(106,156,196,0.3);transition:border-color 0.2s}
+a:hover{border-bottom-color:var(--accent)}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 24px;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(106,156,196,0.06) 0%,transparent 70%)}
+.hn{position:relative;margin-bottom:40px;display:flex;gap:24px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase}
+.hn a{color:var(--text-muted);border-bottom:none}.hn a:hover{color:var(--accent)}.hn .ac{color:var(--accent)}
+.htl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:18px}
+.hln{width:40px;height:1px;background:var(--accent);margin:0 auto 18px;position:relative}
+.ht{font-size:clamp(48px,9vw,100px);line-height:1.05;margin-bottom:16px;position:relative}
+.hs{font-size:clamp(16px,2vw,22px);font-weight:300;font-style:italic;color:var(--text-dim);max-width:760px;line-height:1.7;margin-bottom:16px;position:relative}
+.hs2{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:30px}
+.hm{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);position:relative}
+
+.ct{max-width:760px;margin:0 auto;padding:0 24px 88px}
+.sec{padding:72px 0;border-top:1px solid var(--border)}.sec:first-child{border-top:none}
+.sn{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px}
+.sb{background:var(--surface);border:1px solid var(--border);padding:20px;margin:28px 0}
+.sl{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+.nt{border-left:1px solid var(--border);padding:14px 18px;margin-top:20px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.8}.nt a{color:var(--accent);border-bottom:none}
+
+.iw{background:var(--surface);border:1px solid var(--border);padding:28px;margin:28px 0}
+.fd{margin-bottom:20px}.fd:last-child{margin-bottom:0}
+.fd label{display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.fd input{width:100%;background:var(--bg);border:1px solid var(--border);padding:12px 16px;color:var(--text);font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:300;outline:none;transition:border-color 0.2s}
+.fd input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(106,156,196,0.08)}
+.fd input::placeholder{color:var(--text-muted);font-style:italic}
+.br2{display:inline-flex;align-items:center;gap:10px;background:transparent;border:1px solid var(--accent);padding:12px 32px;color:var(--accent);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s}
+.br2:hover{background:var(--accent);color:var(--bg)}.br2:disabled{opacity:0.3;cursor:not-allowed}
+.sp2{width:12px;height:12px;border:1.5px solid rgba(106,156,196,0.3);border-top-color:var(--accent);border-radius:50%;animation:sp 0.7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pw{margin-top:20px;display:none}.pw.on{display:block}
+.pt{height:1px;background:var(--border);overflow:hidden}
+.pf2{height:100%;background:var(--accent);width:0%;transition:width 0.5s ease}
+.plb{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;margin-top:10px;min-height:16px}
+
+#R{display:none}#R.on{display:block}
+
+.dt{width:100%;border-collapse:collapse}
+.dt tr{border-bottom:1px solid var(--border)}.dt tr:last-child{border-bottom:none}.dt tr:hover{background:var(--surface)}
+.dt td{padding:8px 10px;font-size:15px}
+.dt .k{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;width:40%;padding-right:16px;vertical-align:top}
+.dt .v{color:var(--text-dim);vertical-align:top}.dt .v a{color:var(--accent)}
+
+.dsh{display:flex;align-items:baseline;gap:16px;cursor:pointer;user-select:none;margin-bottom:24px}
+.dsn{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;min-width:110px}
+.dst{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(20px,3vw,28px);letter-spacing:0.08em;text-transform:uppercase;color:var(--text);flex:1}
+.bdg{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 10px;border-radius:2px}
+.bdg-ok{color:var(--green);background:rgba(122,184,122,0.08)}
+.bdg-lk{color:var(--sun);background:rgba(201,169,89,0.08)}
+.dsg{font-size:14px;color:var(--text-muted);transition:transform 0.25s}.dsg.op{transform:rotate(180deg)}
+.dsb{display:none}.dsb.op{display:block}
+
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:24px 0}
+.mi{background:var(--bg);border:1px solid var(--border);padding:12px 14px}
+.mi .ml{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.mi .mv{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--text);line-height:1.3}
+.mi .ms{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted)}
+.rb{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:3px 12px;border-radius:2px}
+.rb-lo{color:var(--green);background:rgba(122,184,122,0.1);border:1px solid rgba(122,184,122,0.15)}
+.rb-md{color:var(--sun);background:rgba(201,169,89,0.1);border:1px solid rgba(201,169,89,0.15)}
+.rb-hi{color:var(--hot);background:rgba(196,92,62,0.1);border:1px solid rgba(196,92,62,0.15)}
+
+.dr{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:28px 0}
+.dc{background:var(--surface);border:1px solid var(--border);padding:16px;text-align:center;flex:1;min-width:300px;max-width:380px}
+.dc svg{display:block;margin:0 auto}
+.tabs{display:flex;gap:3px;margin:12px 0 0;justify-content:center}
+.tab{padding:4px 12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.05em;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.15s}
+.tab:hover{border-color:var(--accent);color:var(--text-dim)}.tab.on{border-color:var(--accent);color:var(--accent)}
+
+.diag-section{margin:28px 0}
+.diag-section .sl{margin-bottom:12px}
+.wind-seasons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.wind-seasons .dc{min-width:0;max-width:none;flex:none;padding:12px}
+.wind-seasons .dc svg{max-width:100%;height:auto}
+.wind-annual{max-width:480px;margin:0 auto}
+.wind-annual .dc{min-width:0;max-width:none;flex:none}
+.sun-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.sun-row .dc{min-width:0;max-width:none;flex:none}
+#sun3d-host{width:100%;height:380px;position:relative;cursor:grab;background:#f5f5f5;border:1px solid var(--border)}
+#sun3d-host:active{cursor:grabbing}
+#sun3d-host canvas{display:block;width:100%!important;height:100%!important}
+.sun3d-hint{position:absolute;bottom:8px;right:10px;font-family:'Space Mono',monospace;font-size:9px;color:#999;letter-spacing:0.06em;pointer-events:none;z-index:1}
+@media(max-width:900px){.sun-row{grid-template-columns:1fr 1fr}.wind-seasons{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.sun-row{grid-template-columns:1fr}.wind-seasons{grid-template-columns:1fr 1fr}}
+
+.day-slider-wrap{max-width:480px;margin:20px auto 0;padding:0 16px}
+.day-slider-date{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);text-align:center;margin-bottom:8px}
+.day-slider-input{width:100%;-webkit-appearance:none;appearance:none;height:3px;background:var(--border);outline:none;border-radius:2px;cursor:pointer}
+.day-slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+.day-slider-input::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+.day-slider-months{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:7px;color:var(--text-muted);letter-spacing:0.04em;margin-top:4px;padding:0 2px}
+.day-slider-metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:14px}
+.day-slider-metrics .dsm{background:var(--surface);border:1px solid var(--border);padding:8px 6px;text-align:center}
+.day-slider-metrics .dsm-l{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px}
+.day-slider-metrics .dsm-v{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);line-height:1.2}
+.day-slider-metrics .dsm-s{font-family:'Space Mono',monospace;font-size:7px;color:var(--text-muted)}
+@media(max-width:480px){.day-slider-metrics{grid-template-columns:repeat(3,1fr)}.day-slider-metrics .dsm-v{font-size:16px}}
+
+.bars{display:flex;align-items:flex-end;gap:3px;height:200px;margin:20px 0;justify-content:center}
+.bc{display:flex;flex-direction:column;align-items:center;gap:1px;width:44px}
+.bv{font-family:'Space Mono',monospace;font-size:7px;color:var(--text-dim)}
+.bar{width:22px;border-radius:2px 2px 0 0;min-height:2px}
+.bl{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);margin-top:3px}
+
+.bo{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);padding:24px;font-family:'Space Mono',monospace;font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap;max-height:500px;overflow-y:auto;margin:20px 0}
+.er{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.bs{background:transparent;border:1px solid var(--border);padding:8px 18px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all 0.2s}
+.bs:hover{border-color:var(--accent);color:var(--accent)}
+
+.si{display:grid;grid-template-columns:70px 1fr;padding:18px 0;border-top:1px solid var(--border)}.si:first-child{border-top:none}
+.si .sn2{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.12em;padding-top:3px}
+.si .sc h4{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:20px;letter-spacing:0.05em;text-transform:uppercase;color:var(--text);margin-bottom:6px}
+.si .sc p{font-size:15px;color:var(--text-muted);margin-bottom:0}
+
+.footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
+.footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
+
+@media(max-width:700px){.dsh{flex-wrap:wrap;gap:8px}.dsn{min-width:auto}.dt .k{width:42%;font-size:9px}.dr{flex-direction:column;align-items:center}.mg{grid-template-columns:1fr 1fr}.dc{min-width:0;max-width:none;width:100%}}
+@media(max-width:480px){
+  .hero{padding:60px 16px;min-height:auto}
+  .ht{font-size:clamp(36px,10vw,60px)}
+  .ct{padding:0 16px 60px}
+  .iw{padding:20px 16px}
+  .fd input{font-size:16px;padding:10px 14px}
+  .br2{padding:12px 24px;font-size:10px;width:100%;justify-content:center}
+  .mg{grid-template-columns:1fr 1fr;gap:6px}
+  .mi{padding:10px}
+  .mi .mv{font-size:20px}
+  .wind-seasons{grid-template-columns:1fr 1fr!important}
+  .bars{height:170px;gap:2px}
+  .bc{width:28px}
+  .bo{font-size:10px;padding:16px;max-height:350px}
+  .er{flex-direction:column}
+  .er .bs{width:100%;text-align:center}
+  .dt .k{width:38%;font-size:8px;padding:6px 6px}
+  .dt .v{font-size:14px;padding:6px 6px}
+  .next-btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <nav class="seq-nav">
+    <a class="active" href="00_DATA.html">00 Data</a>
+    <a href="01_SITE.html">01 Site</a>
+    <a href="02_PROGRAM.html">02 Program</a>
+    <a href="03_SUN.html">03 Sun</a>
+    <a href="04_WIND.html">04 Wind</a>
+    <a href="05_RENDER.html">05 Render</a>
+  </nav>
+  <div class="htl">SUN / EARTH / PEOPLE</div><div class="hln"></div>
+  <h1 class="ht">CALVEY<br>FORM</h1>
+  <div class="hs2">IDEAL FORM — START</div>
+
+  <div class="iw" style="max-width:560px;width:100%;position:relative;margin-top:28px">
+    <div class="fd"><label>Street Address</label><input type="text" id="addr" placeholder="123 Main St, Denver, CO 80202" onkeydown="if(event.key==='Enter')run()" /></div>
+    <button class="br2" id="rb" onclick="run()">Generate Site Intelligence</button>
+    <div class="pw" id="pw"><div class="pt"><div class="pf2" id="pf"></div></div><div class="plb" id="pl"></div></div>
+  </div>
+
+  <div class="hs" style="margin-top:24px">Enter an address to begin. The tool gathers weather, solar, hazard, zoning, and site data — then carries it through each step of the optimized form generation.</div>
+  <div class="hm">Matthew Calvey &middot; 2026 &middot; Optimized Form Generation</div>
+</div>
+<div class="ct">
+  <div id="R"></div>
+</div>
+<div class="footer">
+  <p>CALVEY FORM &middot; 00 Data &middot; Site Intelligence</p>
+  <p style="margin-top:6px">&copy; 2026 Matthew Calvey</p>
+</div>
+
+<script>
+var G={},HD=[],SL=0,MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function pg(p,m){document.getElementById('pw').classList.add('on');document.getElementById('pf').style.width=p+'%';document.getElementById('pl').textContent=m;}
+
+function rw(k,v){return '<tr><td class="k">'+k+'</td><td class="v">'+v+'</td></tr>';}
+function rws(a){var s='';for(var i=0;i<a.length;i++){s+=rw(a[i][0],a[i][1]);}return s;}
+
+function tb(id){
+  var b=document.getElementById('b-'+id);
+  var t=document.getElementById('t-'+id);
+  if(b){b.classList.toggle('op');}
+  if(t){t.classList.toggle('op');}
+}
+
+function mks(num,id,title,badge,cls,body){
+  return '<div class="sec" style="padding:48px 0">'+
+  '<div class="dsh" onclick="tb(\''+id+'\')">'+
+  '<div class="dsn">'+num+'</div><div class="dst">'+title+'</div>'+
+  '<span class="bdg bdg-'+cls+'">'+badge+'</span>'+
+  '<span class="dsg" id="t-'+id+'">&#9662;</span></div>'+
+  '<div class="dsb op" id="b-'+id+'">'+body+'</div></div>';
+}
+
+/* ══════ APIS ══════ */
+function geocode(a){
+  return fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(a)+'&limit=1&addressdetails=1')
+  .then(function(r){return r.json();})
+  .then(function(d){if(!d.length){throw new Error('Address not found.');}return{lat:+d[0].lat,lng:+d[0].lon,display:d[0].display_name,addr:d[0].address||{}};});
+}
+
+function apiElev(lat,lng){
+  return fetch('https://epqs.nationalmap.gov/v1/json?x='+lng+'&y='+lat+'&wkid=4326&units=Feet&includeDate=false')
+  .then(function(r){return r.json();})
+  .then(function(d){var f=parseFloat(d.value);return{ft:Math.round(f),m:Math.round(f/3.28084)};})
+  .catch(function(){return{ft:0,m:0};});
+}
+
+function apiCur(lat,lng){
+  return fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng+'&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,apparent_temperature&daily=shortwave_radiation_sum,sunshine_duration,daylight_duration&timezone=auto&forecast_days=7')
+  .then(function(r){return r.json();});
+}
+
+function apiArch(lat,lng){
+  var y=new Date().getFullYear()-1;
+  return fetch('https://archive-api.open-meteo.com/v1/archive?latitude='+lat+'&longitude='+lng+'&start_date='+(y-2)+'-01-01&end_date='+y+'-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,relative_humidity_2m_mean&timezone=auto')
+  .then(function(r){return r.json();})
+  .catch(function(){return null;});
+}
+
+function apiSoil(lat,lng){
+  return fetch('https://rest.isric.org/soilgrids/v2.0/properties/query?lon='+lng+'&lat='+lat+'&property=clay&property=sand&property=silt&property=bdod&property=phh2o&depth=0-5cm&value=mean')
+  .then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+function apiFlood(lat,lng){
+  return fetch('https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer/28/query?geometry='+lng+','+lat+'&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&outFields=FLD_ZONE,ZONE_SUBTY,SFHA_TF&returnGeometry=false&f=json')
+  .then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+function apiFire(lat,lng){
+  return fetch('https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/CommunityWildfireRiskIndex/FeatureServer/0/query?geometry='+lng+','+lat+'&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&outFields=RISK_RATING,RISK_DESC&returnGeometry=false&f=json')
+  .then(function(r){return r.json();}).catch(function(){return null;});
+}
+
+/* ══════ SOLAR MATH ══════ */
+function sDec(doy){return 23.45*Math.sin((2*Math.PI/365)*(doy+284));}
+function sAlt(lat,dec,ha){var L=lat*Math.PI/180,D=dec*Math.PI/180,H=ha*Math.PI/180;return Math.asin(Math.sin(L)*Math.sin(D)+Math.cos(L)*Math.cos(D)*Math.cos(H))*180/Math.PI;}
+function sAz(lat,dec,ha,alt){var L=lat*Math.PI/180,D=dec*Math.PI/180,A=alt*Math.PI/180;var c=(Math.sin(D)-Math.sin(L)*Math.sin(A))/(Math.cos(L)*Math.cos(A));c=Math.max(-1,Math.min(1,c));var az=Math.acos(c)*180/Math.PI;if(ha>0){az=360-az;}return az;}
+function sunNow(lat){var doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5);var d=sDec(doy);return{cur:+(90-Math.abs(lat-d)).toFixed(1),sum:+(90-Math.abs(lat-23.45)).toFixed(1),win:+(90-Math.abs(lat+23.45)).toFixed(1),ori:lat>=0?'South':'North'};}
+
+/* HDD/CDD polynomial model (same as 03_SUN) */
+var CH_DATA=[127.0861,-36.7578,1.8598,0.43,-2.4082,81.6101];
+var CC_DATA=[2523.4127,-64.0732,0.3211,-0.9156,0.5837,-1.4105];
+function predictHddCdd(lat){var a=Math.abs(lat),x=[1,a,a*a,0,50,(a*50)/1000];return{hdd:Math.max(0,x.reduce(function(s,xi,i){return s+xi*CH_DATA[i];},0)),cdd:Math.max(0,x.reduce(function(s,xi,i){return s+xi*CC_DATA[i];},0))};}
+function climZ(lat){var a=Math.abs(lat);if(a<15)return{z:'1A',d:'Very Hot Humid',e:'IECC 1'};if(a<23)return{z:'2A',d:'Hot Humid',e:'IECC 2'};if(a<30)return{z:'3A',d:'Warm Humid',e:'IECC 3'};if(a<35)return{z:'4A',d:'Mixed',e:'IECC 4'};if(a<40)return{z:'5A',d:'Cool',e:'IECC 5'};if(a<45)return{z:'5A-6A',d:'Cool-Cold',e:'IECC 5-6'};if(a<55)return{z:'6A-7',d:'Cold',e:'IECC 6-7'};return{z:'7-8',d:'Very Cold',e:'IECC 7-8'};}
+
+function moAvg(arch){
+  if(!arch||!arch.daily||!arch.daily.time){return null;}
+  var d=arch.daily,n=d.time.length;
+  var mo=[];for(var i=0;i<12;i++){mo.push({hi:[],lo:[],pr:[],rh:[],wd:[]});}
+  for(var i=0;i<n;i++){
+    var m=parseInt(d.time[i].split('-')[1],10)-1;
+    if(d.temperature_2m_max[i]!=null){mo[m].hi.push(d.temperature_2m_max[i]);}
+    if(d.temperature_2m_min[i]!=null){mo[m].lo.push(d.temperature_2m_min[i]);}
+    if(d.precipitation_sum[i]!=null){mo[m].pr.push(d.precipitation_sum[i]);}
+    if(d.relative_humidity_2m_mean&&d.relative_humidity_2m_mean[i]!=null){mo[m].rh.push(d.relative_humidity_2m_mean[i]);}
+    if(d.wind_direction_10m_dominant&&d.wind_direction_10m_dominant[i]!=null){mo[m].wd.push(d.wind_direction_10m_dominant[i]);}
+  }
+  function av(a){return a.length?(a.reduce(function(s,v){return s+v;},0)/a.length):0;}
+  function sm(a){return a.reduce(function(s,v){return s+v;},0);}
+  return mo.map(function(m){return{hi:+av(m.hi).toFixed(1),lo:+av(m.lo).toFixed(1),pr:+Math.round(sm(m.pr)/3),rh:+Math.round(av(m.rh)),wd:m.wd};});
+}
+
+var DAY_AVGS=null;
+function computeDayAvgs(arch){
+  if(!arch||!arch.daily||!arch.daily.time){return null;}
+  var d=arch.daily,n=d.time.length;
+  var buckets=[];for(var i=0;i<366;i++){buckets.push({hi:[],lo:[],pr:[],rh:[],ws:[],wd:[]});}
+  for(var i=0;i<n;i++){
+    var dt=d.time[i].split('-');var m=parseInt(dt[1],10),dy=parseInt(dt[2],10);
+    // Convert month/day to day-of-year (0-indexed)
+    var mls=[0,31,59,90,120,151,181,212,243,273,304,334];
+    var doy=mls[m-1]+dy-1;if(doy>365)doy=365;
+    if(d.temperature_2m_max[i]!=null){buckets[doy].hi.push(d.temperature_2m_max[i]);}
+    if(d.temperature_2m_min[i]!=null){buckets[doy].lo.push(d.temperature_2m_min[i]);}
+    if(d.precipitation_sum[i]!=null){buckets[doy].pr.push(d.precipitation_sum[i]);}
+    if(d.relative_humidity_2m_mean&&d.relative_humidity_2m_mean[i]!=null){buckets[doy].rh.push(d.relative_humidity_2m_mean[i]);}
+    if(d.wind_speed_10m_max&&d.wind_speed_10m_max[i]!=null){buckets[doy].ws.push(d.wind_speed_10m_max[i]);}
+    if(d.wind_direction_10m_dominant&&d.wind_direction_10m_dominant[i]!=null){buckets[doy].wd.push(d.wind_direction_10m_dominant[i]);}
+  }
+  function av(a){return a.length?(a.reduce(function(s,v){return s+v;},0)/a.length):0;}
+  var WDLBL=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return buckets.map(function(b){
+    var wd=av(b.wd);
+    return{hi:+av(b.hi).toFixed(1),lo:+av(b.lo).toFixed(1),pr:+av(b.pr).toFixed(1),rh:Math.round(av(b.rh)),ws:+av(b.ws).toFixed(1),wd:Math.round(wd),wdl:WDLBL[Math.round(wd/22.5)%16]};
+  });
+}
+
+function doyToDate(doy){
+  var mls=[31,28,31,30,31,30,31,31,30,31,30,31];
+  var m=0,d=doy;
+  while(m<12&&d>=mls[m]){d-=mls[m];m++;}
+  return MO[m]+' '+(d+1);
+}
+
+function filterWindByDoy(allDirs,centerDoy,halfWin){
+  var out=[];
+  for(var i=0;i<allDirs.length;i++){
+    if(allDirs[i]==null)continue;
+    var dy=i%365;
+    var diff=Math.abs(dy-centerDoy);
+    if(diff>182)diff=365-diff;
+    if(diff<=halfWin)out.push(allDirs[i]);
+  }
+  return out;
+}
+
+function updateDaySlider(doy){
+  if(!DAY_AVGS)return;
+  var d=DAY_AVGS[doy];if(!d)return;
+  var el=document.getElementById('day-slider-date');
+  if(el) el.textContent=doyToDate(doy);
+  var hiEl=document.getElementById('dsm-hi');if(hiEl)hiEl.innerHTML=d.hi+'&#176;';
+  var loEl=document.getElementById('dsm-lo');if(loEl)loEl.innerHTML=d.lo+'&#176;';
+  var prEl=document.getElementById('dsm-pr');if(prEl)prEl.textContent=d.pr+' mm';
+  var rhEl=document.getElementById('dsm-rh');if(rhEl)rhEl.textContent=d.rh+'%';
+  var wdEl=document.getElementById('dsm-wd');if(wdEl)wdEl.textContent=d.wdl;
+  // Update sun altitude at noon for this day
+  if(SL){
+    var dec=sDec(doy+1);
+    var noonAlt=sAlt(SL,dec,0);
+    var sunEl=document.getElementById('dsm-sun');
+    if(sunEl)sunEl.innerHTML=Math.round(noonAlt)+'&#176;';
+  }
+  // Update wind rose to show ±15 day window around selected day
+  if(HD&&HD.length){
+    var windBox=document.getElementById('wind-annual-svg');
+    var windLbl=document.getElementById('wind-annual-label');
+    if(windBox){
+      var filtered=filterWindByDoy(HD,doy,15);
+      windBox.innerHTML=svgWind(filtered,'yearly');
+    }
+    if(windLbl){
+      var d1=doyToDate(Math.max(0,doy-15));
+      var d2=doyToDate(Math.min(365,doy+15));
+      windLbl.textContent='Wind Rose — '+d1+' to '+d2;
+    }
+  }
+}
+
+/* ══════ SVG: SUN PATH ══════ */
+function svgSun(lat,mode){
+  var W=340,H=340,cx=W/2,cy=H/2,R=135;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="#f8f8f8"/>';
+  var i;
+  for(i=1;i<=3;i++){var cr=R*i/3;s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+cr+'" fill="none" stroke="#ddd" stroke-width="0.7"/>';s+='<text x="'+(cx+cr+4)+'" y="'+(cy-2)+'" fill="#888" font-size="7" font-family="Space Mono,monospace">'+(90-i*30)+'&#176;</text>';}
+  s+='<line x1="'+cx+'" y1="'+(cy-R-8)+'" x2="'+cx+'" y2="'+(cy+R+8)+'" stroke="#ddd" stroke-width="0.7"/>';
+  s+='<line x1="'+(cx-R-8)+'" y1="'+cy+'" x2="'+(cx+R+8)+'" y2="'+cy+'" stroke="#ddd" stroke-width="0.7"/>';
+  var cn=lat>=0?'N':'S',cs=lat>=0?'S':'N';
+  s+='<text x="'+cx+'" y="'+(cy-R-13)+'" fill="#666" font-size="9" text-anchor="middle" font-family="Space Mono,monospace">'+cn+'</text>';
+  s+='<text x="'+cx+'" y="'+(cy+R+19)+'" fill="#666" font-size="9" text-anchor="middle" font-family="Space Mono,monospace">'+cs+'</text>';
+  s+='<text x="'+(cx+R+13)+'" y="'+(cy+4)+'" fill="#666" font-size="9" font-family="Space Mono,monospace">E</text>';
+  s+='<text x="'+(cx-R-13)+'" y="'+(cy+4)+'" fill="#666" font-size="9" text-anchor="end" font-family="Space Mono,monospace">W</text>';
+
+  var paths;
+  if(mode==='summer'){paths=[{doy:172,c:'#c45c3e',lb:'Jun 21'}];}
+  else if(mode==='winter'){paths=[{doy:355,c:'#c9a959',lb:'Dec 21'}];}
+  else if(mode==='equinox'){paths=[{doy:80,c:'#8a7abf',lb:'Mar 20'}];}
+  else{paths=[{doy:355,c:'#c9a959',lb:'Dec 21'},{doy:80,c:'#8a7abf',lb:'Mar 20'},{doy:172,c:'#c45c3e',lb:'Jun 21'}];}
+
+  for(var p=0;p<paths.length;p++){
+    var doy=paths[p].doy,col=paths[p].c,lb=paths[p].lb;
+    var dec=sDec(doy);var pts=[];
+    for(var ha=-180;ha<=180;ha+=1.5){
+      var alt=sAlt(lat,dec,ha);if(alt<0){continue;}
+      var az=sAz(lat,dec,ha,alt);
+      var pr=(90-alt)/90*R;var ar=az*Math.PI/180;
+      pts.push((cx+pr*Math.sin(ar)).toFixed(1)+','+(cy-pr*Math.cos(ar)).toFixed(1));
+    }
+    if(pts.length>1){
+      s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2" opacity="0.85"/>';
+      for(var hr=-7;hr<=7;hr++){
+        var a2=sAlt(lat,dec,hr*15);if(a2<0.5){continue;}
+        var z2=sAz(lat,dec,hr*15,a2);var p2=(90-a2)/90*R;var r2=z2*Math.PI/180;
+        var px=cx+p2*Math.sin(r2),py=cy-p2*Math.cos(r2);
+        s+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="2" fill="'+col+'"/>';
+        if(hr%2===0&&hr!==0){s+='<text x="'+px.toFixed(1)+'" y="'+(py-6).toFixed(1)+'" fill="'+col+'" font-size="7" text-anchor="middle" font-family="Space Mono,monospace" opacity="0.8">'+((hr+12)%24||12)+'h</text>';}
+      }
+      var li=Math.min(pts.length-1,Math.floor(pts.length*0.88));var lp=pts[li].split(',');
+      s+='<text x="'+lp[0]+'" y="'+(parseFloat(lp[1])+14)+'" fill="'+col+'" font-size="8" text-anchor="middle" font-family="Space Mono,monospace">'+lb+'</text>';
+    }
+  }
+  s+='</svg>';return s;
+}
+
+/* ══════ THREE.JS: SUN PATH — INTERACTIVE 3D VIEWER ══════ */
+var sun3DState = null;
+
+function initSun3D(lat){
+  var host = document.getElementById('sun3d-host');
+  if(!host) return;
+
+  // Clean up previous instance
+  if(sun3DState){
+    if(sun3DState.animId) cancelAnimationFrame(sun3DState.animId);
+    if(sun3DState.renderer) sun3DState.renderer.dispose();
+    host.innerHTML = '';
+    sun3DState = null;
+  }
+
+  var R = 120; // sky dome radius
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf5f5f5);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  host.appendChild(renderer.domElement);
+
+  var camera = new THREE.PerspectiveCamera(50, 1, 1, 5000);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+  dirLight.position.set(100, 200, -150);
+  scene.add(dirLight);
+
+  // Ground grid
+  var ground = new THREE.GridHelper(R*3, 12, 0xcccccc, 0xe0e0e0);
+  scene.add(ground);
+
+  // Ground circle (horizon)
+  var circPts = [];
+  for(var a=0; a<=360; a+=3){
+    var ar = a * Math.PI / 180;
+    circPts.push(new THREE.Vector3(R*Math.cos(ar), 0, R*Math.sin(ar)));
+  }
+  var circGeo = new THREE.BufferGeometry().setFromPoints(circPts);
+  scene.add(new THREE.Line(circGeo, new THREE.LineBasicMaterial({color:0xaaaaaa})));
+
+  // Cardinal direction lines and labels
+  var dirs = [
+    {label:'N', angle:0, color:0x6a9cc4},
+    {label:'S', angle:Math.PI, color:0xc45c3e},
+    {label:'E', angle:-Math.PI/2, color:0x999999},
+    {label:'W', angle:Math.PI/2, color:0x999999}
+  ];
+  for(var di=0; di<dirs.length; di++){
+    var d = dirs[di];
+    var dx = Math.sin(d.angle) * (R+15);
+    var dz = -Math.cos(d.angle) * (R+15);
+    var dirGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,0,0),
+      new THREE.Vector3(dx, 0, dz)
+    ]);
+    scene.add(new THREE.Line(dirGeo, new THREE.LineBasicMaterial({color:d.color, opacity:0.5, transparent:true})));
+    // Sprite label
+    var canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 32;
+    var ctx = canvas.getContext('2d');
+    ctx.font = 'bold 24px monospace';
+    ctx.fillStyle = '#' + d.color.toString(16).padStart(6,'0');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.label, 32, 16);
+    var tex = new THREE.CanvasTexture(canvas);
+    var spriteMat = new THREE.SpriteMaterial({map:tex, depthTest:false});
+    var sprite = new THREE.Sprite(spriteMat);
+    sprite.position.set(Math.sin(d.angle)*(R+28), 5, -Math.cos(d.angle)*(R+28));
+    sprite.scale.set(18, 9, 1);
+    scene.add(sprite);
+  }
+
+  // Vertical axis (dashed)
+  var vAxisPts = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,R,0)];
+  var vAxisGeo = new THREE.BufferGeometry().setFromPoints(vAxisPts);
+  var vAxisLine = new THREE.Line(vAxisGeo, new THREE.LineDashedMaterial({color:0xbbbbbb, dashSize:4, gapSize:3}));
+  vAxisLine.computeLineDistances();
+  scene.add(vAxisLine);
+
+  // Altitude rings at 30° and 60°
+  for(var altDeg=30; altDeg<=60; altDeg+=30){
+    var altRad2 = altDeg * Math.PI / 180;
+    var ringR = R * Math.cos(altRad2);
+    var ringY = R * Math.sin(altRad2);
+    var ringPts = [];
+    for(var ra=0; ra<=360; ra+=5){
+      var rar = ra * Math.PI / 180;
+      ringPts.push(new THREE.Vector3(ringR*Math.cos(rar), ringY, ringR*Math.sin(rar)));
+    }
+    var ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
+    scene.add(new THREE.Line(ringGeo, new THREE.LineBasicMaterial({color:0xdddddd, opacity:0.4, transparent:true})));
+  }
+
+  // Sun path arcs
+  var paths = [
+    {doy:355, color:0xc9a959, label:'Dec 21'},
+    {doy:80, color:0x8a7abf, label:'Mar 20'},
+    {doy:172, color:0xc45c3e, label:'Jun 21'}
+  ];
+
+  for(var pi=0; pi<paths.length; pi++){
+    var doy = paths[pi].doy, col = paths[pi].color, lb = paths[pi].label;
+    var dec = sDec(doy);
+    var arcPts = [];
+    for(var ha=-180; ha<=180; ha+=1.5){
+      var alt = sAlt(lat, dec, ha);
+      if(alt < 0) continue;
+      var az = sAz(lat, dec, ha, alt);
+      var altRad = alt * Math.PI / 180;
+      var azRad = az * Math.PI / 180;
+      arcPts.push(new THREE.Vector3(
+        R * Math.cos(altRad) * Math.sin(azRad),
+        R * Math.sin(altRad),
+        -R * Math.cos(altRad) * Math.cos(azRad)
+      ));
+    }
+    if(arcPts.length > 1){
+      var arcGeo = new THREE.BufferGeometry().setFromPoints(arcPts);
+      scene.add(new THREE.Line(arcGeo, new THREE.LineBasicMaterial({color:col, linewidth:2})));
+
+      // Hourly dots
+      for(var hr=-7; hr<=7; hr++){
+        var a2 = sAlt(lat, dec, hr*15);
+        if(a2 < 0.5) continue;
+        var z2 = sAz(lat, dec, hr*15, a2);
+        var aR2 = a2 * Math.PI / 180;
+        var zR2 = z2 * Math.PI / 180;
+        var dotPos = new THREE.Vector3(
+          R * Math.cos(aR2) * Math.sin(zR2),
+          R * Math.sin(aR2),
+          -R * Math.cos(aR2) * Math.cos(zR2)
+        );
+        var dotGeo = new THREE.SphereGeometry(1.5, 8, 8);
+        var dotMat = new THREE.MeshBasicMaterial({color:col});
+        var dot = new THREE.Mesh(dotGeo, dotMat);
+        dot.position.copy(dotPos);
+        scene.add(dot);
+
+        // Hour label sprites at even hours
+        if(hr % 2 === 0 && hr !== 0){
+          var hCanvas = document.createElement('canvas');
+          hCanvas.width = 48; hCanvas.height = 24;
+          var hCtx = hCanvas.getContext('2d');
+          hCtx.font = '14px monospace';
+          hCtx.fillStyle = '#' + col.toString(16).padStart(6,'0');
+          hCtx.textAlign = 'center';
+          hCtx.textBaseline = 'middle';
+          hCtx.fillText(((hr+12)%24||12)+'h', 24, 12);
+          var hTex = new THREE.CanvasTexture(hCanvas);
+          var hSprite = new THREE.Sprite(new THREE.SpriteMaterial({map:hTex, depthTest:false}));
+          hSprite.position.set(dotPos.x, dotPos.y + 6, dotPos.z);
+          hSprite.scale.set(14, 7, 1);
+          scene.add(hSprite);
+        }
+      }
+
+      // Season label sprite
+      var lblIdx = Math.floor(arcPts.length * 0.88);
+      var lblPos = arcPts[Math.min(lblIdx, arcPts.length-1)];
+      var lCanvas = document.createElement('canvas');
+      lCanvas.width = 96; lCanvas.height = 28;
+      var lCtx = lCanvas.getContext('2d');
+      lCtx.font = '14px monospace';
+      lCtx.fillStyle = '#' + col.toString(16).padStart(6,'0');
+      lCtx.textAlign = 'center';
+      lCtx.textBaseline = 'middle';
+      lCtx.fillText(lb, 48, 14);
+      var lTex = new THREE.CanvasTexture(lCanvas);
+      var lSprite = new THREE.Sprite(new THREE.SpriteMaterial({map:lTex, depthTest:false}));
+      lSprite.position.set(lblPos.x, lblPos.y - 8, lblPos.z);
+      lSprite.scale.set(24, 7, 1);
+      scene.add(lSprite);
+    }
+  }
+
+  // Camera orbit state
+  sun3DState = {
+    scene: scene,
+    renderer: renderer,
+    camera: camera,
+    yaw: Math.PI * 0.25,
+    pitch: 0.45,
+    distance: 350,
+    pointers: new Map(),
+    prevPinchDist: null,
+    prevSingle: null,
+    animId: null
+  };
+
+  function resize3D(){
+    var w = host.clientWidth || 1;
+    var h = host.clientHeight || 1;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(h, 1);
+    camera.updateProjectionMatrix();
+  }
+
+  function cameraUpdate(){
+    var st = sun3DState;
+    st.pitch = Math.max(0.05, Math.min(1.5, st.pitch));
+    st.distance = Math.max(80, Math.min(1200, st.distance));
+    var cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+    var cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+    camera.position.set(
+      st.distance * cp * cy,
+      st.distance * sp,
+      st.distance * cp * sy
+    );
+    camera.lookAt(0, R * 0.25, 0);
+  }
+
+  host.style.touchAction = 'none';
+  host.addEventListener('pointerdown', function(ev){
+    host.setPointerCapture(ev.pointerId);
+    sun3DState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    sun3DState.prevPinchDist = null;
+    sun3DState.prevSingle = null;
+  });
+  host.addEventListener('pointermove', function(ev){
+    if(!sun3DState.pointers.has(ev.pointerId)) return;
+    ev.preventDefault();
+    sun3DState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    var pts = Array.from(sun3DState.pointers.values());
+    if(pts.length === 1){
+      var prev = sun3DState.prevSingle || pts[0];
+      sun3DState.yaw -= (pts[0].x - prev.x) * 0.008;
+      sun3DState.pitch += (pts[0].y - prev.y) * 0.006;
+      sun3DState.prevSingle = {x:pts[0].x, y:pts[0].y};
+    } else if(pts.length >= 2){
+      var p0=pts[0], p1=pts[1];
+      var dist = Math.hypot(p1.x-p0.x, p1.y-p0.y);
+      if(sun3DState.prevPinchDist){
+        sun3DState.distance *= sun3DState.prevPinchDist / Math.max(dist,1);
+      }
+      sun3DState.prevPinchDist = dist;
+    }
+    cameraUpdate();
+  }, {passive:false});
+  host.addEventListener('pointerup', function(ev){
+    sun3DState.pointers.delete(ev.pointerId);
+    sun3DState.prevSingle = null;
+    sun3DState.prevPinchDist = null;
+    try{ host.releasePointerCapture(ev.pointerId); }catch(e){}
+  });
+  host.addEventListener('pointercancel', function(ev){
+    sun3DState.pointers.delete(ev.pointerId);
+    sun3DState.prevSingle = null;
+    sun3DState.prevPinchDist = null;
+  });
+  host.addEventListener('wheel', function(ev){
+    ev.preventDefault();
+    sun3DState.distance = Math.max(80, Math.min(1200, sun3DState.distance * Math.exp(ev.deltaY * 0.0011)));
+    cameraUpdate();
+  }, {passive:false});
+
+  window.addEventListener('resize', function(){ resize3D(); cameraUpdate(); });
+
+  (function loop(){
+    sun3DState.animId = requestAnimationFrame(loop);
+    renderer.render(scene, camera);
+  })();
+
+  resize3D();
+  cameraUpdate();
+}
+
+/* ══════ SVG: WIND ROSE ══════ */
+function svgWind(allDirs,mode){
+  if(!allDirs||!allDirs.length){return '<div style="color:var(--text-muted);font-family:Space Mono,monospace;font-size:10px;text-align:center;padding:60px 0">No wind data</div>';}
+  var W=340,H=340,cx=W/2,cy=H/2,R=130;
+  var mls=[31,28,31,30,31,30,31,31,30,31,30,31];
+  var filtered=[];
+  for(var i=0;i<allDirs.length;i++){
+    if(allDirs[i]==null){continue;}
+    var dy=i%365,mo2=0,acc=0;
+    for(var j=0;j<12;j++){if(dy<acc+mls[j]){mo2=j;break;}acc+=mls[j];}
+    if(mode==='winter'&&(mo2===11||mo2===0||mo2===1)){filtered.push(allDirs[i]);}
+    else if(mode==='spring'&&mo2>=2&&mo2<=4){filtered.push(allDirs[i]);}
+    else if(mode==='summer'&&mo2>=5&&mo2<=7){filtered.push(allDirs[i]);}
+    else if(mode==='fall'&&mo2>=8&&mo2<=10){filtered.push(allDirs[i]);}
+    else if(mode==='yearly'){filtered.push(allDirs[i]);}
+  }
+  if(!filtered.length){return '<div style="color:var(--text-muted);font-family:Space Mono,monospace;font-size:10px;text-align:center;padding:60px 0">No data</div>';}
+  var bins=[];for(var i=0;i<16;i++){bins.push(0);}
+  var labels=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  for(var i=0;i<filtered.length;i++){var idx=Math.round(filtered[i]/22.5)%16;bins[idx]++;}
+  var maxB=0;for(var i=0;i<16;i++){if(bins[i]>maxB){maxB=bins[i];}}if(!maxB){maxB=1;}
+  var domI=0;for(var i=1;i<16;i++){if(bins[i]>bins[domI]){domI=i;}}
+
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="#f8f8f8"/>';
+  var i;
+  for(i=1;i<=4;i++){s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R*i/4)+'" fill="none" stroke="#ddd" stroke-width="0.7"/>';}
+  for(i=0;i<16;i++){var ang=(i*22.5-90)*Math.PI/180;s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+(R+2)*Math.cos(ang)).toFixed(1)+'" y2="'+(cy+(R+2)*Math.sin(ang)).toFixed(1)+'" stroke="#ddd" stroke-width="0.5"/>';}
+  for(i=0;i<16;i++){
+    var pct=bins[i]/maxB;if(pct<0.01){continue;}
+    var bL=pct*R;
+    var a1=((i*22.5-90)-9)*Math.PI/180;var a2=((i*22.5-90)+9)*Math.PI/180;
+    s+='<polygon points="'+cx+','+cy+' '+(cx+bL*Math.cos(a1)).toFixed(1)+','+(cy+bL*Math.sin(a1)).toFixed(1)+' '+(cx+bL*Math.cos(a2)).toFixed(1)+','+(cy+bL*Math.sin(a2)).toFixed(1)+'" fill="var(--accent)" fill-opacity="'+(i===domI?0.7:(0.15+pct*0.4))+'" stroke="var(--accent)" stroke-width="0.8" stroke-opacity="0.5"/>';
+  }
+  for(i=0;i<16;i+=2){
+    var ang=(i*22.5-90)*Math.PI/180;var lx=cx+(R+16)*Math.cos(ang);var ly=cy+(R+16)*Math.sin(ang);
+    s+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" fill="'+(i===domI||i===domI-1||i===domI+1?'var(--accent)':'#8a857e')+'" font-size="8" text-anchor="middle" font-family="Space Mono,monospace">'+labels[i]+'</text>';
+  }
+  s+='<text x="'+cx+'" y="'+(H-8)+'" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-family="Space Mono,monospace">Prevailing: '+labels[domI]+' ('+Math.round(bins[domI]/filtered.length*100)+'%)</text>';
+  s+='</svg>';return s;
+}
+
+/* ══════ TEMP BARS ══════ */
+function drawBars(avgs){
+  if(!avgs){return '';}
+  var maxT=-999,minT=999;
+  for(var i=0;i<12;i++){if(avgs[i].hi>maxT){maxT=avgs[i].hi;}if(avgs[i].lo<minT){minT=avgs[i].lo;}}
+  var range=Math.max(maxT-Math.min(0,minT),1);
+  var s='<div class="bars">';
+  for(var i=0;i<12;i++){
+    var hH=Math.max(3,avgs[i].hi/range*70);var lH=Math.max(3,Math.max(0,avgs[i].lo)/range*70);
+    s+='<div class="bc"><div class="bv">'+avgs[i].hi+'&#176;</div><div class="bar" style="height:'+hH+'px;background:var(--hot);opacity:0.5"></div><div class="bar" style="height:'+lH+'px;background:var(--cold);opacity:0.35"></div><div class="bv">'+avgs[i].lo+'&#176;</div><div class="bl">'+MO[i]+'</div></div>';
+  }
+  s+='</div><div style="font-family:Space Mono,monospace;font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px"><span style="color:var(--hot)">&#9632;</span> Avg High &nbsp; <span style="color:var(--cold)">&#9632;</span> Avg Low &nbsp; (&#176;C, 3-year)</div>';
+  return s;
+}
+
+/* ══════ MAIN ══════ */
+function run(){
+  var address=document.getElementById('addr').value.trim();
+  if(!address){alert('Enter an address.');return;}
+  var btn=document.getElementById('rb');
+  btn.disabled=true;btn.innerHTML='<span class="sp2"></span> Gathering...';
+  var ra=document.getElementById('R');ra.className='on';ra.innerHTML='';
+
+  pg(3,'Geocoding...');
+
+  geocode(address).then(function(geo){
+    G=geo;SL=geo.lat;
+    var lat=geo.lat,lng=geo.lng,ad=geo.addr;
+    var city=ad.city||ad.town||ad.village||ad.county||'';
+    var state=ad.state||'';var zip=ad.postcode||'';
+    var cz=climZ(lat);var sun=sunNow(lat);
+
+    pg(8,'Querying elevation, weather, flood, fire, soil...');
+
+    return Promise.all([apiElev(lat,lng),apiCur(lat,lng),apiArch(lat,lng),apiSoil(lat,lng),apiFlood(lat,lng),apiFire(lat,lng)])
+    .then(function(res){
+      var el=res[0],cur=res[1],arch=res[2],soil=res[3],flood=res[4],fire=res[5];
+      var avgs=moAvg(arch);
+      HD=arch&&arch.daily&&arch.daily.wind_direction_10m_dominant?arch.daily.wind_direction_10m_dominant:[];
+      DAY_AVGS=computeDayAvgs(arch);
+
+      pg(70,'Computing diagrams...');
+
+      var cc=cur.current;var h='';
+
+      /* Flood */
+      var fZ='No data',fS='Unknown',fR='Unknown',fC='rb-md';
+      if(flood&&flood.features&&flood.features.length){
+        var fa=flood.features[0].attributes;
+        fZ=fa.FLD_ZONE||'Unknown';
+        fS=fa.SFHA_TF==='T'?'Yes':'No';
+        if(fZ==='X'||fZ==='X500'){fR='Minimal';fC='rb-lo';}
+        else if(fZ==='A'||fZ==='AE'||fZ==='AO'||fZ==='AH'){fR='High (1% annual)';fC='rb-hi';}
+        else if(fZ==='V'||fZ==='VE'){fR='High (Coastal)';fC='rb-hi';}
+        else{fR='Moderate';fC='rb-md';}
+      }
+
+      /* Wildfire */
+      var wD='No data',wC='rb-md',wL='N/A';
+      if(fire&&fire.features&&fire.features.length){
+        var wf=fire.features[0].attributes;wD=wf.RISK_DESC||('Rating '+wf.RISK_RATING);
+        var wr=wf.RISK_RATING;
+        if(wr!=null&&wr<=2){wC='rb-lo';wL='Low';}
+        else if(wr!=null&&wr<=4){wC='rb-md';wL='Moderate';}
+        else if(wr!=null){wC='rb-hi';wL='High';}
+      }
+
+      /* Annual avgs */
+      var aH='--',aL='--',aP='--',aR='--';
+      if(avgs){
+        var sh=0,sl=0,sp=0,sr=0;
+        for(var i=0;i<12;i++){sh+=avgs[i].hi;sl+=avgs[i].lo;sp+=avgs[i].pr;sr+=avgs[i].rh;}
+        aH=(sh/12).toFixed(1);aL=(sl/12).toFixed(1);aP=sp;aR=Math.round(sr/12);
+      }
+
+      /* HEADER */
+      h+='<div style="padding:40px 0;border-bottom:1px solid var(--border)"><h2 style="margin-bottom:8px">'+address+'</h2>';
+      h+='<div style="font-family:Space Mono,monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.08em">'+lat.toFixed(5)+'&#176; '+(lat>=0?'N':'S')+', '+Math.abs(lng).toFixed(5)+'&#176; '+(lng>=0?'E':'W')+' &middot; '+city+(state?', '+state:'')+(zip?' '+zip:'')+' &middot; '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})+'</div></div>';
+
+      /* SUMMARY */
+      h+='<div class="sec" style="padding-top:40px"><div class="sn">Summary</div><h2>Site Overview</h2>';
+      h+='<div class="mg">';
+      h+='<div class="mi"><div class="ml">Elevation</div><div class="mv">'+el.ft+'<span style="font-size:14px;color:var(--text-muted)"> ft</span></div><div class="ms">'+el.m+' m</div></div>';
+      h+='<div class="mi"><div class="ml">Climate Zone</div><div class="mv" style="font-size:22px">'+cz.z+'</div><div class="ms">'+cz.d+'</div></div>';
+      h+='<div class="mi"><div class="ml">Energy Code</div><div class="mv" style="font-size:18px">'+cz.e+'</div><div class="ms">Verify locally</div></div>';
+      h+='<div class="mi"><div class="ml">Summer Sun</div><div class="mv" style="color:var(--hot)">'+sun.sum+'&#176;</div><div class="ms">Jun 21 noon</div></div>';
+      h+='<div class="mi"><div class="ml">Winter Sun</div><div class="mv" style="color:var(--sun)">'+sun.win+'&#176;</div><div class="ms">Dec 21 noon</div></div>';
+      h+='<div class="mi"><div class="ml">Orientation</div><div class="mv" style="font-size:18px">'+sun.ori+'</div><div class="ms">Passive optimal</div></div>';
+      h+='<div class="mi"><div class="ml">Flood Zone</div><div class="mv" style="font-size:20px">'+fZ+'</div><div class="ms"><span class="rb '+fC+'">'+fR+'</span></div></div>';
+      h+='<div class="mi"><div class="ml">Wildfire</div><div class="mv" style="font-size:14px">'+wD+'</div><div class="ms"><span class="rb '+wC+'">'+wL+'</span></div></div>';
+      h+='<div class="mi"><div class="ml">Avg High</div><div class="mv" style="color:var(--hot)">'+aH+'&#176;C</div><div class="ms">'+(aH!=='--'?Math.round(aH*9/5+32)+'&#176;F':'')+'</div></div>';
+      h+='<div class="mi"><div class="ml">Avg Low</div><div class="mv" style="color:var(--cold)">'+aL+'&#176;C</div><div class="ms">'+(aL!=='--'?Math.round(aL*9/5+32)+'&#176;F':'')+'</div></div>';
+      h+='<div class="mi"><div class="ml">Annual Precip</div><div class="mv">'+aP+'<span style="font-size:14px"> mm</span></div><div class="ms">'+(aP!=='--'?Math.round(aP/25.4)+' in':'')+'</div></div>';
+      h+='<div class="mi"><div class="ml">Avg Humidity</div><div class="mv">'+aR+'<span style="font-size:14px">%</span></div><div class="ms">RH</div></div>';
+      h+='</div>';
+
+      /* SUN PATH DIAGRAMS — Plan + 3D */
+      h+='<div class="diag-section"><div class="sl">Sun Path</div>';
+      h+='<div class="sun-row">';
+      h+='<div class="dc"><div class="sl">Plan</div>'+svgSun(lat,'yearly')+'</div>';
+      h+='<div class="dc" style="padding:0;position:relative"><div class="sl" style="padding:8px 16px 0;margin-bottom:0">3D Sun Path</div><div id="sun3d-host"><div class="sun3d-hint">drag to rotate &middot; scroll to zoom</div></div></div>';
+      h+='</div></div>';
+
+      /* WIND ROSE DIAGRAMS — 4 seasons + annual */
+      h+='<div class="diag-section"><div class="sl">Wind Rose — Seasonal</div>';
+      h+='<div class="wind-seasons">';
+      h+='<div class="dc"><div class="sl">Spring</div>'+svgWind(HD,'spring')+'</div>';
+      h+='<div class="dc"><div class="sl">Summer</div>'+svgWind(HD,'summer')+'</div>';
+      h+='<div class="dc"><div class="sl">Fall</div>'+svgWind(HD,'fall')+'</div>';
+      h+='<div class="dc"><div class="sl">Winter</div>'+svgWind(HD,'winter')+'</div>';
+      h+='</div>';
+      h+='<div class="sl" style="margin-top:8px" id="wind-annual-label">Wind Rose — Annual</div>';
+      h+='<div class="wind-annual"><div class="dc" id="wind-annual-svg">'+svgWind(HD,'yearly')+'</div></div>';
+
+      /* DAY-BY-DAY SLIDER */
+      if(DAY_AVGS){
+        var curDoy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/864e5)-1;
+        if(curDoy<0)curDoy=0;if(curDoy>365)curDoy=365;
+        h+='<div class="day-slider-wrap">';
+        h+='<div class="sl" style="margin-top:16px;text-align:center">Average Day — Year Overview</div>';
+        h+='<div id="day-slider-date" class="day-slider-date">'+doyToDate(curDoy)+'</div>';
+        h+='<input type="range" class="day-slider-input" id="day-slider" min="0" max="365" value="'+curDoy+'" oninput="updateDaySlider(+this.value)">';
+        h+='<div class="day-slider-months">';
+        for(var mi2=0;mi2<12;mi2++){h+='<span>'+MO[mi2].charAt(0)+'</span>';}
+        h+='</div>';
+        h+='<div class="day-slider-metrics">';
+        h+='<div class="dsm"><div class="dsm-l">High</div><div class="dsm-v" id="dsm-hi" style="color:var(--hot)">--</div><div class="dsm-s">&#176;C</div></div>';
+        h+='<div class="dsm"><div class="dsm-l">Low</div><div class="dsm-v" id="dsm-lo" style="color:var(--cold)">--</div><div class="dsm-s">&#176;C</div></div>';
+        h+='<div class="dsm"><div class="dsm-l">Precip</div><div class="dsm-v" id="dsm-pr">--</div><div class="dsm-s">avg/day</div></div>';
+        h+='<div class="dsm"><div class="dsm-l">Humidity</div><div class="dsm-v" id="dsm-rh">--</div><div class="dsm-s">RH</div></div>';
+        h+='<div class="dsm"><div class="dsm-l">Wind</div><div class="dsm-v" id="dsm-wd">--</div><div class="dsm-s">prevail</div></div>';
+        h+='<div class="dsm"><div class="dsm-l">Noon Sun</div><div class="dsm-v" id="dsm-sun" style="color:var(--sun)">--</div><div class="dsm-s">altitude</div></div>';
+        h+='</div>';
+        h+='</div>';
+      }
+      h+='</div>';
+
+      /* EPW */
+      h+='<div class="sb"><div class="sl">EPW Weather File</div>';
+      h+='<p style="font-size:15px;margin-bottom:10px"><a href="https://www.ladybug.tools/epwmap/#'+lat.toFixed(2)+'/'+lng.toFixed(2)+'" target="_blank">Ladybug EPW Map at '+lat.toFixed(2)+', '+lng.toFixed(2)+' &#8594;</a></p>';
+      h+='<p style="font-size:15px;margin-bottom:10px"><a href="https://climate.onebuilding.org/" target="_blank">climate.onebuilding.org &#8594;</a></p>';
+      h+='<p style="font-size:15px;margin-bottom:0"><a href="https://energyplus.net/weather" target="_blank">EnergyPlus TMY3 &#8594;</a></p></div>';
+      h+='</div>';
+
+      /* 01 WEATHER */
+      var wxB='';
+      if(cc){wxB+='<h3>Current</h3><table class="dt">'+rws([['Temperature',cc.temperature_2m+'&#176;C / '+Math.round(cc.temperature_2m*9/5+32)+'&#176;F'],['Feels like',cc.apparent_temperature+'&#176;C / '+Math.round(cc.apparent_temperature*9/5+32)+'&#176;F'],['Humidity',cc.relative_humidity_2m+'%'],['Wind',cc.wind_speed_10m+' km/h @ '+cc.wind_direction_10m+'&#176;']])+'</table>';}
+      if(avgs){
+        wxB+='<h3>Monthly Averages (3-Year)</h3>'+drawBars(avgs);
+        wxB+='<h3>Annual</h3><table class="dt">'+rws([['Avg high',aH+'&#176;C / '+Math.round(aH*9/5+32)+'&#176;F'],['Avg low',aL+'&#176;C / '+Math.round(aL*9/5+32)+'&#176;F'],['Precip',aP+' mm / '+Math.round(aP/25.4)+' in'],['Humidity',aR+'%'],['ASHRAE zone',cz.z+' &#8212; '+cz.d],['Energy code',cz.e]])+'</table>';
+      }
+      wxB+='<div class="nt">3-year archive from <a href="https://open-meteo.com">Open-Meteo</a>.</div>';
+      h+=mks('01','wx','Weather &amp; Climate','3-YR AVG','ok',wxB);
+
+      /* 02 SOLAR */
+      var slB='<table class="dt">'+rws([['Summer solstice',sun.sum+'&#176; (Jun 21)'],['Winter solstice',sun.win+'&#176; (Dec 21)'],['Current noon',sun.cur+'&#176;'],['Orientation',sun.ori+'-facing']])+'</table>';
+      if(cur.daily&&cur.daily.shortwave_radiation_sum){
+        var rd=cur.daily.shortwave_radiation_sum,sn2=cur.daily.sunshine_duration,dl=cur.daily.daylight_duration;
+        var ar2=0,as2=0,ad2=0;for(var i=0;i<rd.length;i++){ar2+=rd[i];as2+=(sn2?sn2[i]:0);ad2+=(dl?dl[i]:0);}
+        slB+='<h3>This Week</h3><table class="dt">'+rws([['Radiation',(ar2/rd.length).toFixed(1)+' MJ/m&#178;/day'],['Sunshine',(as2/rd.length/3600).toFixed(1)+' hrs/day'],['Daylight',(ad2/rd.length/3600).toFixed(1)+' hrs/day']])+'</table>';
+      }
+      slB+='<div class="nt">Solar geometry feeds into <a href="https://matthewcalvey.github.io/CALVEY-FORMING-SUN">Calvey Forming: Sun</a> lean angle.</div>';
+      h+=mks('02','sl','Solar &amp; Daylighting','OK','ok',slB);
+
+      /* 03 ELEV */
+      h+=mks('03','ev','Elevation &amp; Topography','OK','ok','<table class="dt">'+rws([['Elevation',el.ft+' ft / '+el.m+' m (USGS 3DEP)'],['Topo viewer','<a href="https://apps.nationalmap.gov/viewer/" target="_blank">USGS National Map &#8594;</a>'],['LiDAR','<a href="https://opentopography.org/" target="_blank">OpenTopography &#8594;</a>']])+'</table>');
+
+      /* 04 SOIL */
+      var soB='<table class="dt">';
+      var soN={clay:'Clay',sand:'Sand',silt:'Silt',bdod:'Bulk density',phh2o:'pH'};
+      var soU={clay:'g/kg',sand:'g/kg',silt:'g/kg',bdod:'cg/cm&#179;',phh2o:'&#215;10'};
+      if(soil&&soil.properties&&soil.properties.layers){
+        for(var i=0;i<soil.properties.layers.length;i++){var ly=soil.properties.layers[i];var val=ly.depths&&ly.depths[0]&&ly.depths[0].values&&ly.depths[0].values.mean;if(val!=null){soB+=rw(soN[ly.name]||ly.name,val+' '+(soU[ly.name]||''));}}
+      }else{soB+=rw('Status','Unavailable');}
+      soB+=rw('Detail','<a href="https://websoilsurvey.nrcs.usda.gov/" target="_blank">USDA SSURGO &#8594;</a>')+'</table>';
+      h+=mks('04','so','Soil &amp; Geotechnical',soil?'OK':'LINK',soil?'ok':'lk',soB);
+
+      /* 05 HAZARDS */
+      var haB='<div class="mg">';
+      haB+='<div class="mi"><div class="ml">FEMA Zone</div><div class="mv" style="font-size:22px">'+fZ+'</div><div class="ms"><span class="rb '+fC+'">'+fR+'</span></div></div>';
+      haB+='<div class="mi"><div class="ml">SFHA</div><div class="mv" style="font-size:16px">'+fS+'</div><div class="ms">Special Flood Hazard Area</div></div>';
+      haB+='<div class="mi"><div class="ml">Wildfire</div><div class="mv" style="font-size:14px">'+wD+'</div><div class="ms"><span class="rb '+wC+'">'+wL+'</span></div></div>';
+      haB+='</div><table class="dt">'+rws([['FEMA detail','<a href="https://msc.fema.gov/portal/search?AddressQuery='+encodeURIComponent(address)+'" target="_blank">Full flood map &#8594;</a>'],['ASCE 7','<a href="https://asce7hazardtool.online/" target="_blank">Wind, snow, seismic &#8594;</a>'],['Wildfire','<a href="https://wildfirerisk.org/" target="_blank">USFS detail &#8594;</a>']])+'</table>';
+      haB+='<div class="nt">Flood from FEMA NFHL. Wildfire from USFS Community Risk Index. Seismic requires ASCE 7.</div>';
+      h+=mks('05','ha','Hazards',fZ!=='No data'?'QUERIED':'PARTIAL',fZ!=='No data'?'ok':'lk',haB);
+
+      /* 06 ZONING */
+      h+=mks('06','zn','Zoning &amp; Parcel','LINK','lk','<table class="dt">'+rws([['Parcel','<a href="https://app.regrid.com/us/search?q='+encodeURIComponent(address)+'" target="_blank">Regrid &#8594;</a>'],['Zoning','<a href="https://www.zoneomics.com/" target="_blank">Zoneomics &#8594;</a>'],[city+' GIS','<a href="https://www.google.com/search?q='+encodeURIComponent((city||state)+' GIS zoning map')+'" target="_blank">Search &#8594;</a>'],['Context','<a href="https://www.openstreetmap.org/#map=17/'+lat+'/'+lng+'" target="_blank">OSM &#8594;</a>']])+'</table><div class="nt">Key: district, setbacks, FAR, height, lot coverage, parking, overlays.</div>');
+
+      /* 07 CODES */
+      h+=mks('07','cd','Building Codes','LINK','lk','<table class="dt">'+rws([['IBC/ICC','<a href="https://codes.iccsafe.org/codes/i-codes" target="_blank">Digital codes &#8594;</a>'],['UpCodes','<a href="https://up.codes/" target="_blank">By jurisdiction &#8594;</a>'],['ASHRAE','<a href="https://www.ashrae.org/technical-resources/standards-and-guidelines" target="_blank">90.1 / 62.1 / 55 &#8594;</a>'],['Energy code',cz.e],[city+' amendments','<a href="https://www.google.com/search?q='+encodeURIComponent((city||state)+' building code amendments')+'" target="_blank">Search &#8594;</a>']])+'</table>');
+
+      /* 08 UTILITY */
+      h+=mks('08','ut','Utility &amp; Transit','LINK','lk','<table class="dt">'+rws([['Rates','<a href="https://openei.org/wiki/Utility_Rate_Database" target="_blank">OpenEI &#8594;</a>'],['Grid carbon','<a href="https://app.electricitymaps.com/map" target="_blank">Electricity Maps &#8594;</a>'],['Walk Score','<a href="https://www.walkscore.com/score/'+encodeURIComponent(address)+'" target="_blank">This address &#8594;</a>']])+'</table>');
+
+      /* BRIEF */
+      var b='CALVEY DATA\n'+Array(51).join('=');
+      b+='\n\nLOCATION    '+address+'\nCOORDS      '+lat.toFixed(5)+', '+lng.toFixed(5)+'\nELEVATION   '+el.ft+' ft / '+el.m+' m';
+      b+='\n\nCLIMATE\n'+Array(51).join('-')+'\nZone        '+cz.z+' '+cz.d+'\nAvg High    '+aH+' C\nAvg Low     '+aL+' C\nPrecip      '+aP+' mm\nHumidity    '+aR+'%';
+      b+='\n\nSOLAR\n'+Array(51).join('-')+'\nSummer      '+sun.sum+'\nWinter      '+sun.win+'\nOrientation '+sun.ori;
+      b+='\n\nHAZARDS\n'+Array(51).join('-')+'\nFlood Zone  '+fZ+' ('+fR+')\nSFHA        '+fS+'\nWildfire    '+wD;
+      b+='\n\nVERIFY\n'+Array(51).join('-');
+      var chks=['Zoning: district, setbacks, FAR, height, parking','Building code edition + amendments','Seismic (ASCE 7)','Geotech report','Utility rates','Download EPW'];
+      for(var i=0;i<chks.length;i++){b+='\n[ ] '+chks[i];}
+      b+='\n\n'+Array(51).join('=')+'\n'+new Date().toISOString();
+
+      h+='<div style="padding:48px 0;border-top:1px solid var(--border)"><h2 style="color:var(--accent);letter-spacing:0.08em">Compiled Brief</h2><div class="bo">'+b+'</div>';
+      h+='<div class="er"><button class="bs" onclick="xT()">Export .txt</button><button class="bs" onclick="xJ()">Export .json</button></div></div>';
+
+      /* SAVE TO LOCALSTORAGE */
+      var climate = predictHddCdd(lat);
+      var heatFrac = climate.hdd / Math.max(climate.hdd + climate.cdd, 1);
+      var siteData = {
+        address: address,
+        lat: lat,
+        lng: lng,
+        elevation: el,
+        climateZone: cz,
+        sunAngles: sun,
+        floodZone: fZ,
+        windDirs: HD,
+        hdd: Math.round(climate.hdd),
+        cdd: Math.round(climate.cdd),
+        heatFrac: +heatFrac.toFixed(3),
+        winterNoon: +sun.win,
+        summerNoon: +sun.sum,
+        timestamp: new Date().toISOString()
+      };
+      try { localStorage.setItem('calvey_site_data', JSON.stringify(siteData)); } catch(e){}
+
+      /* NEXT */
+      h+='<div class="sec" style="text-align:center;padding:60px 0"><div class="sn">Next Step</div><h2>Continue to Site Boundary</h2>';
+      h+='<p>The address and location data will carry forward. Next, we extract the site boundary and building footprint as DXF for the design.</p>';
+      h+='<a class="next-btn" href="01_SITE.html">Next: 01 Site &#8594;</a>';
+      h+='</div>';
+
+      ra.innerHTML=h;
+      initSun3D(lat);
+      var sliderEl=document.getElementById('day-slider');
+      if(sliderEl) updateDaySlider(+sliderEl.value);
+      pg(100,'Complete');
+      ra.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }).catch(function(err){
+    ra.innerHTML='<div class="sec"><h2>Error</h2><p>'+err.message+'</p></div>';
+    pg(0,'Error: '+err.message);
+  }).finally(function(){
+    var btn=document.getElementById('rb');
+    btn.disabled=false;btn.innerHTML='Generate Site Intelligence';
+  });
+}
+
+/* Tab switchers removed — all views shown simultaneously */
+
+function xT(){var e=document.querySelector('.bo');if(!e){return;}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([e.textContent],{type:'text/plain'}));a.download='site-brief.txt';a.click();}
+function xJ(){var j={address:document.getElementById('addr').value,coords:{lat:G.lat,lng:G.lng},generated:new Date().toISOString()};var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(j,null,2)],{type:'application/json'}));a.download='site-data.json';a.click();}
+
+/* Load saved address on page load */
+(function(){
+  try {
+    var saved = JSON.parse(localStorage.getItem('calvey_site_data'));
+    if(saved && saved.address) {
+      document.getElementById('addr').value = saved.address;
+    }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

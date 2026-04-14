@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "calvey-form",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "cd /tmp/calvey_site && /usr/bin/ruby -rwebrick -e \"WEBrick::HTTPServer.new(Port:3456,DocumentRoot:'/tmp/calvey_site').start\""],
+      "port": 3456
+    }
+  ]
+}

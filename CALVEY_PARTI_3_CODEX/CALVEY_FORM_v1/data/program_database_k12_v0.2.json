@@ -1,0 +1,865 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Elementary School", "location": "Various US", "approx_sf": 55000, "notes": "400 students; single-story; 22 classrooms; cafetorium"},
+    "medium": {"name": "Cristo Rey Jesuit High School", "location": "Chicago, IL", "approx_sf": 130000, "notes": "3 stories; 550 students; chapel; science labs; gymnasium"},
+    "large": {"name": "Brooklyn Technical High School", "location": "New York, NY", "approx_sf": 400000, "notes": "2,500+ students; specialized STEM labs; auditorium; multiple gyms"}
+  },
+  "building_type": "K-12 School",
+  "subtypes": [
+    {
+      "id": "K12_ELEM",
+      "name": "Elementary School",
+      "gross_sf_typical": [
+        40000,
+        120000
+      ],
+      "efficiency_ratio_target_range": [
+        0.72,
+        0.84
+      ],
+      "student_count_typical": [
+        350,
+        800
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "K12_MIDDLE",
+      "name": "Middle School",
+      "gross_sf_typical": [
+        60000,
+        160000
+      ],
+      "efficiency_ratio_target_range": [
+        0.7,
+        0.82
+      ],
+      "student_count_typical": [
+        500,
+        1000
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "K12_HS",
+      "name": "High School",
+      "gross_sf_typical": [
+        120000,
+        450000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.8
+      ],
+      "student_count_typical": [
+        800,
+        2500
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "K12_ENTRY",
+      "name": "Main Entry + Vestibule",
+      "category": "Public/Entry",
+      "nsf_range": [
+        200,
+        1000
+      ],
+      "percent_of_gross_range": [
+        0.003,
+        0.02
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Security vestibule common; visitor check-in"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.8,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "K12_HEALTH",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_LOBBY",
+      "name": "Lobby / Commons",
+      "category": "Public/Commons",
+      "nsf_range": [
+        800,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often doubles as cafeteria spillover / event space"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_CAFE",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_GYM",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_LIBRARY",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_ADMIN",
+      "name": "Administration Suite",
+      "category": "Administration",
+      "nsf_range": [
+        800,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Include secure vestibule and visitor waiting"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ENTRY",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_CONF",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_CONF",
+      "name": "Conference / Meeting",
+      "category": "Administration",
+      "nsf_range": [
+        200,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.01
+      ],
+      "occupancy_load": "6-20",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_HEALTH",
+      "name": "Health Suite / Nurse",
+      "category": "Support",
+      "nsf_range": [
+        250,
+        900
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Isolation room may be required"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_ENTRY",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_CLASS",
+      "name": "Classroom (Typical)",
+      "category": "Learning",
+      "nsf_range": [
+        850,
+        1100
+      ],
+      "percent_of_gross_range": [
+        0.25,
+        0.45
+      ],
+      "occupancy_load": "20-30",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Daylight critical; acoustic separation from noisy zones"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_SMALL_GROUP",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "K12_TOILETS",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_SMALL_GROUP",
+      "name": "Small Group / Intervention",
+      "category": "Learning",
+      "nsf_range": [
+        120,
+        300
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "4-8",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_LIBRARY",
+      "name": "Library / Media Center",
+      "category": "Learning",
+      "nsf_range": [
+        2000,
+        8000
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_CAFE",
+      "name": "Cafeteria / Dining",
+      "category": "Food Service",
+      "nsf_range": [
+        2000,
+        12000
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Student/Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often used for community events; acoustic"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_KITCHEN",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_KITCHEN",
+      "name": "Commercial Kitchen + Support",
+      "category": "Food Service",
+      "nsf_range": [
+        800,
+        5000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter/Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CAFE",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "K12_LOADING",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_GYM",
+      "name": "Gymnasium",
+      "category": "Athletics",
+      "nsf_range": [
+        5400,
+        22000
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Student/Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Often after-hours use; separate entrance desirable"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOCKERS",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "K12_STAGE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_LOCKERS",
+      "name": "Locker Rooms",
+      "category": "Athletics",
+      "nsf_range": [
+        800,
+        4000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_GYM",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_STAGE",
+      "name": "Auditorium / Performance (HS)",
+      "category": "Assembly",
+      "nsf_range": [
+        4000,
+        20000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.08
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Student/Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "HS-specific; include backstage support in v0.2"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_CORRIDOR",
+      "name": "Corridors / Commons Circulation",
+      "category": "Circulation",
+      "nsf_range": [
+        2000,
+        25000
+      ],
+      "percent_of_gross_range": [
+        0.12,
+        0.22
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "K12_TOILETS",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_TOILETS",
+      "name": "Student Toilets (Banks)",
+      "category": "Support",
+      "nsf_range": [
+        300,
+        2500
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_LOADING",
+      "name": "Loading / Receiving",
+      "category": "Operations",
+      "nsf_range": [
+        300,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_KITCHEN",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "K12_MECH",
+      "name": "Main Mechanical",
+      "category": "MEP",
+      "nsf_range": [
+        600,
+        4000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_ADMIN",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_HEALTH",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_CAFE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_GYM",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_LIBRARY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ADMIN",
+      "to": "K12_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ADMIN",
+      "to": "K12_CONF",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CONF",
+      "to": "K12_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_HEALTH",
+      "to": "K12_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_HEALTH",
+      "to": "K12_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_SMALL_GROUP",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_TOILETS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_SMALL_GROUP",
+      "to": "K12_CLASS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LIBRARY",
+      "to": "K12_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CAFE",
+      "to": "K12_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CAFE",
+      "to": "K12_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_KITCHEN",
+      "to": "K12_CAFE",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_KITCHEN",
+      "to": "K12_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_GYM",
+      "to": "K12_LOCKERS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_GYM",
+      "to": "K12_STAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "K12_LOCKERS",
+      "to": "K12_GYM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_STAGE",
+      "to": "K12_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "K12_CORRIDOR",
+      "to": "K12_CLASS",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CORRIDOR",
+      "to": "K12_TOILETS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_TOILETS",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOADING",
+      "to": "K12_KITCHEN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "K12__DEFAULT__US-NATIONAL",
+    "cost": "K12__DEFAULT__US-NE",
+    "parking": "K12__DEFAULT__BOSTON-MA"
+  }
+}

@@ -1,0 +1,329 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-03-17",
+  "source_version": "0.1",
+  "building_type": "Parking Structure",
+  "reference_projects": {
+    "small": {
+      "name": "Typical Municipal Garage",
+      "location": "Various US",
+      "approx_sf": 60000,
+      "notes": "200 stalls; 3 levels; single helix; surface retail wrap possible"
+    },
+    "medium": {
+      "name": "1111 Lincoln Road",
+      "location": "Miami Beach, FL",
+      "approx_sf": 300000,
+      "notes": "Herzog & de Meuron; 300 stalls; mixed-use with retail, event space; open-air"
+    },
+    "large": {
+      "name": "LAX Economy Parking Structure",
+      "location": "Los Angeles, CA",
+      "approx_sf": 2500000,
+      "notes": "10,000+ stalls; multi-level; shuttle connection; revenue control; heavy automation"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "PKG_STANDALONE",
+      "name": "Standalone Parking Garage",
+      "gross_sf_typical": [40000, 500000],
+      "efficiency_ratio_target_range": [0.80, 0.90],
+      "tiers": ["Basic", "Standard", "Premium"]
+    },
+    {
+      "id": "PKG_MIXED_USE",
+      "name": "Parking Podium (Mixed-Use)",
+      "gross_sf_typical": [30000, 400000],
+      "efficiency_ratio_target_range": [0.72, 0.85],
+      "tiers": ["Basic", "Standard", "Premium"]
+    },
+    {
+      "id": "PKG_AUTOMATED",
+      "name": "Automated / Robotic Parking",
+      "gross_sf_typical": [15000, 200000],
+      "efficiency_ratio_target_range": [0.85, 0.95],
+      "tiers": ["Basic", "Standard", "Premium"]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "PKG_ENTRY_EXIT",
+      "name": "Entry / Exit Lanes",
+      "category": "Circulation/Vehicle",
+      "nsf_range": [600, 4000],
+      "percent_of_gross_range": [0.01, 0.03],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": ["Gate equipment; ticket dispensers or LPR cameras; 12 ft lane width min; queuing length 2-3 cars; signage and wayfinding"],
+      "adjacencies": [
+        {"space_id": "PKG_REVENUE_CTRL", "weight": 0.8, "relationship": "Direct"},
+        {"space_id": "PKG_PARKING_FLOOR", "weight": 0.9, "relationship": "Direct"}
+      ]
+    },
+    {
+      "id": "PKG_PARKING_FLOOR",
+      "name": "Parking Floor (Typical Level)",
+      "category": "Operations/Primary",
+      "nsf_range": [15000, 250000],
+      "percent_of_gross_range": [0.70, 0.88],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": ["Open_Parking", "Sprinklered"],
+      "notes": ["325-375 SF/stall gross (incl. drive aisles); 8.5x18 ft stall; 60 ft bay double-loaded; 10.5 ft floor-to-floor min; 7 ft clear min; turn radius 25 ft; one-way 12 ft aisle, two-way 24 ft aisle"],
+      "adjacencies": [
+        {"space_id": "PKG_RAMP", "weight": 1.0, "relationship": "Direct"},
+        {"space_id": "PKG_STAIR_ELEV", "weight": 0.8, "relationship": "Direct"},
+        {"space_id": "PKG_PED_LOBBY", "weight": 0.5, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_RAMP",
+      "name": "Vehicle Ramps / Helixes",
+      "category": "Circulation/Vehicle",
+      "nsf_range": [2000, 20000],
+      "percent_of_gross_range": [0.05, 0.12],
+      "occupancy_load": "Transient",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior/Perimeter",
+      "code_tags": [],
+      "notes": ["5-6.67% max slope; 12 ft width per lane; helix vs split-level vs speed ramp; transition slopes at entries; anti-skid surface"],
+      "adjacencies": [
+        {"space_id": "PKG_PARKING_FLOOR", "weight": 1.0, "relationship": "Direct"}
+      ]
+    },
+    {
+      "id": "PKG_STAIR_ELEV",
+      "name": "Stair / Elevator Core (Pedestrian)",
+      "category": "Circulation/Pedestrian",
+      "nsf_range": [300, 3000],
+      "percent_of_gross_range": [0.02, 0.05],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": ["Egress"],
+      "notes": ["Pressurized stair towers; glass-backed for CPTED visibility; elevator for ADA; color-coded levels; wayfinding"],
+      "adjacencies": [
+        {"space_id": "PKG_PARKING_FLOOR", "weight": 0.8, "relationship": "Direct"},
+        {"space_id": "PKG_PED_LOBBY", "weight": 0.7, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_PED_LOBBY",
+      "name": "Pedestrian Lobby / Skybridge Landing",
+      "category": "Circulation/Pedestrian",
+      "nsf_range": [100, 1500],
+      "percent_of_gross_range": [0.005, 0.02],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": ["Connection to adjacent buildings; street-level pedestrian access; weather-protected"],
+      "adjacencies": [
+        {"space_id": "PKG_STAIR_ELEV", "weight": 0.7, "relationship": "Near"},
+        {"space_id": "PKG_PARKING_FLOOR", "weight": 0.5, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_REVENUE_CTRL",
+      "name": "Revenue Control / Cashier Booth",
+      "category": "Operations",
+      "nsf_range": [60, 400],
+      "percent_of_gross_range": [0.001, 0.005],
+      "occupancy_load": "1-3",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": ["Pay-on-foot stations replacing booths; LPR replacing gates; climate-controlled booth; cash handling security"],
+      "adjacencies": [
+        {"space_id": "PKG_ENTRY_EXIT", "weight": 0.8, "relationship": "Direct"},
+        {"space_id": "PKG_MGMT_OFFICE", "weight": 0.4, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_MGMT_OFFICE",
+      "name": "Management / Security Office",
+      "category": "Operations",
+      "nsf_range": [100, 800],
+      "percent_of_gross_range": [0.003, 0.01],
+      "occupancy_load": "1-5",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": ["CCTV monitoring; PARCS system management; incident response; near ground-level entry"],
+      "adjacencies": [
+        {"space_id": "PKG_REVENUE_CTRL", "weight": 0.4, "relationship": "Near"},
+        {"space_id": "PKG_RESTROOM", "weight": 0.3, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_EV_CHARGING",
+      "name": "EV Charging Zone",
+      "category": "Operations/Special",
+      "nsf_range": [500, 10000],
+      "percent_of_gross_range": [0.01, 0.05],
+      "occupancy_load": "Variable",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": ["5-20% of stalls trending; Level 2 (240V) and DCFC; dedicated electrical panel; conduit to all future stalls; ventilation per code"],
+      "adjacencies": [
+        {"space_id": "PKG_PARKING_FLOOR", "weight": 0.6, "relationship": "Near"},
+        {"space_id": "PKG_ELEC", "weight": 0.5, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_RESTROOM",
+      "name": "Restrooms",
+      "category": "Support",
+      "nsf_range": [80, 400],
+      "percent_of_gross_range": [0.002, 0.006],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": ["Accessible"],
+      "notes": ["Typically ground level only; near pedestrian lobby; vandal-resistant fixtures"],
+      "adjacencies": [
+        {"space_id": "PKG_PED_LOBBY", "weight": 0.4, "relationship": "Near"},
+        {"space_id": "PKG_MGMT_OFFICE", "weight": 0.3, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_MECH",
+      "name": "Mechanical / Ventilation Room",
+      "category": "MEP",
+      "nsf_range": [200, 3000],
+      "percent_of_gross_range": [0.005, 0.02],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Restricted",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": ["CO/NO2 monitoring and exhaust fans for enclosed garages; open-air structures need minimal HVAC; fire pump room"],
+      "adjacencies": [
+        {"space_id": "PKG_ELEC", "weight": 0.6, "relationship": "Near"}
+      ]
+    },
+    {
+      "id": "PKG_ELEC",
+      "name": "Electrical Room",
+      "category": "MEP",
+      "nsf_range": [150, 1500],
+      "percent_of_gross_range": [0.003, 0.015],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Restricted",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": ["EV charging panel capacity; emergency lighting; exit signage; revenue control power"],
+      "adjacencies": [
+        {"space_id": "PKG_MECH", "weight": 0.6, "relationship": "Near"},
+        {"space_id": "PKG_EV_CHARGING", "weight": 0.5, "relationship": "Near"}
+      ]
+    }
+  ],
+  "adjacency_edges": [
+    {"from": "PKG_ENTRY_EXIT", "to": "PKG_REVENUE_CTRL", "weight": 4, "relationship": "must_adjoin"},
+    {"from": "PKG_ENTRY_EXIT", "to": "PKG_PARKING_FLOOR", "weight": 5, "relationship": "must_adjoin"},
+    {"from": "PKG_PARKING_FLOOR", "to": "PKG_RAMP", "weight": 5, "relationship": "must_adjoin"},
+    {"from": "PKG_PARKING_FLOOR", "to": "PKG_STAIR_ELEV", "weight": 4, "relationship": "must_adjoin"},
+    {"from": "PKG_PARKING_FLOOR", "to": "PKG_PED_LOBBY", "weight": 2, "relationship": "should_adjoin"},
+    {"from": "PKG_RAMP", "to": "PKG_PARKING_FLOOR", "weight": 5, "relationship": "must_adjoin"},
+    {"from": "PKG_STAIR_ELEV", "to": "PKG_PARKING_FLOOR", "weight": 4, "relationship": "must_adjoin"},
+    {"from": "PKG_STAIR_ELEV", "to": "PKG_PED_LOBBY", "weight": 3, "relationship": "should_adjoin"},
+    {"from": "PKG_PED_LOBBY", "to": "PKG_STAIR_ELEV", "weight": 3, "relationship": "should_adjoin"},
+    {"from": "PKG_REVENUE_CTRL", "to": "PKG_ENTRY_EXIT", "weight": 4, "relationship": "must_adjoin"},
+    {"from": "PKG_REVENUE_CTRL", "to": "PKG_MGMT_OFFICE", "weight": 2, "relationship": "should_adjoin"},
+    {"from": "PKG_MGMT_OFFICE", "to": "PKG_REVENUE_CTRL", "weight": 2, "relationship": "should_adjoin"},
+    {"from": "PKG_EV_CHARGING", "to": "PKG_PARKING_FLOOR", "weight": 3, "relationship": "should_adjoin"},
+    {"from": "PKG_EV_CHARGING", "to": "PKG_ELEC", "weight": 2, "relationship": "should_adjoin"},
+    {"from": "PKG_RESTROOM", "to": "PKG_PED_LOBBY", "weight": 2, "relationship": "should_adjoin"},
+    {"from": "PKG_MECH", "to": "PKG_ELEC", "weight": 3, "relationship": "should_adjoin"},
+    {"from": "PKG_ELEC", "to": "PKG_MECH", "weight": 3, "relationship": "should_adjoin"},
+    {"from": "PKG_ELEC", "to": "PKG_EV_CHARGING", "weight": 2, "relationship": "should_adjoin"}
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "PARKING__DEFAULT__US-NATIONAL",
+    "cost": "PARKING__DEFAULT__US-NE",
+    "parking": "PARKING__DEFAULT__BOSTON-MA"
+  }
+}

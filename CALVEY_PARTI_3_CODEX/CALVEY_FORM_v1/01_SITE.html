@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#c9a959;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CALVEY FORMING — Site Boundary (OSM + ArcGIS + DXF)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/proj4@2.9.2/dist/proj4.js"></script>
+
+<style>
+:root{
+  --bg:#0c0c0c; --surface:#131313; --border:#222;
+  --text:#ddd8d0; --text-dim:#8a857e; --text-muted:#504c46;
+  --accent:#c9a959; --glass:#6bb8d4;
+  --ok:#8bc34a; --warn:#ffb300; --bad:#ef5350;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased;}
+h1,.hero-title{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text);}
+h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4vw,42px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:24px;line-height:1.3;}
+p{font-size:18px;font-weight:300;color:var(--text-dim);margin-bottom:18px;line-height:1.85;}
+p strong{color:var(--text);font-weight:600}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.hero{
+  min-height:52vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  padding:86px 24px 52px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 40%, rgba(201,169,89,0.06) 0%, transparent 70%);
+}
+.hero-topline,.hero-sub2,.hero-meta{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);position:relative;}
+.hero-line{width:40px;height:1px;background:var(--accent);margin:16px auto 18px;position:relative;}
+.hero-title{font-size:clamp(48px,9vw,96px);line-height:1.05;margin-bottom:14px;position:relative;}
+.hero-sub{font-size:clamp(16px,2vw,22px);font-weight:300;font-style:italic;color:var(--text-dim);max-width:980px;line-height:1.7;margin:10px 0 12px;position:relative;}
+
+.content{max-width:1100px;margin:0 auto;padding:0 24px 88px}
+.section{padding:72px 0;border-top:1px solid var(--border)}
+.section:first-child{border-top:none}
+.section-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px;}
+
+.grid{display:grid;grid-template-columns:420px 1fr;gap:18px;align-items:stretch;}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+
+.panel{background:var(--surface);border:1px solid var(--border);padding:18px;}
+.panel + .panel{margin-top:14px}
+
+label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:8px;}
+input, textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+  padding:12px 12px;font-family:'Space Mono',monospace;font-size:12px;outline:none;
+}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button{
+  padding:10px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+}
+button:hover{border-color:var(--accent);color:var(--text)}
+button.primary{border-color:var(--accent);color:var(--accent)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.hr{height:1px;background:var(--border);margin:14px 0}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin-top:8px}
+.kv .k{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;}
+.kv .v{font-size:15px;color:var(--text-dim)}
+.mono{font-family:'Space Mono',monospace}
+
+.status{
+  margin-top:10px;padding:12px 14px;background:rgba(201,169,89,0.02);border:1px solid var(--border);border-left:2px solid var(--accent);
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);line-height:1.7;
+}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.small{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;line-height:1.6;}
+
+.mapwrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;position:relative;min-height:540px;}
+#map{width:100%;height:100%}
+
+.leaflet-container{background:#0b0b0b}
+.leaflet-control-zoom a, .leaflet-bar a{background:var(--bg)!important;color:var(--text)!important;border-color:var(--border)!important;}
+.leaflet-draw-toolbar a{background:var(--bg)!important;border-color:var(--border)!important;}
+.leaflet-control-attribution{background:rgba(12,12,12,0.8)!important;color:var(--text-muted)!important;border-top:1px solid var(--border);}
+.leaflet-control-attribution a{color:var(--accent)}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+
+@media(max-width:768px){
+  .hero{min-height:auto;padding:60px 16px 36px}
+  .hero-title{font-size:clamp(40px,12vw,72px)}
+  .content{padding:0 16px 60px}
+  .mapwrap{min-height:50vh}
+  .panel{padding:14px}
+  .btnrow{flex-direction:column}
+  .btnrow button{width:100%;text-align:center}
+  .kv{grid-template-columns:120px 1fr;gap:4px 8px}
+}
+@media(max-width:480px){
+  .hero{padding:40px 12px 28px}
+  .hero-title{font-size:clamp(36px,12vw,60px)}
+  input, textarea{font-size:16px;padding:10px}
+  .mapwrap{min-height:40vh}
+  .kv{grid-template-columns:100px 1fr}
+  .kv .k{font-size:8px}
+  .kv .v{font-size:13px}
+  .small{font-size:9px}
+}
+</style>
+</head>
+
+<body>
+  <div class="hero">
+    <nav style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px">
+      <a href="00_DATA.html" style="color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s">00 Data</a>
+      <a href="01_SITE.html" style="color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid var(--accent);transition:all 0.2s">01 Site</a>
+      <a href="02_PROGRAM.html" style="color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s">02 Program</a>
+      <a href="03_SUN.html" style="color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s">03 Sun</a>
+      <a href="04_WIND.html" style="color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s">04 Wind</a>
+      <a href="05_RENDER.html" style="color:var(--text-dim);text-decoration:none;padding:4px 10px;border:1px solid transparent;transition:all 0.2s">05 Render</a>
+    </nav>
+    <div class="hero-topline">SUN / EARTH / PEOPLE</div>
+    <div class="hero-line"></div>
+    <h1 class="hero-title">CALVEY<br>FORMING</h1>
+    <div class="hero-sub2">01 — SITE / EARTH</div>
+    <div class="hero-sub">Address → OSM footprint → MA/NY ArcGIS parcel (when available) → export GeoJSON + CAD DXF (UTM meters).</div>
+    <div class="hero-meta">Matthew Calvey · 2026 · Static Build</div>
+  </div>
+
+  <div class="content">
+    <div class="section">
+      <div class="section-num">00 — Acquire & Export</div>
+      <h2>OSM Footprint + Parcel Boundary + DXF</h2>
+
+      <div class="grid">
+        <div>
+          <div class="panel">
+            <label>Address</label>
+            <input id="address" placeholder='e.g., "27 Holyoke St, Boston, MA 02116"' />
+            <div class="btnrow">
+              <button class="primary" id="btnGeocode">Geocode</button>
+              <button id="btnFindFootprint" disabled>Find OSM Footprint</button>
+              <button id="btnFindParcelArcGIS" disabled>Find Parcel (MA/NY ArcGIS)</button>
+              <button id="btnDownloadDXF" disabled>Download DXF</button>
+            </div>
+            <div class="status" id="status">Enter an address, then geocode.</div>
+
+            <div class="hr"></div>
+            <div class="kv">
+              <div class="k">Lat, Lon</div><div class="v mono" id="latlon">—</div>
+              <div class="k">State</div><div class="v mono" id="stateCode">—</div>
+              <div class="k">Parcel Source</div><div class="v mono" id="parcelSource">—</div>
+              <div class="k">Footprint</div><div class="v" id="footprintStatus">—</div>
+              <div class="k">Parcel</div><div class="v" id="parcelStatus">—</div>
+              <div class="k">DXF CRS</div><div class="v mono" id="dxfCrs">—</div>
+            </div>
+
+            <div class="hr"></div>
+            <div class="small">
+              <div><strong>DXF format:</strong> AutoCAD R12 (AC1009) using POLYLINE/VERTEX/SEQEND (maximum Rhino 8 compatibility). UTM meters (EPSG:326xx/327xx).</div>
+              <div style="margin-top:8px"><strong>Fallback:</strong> draw boundary (polygon/rectangle) → exported and included in DXF and ZIP.</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <label>Export</label>
+            <input id="packName" value="MyProject" />
+            <div class="btnrow">
+              <button class="primary" id="btnExport" disabled>Download ZIP</button>
+              <button id="btnCopyManifest" disabled>Copy Manifest</button>
+            </div>
+            <div class="status" id="statusExport">ZIP includes GeoJSON + pack.json + DXF + PRJ.</div>
+          </div>
+
+          <div class="panel">
+            <label>Service links (hardwired)</label>
+            <div class="small">
+              <div>MA Parcels (MassGIS L3): <a href="https://services1.arcgis.com/hGdibHYSPO59RG1h/ArcGIS/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0" target="_blank" rel="noopener">Open</a></div>
+              <div>NY Parcels (NYS ITS Public): <a href="https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1" target="_blank" rel="noopener">Open</a></div>
+              <div class="hr"></div>
+              <div>Geocoding: <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener">Nominatim</a></div>
+              <div>OSM queries: <a href="https://overpass-api.de/" target="_blank" rel="noopener">Overpass</a> (failover enabled)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mapwrap">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-num">01 — Notes</div>
+      <h2>Import Guidance</h2>
+      <p><strong>Rhino:</strong> Import DXF; set model units to meters. Geometry comes in at true scale in UTM.</p>
+      <p><strong>Revit:</strong> Import CAD (DXF) using meters. If you need Shared Coordinates, set project location based on EPSG shown in the UI (sidecar PRJ in the ZIP).</p>
+    </div>
+
+    <div class="section" style="text-align:center;padding:60px 0">
+      <h2>Continue to Program</h2>
+      <p>The DXF site boundary will carry forward to the next step where you define the building program.</p>
+      <a href="02_PROGRAM.html" id="nextBtn" style="display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:16px 40px;color:#0c0c0c;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none;margin-top:16px">Next: 02 Program &#8594;</a>
+    </div>
+
+    <div class="footer" style="text-align:center;padding:60px 24px;border-top:1px solid var(--border)">
+      <p style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em">CALVEY FORM · 01 Site · Site Boundary</p>
+      <p style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em;margin-top:6px">&copy; 2026 Matthew Calvey</p>
+    </div>
+  </div>
+
+<script>
+/* ===== Utilities ===== */
+const $ = (id) => document.getElementById(id);
+function setStatus(el, msg){ el.innerHTML = msg; }
+function fmt(n, d=6){ return (typeof n === "number") ? n.toFixed(d) : "—"; }
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371.0088, toRad = x => x*Math.PI/180;
+  const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+function clearLayer(layer){ if(layer){ try{ map.removeLayer(layer); }catch(e){} } }
+function classifyFetchError(e){
+  const msg = String(e?.message || e || "");
+  if (msg.toLowerCase().includes("failed to fetch")) return "CORS_BLOCKED_OR_NETWORK";
+  return msg || "UNKNOWN_ERROR";
+}
+
+/* ===== Map ===== */
+const map = L.map('map', { zoomControl:true }).setView([42.36, -71.06], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 20,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+const drawn = new L.FeatureGroup(); map.addLayer(drawn);
+const drawControl = new L.Control.Draw({
+  position:'topleft',
+  draw:{
+    polygon:{allowIntersection:false,showArea:true},
+    rectangle:true,
+    circle:false, polyline:false, marker:false, circlemarker:false
+  },
+  edit:{featureGroup: drawn}
+});
+map.addControl(drawControl);
+
+/* ===== Hardwired parcel services ===== */
+const PARCEL_SVC = {
+  MA: {
+    name: "MA — MassGIS L3 Tax Parcels (Assess)",
+    layerUrl: "https://services1.arcgis.com/hGdibHYSPO59RG1h/ArcGIS/rest/services/L3_TAXPAR_POLY_ASSESS_gdb/FeatureServer/0",
+    notes: "MassGIS L3 excludes Boston."
+  },
+  NY: {
+    name: "NY — NYS Tax Parcels Public",
+    layerUrl: "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer/1",
+    notes: "Coverage is county-dependent (public)."
+  }
+};
+function pickStateCodeFromNominatim(g){
+  const a = g?.address || {};
+  const code = String(a.state_code || "").toUpperCase().trim();
+  if (code) return code;
+  const st = String(a.state || "").toUpperCase();
+  if (st.includes("MASSACHUSETTS")) return "MA";
+  if (st.includes("NEW YORK")) return "NY";
+  return null;
+}
+function pickParcelServiceForState(stateCode){
+  if (!stateCode) return null;
+  if (stateCode === "MA") return PARCEL_SVC.MA;
+  if (stateCode === "NY") return PARCEL_SVC.NY;
+  return null;
+}
+
+/* ===== State ===== */
+let state = {
+  address:null,
+  lat:null, lon:null,
+  stateCode:null,
+  parcelService:null,
+  footprint:null,     // GeoJSON Feature
+  parcel:null,        // GeoJSON Feature
+  userBoundary:null,  // GeoJSON Feature
+  sources:{ footprint:null, parcel:null, user:null, parcel_service:null }
+};
+
+let footprintLayer=null;
+let parcelLayer=null;
+let userLayer=null;
+
+/* ===== APIs ===== */
+async function nominatimGeocode(q){
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("q", q);
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("limit", "1");
+  const r = await fetch(url.toString(), { headers:{ "Accept":"application/json" } });
+  if(!r.ok) throw new Error("Geocode failed: " + r.status);
+  const j = await r.json();
+  if(!j || !j.length) throw new Error("No results found.");
+  return j[0];
+}
+
+/* Overpass: endpoint failover */
+const OVERPASS_ENDPOINTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.nchc.org.tw/api/interpreter"
+];
+async function overpassQuery(query){
+  let lastErr = null;
+  for(const ep of OVERPASS_ENDPOINTS){
+    try{
+      const r = await fetch(ep, {
+        method:"POST",
+        headers:{ "Content-Type":"application/x-www-form-urlencoded; charset=UTF-8" },
+        body:"data=" + encodeURIComponent(query)
+      });
+      if(!r.ok) throw new Error(`Overpass ${ep} failed: ${r.status}`);
+      return await r.json();
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("All Overpass endpoints failed.");
+}
+
+/* ===== OSM geometry helpers ===== */
+function elementToPolygon(el){
+  if(!el || !el.geometry || el.geometry.length < 3) return null;
+  const coords = el.geometry.map(p => [p.lon, p.lat]);
+  const first = coords[0], last = coords[coords.length-1];
+  if(first[0] !== last[0] || first[1] !== last[1]) coords.push(first);
+  return turf.polygon([coords], { osm_id: `${el.type}/${el.id}`, tags: el.tags || {} });
+}
+function pickBestPolygon(polys, lat, lon){
+  if(!polys.length) return null;
+  const pt = turf.point([lon, lat]);
+  for(const p of polys){
+    try{ if(turf.booleanPointInPolygon(pt, p)) return p; }catch(e){}
+  }
+  let best=null, bestD=Infinity;
+  for(const p of polys){
+    const c = turf.centroid(p).geometry.coordinates;
+    const d = haversineKm(lat, lon, c[1], c[0]);
+    if(d < bestD){ bestD=d; best=p; }
+  }
+  return best;
+}
+
+/* ===== Find building footprint ===== */
+async function findBuildingFootprint(lat, lon){
+  const radiusM = 140;
+  const q = `
+[out:json][timeout:25];
+(
+  way(around:${radiusM},${lat},${lon})["building"];
+);
+out geom;
+`;
+  const data = await overpassQuery(q);
+  const polys = [];
+  for(const el of (data.elements || [])){
+    const poly = elementToPolygon(el);
+    if(poly) polys.push(poly);
+  }
+  return pickBestPolygon(polys, lat, lon);
+}
+
+/* ===== ArcGIS Parcel Query (FeatureServer layer) ===== */
+function esriRingsToGeoJSON(rings){
+  return {
+    type:"Feature",
+    properties:{},
+    geometry:{ type:"Polygon", coordinates: rings.map(r => r.map(pt => [pt[0], pt[1]])) }
+  };
+}
+function pickBestArcgisParcelFeature(features, lat, lon){
+  if(!features || !features.length) return null;
+  const pt = turf.point([lon, lat]);
+
+  const containing = [];
+  for(const f of features){
+    try{ if(turf.booleanPointInPolygon(pt, f)) containing.push(f); }catch(e){}
+  }
+  if(containing.length){
+    let best = containing[0], bestA = turf.area(containing[0]);
+    for(const f of containing.slice(1)){
+      const a = turf.area(f);
+      if(a < bestA){ bestA = a; best = f; }
+    }
+    return best;
+  }
+
+  let best = features[0], bestA = turf.area(features[0]);
+  for(const f of features.slice(1)){
+    try{
+      const a = turf.area(f);
+      if(a < bestA){ bestA = a; best = f; }
+    }catch(e){}
+  }
+  return best;
+}
+async function arcgisQueryParcel(featureServerLayerUrl, lat, lon){
+  const base = featureServerLayerUrl.replace(/\s+/g,'');
+  const geo = `${lon},${lat}`;
+
+  // GeoJSON attempt
+  {
+    const u = new URL(base + "/query");
+    u.searchParams.set("f","geojson");
+    u.searchParams.set("geometry", geo);
+    u.searchParams.set("geometryType","esriGeometryPoint");
+    u.searchParams.set("inSR","4326");
+    u.searchParams.set("spatialRel","esriSpatialRelIntersects");
+    u.searchParams.set("outFields","*");
+    u.searchParams.set("returnGeometry","true");
+    u.searchParams.set("outSR","4326");
+    u.searchParams.set("resultRecordCount","10");
+
+    const r = await fetch(u.toString(), { headers:{ "Accept":"application/geo+json, application/json" } });
+    if(r.ok){
+      const gj = await r.json();
+      const feats = (gj && gj.features) ? gj.features : [];
+      const best = pickBestArcgisParcelFeature(feats, lat, lon);
+      if(best) return best;
+    }
+  }
+
+  // ESRI JSON fallback
+  {
+    const u = new URL(base + "/query");
+    u.searchParams.set("f","json");
+    u.searchParams.set("geometry", geo);
+    u.searchParams.set("geometryType","esriGeometryPoint");
+    u.searchParams.set("inSR","4326");
+    u.searchParams.set("spatialRel","esriSpatialRelIntersects");
+    u.searchParams.set("outFields","*");
+    u.searchParams.set("returnGeometry","true");
+    u.searchParams.set("outSR","4326");
+    u.searchParams.set("resultRecordCount","10");
+
+    const r = await fetch(u.toString(), { headers:{ "Accept":"application/json" } });
+    if(!r.ok) throw new Error("ArcGIS query failed: " + r.status);
+    const j = await r.json();
+    if(!j || !j.features || !j.features.length) return null;
+
+    const feats = [];
+    for(const f of j.features){
+      if(f?.geometry?.rings){
+        const feat = esriRingsToGeoJSON(f.geometry.rings);
+        feat.properties = f.attributes || {};
+        feats.push(feat);
+      }
+    }
+    return pickBestArcgisParcelFeature(feats, lat, lon);
+  }
+}
+
+/* ===== Projection helpers (WGS84 -> UTM) ===== */
+function utmEpsgForLatLon(lat, lon){
+  const zone = Math.floor((lon + 180) / 6) + 1;
+  const north = lat >= 0;
+  const epsg = north ? (32600 + zone) : (32700 + zone);
+  return { zone, north, epsg };
+}
+function projDefForEpsg(epsg){
+  const zone = epsg % 100;
+  const north = (Math.floor(epsg / 100) === 326);
+  const hemi = north ? "+north" : "+south";
+  return `+proj=utm +zone=${zone} ${hemi} +datum=WGS84 +units=m +no_defs`;
+}
+function projectLonLatToUTM(lon, lat, epsg){
+  const wgs84 = "EPSG:4326";
+  const utm = `EPSG:${epsg}`;
+  if(!proj4.defs[utm]) proj4.defs(utm, projDefForEpsg(epsg));
+  const [x, y] = proj4(wgs84, utm, [lon, lat]);
+  return [x, y];
+}
+
+/* ===== GeoJSON -> rings ===== */
+function getAllRingsFromFeature(feature){
+  const g = feature?.geometry;
+  if(!g) return [];
+  if(g.type === "Polygon") return g.coordinates;
+  if(g.type === "MultiPolygon") return g.coordinates.flat();
+  return [];
+}
+function ringLonLatToXY(ringLonLat, epsg){
+  return ringLonLat.map(([lon,lat]) => projectLonLatToUTM(lon, lat, epsg));
+}
+
+/* =======================================================================
+   DXF WRITER — RHINO 8 SAFE (AutoCAD R12 / AC1009)
+   - Uses POLYLINE/VERTEX/SEQEND (NOT LWPOLYLINE)
+   - Minimal, conservative TABLES
+   - No exotic tables/blocks that ODA sometimes chokes on
+   ======================================================================= */
+function dxfAscii(s){
+  return String(s)
+    .replace(/\r?\n/g, " ")
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, "-");
+}
+function isSamePt(a,b,eps=1e-9){ return Math.abs(a[0]-b[0])<eps && Math.abs(a[1]-b[1])<eps; }
+function cleanRingXY(pts){
+  const c = (pts||[]).filter(p => Array.isArray(p) && p.length>=2 && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  if(c.length >= 3 && isSamePt(c[0], c[c.length-1])) c.pop(); // remove duplicate closure vertex
+  return c;
+}
+function num(x){ return Number(x).toFixed(6); }
+
+function dxfHeaderR12(unitsCode=6){
+  // R12 header is very tolerant. Keep it minimal.
+  // $INSUNITS is newer, but Rhino tolerates it; omit if you want ultra-minimal.
+  return [
+    "0","SECTION",
+    "2","HEADER",
+    "9","$ACADVER",
+    "1","AC1009",
+    "9","$INSUNITS",
+    "70", String(unitsCode),
+    "0","ENDSEC"
+  ].join("\n") + "\n";
+}
+
+function dxfTablesR12(layers){
+  // Minimal TABLES for R12: LTYPE, LAYER, STYLE
+  const out = [];
+  out.push("0","SECTION","2","TABLES");
+
+  // LTYPE
+  out.push("0","TABLE","2","LTYPE","70","1");
+  out.push("0","LTYPE");
+  out.push("2","CONTINUOUS");
+  out.push("70","0");
+  out.push("3","Solid line");
+  out.push("72","65");
+  out.push("73","0");
+  out.push("40","0.0");
+  out.push("0","ENDTAB");
+
+  // LAYER
+  const safeLayers = layers && layers.length ? layers : [{name:"0", color:7}];
+  out.push("0","TABLE","2","LAYER","70", String(safeLayers.length));
+  for(const L of safeLayers){
+    out.push("0","LAYER");
+    out.push("2", dxfAscii(L.name));
+    out.push("70","0");
+    out.push("62", String(L.color || 7));
+    out.push("6","CONTINUOUS");
+  }
+  out.push("0","ENDTAB");
+
+  // STYLE
+  out.push("0","TABLE","2","STYLE","70","1");
+  out.push("0","STYLE");
+  out.push("2","STANDARD");
+  out.push("70","0");
+  out.push("40","0.0");
+  out.push("41","1.0");
+  out.push("50","0.0");
+  out.push("71","0");
+  out.push("42","1.0");
+  out.push("3",""); // font
+  out.push("4","");
+  out.push("0","ENDTAB");
+
+  out.push("0","ENDSEC");
+  return out.join("\n") + "\n";
+}
+
+function dxfBlocksEmpty(){
+  // R12 allows empty BLOCKS section; keep it.
+  return ["0","SECTION","2","BLOCKS","0","ENDSEC"].join("\n") + "\n";
+}
+
+function dxfPolylineR12(layerName, ptsXY, closed=true){
+  const pts = cleanRingXY(ptsXY);
+  // For a closed boundary, require at least 3 vertices
+  if(closed && pts.length < 3) return "";
+  if(!closed && pts.length < 2) return "";
+
+  const L = dxfAscii(layerName);
+  const out = [];
+
+  // POLYLINE entity
+  out.push("0","POLYLINE");
+  out.push("8", L);
+  out.push("66","1");        // vertices follow
+  out.push("70", closed ? "1" : "0"); // closed flag
+  out.push("10","0.0","20","0.0","30","0.0"); // dummy location
+
+  // VERTEX entities
+  for(const [x,y] of pts){
+    out.push("0","VERTEX");
+    out.push("8", L);
+    out.push("10", num(x));
+    out.push("20", num(y));
+    out.push("30","0.0");
+  }
+
+  // SEQEND
+  out.push("0","SEQEND");
+  out.push("8", L);
+
+  return out.join("\n") + "\n";
+}
+
+function dxfPointR12(layerName, x, y){
+  const L = dxfAscii(layerName);
+  return ["0","POINT","8",L,"10",num(x),"20",num(y),"30","0.0"].join("\n") + "\n";
+}
+
+function dxfTextR12(layerName, x, y, height, text){
+  const L = dxfAscii(layerName);
+  return [
+    "0","TEXT",
+    "8", L,
+    "7","STANDARD",
+    "10", num(x),
+    "20", num(y),
+    "30","0.0",
+    "40", Number(height).toFixed(3),
+    "1", dxfAscii(text),
+    "50","0.0"
+  ].join("\n") + "\n";
+}
+
+function dxfEntities(entitiesText){
+  return ["0","SECTION","2","ENTITIES", entitiesText.trimEnd(), "0","ENDSEC"].join("\n") + "\n";
+}
+function dxfEOF(){ return "0\nEOF\n"; }
+
+/* ===== Build DXF from available geometry ===== */
+function buildSiteDXF({ footprintFeature, parcelFeature, userBoundaryFeature, lat, lon }){
+  if(lat == null || lon == null) throw new Error("Need lat/lon to build DXF.");
+
+  const { zone, north, epsg } = utmEpsgForLatLon(lat, lon);
+
+  const footprintRings = footprintFeature ? getAllRingsFromFeature(footprintFeature) : [];
+  const parcelRings    = parcelFeature    ? getAllRingsFromFeature(parcelFeature)    : [];
+  const userRings      = userBoundaryFeature ? getAllRingsFromFeature(userBoundaryFeature) : [];
+
+  const footprintXY = footprintRings.map(r => ringLonLatToXY(r, epsg));
+  const parcelXY    = parcelRings.map(r => ringLonLatToXY(r, epsg));
+  const userXY      = userRings.map(r => ringLonLatToXY(r, epsg));
+
+  const [ox, oy] = projectLonLatToUTM(lon, lat, epsg);
+
+  const layers = [
+    { name:"0", color:7 },
+    { name:"FOOTPRINT", color:2 },
+    { name:"PARCEL", color:4 },
+    { name:"USER_BOUNDARY", color:6 },
+    { name:"SITE_META", color:7 }
+  ];
+
+  let ents = "";
+
+  // Use R12 POLYLINEs (Rhino-safe)
+  for(const ring of footprintXY){ ents += dxfPolylineR12("FOOTPRINT", ring, true); }
+  for(const ring of parcelXY){ ents += dxfPolylineR12("PARCEL", ring, true); }
+  for(const ring of userXY){ ents += dxfPolylineR12("USER_BOUNDARY", ring, true); }
+
+  // Always include meta point/text (ASCII only)
+  ents += dxfPointR12("SITE_META", ox, oy);
+  const textY = oy + 5;
+  ents += dxfTextR12("SITE_META", ox, textY, 1.0, "CALVEY FORMING - SITE EXPORT");
+  ents += dxfTextR12("SITE_META", ox, textY + 1.5, 1.0, `WGS84 LAT,LON: ${lat.toFixed(6)}, ${lon.toFixed(6)}`);
+  ents += dxfTextR12("SITE_META", ox, textY + 3.0, 1.0, `PROJ: EPSG:${epsg} (UTM zone ${zone}${north ? "N":"S"}) UNITS: meters`);
+
+  const dxf =
+    dxfHeaderR12(6) +
+    dxfTablesR12(layers) +
+    dxfBlocksEmpty() +
+    dxfEntities(ents) +
+    dxfEOF();
+
+  const prj = `PROJCS["WGS 84 / UTM zone ${zone}${north ? "N":"S"}",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",${-183 + 6*zone}],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",${north ? 0 : 10000000}],UNIT["metre",1]]`;
+
+  return { dxf, prj, epsg, zone, north, origin:[ox,oy] };
+}
+
+/* ===== Draw tools => user boundary ===== */
+map.on(L.Draw.Event.CREATED, (event) => {
+  const layer = event.layer;
+  drawn.addLayer(layer);
+  const geo = layer.toGeoJSON();
+  if(geo.geometry.type !== "Polygon" && geo.geometry.type !== "MultiPolygon") return;
+
+  let feature = geo;
+  if(geo.geometry.type === "MultiPolygon"){
+    feature = { type:"Feature", properties:{}, geometry:{ type:"Polygon", coordinates: geo.geometry.coordinates[0] } };
+  }
+  state.userBoundary = feature;
+  state.sources.user = "User drawn";
+  clearLayer(userLayer);
+  userLayer = L.geoJSON(feature, { style:{ weight:2, opacity:0.95, color:"#6bb8d4" } }).addTo(map);
+
+  $("btnExport").disabled = false;
+  $("btnCopyManifest").disabled = false;
+  $("btnDownloadDXF").disabled = false;
+
+  setStatus($("status"), `<span class="ok">DRAWN</span> · User boundary captured (export-ready).`);
+});
+
+/* ===== UI actions ===== */
+$("btnGeocode").addEventListener("click", async ()=>{
+  const addr = $("address").value.trim();
+  if(!addr){ setStatus($("status"), '<span class="bad">ERROR</span> · Enter an address.'); return; }
+
+  setStatus($("status"), "GEOCODING…");
+  try{
+    const g = await nominatimGeocode(addr);
+    state.address = addr;
+    state.lat = parseFloat(g.lat);
+    state.lon = parseFloat(g.lon);
+
+    state.stateCode = pickStateCodeFromNominatim(g);
+    state.parcelService = pickParcelServiceForState(state.stateCode);
+    state.sources.parcel_service = state.parcelService ? state.parcelService.layerUrl : null;
+
+    const { epsg, zone, north } = utmEpsgForLatLon(state.lat, state.lon);
+
+    $("latlon").textContent = `${fmt(state.lat,6)}, ${fmt(state.lon,6)}`;
+    $("stateCode").textContent = state.stateCode || "—";
+    $("parcelSource").textContent = state.parcelService ? state.parcelService.name : "—";
+    $("dxfCrs").textContent = `EPSG:${epsg} (UTM ${zone}${north ? "N":"S"})`;
+
+    map.setView([state.lat, state.lon], 18);
+
+    // reset layers + statuses
+    state.footprint=null; state.parcel=null;
+    $("footprintStatus").textContent = "—";
+    $("parcelStatus").textContent = "—";
+    clearLayer(footprintLayer); footprintLayer=null;
+    clearLayer(parcelLayer); parcelLayer=null;
+
+    $("btnFindFootprint").disabled = false;
+    $("btnFindParcelArcGIS").disabled = false;
+    $("btnDownloadDXF").disabled = false;
+
+    if(state.parcelService){
+      setStatus($("status"), `<span class="ok">READY</span> · State ${state.stateCode} detected · Parcel source wired. Click “Find Parcel”.`);
+    }else{
+      setStatus($("status"), `<span class="warn">READY</span> · State not MA/NY · Parcel tool will not run. Use draw tools.`);
+    }
+  }catch(e){
+    console.error(e);
+    setStatus($("status"), `<span class="bad">ERROR</span> · ${e.message}`);
+  }
+});
+
+$("btnFindFootprint").addEventListener("click", async ()=>{
+  if(state.lat==null) return;
+  setStatus($("status"), "SEARCHING OSM FOOTPRINT…");
+  try{
+    const poly = await findBuildingFootprint(state.lat, state.lon);
+    if(!poly){
+      $("footprintStatus").innerHTML = `<span class="warn">NOT FOUND</span> · No OSM building geometry nearby.`;
+      setStatus($("status"), `<span class="warn">NOTICE</span> · No footprint found. Try drawing a polygon.`);
+      return;
+    }
+    state.footprint = poly;
+    state.sources.footprint = "OSM building";
+
+    clearLayer(footprintLayer);
+    footprintLayer = L.geoJSON(poly, { style:{ weight:2, opacity:0.95, color:"#c9a959" } }).addTo(map);
+    map.fitBounds(footprintLayer.getBounds(), { padding:[30,30] });
+
+    $("footprintStatus").innerHTML = `<span class="ok">FOUND</span> · OSM building footprint.`;
+    setStatus($("status"), `<span class="ok">DONE</span> · Footprint loaded.`);
+    saveSiteToLocalStorage();
+
+    $("btnExport").disabled = false;
+    $("btnCopyManifest").disabled = false;
+    $("btnDownloadDXF").disabled = false;
+  }catch(e){
+    console.error(e);
+    setStatus($("status"), `<span class="bad">ERROR</span> · ${e.message}`);
+  }
+});
+
+$("btnFindParcelArcGIS").addEventListener("click", async ()=>{
+  if(state.lat==null) return;
+
+  if(!state.parcelService){
+    $("parcelStatus").innerHTML = `<span class="warn">UNSUPPORTED</span> · Only MA/NY are hardwired. Draw parcel manually.`;
+    setStatus($("status"), `<span class="warn">NOTICE</span> · State not MA/NY. Use draw tools.`);
+    return;
+  }
+
+  setStatus($("status"), `SEARCHING PARCEL (${state.stateCode})…`);
+  try{
+    const feat = await arcgisQueryParcel(state.parcelService.layerUrl, state.lat, state.lon);
+    if(!feat){
+      const note = state.parcelService?.notes ? ` · ${state.parcelService.notes}` : "";
+      $("parcelStatus").innerHTML = `<span class="warn">NOT FOUND</span> · No parcel returned${note}`;
+      setStatus($("status"), `<span class="warn">NOTICE</span> · Parcel not returned. Draw boundary manually.${note}`);
+      return;
+    }
+
+    state.parcel = feat;
+    state.sources.parcel = `ArcGIS FeatureServer query (MA/NY) — ${state.parcelService.name}`;
+
+    clearLayer(parcelLayer);
+    parcelLayer = L.geoJSON(feat, { style:{ weight:2, dashArray:"6 6", opacity:0.95, color:"#6bb8d4" } }).addTo(map);
+    map.fitBounds(parcelLayer.getBounds(), { padding:[30,30] });
+
+    $("parcelStatus").innerHTML = `<span class="ok">FOUND</span> · ${state.parcelService.name}`;
+    setStatus($("status"), `<span class="ok">DONE</span> · Parcel loaded.`);
+    saveSiteToLocalStorage();
+
+    $("btnExport").disabled = false;
+    $("btnCopyManifest").disabled = false;
+    $("btnDownloadDXF").disabled = false;
+  }catch(e){
+    console.error(e);
+    const reason = classifyFetchError(e);
+    if(reason === "CORS_BLOCKED_OR_NETWORK"){
+      $("parcelStatus").innerHTML = `<span class="bad">CORS</span> · Browser blocked request (needs proxy)`;
+      setStatus($("status"), `<span class="bad">ERROR</span> · Browser blocked parcel request (CORS). Pure HTML cannot fix this. Use a proxy or draw boundary.`);
+    }else{
+      $("parcelStatus").innerHTML = `<span class="bad">ERROR</span> · ${String(e.message || e)}`;
+      setStatus($("status"), `<span class="bad">ERROR</span> · ${String(e.message || e)}`);
+    }
+  }
+});
+
+/* ===== DXF Download (single file) ===== */
+$("btnDownloadDXF").addEventListener("click", ()=>{
+  try{
+    if(state.lat == null || state.lon == null) throw new Error("Geocode first.");
+    const out = buildSiteDXF({
+      footprintFeature: state.footprint || null,
+      parcelFeature: state.parcel || null,
+      userBoundaryFeature: state.userBoundary || null,
+      lat: state.lat,
+      lon: state.lon
+    });
+    const name = (($("packName").value || "MyProject").trim().replace(/[^\w\-]+/g, "_")) || "MyProject";
+    const blob = new Blob([out.dxf], { type:"application/dxf" });
+    saveAs(blob, `${name}_site_boundary.dxf`);
+    setStatus($("statusExport"), `<span class="ok">DXF</span> · Downloaded ${name}_site_boundary.dxf (EPSG:${out.epsg})`);
+    saveSiteToLocalStorage();
+  }catch(e){
+    setStatus($("statusExport"), `<span class="bad">ERROR</span> · DXF failed: ${String(e.message || e)}`);
+  }
+});
+
+/* ===== Export ===== */
+function buildManifest(){
+  return {
+    schema: "calvey-forming/site-pack/v1.5-static-ma-ny-dxf-rhino8-r12",
+    created_at: new Date().toISOString(),
+    address: state.address || null,
+    lat: state.lat || null,
+    lon: state.lon || null,
+    state_code: state.stateCode || null,
+    sources: state.sources,
+    notes: [
+      "OSM building footprints are open-source and coverage varies.",
+      "Parcels are jurisdictional. This build hardwires MA (MassGIS L3) and NY (NYS Tax Parcels Public).",
+      "If parcel fetch is blocked by CORS, use a proxy or draw the parcel boundary manually.",
+      "DXF is AutoCAD R12 (AC1009) with POLYLINE/VERTEX/SEQEND for maximum Rhino 8 compatibility; exported in UTM meters (EPSG:326xx/327xx); PRJ included."
+    ]
+  };
+}
+
+$("btnCopyManifest").addEventListener("click", async ()=>{
+  const m = buildManifest();
+  try{
+    await navigator.clipboard.writeText(JSON.stringify(m, null, 2));
+    setStatus($("statusExport"), `<span class="ok">COPIED</span> · Manifest copied to clipboard.`);
+  }catch(e){
+    setStatus($("statusExport"), `<span class="warn">NOTICE</span> · Clipboard blocked; export ZIP instead.`);
+  }
+});
+
+/* Save DXF + site data to localStorage whenever DXF is generated */
+function saveSiteToLocalStorage(){
+  try{
+    if(state.lat == null || state.lon == null) return;
+    var out = buildSiteDXF({
+      footprintFeature: state.footprint || null,
+      parcelFeature: state.parcel || null,
+      userBoundaryFeature: state.userBoundary || null,
+      lat: state.lat, lon: state.lon
+    });
+    var siteGeo = {
+      footprint: state.footprint,
+      parcel: state.parcel,
+      userBoundary: state.userBoundary,
+      lat: state.lat,
+      lon: state.lon,
+      dxf: out.dxf,
+      epsg: out.epsg,
+      origin: out.origin,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('calvey_site_geo', JSON.stringify(siteGeo));
+  }catch(e){ console.warn('localStorage save failed:', e); }
+}
+
+$("btnExport").addEventListener("click", async ()=>{
+  const name = (($("packName").value || "MyProject").trim().replace(/[^\w\-]+/g, "_")) || "MyProject";
+  const zip = new JSZip();
+  zip.file("meta/pack.json", JSON.stringify(buildManifest(), null, 2));
+
+  if(state.footprint) zip.file("site/osm_building_footprint.geojson", JSON.stringify(state.footprint, null, 2));
+  if(state.parcel) zip.file("site/parcel_arcgis.geojson", JSON.stringify(state.parcel, null, 2));
+  if(state.userBoundary) zip.file("site/user_boundary.geojson", JSON.stringify(state.userBoundary, null, 2));
+
+  // DXF + PRJ
+  try{
+    const out = buildSiteDXF({
+      footprintFeature: state.footprint || null,
+      parcelFeature: state.parcel || null,
+      userBoundaryFeature: state.userBoundary || null,
+      lat: state.lat,
+      lon: state.lon
+    });
+    zip.file("site/site_boundary.dxf", out.dxf);
+    zip.file("site/site_boundary.prj", out.prj);
+    zip.file("site/site_boundary_IMPORT.txt",
+`DXF EXPORT NOTES
+- Units: meters (UTM)
+- Projection: EPSG:${out.epsg} (UTM zone ${out.zone}${out.north ? "N":"S"})
+- DXF format: AutoCAD R12 (AC1009) using POLYLINE/VERTEX/SEQEND (Rhino 8 safe)
+- DXF contains:
+  - FOOTPRINT layer (OSM building)
+  - PARCEL layer (ArcGIS parcel when available)
+  - USER_BOUNDARY layer (if drawn)
+  - SITE_META layer (origin point + text with lat/lon + EPSG)
+Rhino:
+- Import DXF; set model units to meters.
+Revit:
+- Import CAD (DXF) in meters. For true geolocation, set Shared Coordinates using EPSG:${out.epsg} reference.
+`);
+  }catch(e){
+    zip.file("site/site_boundary_dxf_error.txt", String(e?.message || e));
+  }
+
+  const readme = [
+    "CALVEY FORMING — SITE PACK (STATIC)",
+    "",
+    "Files:",
+    "- meta/pack.json",
+    "- site/osm_building_footprint.geojson (if found)",
+    "- site/parcel_arcgis.geojson (if found)",
+    "- site/user_boundary.geojson (if drawn)",
+    "- site/site_boundary.dxf (UTM meters, Rhino 8 safe R12)",
+    "- site/site_boundary.prj (projection reference for DXF)",
+    "",
+    "Notes:",
+    "- Parcels are jurisdictional. This build hardwires MA (MassGIS L3) + NY (NYS Tax Parcels Public).",
+    "- If CORS blocks ArcGIS requests, you must use a proxy or draw the parcel manually.",
+    "- DXF is emitted as conservative AutoCAD R12 to avoid ODA 'Null object id' import failures."
+  ].join("\n");
+  zip.file("README.txt", readme);
+
+  setStatus($("statusExport"), "BUILDING ZIP…");
+  try{
+    const blob = await zip.generateAsync({ type:"blob" });
+    saveAs(blob, `${name}.zip`);
+    setStatus($("statusExport"), `<span class="ok">DONE</span> · Downloaded ${name}.zip`);
+  }catch(e){
+    console.error(e);
+    setStatus($("statusExport"), `<span class="bad">ERROR</span> · ${e.message}`);
+  }
+});
+
+/* ===== Auto-load from previous step ===== */
+(function(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('calvey_site_data'));
+    if(saved && saved.address){
+      $("address").value = saved.address;
+      setStatus($("status"), 'Address loaded from previous step. Auto-geocoding...');
+
+      // Auto-attempt geocode, then footprint + parcel
+      setTimeout(async function(){
+        try{
+          // Trigger geocode
+          $("btnGeocode").click();
+
+          // Wait for geocode to finish, then try footprint and parcel
+          var maxWait = 20, waited = 0;
+          var checkInterval = setInterval(async function(){
+            waited++;
+            if(state.lat != null || waited > maxWait){
+              clearInterval(checkInterval);
+              if(state.lat != null){
+                // Try footprint
+                await new Promise(r => setTimeout(r, 800));
+                $("btnFindFootprint").click();
+                // Try parcel
+                await new Promise(r => setTimeout(r, 2000));
+                if(!$("btnFindParcelArcGIS").disabled){
+                  $("btnFindParcelArcGIS").click();
+                }
+              }
+            }
+          }, 500);
+        }catch(e){ console.warn('Auto-load failed:', e); }
+      }, 500);
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,638 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Urgent Care / Outpatient Clinic", "location": "Various US", "approx_sf": 15000, "notes": "8-12 exam rooms; imaging; minor procedures; 1 story"},
+    "medium": {"name": "Spaulding Rehabilitation Hospital", "location": "Boston, MA", "approx_sf": 265000, "notes": "Perkins+Will; 132 beds; therapy pools; LEED Platinum; waterfront"},
+    "large": {"name": "Cleveland Clinic Main Campus (Lerner Tower)", "location": "Cleveland, OH", "approx_sf": 1000000, "notes": "Major academic medical center; 1,400+ beds; full diagnostic and surgical suites"}
+  },
+  "building_type": "Healthcare (Outpatient / Inpatient mix)",
+  "subtypes": [
+    {
+      "id": "HC_OUT",
+      "name": "Outpatient Clinic",
+      "gross_sf_typical": [
+        20000,
+        120000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.78
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "HC_AMB",
+      "name": "Ambulatory Surgery Center (ASC)",
+      "gross_sf_typical": [
+        15000,
+        80000
+      ],
+      "efficiency_ratio_target_range": [
+        0.6,
+        0.74
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "HC_INP",
+      "name": "Inpatient Unit (Hospital)",
+      "gross_sf_typical": [
+        80000,
+        1200000
+      ],
+      "efficiency_ratio_target_range": [
+        0.58,
+        0.72
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "HC_ENTRY",
+      "name": "Entry + Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        800,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.03
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Separate public and patient flows when possible"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HC_REG",
+          "weight": 0.9,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_WAIT",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HC_REG",
+      "name": "Registration / Check-in",
+      "category": "Public/Support",
+      "nsf_range": [
+        150,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_ENTRY",
+          "weight": 0.9,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_WAIT",
+          "weight": 0.9,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_WAIT",
+      "name": "Waiting Area",
+      "category": "Public/Support",
+      "nsf_range": [
+        300,
+        5000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Visibility and comfort; daylight desirable"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HC_EXAM",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_TOILET_PUBLIC",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_EXAM",
+      "name": "Exam Room (Typical)",
+      "category": "Clinical",
+      "nsf_range": [
+        120,
+        160
+      ],
+      "percent_of_gross_range": [
+        0.15,
+        0.35
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff/Patient",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "High MEP; adjacency to clean/soiled + staff work"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HC_NURSE",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_CLEAN",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_SOILED",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_PROC",
+      "name": "Procedure Room (Minor)",
+      "category": "Clinical",
+      "nsf_range": [
+        200,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.12
+      ],
+      "occupancy_load": "2-6",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff/Patient",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_NURSE",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_NURSE",
+      "name": "Nurse Station / Work Core",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        200,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_EXAM",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_MED",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_MED",
+      "name": "Medication Room",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        80,
+        200
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_NURSE",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_CLEAN",
+      "name": "Clean Supply",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        120,
+        500
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_EXAM",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_SOILED",
+      "name": "Soiled Utility",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        120,
+        500
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_EXAM",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_TOILET_PUBLIC",
+      "name": "Public Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        200,
+        900
+      ],
+      "percent_of_gross_range": [
+        0.002,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_WAIT",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_TOILET_PAT",
+      "name": "Patient Toilet (in suite)",
+      "category": "Clinical",
+      "nsf_range": [
+        40,
+        80
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.05
+      ],
+      "occupancy_load": "1",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Patient",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HC_EXAM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_IMAGING",
+      "name": "Imaging (Basic)",
+      "category": "Clinical/Diagnostics",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.12
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff/Patient",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Shielding and equipment clearances"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HC_WAIT",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HC_PROC",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HC_MECH",
+      "name": "Main Mechanical / Plant (scaled)",
+      "category": "MEP",
+      "nsf_range": [
+        2000,
+        20000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "HC_ENTRY",
+      "to": "HC_REG",
+      "weight": 5,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_ENTRY",
+      "to": "HC_WAIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HC_REG",
+      "to": "HC_ENTRY",
+      "weight": 5,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_REG",
+      "to": "HC_WAIT",
+      "weight": 5,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_WAIT",
+      "to": "HC_EXAM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_WAIT",
+      "to": "HC_TOILET_PUBLIC",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_EXAM",
+      "to": "HC_NURSE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_EXAM",
+      "to": "HC_CLEAN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_EXAM",
+      "to": "HC_SOILED",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_PROC",
+      "to": "HC_NURSE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_NURSE",
+      "to": "HC_EXAM",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_NURSE",
+      "to": "HC_MED",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_MED",
+      "to": "HC_NURSE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_CLEAN",
+      "to": "HC_EXAM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_SOILED",
+      "to": "HC_EXAM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_TOILET_PUBLIC",
+      "to": "HC_WAIT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_TOILET_PAT",
+      "to": "HC_EXAM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_IMAGING",
+      "to": "HC_WAIT",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HC_IMAGING",
+      "to": "HC_PROC",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "HEALTHCARE__DEFAULT__US-NATIONAL",
+    "cost": "HEALTHCARE__DEFAULT__US-NE",
+    "parking": "HEALTHCARE__DEFAULT__BOSTON-MA"
+  }
+}

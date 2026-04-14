@@ -1,0 +1,25 @@
+{
+  "name": "CALVEY FORMING Render",
+  "short_name": "CALVEY FORM",
+  "description": "Climate-shaped architectural rendering workflow.",
+  "start_url": "/CALVEY_FORM/05_RENDER.html",
+  "scope": "/CALVEY_FORM/",
+  "display": "standalone",
+  "background_color": "#0c0c0c",
+  "theme_color": "#0c0c0c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/CALVEY_FORM/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/CALVEY_FORM/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(brew --prefix)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/**)",
+      "Bash(cp -R /Users/matt/Desktop/CALVEY_ARCHIVE/form_versions/CALVEY_FORM_v1 /tmp/calvey_form)",
+      "Read(//tmp/calvey_form/**)"
+    ]
+  }
+}

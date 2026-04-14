@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent: #5b9bd5;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CALVEY FORMING — Wind Component</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./vendor/three.min.js"></script>
+<script>if(typeof THREE==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<style>
+:root{
+  --bg:#0c0c0c;--surface:#131313;--border:#222;
+  --text:#ddd8d0;--text-dim:#8a857e;--text-muted:#504c46;
+  --accent:#5b9bd5;--cold:#6a9cc4;--hot:#c45c3e;
+  --balanced:#8a7abf;--glass:#6bb8d4;--gold:#c9a959;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+h1,.hero-title{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:0.25em;text-transform:uppercase;color:var(--text)}
+h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,4vw,42px);letter-spacing:0.12em;text-transform:uppercase;color:var(--text);margin-bottom:24px;line-height:1.3}
+h3{font-family:'Space Mono',monospace;font-size:12px;font-weight:400;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-top:36px;margin-bottom:12px}
+p{font-size:18px;font-weight:300;color:var(--text-dim);margin-bottom:20px;line-height:1.85}
+p strong{color:var(--text);font-weight:600}
+
+.hero{min-height:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:36px 24px 24px;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(91,155,213,0.04) 0%,transparent 70%)}
+.hero-topline{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);position:relative;margin-bottom:18px}
+.hero-line{width:40px;height:1px;background:var(--accent);margin:0 auto 18px;position:relative}
+.hero-title{font-size:clamp(48px,9vw,100px);line-height:1.1;margin-bottom:12px;position:relative}
+.hero-sub2{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;position:relative}
+.hero-sub{font-size:clamp(15px,2vw,20px);font-weight:300;font-style:italic;color:var(--text-dim);max-width:560px;line-height:1.7;position:relative}
+
+.content{max-width:1200px;margin:0 auto;padding:0 16px 60px}
+.section{padding:20px 0;border-top:1px solid var(--border)}
+.section:first-child{border-top:none}
+.section-num{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px}
+
+.two-col{display:grid;grid-template-columns:1fr;gap:12px}
+.controls{display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px;align-items:start}
+.slb{background:var(--surface);border:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:column;gap:4px}
+.slb .slb-row{display:flex;align-items:center;gap:8px}
+.slb label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;flex:1}
+.slb input[type=range]{flex:1;accent-color:var(--accent);min-width:0}
+.slb .val{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--text);min-width:36px;text-align:right}
+
+.viewport{position:relative;background:#060606;border:1px solid var(--border);min-height:280px;height:clamp(300px, 50vh, 600px);overflow:hidden}
+.viewport canvas{display:block;width:100%!important;height:100%!important}
+.viewport .hint{position:absolute;left:10px;bottom:8px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase;pointer-events:none}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:12px}
+.mi{background:var(--surface);border:1px solid var(--border);padding:10px 12px}
+.mi .ml{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.mi .mv{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text)}
+.mi .ms{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted)}
+
+.btn{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-primary:hover{background:#7ab3e6}
+
+.footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
+.footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
+@media(max-width:768px){
+  .controls{grid-template-columns:repeat(2, 1fr);gap:6px}
+  .viewport{min-height:260px;height:clamp(260px, 48vh, 480px)}
+  .slb{padding:8px 10px}
+  .slb input[type=range]{height:32px}
+  .metrics{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:480px){
+  .content{padding:0 10px 40px}
+  .hero{padding:24px 14px 16px}
+  .hero-title{font-size:clamp(32px,10vw,56px)}
+  .hero-sub{font-size:14px;margin-bottom:0}
+  .controls{grid-template-columns:1fr 1fr;gap:5px}
+  .viewport{min-height:240px;height:clamp(240px, 45vh, 400px)}
+  .slb{padding:6px 8px;gap:3px}
+  .slb .val{font-size:16px}
+  .metrics{grid-template-columns:repeat(2,1fr);gap:5px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <nav style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px;position:relative">
+    <a href="00_DATA.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">00 Data</a>
+    <a href="01_SITE.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">01 Site</a>
+    <a href="02_PROGRAM.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">02 Program</a>
+    <a href="03_SUN.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">03 Sun</a>
+    <a href="04_WIND.html" style="color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid var(--accent)">04 Wind</a>
+    <a href="05_RENDER.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">05 Render</a>
+  </nav>
+  <div class="hero-topline">SUN / EARTH / PEOPLE</div>
+  <div class="hero-line"></div>
+  <h1 class="hero-title">CALVEY<br>FORMING</h1>
+  <div class="hero-sub2">04 — THE WIND</div>
+  <div class="hero-sub">Aerodynamic profiling — the sun-leaned form refined for wind response.</div>
+</div>
+
+<div class="content">
+
+<div class="section" id="no-data-section" style="display:none">
+  <div class="section-num">Missing Data</div>
+  <h2>Complete Previous Steps First</h2>
+  <p>The wind page needs the leaned building outline from <strong>03 Sun</strong>. Go back and run through the pipeline from the beginning.</p>
+  <a href="00_DATA.html" class="btn">Start at 00 Data</a>
+</div>
+
+<div class="section" id="wind-section" style="display:none">
+  <div class="section-num">04 — Aerodynamic Response</div>
+  <h2>Wind Profiling</h2>
+  <p>The solar-leaned form from the previous step is reshaped for aerodynamic performance. As buildings grow taller, wind forces increase with the square of velocity. The form responds by narrowing at the base (reducing the stagnation zone), constricting at a Venturi neck (accelerating flow for ventilation), and tapering at the crown (reducing peak wind loads).</p>
+
+  <div class="two-col">
+    <div class="controls">
+      <div class="slb">
+        <div class="slb-row"><label>Wind Intensity</label><div class="val" id="v-intensity">50%</div></div>
+        <input type="range" id="sl-intensity" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="slb">
+        <div class="slb-row"><label>Height Effect</label><div class="val" id="v-height">50%</div></div>
+        <input type="range" id="sl-height" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="slb">
+        <div class="slb-row"><label>Width Effect</label><div class="val" id="v-width">30%</div></div>
+        <input type="range" id="sl-width" min="0" max="100" step="1" value="30">
+      </div>
+      <div class="slb">
+        <div class="slb-row"><label>Twist °</label><div class="val" id="v-twist">0°</div></div>
+        <input type="range" id="sl-twist" min="0" max="90" step="1" value="0">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" onclick="resetWind()">Reset</button>
+      <button class="btn" onclick="autoWind()">Auto from Height</button>
+      <a href="05_RENDER.html" class="btn btn-primary" style="margin-left:auto">Next: 05 Render &#8594;</a>
+    </div>
+
+    <div class="viewport" id="windViewport">
+      <div class="hint">Drag to orbit · Scroll to zoom</div>
+    </div>
+
+    <div id="windMetrics" class="metrics"></div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>CALVEY FORMING · Wind Component · Part II</p>
+  <p style="margin-top:6px">© 2026 Matthew Calvey</p>
+</div>
+
+<script>
+/* ============================================================
+   SITE BOUNDARY HELPER
+============================================================ */
+function getSiteFootprintFtWind(){
+  var siteGeo = null;
+  try{ siteGeo = JSON.parse(localStorage.getItem('calvey_site_geo')); }catch(e){}
+  if(!siteGeo) return null;
+  var feature = siteGeo.parcel || siteGeo.footprint || siteGeo.userBoundary;
+  if(!feature || !feature.geometry) return null;
+  var coords = feature.geometry.type === 'Polygon' ? feature.geometry.coordinates[0] :
+               feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates[0][0] : null;
+  if(!coords || coords.length < 3) return null;
+  var lat0 = siteGeo.lat, lon0 = siteGeo.lon;
+  var mPerDegLat = 111320;
+  var mPerDegLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+  var mCoords = coords.map(function(c){ return [(c[0] - lon0) * mPerDegLon, (c[1] - lat0) * mPerDegLat]; });
+  var ftCoords = mCoords.map(function(c){ return [c[0] * 3.28084, c[1] * 3.28084]; });
+  var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  ftCoords.forEach(function(c){
+    if(c[0]<minX) minX=c[0]; if(c[0]>maxX) maxX=c[0];
+    if(c[1]<minY) minY=c[1]; if(c[1]>maxY) maxY=c[1];
+  });
+  var cx=(minX+maxX)/2, cy=(minY+maxY)/2;
+  return ftCoords.map(function(c){ return [c[0]-cx, c[1]-cy]; });
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+var outline = null;
+var windState = null;
+
+/* ============================================================
+   INIT — read leaned outline from localStorage
+============================================================ */
+function init(){
+  try{
+    outline = JSON.parse(localStorage.getItem('calvey_leaned_outline'));
+  }catch(e){}
+
+  if(!outline || !outline.floorOutlines){
+    document.getElementById('no-data-section').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('wind-section').style.display = 'block';
+
+  // Auto-set wind intensity from building height
+  var totalH = outline.totalHeight || 100;
+  var autoIntensity = Math.min(100, Math.max(0, Math.round((totalH - 30) / 4)));
+  document.getElementById('sl-intensity').value = autoIntensity;
+  document.getElementById('v-intensity').textContent = autoIntensity + '%';
+
+  // Height effect from number of floors
+  var hEffect = Math.min(100, Math.round((outline.nFloors - 1) / 40 * 100));
+  document.getElementById('sl-height').value = hEffect;
+  document.getElementById('v-height').textContent = hEffect + '%';
+
+  initWindScene();
+  updateWind();
+}
+
+/* ============================================================
+   THREE.JS SCENE
+============================================================ */
+function initWindScene(){
+  var host = document.getElementById('windViewport');
+  if(!host || !window.THREE) return;
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060606);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  var existingCanvas = host.querySelector('canvas');
+  if(existingCanvas) existingCanvas.remove();
+  host.insertBefore(renderer.domElement, host.firstChild);
+
+  var w = host.clientWidth || 600;
+  var h = host.clientHeight || 500;
+  renderer.setSize(w, h, false);
+
+  var camera = new THREE.PerspectiveCamera(50, w/Math.max(h,1), 1, 9000);
+  camera.position.set(300, 250, 300);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.7);
+  sun.position.set(200, 400, -300);
+  scene.add(sun);
+
+  var ground = new THREE.GridHelper(800, 20, 0x2a2a2a, 0x181818);
+  scene.add(ground);
+
+  var model = new THREE.Group();
+  scene.add(model);
+
+  windState = {
+    host:host, scene:scene, renderer:renderer, camera:camera,
+    model:model,
+    yaw: Math.PI*0.25, pitch:0.5, distance:500,
+    panX:0, panZ:0,
+    pointers: new Map(), prevSingle:null, prevPinchDist:null
+  };
+
+  // Orbit controls
+  host.style.touchAction = 'none';
+  host.addEventListener('pointerdown', function(ev){
+    host.setPointerCapture(ev.pointerId);
+    windState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    windState.prevSingle = {x:ev.clientX, y:ev.clientY};
+  });
+  host.addEventListener('pointermove', function(ev){
+    if(!windState.pointers.has(ev.pointerId)) return;
+    ev.preventDefault();
+    windState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+    var pts = Array.from(windState.pointers.values());
+    if(pts.length === 1){
+      var prev = windState.prevSingle || pts[0];
+      windState.yaw -= (pts[0].x - prev.x) * 0.008;
+      windState.pitch = Math.max(0.1, Math.min(1.45, windState.pitch + (pts[0].y - prev.y) * 0.006));
+      windState.prevSingle = {x:pts[0].x, y:pts[0].y};
+    }
+    updateCamera();
+  }, {passive:false});
+  host.addEventListener('pointerup', function(ev){
+    windState.pointers.delete(ev.pointerId);
+    windState.prevSingle = null;
+    try{host.releasePointerCapture(ev.pointerId);}catch(e){}
+  });
+  host.addEventListener('pointercancel', function(ev){
+    windState.pointers.delete(ev.pointerId);
+  });
+  host.addEventListener('wheel', function(ev){
+    ev.preventDefault();
+    windState.distance = Math.max(80, Math.min(2600, windState.distance * Math.exp(ev.deltaY * 0.001)));
+    updateCamera();
+  }, {passive:false});
+
+  window.addEventListener('resize', function(){
+    var w2 = host.clientWidth || 1;
+    var h2 = host.clientHeight || 1;
+    renderer.setSize(w2, h2, false);
+    camera.aspect = w2/Math.max(h2,1);
+    camera.updateProjectionMatrix();
+    updateCamera();
+  });
+
+  updateCamera();
+
+  (function loop(){
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  })();
+}
+
+function updateCamera(){
+  if(!windState) return;
+  var st = windState;
+  var totalH = outline ? outline.totalHeight : 100;
+  var ty = totalH * 0.4;
+  var cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+  var cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+  st.camera.position.set(
+    st.panX + st.distance * cp * cy,
+    ty + st.distance * sp,
+    st.panZ + st.distance * cp * sy
+  );
+  st.camera.lookAt(st.panX, ty, st.panZ);
+}
+
+/* ============================================================
+   WIND PROFILE — Venturi shaping
+============================================================ */
+function windProfile(t, intensity, widthEffect){
+  // t = 0 (ground) to 1 (top)
+  // Returns width multiplier (1.0 = no change)
+  var I = intensity / 100;
+  var Iw = widthEffect / 100;
+
+  // Zone positions shift upward with intensity
+  var baseTop = 0.15 + I * 0.05;
+  var swellPos = 0.35 + I * 0.06;
+  var neckPos = 0.60 + I * 0.04;
+  var crownStart = 0.80;
+
+  // Width at each zone
+  var baseW = 1.0 - I * 0.25 - Iw * 0.15;       // narrow base (stagnation reduction)
+  var swellW = 1.0 + I * 0.15 + Iw * 0.1;        // swell (intake)
+  var neckW = 1.0 - I * 0.35 - Iw * 0.2;         // Venturi neck (acceleration)
+  var crownW = 1.0 - I * 0.45 - Iw * 0.15;       // crown taper
+
+  // Smooth interpolation through zones
+  if(t < baseTop){
+    var u = t / baseTop;
+    return lerp(baseW, swellW * 0.7 + baseW * 0.3, smoothstep(u));
+  } else if(t < swellPos){
+    var u = (t - baseTop) / (swellPos - baseTop);
+    return lerp(baseW * 0.3 + swellW * 0.7, swellW, smoothstep(u));
+  } else if(t < neckPos){
+    var u = (t - swellPos) / (neckPos - swellPos);
+    return lerp(swellW, neckW, smoothstep(u));
+  } else if(t < crownStart){
+    var u = (t - neckPos) / (crownStart - neckPos);
+    return lerp(neckW, neckW * 0.8 + crownW * 0.2, smoothstep(u));
+  } else {
+    var u = (t - crownStart) / (1.0 - crownStart);
+    return lerp(neckW * 0.2 + crownW * 0.8, crownW * 0.7, smoothstep(u));
+  }
+}
+
+function lerp(a, b, t){ return a + (b - a) * t; }
+function smoothstep(t){ return t * t * (3 - 2 * t); }
+
+/* ============================================================
+   BUILD WIND MODEL
+============================================================ */
+function updateWind(){
+  if(!windState || !outline) return;
+
+  var intensity = +document.getElementById('sl-intensity').value;
+  var heightEff = +document.getElementById('sl-height').value;
+  var widthEff = +document.getElementById('sl-width').value;
+  var twist = +document.getElementById('sl-twist').value;
+
+  document.getElementById('v-intensity').textContent = intensity + '%';
+  document.getElementById('v-height').textContent = heightEff + '%';
+  document.getElementById('v-width').textContent = widthEff + '%';
+  document.getElementById('v-twist').textContent = twist + '°';
+
+  // Clear model
+  var model = windState.model;
+  while(model.children.length){
+    var ch = model.children.pop();
+    if(ch.geometry) ch.geometry.dispose();
+    if(ch.material){
+      if(Array.isArray(ch.material)) ch.material.forEach(function(m){m.dispose();});
+      else ch.material.dispose();
+    }
+  }
+
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight;
+  var totalH = outline.totalHeight;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+  var leanAngle = outline.leanAngle || 0;
+  var leanRad = leanAngle * Math.PI / 180;
+  var ox = -bW / 2;
+  var oz = -bD / 2;
+
+  var combinedI = Math.min(100, intensity * 0.7 + heightEff * 0.3);
+
+  // Build continuous rounded form from page 03 with wind profiling.
+  // Floor area stays the same — only the exterior profile (rounded edges) changes.
+
+  // Helper: generate rounded rectangle points in XZ plane
+  var ROUND_SEGS = 6; // segments per corner arc
+  function roundedRectPoints(hw, hd, radius, cx, cz){
+    var pts = [];
+    var r = Math.min(radius, hw * 0.45, hd * 0.45);
+    // Start at bottom-left corner going clockwise
+    // Bottom edge (south face — z = cz - hd)
+    for(var i = 0; i <= ROUND_SEGS; i++){
+      var a = Math.PI + (Math.PI/2) * (i / ROUND_SEGS);
+      pts.push({x: cx - hw + r + r * Math.cos(a), z: cz - hd + r + r * Math.sin(a)});
+    }
+    for(var i = 0; i <= ROUND_SEGS; i++){
+      var a = Math.PI * 1.5 + (Math.PI/2) * (i / ROUND_SEGS);
+      pts.push({x: cx + hw - r + r * Math.cos(a), z: cz - hd + r + r * Math.sin(a)});
+    }
+    // Right edge, top edge (north)
+    for(var i = 0; i <= ROUND_SEGS; i++){
+      var a = 0 + (Math.PI/2) * (i / ROUND_SEGS);
+      pts.push({x: cx + hw - r + r * Math.cos(a), z: cz + hd - r + r * Math.sin(a)});
+    }
+    for(var i = 0; i <= ROUND_SEGS; i++){
+      var a = Math.PI * 0.5 + (Math.PI/2) * (i / ROUND_SEGS);
+      pts.push({x: cx - hw + r + r * Math.cos(a), z: cz + hd - r + r * Math.sin(a)});
+    }
+    return pts;
+  }
+
+  // Compute the rounded corner radius based on wind intensity
+  var baseRadius = Math.min(bW, bD) * 0.05;
+  var maxRadius = Math.min(bW, bD) * 0.45;
+  var roundRadius = baseRadius + (maxRadius - baseRadius) * (combinedI / 100);
+
+  // Collect floor cross-sections for lofting
+  var floorSections = [];
+  var LOFT_STEPS = Math.max(nFloors * 2, 20); // smooth interpolation between floors
+
+  for(var si = 0; si <= LOFT_STEPS; si++){
+    var t = si / LOFT_STEPS;
+    var y = t * totalH;
+    var wMult = windProfile(t, combinedI, widthEff);
+    var twistRad = (twist * t) * Math.PI / 180;
+    var southShift = y * Math.tan(leanRad);
+
+    var hw = (bW * wMult) / 2;
+    var hd = (bD * wMult) / 2;
+    var scaledRadius = roundRadius * wMult;
+
+    var pts = roundedRectPoints(hw, hd, scaledRadius, 0, -southShift);
+
+    // Apply twist
+    if(twist > 0){
+      var tcz = -southShift;
+      pts = pts.map(function(p){
+        var dx = p.x, dz = p.z - tcz;
+        return {
+          x: dx * Math.cos(twistRad) - dz * Math.sin(twistRad),
+          z: tcz + dx * Math.sin(twistRad) + dz * Math.cos(twistRad)
+        };
+      });
+    }
+
+    floorSections.push({y: y, pts: pts});
+  }
+
+  // Build lofted mesh between sections
+  var nPts = floorSections[0].pts.length;
+  for(var si = 0; si < floorSections.length - 1; si++){
+    var sec0 = floorSections[si];
+    var sec1 = floorSections[si + 1];
+
+    for(var pi = 0; pi < nPts; pi++){
+      var ni = (pi + 1) % nPts;
+      var p0 = sec0.pts[pi], p1 = sec0.pts[ni];
+      var p2 = sec1.pts[pi], p3 = sec1.pts[ni];
+
+      var triVerts = new Float32Array([
+        p0.x, sec0.y, p0.z,  p1.x, sec0.y, p1.z,  p3.x, sec1.y, p3.z,
+        p0.x, sec0.y, p0.z,  p3.x, sec1.y, p3.z,  p2.x, sec1.y, p2.z
+      ]);
+      var triGeo = new THREE.BufferGeometry();
+      triGeo.setAttribute('position', new THREE.BufferAttribute(triVerts, 3));
+      triGeo.computeVertexNormals();
+      var triMat = new THREE.MeshStandardMaterial({
+        color: 0xd0cdc8,
+        roughness: 0.65,
+        metalness: 0.04,
+        transparent: true,
+        opacity: 0.72,
+        side: THREE.DoubleSide
+      });
+      model.add(new THREE.Mesh(triGeo, triMat));
+    }
+  }
+
+  // Floor plate outlines (at actual floor levels)
+  for(var fi = 0; fi <= nFloors; fi++){
+    var ft = nFloors > 0 ? fi / nFloors : 0;
+    ft = Math.min(ft, 1);
+    var fY = fi * fH;
+    var fwMult = windProfile(ft, combinedI, widthEff);
+    var fTwist = (twist * ft) * Math.PI / 180;
+    var fSS = fY * Math.tan(leanRad);
+    var fhw = (bW * fwMult) / 2;
+    var fhd = (bD * fwMult) / 2;
+    var fRadius = roundRadius * fwMult;
+
+    var fPts = roundedRectPoints(fhw, fhd, fRadius, 0, -fSS);
+    if(twist > 0){
+      var fcz = -fSS;
+      fPts = fPts.map(function(p){
+        var fdx = p.x, fdz = p.z - fcz;
+        return {
+          x: fdx * Math.cos(fTwist) - fdz * Math.sin(fTwist),
+          z: fcz + fdx * Math.sin(fTwist) + fdz * Math.cos(fTwist)
+        };
+      });
+    }
+    var flinePts = fPts.map(function(p){ return new THREE.Vector3(p.x, fY, p.z); });
+    flinePts.push(flinePts[0].clone());
+    var flGeo = new THREE.BufferGeometry().setFromPoints(flinePts);
+    model.add(new THREE.Line(flGeo, new THREE.LineBasicMaterial({
+      color: 0x5b9bd5, transparent:true, opacity: 0.4
+    })));
+  }
+
+  // Top and bottom cap fills
+  [0, floorSections.length - 1].forEach(function(idx){
+    var sec = floorSections[idx];
+    var capShape = new THREE.Shape();
+    capShape.moveTo(sec.pts[0].x, sec.pts[0].z);
+    for(var ci = 1; ci < sec.pts.length; ci++){
+      capShape.lineTo(sec.pts[ci].x, sec.pts[ci].z);
+    }
+    capShape.closePath();
+    var capGeo = new THREE.ShapeGeometry(capShape);
+    capGeo.rotateX(-Math.PI / 2);
+    var capMesh = new THREE.Mesh(capGeo, new THREE.MeshStandardMaterial({
+      color: 0xd0cdc8, transparent:true, opacity: 0.5, side: THREE.DoubleSide
+    }));
+    capMesh.position.y = sec.y;
+    model.add(capMesh);
+  });
+
+  // Ground outline
+  var groundLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-bW/2-20, 0.1, -bD/2-20),
+      new THREE.Vector3(bW/2+20, 0.1, -bD/2-20),
+      new THREE.Vector3(bW/2+20, 0.1, bD/2+20),
+      new THREE.Vector3(-bW/2-20, 0.1, bD/2+20),
+      new THREE.Vector3(-bW/2-20, 0.1, -bD/2-20)
+    ]),
+    new THREE.LineDashedMaterial({color:0x444444, dashSize:8, gapSize:6})
+  );
+  groundLine.computeLineDistances();
+  model.add(groundLine);
+
+  // Site/parcel boundary on ground plane
+  var sitePoly = getSiteFootprintFtWind();
+  if(sitePoly && sitePoly.length >= 3){
+    var sitePts = sitePoly.map(function(pt){ return new THREE.Vector3(pt[0], 0.3, -pt[1]); });
+    sitePts.push(sitePts[0].clone());
+    var siteGeo2 = new THREE.BufferGeometry().setFromPoints(sitePts);
+    var siteMat = new THREE.LineDashedMaterial({color:0xc9a959, dashSize:8, gapSize:5, transparent:true, opacity:0.7});
+    var siteLine = new THREE.Line(siteGeo2, siteMat);
+    siteLine.computeLineDistances();
+    model.add(siteLine);
+  }
+
+  // Wind flow spiral indicators
+  var spiralPts = [];
+  for(var spi = 0; spi <= 200; spi++){
+    var st = spi / 200;
+    var sy = st * totalH;
+    var sAngle = st * Math.PI * 4 + Math.PI * 0.5;
+    var sRadius = (bW * 0.5 + 30) * windProfile(st, combinedI, widthEff);
+    spiralPts.push(new THREE.Vector3(
+      Math.cos(sAngle) * sRadius,
+      sy,
+      Math.sin(sAngle) * sRadius - st * totalH * Math.tan(leanRad)
+    ));
+  }
+  model.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(spiralPts),
+    new THREE.LineBasicMaterial({color:0x5b9bd5, transparent:true, opacity:0.25})
+  ));
+
+  // Update camera
+  windState.distance = Math.max(200, Math.min(2200, Math.hypot(bW, bD, totalH) * 1.2));
+  updateCamera();
+
+  // Metrics
+  var dragReduction = Math.round(combinedI * 0.55);
+  var ventPotential = Math.round(combinedI * 0.8);
+  document.getElementById('windMetrics').innerHTML = [
+    mi('Lean', (leanAngle > 0 ? 'Back ' : leanAngle < 0 ? 'Fwd ' : '') + Math.abs(leanAngle) + '°', 'from sun'),
+    mi('Intensity', combinedI.toFixed(0) + '%', 'combined'),
+    mi('Drag Est.', '−' + dragReduction + '%', 'vs prismatic'),
+    mi('Vent.', ventPotential + '%', 'passive potential'),
+    mi('Twist', twist + '°', 'helical'),
+    mi('Floors', nFloors + 'F', totalH + ' ft')
+  ].join('');
+
+  // Save wind-profiled data for render page
+  var windData = {
+    outline: outline,
+    intensity: intensity,
+    heightEffect: heightEff,
+    widthEffect: widthEff,
+    twist: twist,
+    combinedIntensity: combinedI,
+    dragReduction: dragReduction
+  };
+  try{ localStorage.setItem('calvey_wind_data', JSON.stringify(windData)); }catch(e){}
+}
+
+function mi(label, value, sub){
+  return '<div class="mi"><div class="ml">'+label+'</div><div class="mv">'+value+'</div><div class="ms">'+sub+'</div></div>';
+}
+
+function resetWind(){
+  document.getElementById('sl-intensity').value = 50;
+  document.getElementById('sl-height').value = 50;
+  document.getElementById('sl-width').value = 30;
+  document.getElementById('sl-twist').value = 0;
+  updateWind();
+}
+
+function autoWind(){
+  if(!outline) return;
+  var totalH = outline.totalHeight || 100;
+  var I = Math.min(100, Math.max(0, Math.round((totalH - 30) / 4)));
+  var H = Math.min(100, Math.round((outline.nFloors - 1) / 40 * 100));
+  var W = Math.min(100, Math.round(outline.buildingWidth / 5));
+  var T = Math.min(90, Math.round(I * 0.6));
+  document.getElementById('sl-intensity').value = I;
+  document.getElementById('sl-height').value = H;
+  document.getElementById('sl-width').value = W;
+  document.getElementById('sl-twist').value = T;
+  updateWind();
+}
+
+/* Slider listeners */
+['sl-intensity','sl-height','sl-width','sl-twist'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', updateWind);
+});
+
+init();
+</script>
+</body>
+</html>

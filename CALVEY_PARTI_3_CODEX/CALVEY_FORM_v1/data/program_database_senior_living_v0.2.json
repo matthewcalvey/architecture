@@ -1,0 +1,987 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-03-20",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Assisted Living Community", "location": "Various US", "approx_sf": 25000, "notes": "40-unit single-story; dining room; activity room; shared bathing; nurse station"},
+    "medium": {"name": "Watermark at Brooklyn Heights", "location": "Brooklyn, NY", "approx_sf": 120000, "notes": "4 stories; 283 units; memory care wing; full commercial kitchen; spa; theater; rooftop garden"},
+    "large": {"name": "Vi at the Glen", "location": "Glenview, IL", "approx_sf": 650000, "notes": "CCRC campus; 318 IL units; 60 AL units; 39 memory care; skilled nursing; wellness center; multiple dining venues"}
+  },
+  "building_type": "Senior Living / Assisted Living",
+  "subtypes": [
+    {
+      "id": "SL_ASSISTED",
+      "name": "Assisted Living",
+      "gross_sf_typical": [
+        15000,
+        150000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.78
+      ],
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "id": "SL_MEMORY",
+      "name": "Memory Care / Dementia",
+      "gross_sf_typical": [
+        8000,
+        60000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.75
+      ],
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "id": "SL_CCRC",
+      "name": "Continuing Care Retirement Community (CCRC)",
+      "gross_sf_typical": [
+        100000,
+        800000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.80
+      ],
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "SL_ENTRY",
+      "name": "Entry / Reception Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ADMIN",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_LOUNGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_ADMIN",
+      "name": "Administrative Offices",
+      "category": "Staff/Admin",
+      "nsf_range": [
+        200,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_RESIDENT_UNIT",
+      "name": "Resident Suite (Typical AL)",
+      "category": "Residential",
+      "nsf_range": [
+        300,
+        550
+      ],
+      "percent_of_gross_range": [
+        0.35,
+        0.55
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Studio/1BR with kitchenette, accessible bathroom, emergency call system; min 100 SF per state codes"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "SL_MEMORY_UNIT",
+      "name": "Memory Care Resident Room",
+      "category": "Residential/Memory Care",
+      "nsf_range": [
+        250,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.30,
+        0.45
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Secured/Memory Care",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Simpler layout; no kitchenette; wander-guard system; inboard bathroom"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "SL_CORRIDOR",
+      "name": "Resident Corridors / Circulation",
+      "category": "Circulation",
+      "nsf_range": [
+        1000,
+        15000
+      ],
+      "percent_of_gross_range": [
+        0.10,
+        0.18
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "5 ft min width; handrails both sides; wander loops for memory care; way-finding"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_RESIDENT_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "SL_MEMORY_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_MED_STATION",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_SPA_BATH",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_ACTIVITY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_OUTDOOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_LAUNDRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_SALON",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_LOUNGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_DINING",
+      "name": "Main Dining Room",
+      "category": "Common/Dining",
+      "nsf_range": [
+        600,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.05,
+        0.10
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Residential character; flexible seating; 2-3 seatings per meal typical; 18-22 SF/seat"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_KITCHEN",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_ACTIVITY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_OUTDOOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_KITCHEN",
+      "name": "Commercial Kitchen",
+      "category": "BOH/Food Service",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "3 meals/day + snacks; dietary restrictions; tray service for memory care"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_DINING",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "SL_ACTIVITY",
+      "name": "Activity / Multi-Purpose Room",
+      "category": "Common/Activity",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Exercise classes; crafts; movies; divisible partitions; 15 SF/person"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_WELLNESS",
+      "name": "Wellness / Clinic Room",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Physician visits; medication management; vitals station; med storage with narcotics lock"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_MED_STATION",
+          "weight": 0.8,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_MED_STATION",
+      "name": "Medication Station / Nurse Station",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        80,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Narcotics safe; medication cart parking; emergency supplies; centrally located on each floor"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_WELLNESS",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_SPA_BATH",
+      "name": "Spa Bathing / Assisted Bathing",
+      "category": "Resident/Support",
+      "nsf_range": [
+        200,
+        800
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Roll-in tub; ceiling lift; warm surfaces; privacy; 1 per 15-20 residents"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_SALON",
+      "name": "Beauty Salon / Barber",
+      "category": "Resident/Amenity",
+      "nsf_range": [
+        100,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.01
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Shampoo bowl; styling chair; accessible"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_LAUNDRY",
+      "name": "Laundry (Central + Resident)",
+      "category": "BOH/Support",
+      "nsf_range": [
+        200,
+        1500
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Commercial washers/dryers; soiled/clean separation; resident laundry room separate"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_LOUNGE",
+      "name": "Living Room / Lounge",
+      "category": "Common/Social",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Residential character; fireplace common; library corner; multiple small lounges preferred"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_OUTDOOR",
+      "name": "Secure Courtyard / Garden",
+      "category": "Outdoor/Amenity",
+      "nsf_range": [
+        500,
+        5000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Enclosed for memory care; walking paths; raised garden beds; shade structures; emergency egress"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_RESTROOM",
+      "name": "Public / Visitor Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        100,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_MECH",
+      "name": "Mechanical Room",
+      "category": "MEP",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.015,
+        0.04
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ELEC",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SL_ELEC",
+      "name": "Electrical Room",
+      "category": "MEP",
+      "nsf_range": [
+        100,
+        800
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_MECH",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_ADMIN",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ADMIN",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_LOUNGE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LOUNGE",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_RESIDENT_UNIT",
+      "to": "SL_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_RESIDENT_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_MEMORY_UNIT",
+      "to": "SL_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_MEMORY_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_KITCHEN",
+      "to": "SL_DINING",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_WELLNESS",
+      "to": "SL_MED_STATION",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MED_STATION",
+      "to": "SL_WELLNESS",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MED_STATION",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_MED_STATION",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_SPA_BATH",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_SPA_BATH",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ACTIVITY",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_ACTIVITY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ACTIVITY",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_ACTIVITY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_OUTDOOR",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_OUTDOOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_OUTDOOR",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_OUTDOOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LAUNDRY",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_LAUNDRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_SALON",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_SALON",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LOUNGE",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_LOUNGE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MECH",
+      "to": "SL_ELEC",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ELEC",
+      "to": "SL_MECH",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "SENIOR_LIVING__DEFAULT__US-NATIONAL",
+    "cost": "SENIOR_LIVING__DEFAULT__US-NE",
+    "parking": "SENIOR_LIVING__DEFAULT__BOSTON-MA"
+  }
+}

@@ -1,0 +1,2639 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#6a9cc4;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CALVEY DATA — Program Blocks</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="./vendor/three.min.js"></script>
+<script>if(typeof THREE==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+
+<style>
+:root{--bg:#0c0c0c;--surface:#131313;--border:#222;--text:#ddd8d0;--text-dim:#8a857e;--text-muted:#504c46;--accent:#6a9cc4;--sun:#c9a959}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(106,156,196,0.25);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.hn{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase}
+.hn a{color:var(--text-muted);text-decoration:none;border-bottom:none}
+.hn a:hover{color:var(--accent)}
+.hn .ac{color:var(--accent)}
+
+.hero{
+  padding:44px 18px 18px;border-bottom:1px solid var(--border);text-align:center;
+  background:
+    radial-gradient(ellipse at 50% 20%,rgba(106,156,196,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse at 50% 120%,rgba(201,169,89,0.03) 0%,transparent 65%);
+}
+.htl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-muted);margin:14px 0 10px}
+.hln{width:40px;height:1px;background:var(--accent);margin:0 auto 14px}
+.title{font-weight:300;letter-spacing:0.22em;text-transform:uppercase;font-size:clamp(34px,5.4vw,66px);line-height:1.05}
+.sub{margin:10px auto 0;max-width:980px;font-size:clamp(14px,1.6vw,18px);font-weight:300;font-style:italic;color:var(--text-dim)}
+.meta{margin-top:10px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted)}
+
+.wrap{max-width:1600px;margin:0 auto;padding:16px 16px 26px}
+.panel{background:var(--surface);border:1px solid var(--border);padding:14px}
+
+.controls{display:grid;grid-template-columns: 360px 260px 1fr 170px;gap:12px;align-items:end}
+@media(max-width:1080px){.controls{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.controls{grid-template-columns:1fr}}
+
+.fd label{display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.fd input,.fd select{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  padding:12px 12px;color:var(--text);
+  font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:300;outline:none;transition:border-color 0.2s;
+}
+.fd input:focus,.fd select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(106,156,196,0.08)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;background:transparent;border:1px solid var(--accent);padding:0 14px;color:var(--accent);
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s}
+.btn:hover{background:var(--accent);color:var(--bg)}
+
+.note{margin-top:12px;border-left:1px solid var(--border);padding:10px 12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.8}
+.stage{margin-top:12px;background:#080808;border:1px solid var(--border);padding:8px}
+.viz3d-wrap{display:grid;grid-template-columns:1fr;gap:8px}
+.vpane{
+  background:#060606;
+  border:1px solid #1b1b1b;
+  position:relative;
+  width:100%;
+  max-width:100%;
+  min-height:0;
+  height:clamp(420px, 62vh, 760px);
+  overflow:hidden;
+}
+.vpane canvas{width:100%!important;height:100%!important;display:block}
+#viz3dMain{position:absolute;inset:0;width:100%;height:100%}
+.vpane .vlabel{position:absolute;top:8px;left:10px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.12em;color:var(--text-muted);text-transform:uppercase}
+.plan-labels{position:absolute;inset:0;pointer-events:none}
+.plan-label{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;max-width:132px;text-align:center;text-shadow:0 0 8px rgba(0,0,0,0.98);padding:0;background:transparent;border:none}
+.plan-label .nm{font-family:'Cormorant Garamond',Georgia,serif;font-size:13px;letter-spacing:0.03em;color:#f5f2ec;text-transform:uppercase;line-height:1.08;white-space:normal}
+.plan-label .ar{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.06em;color:rgba(255,255,255,0.88);text-transform:uppercase;white-space:nowrap}
+#viz{display:none}
+
+.metrics{margin-top:12px;display:grid;grid-template-columns: repeat(5, minmax(0,1fr));gap:8px}
+@media(max-width:1080px){.metrics{grid-template-columns: repeat(3, minmax(0,1fr));}}
+@media(max-width:640px){.metrics{grid-template-columns: repeat(2, minmax(0,1fr));}}
+.mi{background:var(--bg);border:1px solid var(--border);padding:10px 12px}
+.mi .ml{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.mi .mv{font-size:22px;font-weight:300;color:var(--text);line-height:1.2;margin-top:4px}
+.mi .ms{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);margin-top:4px}
+
+.program{
+  margin-top:10px;background:var(--bg);border:1px solid var(--border);padding:10px 12px
+}
+.programHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.programHead .ttl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
+.programHead .hint{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;color:var(--text-muted)}
+.programList{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(170px, 1fr));gap:8px
+}
+@media(max-width:640px){.programList{grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));}}
+.pi{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  border:1px solid var(--border);padding:8px 9px;cursor:pointer;
+  transition:transform .12s, border-color .12s, background .12s;
+  background:rgba(255,255,255,0.02);
+}
+.pi:hover{transform:translateY(-1px);border-color:rgba(106,156,196,0.55)}
+.pi .left{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.pi .sw{width:10px;height:10px;border:1px solid var(--border);flex:0 0 auto}
+.pi .nm{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);
+  white-space:normal;overflow-wrap:anywhere;max-width:100%;line-height:1.35;
+}
+.pi .sf{
+  font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;color:var(--text);
+  white-space:nowrap;flex:0 0 auto;line-height:1.1;
+}
+.pi .ct{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);
+  margin-top:1px;
+}
+@media(max-width:640px){
+  .pi{padding:8px}
+  .pi .sw{margin-top:3px}
+}
+.pi.active{border-color:var(--sun);background:rgba(201,169,89,0.08)}
+.pi.dim{opacity:0.38}
+
+.legend{margin-top:10px;display:grid;grid-template-columns: repeat(3, minmax(0,1fr));gap:8px}
+@media(max-width:1080px){.legend{grid-template-columns: repeat(2, minmax(0,1fr));}}
+@media(max-width:640px){.legend{grid-template-columns: repeat(2, minmax(0,1fr));}}
+.leg{display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;background:var(--bg);border:1px solid var(--border);padding:8px 10px}
+.leg .sw{width:12px;height:12px;border:1px solid var(--border);background:#333}
+
+.tooltip{position:fixed;pointer-events:none;z-index:50;background:#0b0b0b;border:1px solid var(--border);padding:10px 12px;max-width:340px;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.05em;color:var(--text);opacity:0;transform:translateY(6px);transition:opacity .12s, transform .12s}
+.tooltip .k{color:var(--text-muted);font-size:10px;letter-spacing:0.12em;text-transform:uppercase}
+.tooltip .v{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:0.02em;color:var(--text)}
+.footer{text-align:center;padding:26px 18px;border-top:1px solid var(--border);color:var(--text-muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em}
+
+/* Floating next button */
+.next-float-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:linear-gradient(transparent, rgba(12,12,12,0.95) 30%);
+  padding:18px 0 22px;text-align:center;
+  transform:translateY(100%);transition:transform 0.35s ease;
+  pointer-events:none;
+}
+.next-float-bar.visible{transform:translateY(0);pointer-events:auto}
+.next-float-bar a{pointer-events:auto}
+
+/* To-scale elevation views */
+.elev-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.massing3d-wrap{margin-top:10px;background:#060606;border:1px solid #1b1b1b;position:relative;min-height:240px;aspect-ratio:16/9;overflow:hidden}
+.massing3d-wrap canvas{display:block;width:100%!important;height:100%!important}
+.massing3d-wrap .hint{position:absolute;left:10px;bottom:8px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase}
+.ghost-btn{border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--text);border-radius:10px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer}
+.ghost-btn.active{border-color:rgba(255,255,255,0.65);background:rgba(255,255,255,0.16)}
+.org-views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:980px){.org-views{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .panel{padding:10px}
+  .controls .fd:last-child{display:none}
+  .note{display:none}
+  .stage{padding:0;margin-top:10px;border-color:#191919}
+  .vpane{
+    min-height:0;
+    height:clamp(420px, 68vh, 640px);
+    aspect-ratio:4/3;
+    border-left:none;
+    border-right:none;
+  }
+  .vpane .vlabel{display:none}
+  .plan-label{max-width:96px;padding:1px 2px}
+  .plan-label .nm{font-size:10px;line-height:1.08}
+  .plan-label .ar{font-size:7px}
+  .massing3d-wrap{min-height:44vh;aspect-ratio:auto}
+  .org-sliders{grid-template-columns:1fr 1fr 1fr!important;gap:6px!important}
+  .org-sliders input[type=range]{height:28px}
+  #elevMetrics{grid-template-columns:repeat(2,1fr)}
+  #lean-metrics{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:480px){
+  .wrap{padding:10px 10px 20px}
+  .hero{padding:32px 14px 14px}
+  .title{font-size:clamp(28px,8vw,48px)}
+  .controls{grid-template-columns:1fr!important}
+  .fd select,.fd input{font-size:16px;padding:10px}
+}
+</style>
+</head>
+
+<body>
+  <div class="hero">
+    <nav class="hn">
+      <a href="00_DATA.html">00 Data</a>
+      <a href="01_SITE.html">01 Site</a>
+      <span class="ac">02 Program</span>
+      <a href="03_SUN.html">03 Sun</a>
+      <a href="04_WIND.html">04 Wind</a>
+      <a href="05_RENDER.html">05 Render</a>
+    </nav>
+
+    <div class="htl">PROGRAM BLOCKS / AREA / ADJACENCY</div>
+    <div class="hln"></div>
+    <div class="title">CALVEY<br>PROGRAM</div>
+    <div class="sub">Choose a program, then organize it within the site. Blocks stack vertically when they can't fit, growing the building upward.</div>
+    <div class="meta">Matthew Calvey &middot; 2026</div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="controls">
+        <div class="fd">
+          <label>Building Type</label>
+          <select id="buildingType"></select>
+        </div>
+
+        <div class="fd">
+          <label>Size Preset</label>
+          <select id="sizePreset"></select>
+        </div>
+
+        <div class="fd">
+          <label>Target Size (GSF)</label>
+          <input id="gsf" type="number" min="1000" step="1000" value="75000" />
+        </div>
+
+        <div class="fd">
+          <label>&nbsp;</label>
+          <button class="btn" id="regen">Regenerate</button>
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>Program block diagram:</strong> blocks are spread on a legible top-view grid with name + area labels.
+        <strong>Regenerate</strong> to rebuild the plan arrangement from the program data.
+        Click a block or category button to <strong>highlight all blocks in that category</strong>; click again to clear.
+      </div>
+
+      <div class="stage">
+        <div class="viz3d-wrap">
+          <div class="vpane"><div class="vlabel">Program Block Diagram (Plan)</div><div id="viz3dMain"></div></div>
+        </div>
+        <svg id="viz"></svg>
+      </div>
+      <div class="metrics" id="metrics"></div>
+
+      <div class="program">
+        <div class="programHead">
+          <div class="ttl">Area List</div>
+          <div class="hint">Click a category to highlight all associated blocks</div>
+        </div>
+        <div class="programList" id="programList"></div>
+      </div>
+    </div>
+  </div>
+
+    <!-- ORGANIZE section -->
+    <div class="panel" style="margin-top:14px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)">Massing Diagram</div>
+        <button class="btn" id="organizeBtn" style="background:var(--accent);color:var(--bg)">Form Program Massing</button>
+        <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em" id="organizeStatus">Choose a program, then form the mass.</span>
+      </div>
+
+      <div class="org-sliders" style="margin-top:8px">
+        <div>
+          <label style="display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Footprint Compactness · <span id="floorVal">1</span> floor<span id="floorValS">s</span></label>
+          <input type="range" id="compactSlider" min="0" max="1.0" step="0.01" value="0" style="width:100%;accent-color:var(--accent)">
+          <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted);margin-top:2px">Fill parcel <span style="float:right">Compact tower</span></div>
+        </div>
+      </div>
+
+      <div id="elevMetrics" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
+
+      <div id="elevationDiagram" style="margin-top:16px;display:none">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+            <div class="elev-label" style="margin-bottom:0">Interactive 3D Massing</div>
+            <button id="ghostBlockBtn" class="ghost-btn">Form Program Mass</button>
+          </div>
+          <div id="massing3dView" class="massing3d-wrap">
+            <div class="hint">drag: orbit · two fingers: pan + zoom · wheel: zoom</div>
+          </div>
+        </div>
+        <div class="org-views">
+          <div class="elev-panel">
+            <div class="elev-label">Plan View</div>
+            <svg id="elevPlanSvg"></svg>
+          </div>
+          <div class="elev-panel">
+            <div class="elev-label">Front View</div>
+            <svg id="elevFrontSvg"></svg>
+          </div>
+          <div class="elev-panel">
+            <div class="elev-label">Side View</div>
+            <svg id="elevSideSvg"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next button (in-page) -->
+    <div style="text-align:center;padding:48px 0" id="nextBtnInPage">
+      <button id="nextProgramBtn" style="display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:16px 40px;color:var(--bg);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none">Build Massing Diagram</button>
+    </div>
+  </div>
+
+  <!-- Floating next button -->
+  <div class="next-float-bar" id="nextFloatBar">
+    <button id="nextProgramBtnFloat" style="display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:14px 36px;color:var(--bg);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none">Build Massing Diagram</button>
+  </div>
+
+  <div class="footer">CALVEY FORM &middot; 02 Program</div>
+
+  <div class="tooltip" id="tip">
+    <div class="k">SPACE</div><div class="v" id="tipV">—</div>
+    <div style="height:8px"></div>
+    <div class="k">Area</div><div id="tipArea">—</div>
+    <div class="k" style="margin-top:8px">Category</div><div id="tipCat">—</div>
+  </div>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+const DATA_DIR = "./data/";
+const VIEW_W = 1600;
+const VIEW_H = 1200;
+
+const CATEGORY_COLORS = {
+  "Public/Entry": "#c9a959","Public/Commons": "#b5a06a","Public/Support": "#a08a55",
+  "Administration": "#8a7abf","Work": "#6bb8d4","Meeting": "#5aa8c4",
+  "Learning": "#74c07a","Instruction": "#74c07a",
+  "Clinical": "#c45c3e","Clinical/Support": "#b65335","Clinical/Diagnostics": "#a84e36",
+  "Food Service": "#d0a36a","Amenity": "#6a9cc4","Amenity/Outdoor": "#6a9cc4",
+  "Operations": "#7e7e7e","Operations/Circulation": "#6f6f6f",
+  "Circulation": "#505050","Circulation/Core": "#4a4a4a",
+  "MEP": "#3a3a3a","MEP/Tech": "#3a3a3a",
+  "Mobility": "#8aa0a8","Parking": "#2f2f2f","Safety/Operations": "#6b3b3b",
+  "Rooms": "#6a9cc4","Support": "#7e7e7e"
+};
+function colorForCategory(cat){ return CATEGORY_COLORS[cat] || "#666"; }
+
+// Front-of-house categories pushed toward bottom:
+const FOH_HINT = new Set(["Public/Entry","Public/Commons","Public/Support","Amenity","Food Service"]);
+
+// “Static” behavior:
+const SOLVE_SECONDS = 1.3;            // run sim for this long, then freeze
+const MIN_ALPHA_STOP = 0.08;          // stop early if settled
+const PAD = 14;                       // non-overlap padding
+const COLLISION_PASSES = 2;           // per tick
+const FINAL_PASSES = 26;              // final cleanup passes
+const FILL_TARGET = 0.72;             // target canvas fill ratio for scaling blocks
+const MAX_SCALE_UP = 1.85;            // cap growth so blocks can fill parcel/container
+const MIN_SCALE_DOWN = 0.45;          // cap shrink for fit
+const LABEL_PADDING = 8;              // collision padding for screen labels
+const PROGRAM_VISUAL_SCALE = 1.0;     // blocks sized in real feet (1:1 with parcel boundary)
+const IDEAL_ROOM_PROPORTION = 1.618;  // preferred long:short block ratio (golden section)
+var currentPxPerFt = 1;               // unified feet-to-pixel scale (set by buildGraph)
+
+/* =========================
+   HELPERS
+========================= */
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function median(range){ return (!range||!Array.isArray(range)||range.length<2) ? null : (range[0]+range[1])/2; }
+
+// deterministic RNG (so a given building type + size feels consistent)
+function xmur3(str){
+  for(var i=0,h=1779033703^str.length;i<str.length;i++) h=Math.imul(h^str.charCodeAt(i),3432918353),h=h<<13|h>>>19;
+  return function(){ h=Math.imul(h^h>>>16,2246822507); h=Math.imul(h^h>>>13,3266489909); return (h^=h>>>16)>>>0; }
+}
+function mulberry32(a){ return function(){ var t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; } }
+
+function shortLabelFromId(id){
+  // remove prefix like HC_ / OFC_ / EDU_ etc (take everything after first underscore)
+  if(!id) return "";
+  const i = id.indexOf("_");
+  return (i>=0 && i<id.length-1) ? id.slice(i+1) : id;
+}
+
+async function loadJSON(path){
+  const r = await fetch(path);
+  if(!r.ok) throw new Error(`Failed to load ${path}: ${r.status}`);
+  return await r.json();
+}
+
+/* =========================
+   DOM
+========================= */
+let master=null, currentDb=null, simulation=null;
+let currentNodes=[], currentLinks=[], strongAdj = new Map();
+let isolateSet = null; // Set(nodeId) or null
+let selectedCategory = null;
+
+const elType = document.getElementById("buildingType");
+const elPreset = document.getElementById("sizePreset");
+const elGSF = document.getElementById("gsf");
+const elRegen = document.getElementById("regen");
+const elRotation = null;
+const elRotationVal = null;
+
+const svg = d3.select("#viz");
+const metricsEl = document.getElementById("metrics");
+const legendEl = document.getElementById("legend");
+const programListEl = document.getElementById("programList");
+
+const tip = document.getElementById("tip");
+const tipV = document.getElementById("tipV");
+const tipArea = document.getElementById("tipArea");
+const tipCat = document.getElementById("tipCat");
+const webglTargets = {
+  main: document.getElementById("viz3dMain")
+};
+let webglViews = null;
+
+function boundsForNodes(nodes){
+  if(!nodes || !nodes.length) return null;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  nodes.forEach(n=>{
+    minX = Math.min(minX, n.x);
+    minY = Math.min(minY, n.y);
+    maxX = Math.max(maxX, n.x + n.w);
+    maxY = Math.max(maxY, n.y + n.h);
+  });
+  return {minX, minY, maxX, maxY, width:maxX-minX, height:maxY-minY};
+}
+
+function fitMainCameraToNodes(nodes){
+  if(!webglViews?.views?.main || !nodes?.length) return;
+  const b = boundsForNodes(nodes);
+  if(!b) return;
+  const main = webglViews.views.main;
+  const cam = main.camera;
+  const host = main.renderer.domElement.parentElement;
+  const w = host?.clientWidth || 1;
+  const h = host?.clientHeight || 1;
+  const isMobile = window.matchMedia('(max-width: 640px)').matches;
+  const ar = Math.max(0.1, w/Math.max(h,1));
+  const fitAr = isMobile ? Math.max(ar, 0.86) : ar;
+  const margin = isMobile ? 92 : 116;
+  const halfW = (b.width/2) + margin;
+  const halfH = (b.height/2) + margin;
+  const fitDist = Math.max(260, halfH / Math.tan((cam.fov * Math.PI / 180) / 2), (halfW / fitAr) / Math.tan((cam.fov * Math.PI / 180) / 2));
+  const cx = (b.minX + b.maxX)/2 - VIEW_W/2;
+  const cz = (b.minY + b.maxY)/2 - VIEW_H/2;
+  const pitch = Math.PI / 2 - 0.06;
+  const yaw = -Math.PI * 0.5;
+  const cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  cam.position.set(
+    cx + fitDist * cp * cy,
+    fitDist * sp,
+    cz + fitDist * cp * sy
+  );
+  cam.lookAt(cx, 0, cz);
+  webglViews.mainFit = {cx, cz, distance:fitDist, pitch, yaw};
+}
+
+function updateMainPlanCamera(){
+  if(!webglViews?.views?.main || !webglViews?.mainFit) return;
+  const st = webglViews.mainFit;
+  const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+  const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+  const cam = webglViews.views.main.camera;
+  cam.position.set(
+    st.cx + st.distance * cp * cy,
+    st.distance * sp,
+    st.cz + st.distance * cp * sy
+  );
+  cam.lookAt(st.cx, 0, st.cz);
+  updatePlanLabelPositions();
+}
+
+
+function colorHex(cat){
+  var c = (colorForCategory(cat) || "#666666").replace("#","");
+  if(c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  return parseInt(c, 16);
+}
+
+function initWebGLViews(){
+  if(webglViews || !window.THREE) return;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x080808);
+
+  const amb = new THREE.AmbientLight(0xffffff, 0.78); scene.add(amb);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.62); dir.position.set(240,330,190); scene.add(dir);
+
+  const views = {};
+  ["main"].forEach(key=>{
+    const host = webglTargets[key];
+    if(!host) return;
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    host.innerHTML = "";
+    host.appendChild(renderer.domElement);
+
+    let camera;
+    if(key==="main"){
+      camera = new THREE.PerspectiveCamera(42, 1, 1, 7000);
+      camera.position.set(460, 580, -460);
+    }else{
+      camera = new THREE.OrthographicCamera(-320,320,240,-240,1,4000);
+      if(key==="front") camera.position.set(0, 120, 980);
+      if(key==="side") camera.position.set(980, 120, 0);
+    }
+    camera.lookAt(0,0,0);
+    views[key] = {renderer, camera};
+  });
+
+  const grid = new THREE.GridHelper(780, 18, 0x2e2e2e, 0x1f1f1f);
+  scene.add(grid);
+
+  const labels = document.createElement('div');
+  labels.className = 'plan-labels';
+  webglTargets.main?.appendChild(labels);
+
+  webglViews = {scene, views, meshes:new Map(), labels, siteOutline:null, mainFit:null};
+
+  const mainCanvas = views.main?.renderer?.domElement;
+  if(mainCanvas){
+    const pointers = new Map();
+    let drag = null;
+    let pinchStartDist = null;
+    let pinchStartZoom = null;
+    let pinchStartMid = null;
+    mainCanvas.style.touchAction = 'none';
+
+    function pointerDistance(a,b){
+      return Math.hypot((b.x - a.x), (b.y - a.y));
+    }
+    function pointerMidpoint(a,b){
+      return {x:(a.x + b.x) * 0.5, y:(a.y + b.y) * 0.5};
+    }
+    function panFromDelta(dx, dy){
+      if(!webglViews?.views?.main) return;
+      const st = webglViews.mainFit;
+      if(!st) return;
+      const host = webglViews.views.main.renderer.domElement.parentElement;
+      const w = host?.clientWidth || 1;
+      const h = host?.clientHeight || 1;
+      const worldPerPxX = (st.distance * 1.7) / Math.max(w, 1);
+      const worldPerPxZ = (st.distance * 1.7) / Math.max(h, 1);
+      // match drag direction to finger/mouse movement
+      st.cx += dx * worldPerPxX;
+      st.cz -= dy * worldPerPxZ;
+      updateMainPlanCamera();
+    }
+
+    function startDrag(ev){
+      ev.preventDefault();
+      pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      const pts = Array.from(pointers.values());
+      if(pts.length === 1){
+        drag = {x:ev.clientX, y:ev.clientY};
+      }else if(pts.length === 2){
+        drag = null;
+        pinchStartDist = pointerDistance(pts[0], pts[1]);
+        pinchStartZoom = webglViews?.mainFit?.distance ?? null;
+        pinchStartMid = pointerMidpoint(pts[0], pts[1]);
+      }
+      mainCanvas.setPointerCapture(ev.pointerId);
+    }
+    function moveDrag(ev){
+      if(!webglViews?.views?.main) return;
+      if(!pointers.has(ev.pointerId)) return;
+      ev.preventDefault();
+      const prev = pointers.get(ev.pointerId);
+      pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      const pts = Array.from(pointers.values());
+
+      if(pts.length >= 2){
+        const p0 = pts[0], p1 = pts[1];
+        const dist = pointerDistance(p0, p1);
+        const mid = pointerMidpoint(p0, p1);
+        const st = webglViews.mainFit;
+        if(st && pinchStartDist && pinchStartZoom){
+          const ratio = clamp(dist / Math.max(1, pinchStartDist), 0.25, 4);
+          st.distance = clamp(pinchStartZoom / ratio, 180, 4200);
+          if(pinchStartMid){
+            const mdx = mid.x - pinchStartMid.x;
+            const mdy = mid.y - pinchStartMid.y;
+            panFromDelta(mdx, mdy);
+          }else{
+            updateMainPlanCamera();
+          }
+          pinchStartMid = mid;
+        }
+        return;
+      }
+
+      if(!drag || !prev) return;
+      const dx = ev.clientX - drag.x;
+      const dy = ev.clientY - drag.y;
+      drag = {x:ev.clientX, y:ev.clientY};
+      panFromDelta(dx, dy);
+    }
+    function endDrag(ev){
+      pointers.delete(ev.pointerId);
+      if(pointers.size < 2){
+        pinchStartDist = null;
+        pinchStartZoom = null;
+        pinchStartMid = null;
+      }
+      if(pointers.size === 1){
+        const only = Array.from(pointers.values())[0];
+        drag = {x:only.x, y:only.y};
+      }else if(pointers.size === 0){
+        drag = null;
+      }
+      try{ mainCanvas.releasePointerCapture(ev.pointerId); }catch(_e){}
+    }
+    function onWheel(ev){
+      if(!webglViews?.views?.main) return;
+      ev.preventDefault();
+      const st = webglViews.mainFit;
+      if(!st) return;
+      st.distance = clamp(st.distance * Math.exp(ev.deltaY * 0.0012), 180, 4200);
+      updateMainPlanCamera();
+    }
+
+    mainCanvas.addEventListener('pointerdown', startDrag);
+    mainCanvas.addEventListener('pointermove', moveDrag, {passive:false});
+    mainCanvas.addEventListener('pointerup', endDrag);
+    mainCanvas.addEventListener('pointercancel', endDrag);
+    mainCanvas.addEventListener('wheel', onWheel, {passive:false});
+  }
+
+  function resize(){
+    if(!webglViews) return;
+    Object.values(webglViews.views).forEach(v=>{
+      const w = v.renderer.domElement.parentElement.clientWidth;
+      const h = v.renderer.domElement.parentElement.clientHeight;
+      v.renderer.setSize(w,h,false);
+      if(v===webglViews.views.main){
+        v.camera.aspect = Math.max(0.1, w / Math.max(h,1));
+      }
+      v.camera.updateProjectionMatrix();
+    });
+    if(currentNodes && currentNodes.length && webglViews.labels){
+      renderWebGLBlocks(currentNodes);
+    }
+  }
+
+  function renderLoop(){
+    if(!webglViews) return;
+    Object.values(webglViews.views).forEach(v=>v.renderer.render(webglViews.scene, v.camera));
+    requestAnimationFrame(renderLoop);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  renderLoop();
+}
+
+function projectToPlanScreen(pos){
+  if(!webglViews?.views?.main) return {x:0,y:0};
+  const cam = webglViews.views.main.camera;
+  const w = webglViews.views.main.renderer.domElement.clientWidth || 1;
+  const h = webglViews.views.main.renderer.domElement.clientHeight || 1;
+  const v = pos.clone().project(cam);
+  return {x:(v.x*0.5+0.5)*w, y:(-v.y*0.5+0.5)*h};
+}
+
+function placePlanLabels(labelData){
+  if(!webglViews?.labels) return;
+  const w = webglViews.views.main.renderer.domElement.clientWidth || 1;
+  const h = webglViews.views.main.renderer.domElement.clientHeight || 1;
+  const mobile = w <= 500;
+  const rise = mobile ? 8 : 12;
+  const boundsPad = mobile ? 10 : 14;
+  const collisionPad = mobile ? 4 : 6;
+
+  // 1) seed positions near each block centerline
+  labelData.forEach(function(it, idx){
+    var zig = (idx % 2 === 0 ? -1 : 1) * (mobile ? 6 : 10);
+    var x = clamp(it.x + zig, 20, w - 20);
+    var y = clamp(it.y - rise, 16, h - 12);
+    it.el.style.display = 'flex';
+    it.el.style.left = x + 'px';
+    it.el.style.top = y + 'px';
+  });
+
+  // 2) avoid collisions with lightweight label relaxation
+  const items = labelData.map(function(it){
+    const rect = it.el.getBoundingClientRect();
+    return {
+      it,
+      w: Math.max(36, rect.width || 0),
+      h: Math.max(16, rect.height || 0),
+      x: parseFloat(it.el.style.left) || it.x,
+      y: parseFloat(it.el.style.top) || it.y
+    };
+  }).sort(function(a,b){ return a.y - b.y; });
+
+  for(var pass=0; pass<3; pass++){
+    for(var i=0; i<items.length; i++){
+      var a = items[i];
+      a.x = clamp(a.x, boundsPad + a.w/2, w - boundsPad - a.w/2);
+      a.y = clamp(a.y, boundsPad + a.h, h - boundsPad);
+      for(var j=0; j<i; j++){
+        var b = items[j];
+        var overlapX = Math.abs(a.x - b.x) < (a.w + b.w)/2 + collisionPad;
+        var overlapY = Math.abs(a.y - b.y) < (a.h + b.h)/2 + collisionPad;
+        if(overlapX && overlapY){
+          // prefer vertical stacking; then alternate slight lateral nudges
+          a.y = b.y + (a.h + b.h)/2 + collisionPad;
+          if(a.y > h - boundsPad){
+            a.y = b.y - (a.h + b.h)/2 - collisionPad;
+          }
+          var nudge = (i % 2 === 0 ? 1 : -1) * (mobile ? 4 : 7);
+          a.x = clamp(a.x + nudge, boundsPad + a.w/2, w - boundsPad - a.w/2);
+        }
+      }
+    }
+  }
+
+  items.forEach(function(item){
+    item.it.el.style.left = item.x + 'px';
+    item.it.el.style.top = item.y + 'px';
+  });
+}
+
+function updatePlanLabelPositions(){
+  if(!webglViews?.labels || !webglViews?.meshes) return;
+  const labelData = [];
+  webglViews.labels.querySelectorAll('.plan-label').forEach(function(tag){
+    const mesh = webglViews.meshes.get(tag.dataset.id);
+    if(!mesh) return;
+    const meshTop = mesh.position.clone();
+    meshTop.y += 16;
+    const p2 = projectToPlanScreen(meshTop);
+    const nm = tag.querySelector('.nm');
+    labelData.push({
+      el:tag,
+      x:p2.x,
+      y:p2.y,
+      nameLen:(nm?.textContent || '').length,
+      area:Number(tag.dataset.area || 0)
+    });
+  });
+  placePlanLabels(labelData);
+}
+
+
+function drawSiteOutlineWebGL(){
+  if(!webglViews) return;
+  if(webglViews.siteOutline){
+    webglViews.scene.remove(webglViews.siteOutline);
+    webglViews.siteOutline.geometry.dispose();
+    webglViews.siteOutline.material.dispose();
+    webglViews.siteOutline = null;
+  }
+  if(!sitePolygonPx || !sitePolygonPx.length) return;
+  const centerX = VIEW_W/2, centerY = VIEW_H/2;
+  const pts = sitePolygonPx.map(p => new THREE.Vector3(p[0]-centerX, 0.5, p[1]-centerY));
+  if(pts.length < 3) return;
+  pts.push(pts[0].clone());
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = new THREE.LineDashedMaterial({color:0xc9a959,dashSize:20,gapSize:12,transparent:true,opacity:0.8});
+  const line = new THREE.Line(geo, mat);
+  line.computeLineDistances();
+  webglViews.scene.add(line);
+  webglViews.siteOutline = line;
+}
+
+function renderWebGLBlocks(nodes){
+  initWebGLViews();
+  if(!webglViews) return;
+  webglViews.meshes.forEach(mesh=>{ webglViews.scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); });
+  webglViews.meshes.clear();
+  if(webglViews.labels) webglViews.labels.innerHTML = '';
+
+  const W = VIEW_W, H = VIEW_H;
+  const centerX = W/2, centerY = H/2;
+  const labelLimit = nodes.length;
+  const minLabelArea = 0;
+  let labelsUsed = 0;
+  nodes.forEach(n=>{
+    const h = 10;
+    const g = new THREE.BoxGeometry(n.w, h, n.h);
+    const m = new THREE.MeshStandardMaterial({color:colorHex(n.category), transparent:true, opacity:0.92, roughness:0.7, metalness:0.03});
+    const box = new THREE.Mesh(g,m);
+    box.position.set((n.x+n.w/2)-centerX, h/2, (n.y+n.h/2)-centerY);
+    box.userData = {id:n.id};
+    webglViews.scene.add(box);
+    const edgeGeo = new THREE.EdgesGeometry(g);
+    const edgeMat = new THREE.LineBasicMaterial({color:0x050505, transparent:true, opacity:0.98});
+    const edge = new THREE.LineSegments(edgeGeo, edgeMat);
+    box.add(edge);
+    webglViews.meshes.set(n.id, box);
+
+    if(webglViews.labels && labelsUsed < labelLimit && n.area_sf >= minLabelArea){
+      const tag = document.createElement('div');
+      tag.className = 'plan-label';
+      tag.dataset.id = n.id;
+      tag.dataset.area = String(n.area_sf || 0);
+      const nm = document.createElement('div');
+      nm.className = 'nm';
+      nm.textContent = n.name || shortLabelFromId(n.id) || n.id;
+      const ar = document.createElement('div');
+      ar.className = 'ar';
+      ar.textContent = Math.round(n.area_sf).toLocaleString() + ' sf';
+      tag.appendChild(nm);
+      tag.appendChild(ar);
+      webglViews.labels.appendChild(tag);
+      labelsUsed += 1;
+    }
+  });
+
+  fitMainCameraToNodes(nodes);
+  updatePlanLabelPositions();
+  drawSiteOutlineWebGL();
+}
+
+/* =========================
+   AREA ALLOCATION
+========================= */
+function allocateAreas(grossSf){
+  const spaces = (currentDb.space_library || []).filter(s => s.nsf_range || s.percent_of_gross_range);
+  const withPct = spaces.filter(s => s.percent_of_gross_range && s.percent_of_gross_range.length===2);
+  const withoutPct = spaces.filter(s => !(s.percent_of_gross_range && s.percent_of_gross_range.length===2));
+
+  // Step 1: Collect raw proportional weights from percent_of_gross medians
+  const rawPct = new Map();
+  withPct.forEach(s=>{
+    const pct = median(s.percent_of_gross_range);
+    if(pct && pct>0) rawPct.set(s.id, pct);
+  });
+
+  // Step 2: Add withoutPct spaces using nsf medians as proportional weights
+  const nsfMeds = withoutPct.map(s => ({id:s.id, nsf: median(s.nsf_range) || 0})).filter(x=>x.nsf>0);
+  // Convert nsf medians to an equivalent "fraction of gross" so everything normalizes together
+  if(nsfMeds.length > 0){
+    const nsfTotal = nsfMeds.reduce((a,x)=>a+x.nsf,0);
+    // Give withoutPct spaces 15% of GSF collectively (realistic for miscellaneous spaces)
+    const nsfShare = 0.15;
+    nsfMeds.forEach(x => rawPct.set(x.id, (x.nsf / nsfTotal) * nsfShare));
+  }
+
+  // Fallback for any spaces that still have no allocation
+  spaces.forEach(s=>{
+    if(!rawPct.has(s.id)){
+      const nsf = median(s.nsf_range) || 150;
+      rawPct.set(s.id, nsf / Math.max(grossSf, 1));
+    }
+  });
+
+  // Step 3: Normalize so proportions sum to 1.0, then multiply by GSF
+  const totalPct = [...rawPct.values()].reduce((a,b)=>a+b,0) || 1;
+  const alloc = new Map();
+  rawPct.forEach((pct, id) => alloc.set(id, (pct / totalPct) * grossSf));
+
+  // Step 4: Return allocated areas (normalization ensures total ≈ GSF;
+  // nsf_range is per-instance while percent_of_gross is aggregate, so no clamping)
+  return spaces.map(s => ({...s, area_sf: alloc.get(s.id) || 150}));
+}
+
+/* =========================
+   HARD CONSTRAINTS
+========================= */
+function clampRectToBounds(n, W, H){
+  n.x = clamp(n.x, 0, W - n.w);
+  n.y = clamp(n.y, 0, H - n.h);
+}
+function resolveRectOverlaps(nodes, pad, strength){
+  for(let i=0;i<nodes.length;i++){
+    const A = nodes[i];
+    for(let j=i+1;j<nodes.length;j++){
+      const B = nodes[j];
+
+      const ax1=A.x, ay1=A.y, ax2=A.x+A.w, ay2=A.y+A.h;
+      const bx1=B.x, by1=B.y, bx2=B.x+B.w, by2=B.y+B.h;
+
+      const ox = Math.min(ax2, bx2) - Math.max(ax1, bx1);
+      const oy = Math.min(ay2, by2) - Math.max(ay1, by1);
+
+      if(ox > -pad && oy > -pad){
+        const px = ox + pad;
+        const py = oy + pad;
+
+        const acx=A.x+A.w/2, acy=A.y+A.h/2;
+        const bcx=B.x+B.w/2, bcy=B.y+B.h/2;
+        const dx = acx - bcx;
+        const dy = acy - bcy;
+
+        if(px < py){
+          const sx = (dx>=0?1:-1);
+          const move = 0.5*px*strength;
+          A.x += sx*move;
+          B.x -= sx*move;
+        }else{
+          const sy = (dy>=0?1:-1);
+          const move = 0.5*py*strength;
+          A.y += sy*move;
+          B.y -= sy*move;
+        }
+      }
+    }
+  }
+}
+
+/* =========================
+   PRESETS
+========================= */
+function buildSizePresetOptions(){
+  elPreset.innerHTML = "";
+  // Use full range across ALL subtypes so presets cover small to large variants
+  const subtypes = currentDb.subtypes || [];
+  let min = Infinity, max = -Infinity;
+  subtypes.forEach(st => {
+    const r = st.gross_sf_typical;
+    if(r && r.length === 2){
+      if(r[0] < min) min = r[0];
+      if(r[1] > max) max = r[1];
+    }
+  });
+  if(!isFinite(min) || !isFinite(max)){
+    const fallback = currentDb?.gross_sf_typical || [25000, 150000];
+    min = fallback[0]; max = fallback[1];
+  }
+
+  const mid = Math.round(((min+max)/2)/1000)*1000;
+
+  const small = Math.round(min/1000)*1000;
+  const large = Math.round(max/1000)*1000;
+
+  const opts = [
+    {label:`Small — ${small.toLocaleString()} GSF`, value:small},
+    {label:`Medium — ${mid.toLocaleString()} GSF`, value:mid},
+    {label:`Large — ${large.toLocaleString()} GSF`, value:large}
+  ];
+  for(const o of opts){
+    const opt = document.createElement("option");
+    opt.value = o.value;
+    opt.textContent = o.label;
+    elPreset.appendChild(opt);
+  }
+  elPreset.value = String(mid);
+  elGSF.value = String(mid);
+}
+
+/* =========================
+   GRAPH BUILD (with auto-scale-to-fit)
+========================= */
+function buildGraph(spaces, W, H, seedStr){
+  const ids = new Set(spaces.map(s=>s.id));
+  const edges = (currentDb.adjacency_edges || []).filter(e => ids.has(e.from) && ids.has(e.to));
+
+  // adjacency lookup (for isolation + program list)
+  strongAdj = new Map();
+  for(const e of edges){
+    const w = e.weight ?? 2;
+    if(!strongAdj.has(e.from)) strongAdj.set(e.from, []);
+    if(!strongAdj.has(e.to)) strongAdj.set(e.to, []);
+    strongAdj.get(e.from).push({id:e.to, w});
+    strongAdj.get(e.to).push({id:e.from, w});
+  }
+
+  // determinism
+  const seed = xmur3(seedStr)();
+  const rnd = mulberry32(seed);
+
+  // base sizing
+  const raw = spaces.map(s=>{
+    const area = Math.max(144, s.area_sf); // minimum 12×12 ft = 144 sf
+    // Keep plan blocks at a consistent golden-ratio proportion (1 : 1.618)
+    // while preserving each block's area.
+    const shortSide = Math.sqrt(area / IDEAL_ROOM_PROPORTION) * PROGRAM_VISUAL_SCALE;
+    const longSide = shortSide * IDEAL_ROOM_PROPORTION;
+
+    return {
+      id:s.id, name:s.name, category:s.category,
+      area_sf:area,
+      w: longSide,
+      h: shortSide,
+      x: W/2 + (rnd()-0.5)*120,
+      y: H/2 + (rnd()-0.5)*120
+    };
+  });
+
+  // scale to fill canvas while fitting:
+  const sumArea = raw.reduce((a,n)=>a + (n.w*n.h), 0);
+  const targetArea = (W*H) * FILL_TARGET;
+  let s = Math.sqrt(targetArea / (sumArea||1));
+
+  s = clamp(s, MIN_SCALE_DOWN, MAX_SCALE_UP);
+  raw.forEach(n=>{ n.w*=s; n.h*=s; });
+
+  // Store the effective pixels-per-foot scale so the site boundary uses the same scale
+  // (blocks are now in real feet before scaling, so s = px/ft)
+  currentPxPerFt = s;
+
+  // links: keep only "strong" edges for shaping (the rest can exist for info, but we want order)
+  const links = edges
+    .filter(e => (e.weight ?? 2) >= 3)
+    .map(e => ({ source:e.from, target:e.to, weight: e.weight ?? 2 }));
+
+  return {nodes:raw, links};
+}
+
+/* =========================
+   UI: Legend + Metrics + Program List
+========================= */
+function renderLegend(nodes){
+  if(!legendEl) return;
+  const cats = Array.from(new Set(nodes.map(n=>n.category))).sort();
+  legendEl.innerHTML = "";
+  cats.forEach(cat=>{
+    const d = document.createElement("div");
+    d.className = "leg";
+    const sw = document.createElement("div");
+    sw.className = "sw";
+    sw.style.background = colorForCategory(cat);
+    const tx = document.createElement("div");
+    tx.textContent = cat;
+    d.appendChild(sw); d.appendChild(tx);
+    legendEl.appendChild(d);
+  });
+}
+function renderMetrics({type, preset, gsf, spaces, scale}){
+  // Metrics boxes removed per design revision — info is in controls + diagram
+  metricsEl.innerHTML = "";
+}
+
+function renderProgramList(nodes){
+  const groups = new Map();
+  nodes.forEach(n=>{
+    const category = n.category || "Uncategorized";
+    if(!groups.has(category)) groups.set(category, {category, area:0, count:0});
+    const g = groups.get(category);
+    g.area += (n.area_sf || 0);
+    g.count += 1;
+  });
+  const list = [...groups.values()].sort((a,b)=> (b.area||0) - (a.area||0));
+
+  programListEl.innerHTML = "";
+  list.forEach(group=>{
+    const d = document.createElement("div");
+    d.className = "pi";
+    d.dataset.category = group.category;
+
+    const left = document.createElement("div");
+    left.className = "left";
+    const sw = document.createElement("div");
+    sw.className = "sw";
+    sw.style.background = colorForCategory(group.category);
+
+    const nmWrap = document.createElement("div");
+    nmWrap.style.minWidth = "0";
+
+    const nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = group.category;
+
+    const ct = document.createElement("div");
+    ct.className = "ct";
+    ct.textContent = `${group.count} room${group.count===1?"":"s"}`;
+
+    const sf = document.createElement("div");
+    sf.className = "sf";
+    sf.textContent = `${Math.round(group.area).toLocaleString()} sf`;
+
+    nmWrap.appendChild(nm);
+    nmWrap.appendChild(ct);
+    nmWrap.appendChild(sf);
+    left.appendChild(sw);
+    left.appendChild(nmWrap);
+
+    d.appendChild(left);
+
+    d.addEventListener("click", ()=>{
+      toggleCategoryIsolation(group.category);
+    });
+
+    programListEl.appendChild(d);
+  });
+
+  syncProgramListStyles();
+}
+
+
+function syncProgramListStyles(){
+  const items = programListEl.querySelectorAll(".pi");
+  items.forEach(el=>{
+    const category = el.dataset.category;
+    el.classList.remove("active","dim");
+    if(!selectedCategory) return;
+    if(category === selectedCategory) el.classList.add("active");
+    else el.classList.add("dim");
+  });
+}
+
+/* =========================
+   ISOLATION LOGIC
+========================= */
+function computeIsolationSetForCategory(category){
+  const set = new Set();
+  currentNodes.forEach(n=>{
+    if((n.category || "Uncategorized") === category) set.add(n.id);
+  });
+  return set;
+}
+function toggleCategoryIsolation(category){
+  if(!category || (selectedCategory === category)){
+    isolateSet = null;
+    selectedCategory = null;
+  }else{
+    isolateSet = computeIsolationSetForCategory(category);
+    selectedCategory = category;
+  }
+  applyIsolationStyles();
+}
+function toggleIsolationFrom(centerId){
+  const node = currentNodes.find(n=>n.id===centerId);
+  if(!node) return;
+  toggleCategoryIsolation(node.category || "Uncategorized");
+}
+function applyIsolationStyles(){
+  svg.selectAll(".node")
+    .classed("dim", d => isolateSet ? !isolateSet.has(d.id) : false)
+    .classed("active", d => isolateSet ? isolateSet.has(d.id) : false);
+
+  syncProgramListStyles();
+  if(webglViews){
+    webglViews.meshes.forEach((mesh,id)=>{
+      const active = isolateSet ? isolateSet.has(id) : true;
+      mesh.material.opacity = active ? 0.95 : 0.14;
+      mesh.material.emissive = new THREE.Color(active ? 0x101010 : 0x000000);
+      mesh.material.needsUpdate = true;
+    });
+    if(webglViews.labels){
+      webglViews.labels.querySelectorAll('.plan-label').forEach(l=>{
+        const active = isolateSet ? isolateSet.has(l.dataset.id) : true;
+        l.style.opacity = active ? '1' : '0.2';
+      });
+    }
+  }
+}
+
+/* =========================
+   DRAW
+========================= */
+function draw(){
+  if(!currentDb) return;
+
+  // reset isolate on regenerate
+  isolateSet = null;
+  selectedCategory = null;
+
+  const W = VIEW_W, H = VIEW_H;
+  svg.attr("viewBox", `0 0 ${W} ${H}`);
+  svg.selectAll("*").remove();
+
+  // soft shadow filter (SVG)
+  const defs = svg.append("defs");
+  const f = defs.append("filter")
+    .attr("id","softShadow")
+    .attr("x","-20%").attr("y","-20%")
+    .attr("width","140%").attr("height","140%");
+  f.append("feDropShadow")
+    .attr("dx","0")
+    .attr("dy","6")
+    .attr("stdDeviation","6")
+    .attr("flood-color","#000")
+    .attr("flood-opacity","0.35");
+
+  const gsf = parseInt(elGSF.value || "75000", 10);
+  const spaces = allocateAreas(gsf);
+
+  const seedStr = `${currentDb.building_type}__${gsf}`;
+  const {nodes, links} = buildGraph(spaces, W, H, seedStr);
+
+  currentNodes = nodes;
+  currentLinks = links;
+
+  renderLegend(nodes);
+  renderProgramList(nodes);
+
+  // metrics: get scale approximation via average rect size ratio (already applied in buildGraph)
+  const sumArea = nodes.reduce((a,n)=>a + (n.w*n.h),0);
+  const scaleApprox = Math.sqrt( (sumArea/(W*H)) / FILL_TARGET ); // inverse-ish indicator; still useful
+  const presetLabel = elPreset.options[elPreset.selectedIndex]?.textContent?.split("—")[0]?.trim() || "Medium";
+  renderMetrics({
+    type: currentDb.building_type,
+    preset: presetLabel,
+    gsf,
+    spaces: nodes.length,
+    scale: 1/Math.max(0.0001, scaleApprox)
+  });
+
+  // ordered category targets:
+  const cats = Array.from(new Set(nodes.map(n=>n.category))).sort();
+
+  // place FOH categories along the bottom band, others in upper/middle band:
+  const topBandY = H*0.42;
+  const bottomBandY = H*0.78;
+
+  const fohCats = cats.filter(c=>FOH_HINT.has(c));
+  const otherCats = cats.filter(c=>!FOH_HINT.has(c));
+
+  function bandPositions(catList, y, spread){
+    const map = new Map();
+    const n = Math.max(1, catList.length);
+    for(let i=0;i<catList.length;i++){
+      const t = (i+0.5)/n;
+      map.set(catList[i], {x: W*(0.14 + t*0.72), y});
+    }
+    // add slight alternating offsets for order without a ring “spin”
+    catList.forEach((c,i)=>{
+      const p = map.get(c);
+      p.y += (i%2===0? -spread : spread);
+    });
+    return map;
+  }
+  const posTop = bandPositions(otherCats, topBandY, 22);
+  const posBottom = bandPositions(fohCats, bottomBandY, 14);
+
+  const catPos = new Map();
+  otherCats.forEach(c=>catPos.set(c, posTop.get(c)));
+  fohCats.forEach(c=>catPos.set(c, posBottom.get(c)));
+
+  // Building-type view layout: pack blocks while preserving true dimensions.
+  // IMPORTANT: do not rescale n.w / n.h here, or the parcel overlay will no
+  // longer be 1:1 with program blocks.
+  var usedParcelPack = false;
+  function parcelPack(){
+    const sorted = [...nodes].sort((a,b)=> (b.h||0) - (a.h||0));
+    const marginX = 28, marginY = 24, gapX = 22, gapY = 20;
+    const maxX = W - marginX;
+    const maxY = H - marginY;
+
+    let x = marginX;
+    let y = marginY;
+    let rowH = 0;
+
+    sorted.forEach(function(n){
+      if(x + n.w > maxX){
+        x = marginX;
+        y += rowH + gapY;
+        rowH = 0;
+      }
+
+      n.x = x;
+      n.y = y;
+      x += n.w + gapX;
+      rowH = Math.max(rowH, n.h);
+
+      if(y + n.h > maxY){
+        // Fallback: keep in bounds without changing size/scale.
+        n.y = Math.max(marginY, maxY - n.h);
+      }
+      clampRectToBounds(n, W, H);
+    });
+
+    usedParcelPack = true;
+  }
+  parcelPack();
+
+  const nodeG = svg.append("g");
+
+  const nodeSel = nodeG.selectAll("g")
+    .data(nodes, d=>d.id)
+    .enter().append("g")
+    .attr("class","node")
+    .style("cursor","pointer");
+
+  nodeSel.append("rect")
+    .attr("rx", 14).attr("ry", 14)
+    .attr("width", d=>d.w)
+    .attr("height", d=>d.h)
+    .attr("fill", d=>colorForCategory(d.category))
+    .attr("stroke", "rgba(0,0,0,0.55)")
+    .attr("stroke-width", 1)
+    .attr("filter","url(#softShadow)");
+
+  // WHITE Cormorant font (matches circled input), slightly smaller
+  nodeSel.append("text")
+    .attr("x", 12).attr("y", 20)
+    .attr("fill", "#ffffff")
+    .attr("font-size", 15) // legible for all programs
+    .attr("font-family", "Cormorant Garamond, Georgia, serif")
+    .attr("font-weight", 400)
+    .attr("letter-spacing", "0.02em")
+    .text(d => (d.name || shortLabelFromId(d.id) || d.id));
+
+  nodeSel.append("text")
+    .attr("x", 12)
+    .attr("y", d => Math.max(40, Math.min(d.h-10, 44)))
+    .attr("fill", "rgba(255,255,255,0.92)")
+    .attr("font-size", 13)
+    .attr("font-family", "Cormorant Garamond, Georgia, serif")
+    .attr("font-weight", 300)
+    .text(d => `${Math.round(d.area_sf).toLocaleString()} sf`);
+
+  // Tooltip
+  function showTip(ev, d){
+    tipV.textContent = d.name || shortLabelFromId(d.id) || d.id;
+    tipArea.textContent = `${Math.round(d.area_sf).toLocaleString()} sf`;
+    tipCat.textContent = d.category || "—";
+    tip.style.opacity = "1";
+    tip.style.transform = "translateY(0)";
+    moveTip(ev);
+  }
+  function moveTip(ev){
+    const pad = 14;
+    const x = Math.min(window.innerWidth - 360, ev.clientX + pad);
+    const y = Math.min(window.innerHeight - 140, ev.clientY + pad);
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  }
+  function hideTip(){
+    tip.style.opacity = "0";
+    tip.style.transform = "translateY(6px)";
+  }
+
+  nodeSel
+    .on("mouseenter", (ev,d)=> showTip(ev,d))
+    .on("mousemove", (ev)=> moveTip(ev))
+    .on("mouseleave", ()=> hideTip())
+    .on("click", (ev,d)=>{
+      toggleIsolationFrom(d.id);
+    });
+
+  // styles for isolation
+  const styleEl = document.createElement("style");
+  styleEl.textContent = `
+    .node.dim { opacity: 0.20; }
+    .node.active rect { stroke: rgba(201,169,89,0.90); stroke-width: 2.5; }
+  `;
+  document.head.appendChild(styleEl);
+
+  // Final settle: keep the seeded plan-grid arrangement with overlap cleanup.
+  // Skip when parcel packing was used — blocks are already tightly packed.
+  if(simulation) simulation.stop();
+  simulation = null;
+  if(!usedParcelPack){
+    for(let k=0;k<FINAL_PASSES;k++){
+      resolveRectOverlaps(nodes, PAD, 1.2);
+      for(const n of nodes) clampRectToBounds(n, W, H);
+    }
+  }
+
+  // apply isolation state (none by default)
+  applyIsolationStyles();
+
+  // initial render position
+  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+  renderWebGLBlocks(nodes);
+}
+
+/* =========================
+   BOOT
+========================= */
+async function loadTypeDb(jsonFile){ currentDb = await loadJSON(DATA_DIR + jsonFile); }
+
+async function boot(){
+  master = await loadJSON(DATA_DIR + "building_program_database_master_v0.2.json");
+
+  elType.innerHTML = "";
+  master.databases.forEach(d=>{
+    const opt = document.createElement("option");
+    opt.value = d.json;
+    opt.textContent = d.building_type;
+    elType.appendChild(opt);
+  });
+
+  elType.addEventListener("change", async ()=>{
+    await loadTypeDb(elType.value);
+    buildSizePresetOptions();
+    draw();
+  });
+
+  elPreset.addEventListener("change", ()=>{
+    elGSF.value = elPreset.value;
+    draw();
+  });
+
+  elGSF.addEventListener("input", ()=> draw());
+  elRegen.addEventListener("click", ()=> draw());
+
+  // Default to the K-12 small program when available.
+  const k12Default = master.databases.find(d => d.building_type === "K-12 School");
+  if(k12Default) elType.value = k12Default.json;
+
+  await loadTypeDb(elType.value);
+  buildSizePresetOptions();
+  if(elPreset.options.length){
+    elPreset.selectedIndex = 0;
+    elGSF.value = elPreset.value;
+  }
+  draw();
+}
+
+boot().catch(err=>{
+  console.error(err);
+  alert("Failed to load data. Check /data files and GitHub Pages paths.\n\n" + err.message);
+});
+
+/* =========================
+   SITE OVERLAY + ORGANIZE + ELEVATION
+========================= */
+var siteGeo = null;
+var sitePolygonPx = null; // parcel or footprint as pixel coords at same scale as program
+var organizedData = null; // {floors: [{blocks:[...]}], totalHeight, floorHeight}
+var massing3D = null;
+var ghostBlockEnabled = false;
+
+// Load site geometry from localStorage
+(function(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('calvey_site_geo'));
+    if(saved){ siteGeo = saved; drawSiteOverlay(); }
+  }catch(e){}
+})();
+
+function drawSiteOverlay(){
+  if(!siteGeo) return;
+  // Use parcel or footprint, whichever is available
+  var feature = siteGeo.parcel || siteGeo.footprint || siteGeo.userBoundary;
+  if(!feature || !feature.geometry) return;
+
+  var coords = feature.geometry.type === 'Polygon' ? feature.geometry.coordinates[0] :
+               feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates[0][0] : null;
+  if(!coords || coords.length < 3) return;
+
+  // Convert lon/lat to relative meters using simple projection
+  var lat0 = siteGeo.lat, lon0 = siteGeo.lon;
+  var mPerDegLat = 111320;
+  var mPerDegLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+
+  var mCoords = coords.map(function(c){
+    return [(c[0] - lon0) * mPerDegLon, (c[1] - lat0) * mPerDegLat];
+  });
+
+  // Convert meters to feet
+  var ftCoords = mCoords.map(function(c){ return [c[0] * 3.28084, c[1] * 3.28084]; });
+
+  // Find bounds
+  var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  ftCoords.forEach(function(c){
+    if(c[0] < minX) minX = c[0];
+    if(c[0] > maxX) maxX = c[0];
+    if(c[1] < minY) minY = c[1];
+    if(c[1] > maxY) maxY = c[1];
+  });
+
+  var siteW = maxX - minX, siteH = maxY - minY;
+  if(siteW < 1 || siteH < 1) return;
+
+  // Use the SAME scale as program blocks (currentPxPerFt) so they are 1:1 proportional
+  var scale = currentPxPerFt;
+  var ox = VIEW_W / 2, oy = VIEW_H / 2;
+
+  sitePolygonPx = ftCoords.map(function(c){
+    return [ox + (c[0] - (minX + siteW/2)) * scale, oy - (c[1] - (minY + siteH/2)) * scale];
+  });
+
+  // Store site area in sq ft for organize
+  siteGeo._siteFt = ftCoords;
+  siteGeo._siteAreaSf = Math.abs(siteW * siteH); // rough bounding box area
+  siteGeo._siteW = siteW;
+  siteGeo._siteH = siteH;
+  siteGeo._scale = scale;
+
+  // Draw site polygon on SVG
+  var existingSite = svg.select('.site-overlay');
+  if(!existingSite.empty()) existingSite.remove();
+
+  var pts = sitePolygonPx.map(function(p){ return p[0]+','+p[1]; }).join(' ');
+  svg.insert('polygon', ':first-child')
+    .attr('class', 'site-overlay')
+    .attr('points', pts)
+    .attr('fill', 'none')
+    .attr('stroke', '#c9a959')
+    .attr('stroke-width', 2)
+    .attr('stroke-dasharray', '8,4')
+    .attr('opacity', 0.6);
+
+  drawSiteOutlineWebGL();
+}
+
+// Redraw site overlay after each draw() call
+var origDraw = draw;
+draw = function(){
+  origDraw();
+  drawSiteOverlay();
+};
+
+// Slider labels
+
+// ORGANIZE button
+function getOrganizeBoundsPx(){
+  if(sitePolygonPx && sitePolygonPx.length){
+    var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    sitePolygonPx.forEach(function(p){
+      if(p[0]<minX) minX=p[0]; if(p[0]>maxX) maxX=p[0];
+      if(p[1]<minY) minY=p[1]; if(p[1]>maxY) maxY=p[1];
+    });
+    return {x:minX,y:minY,w:Math.max(80,maxX-minX),h:Math.max(80,maxY-minY)};
+  }
+  return {x:VIEW_W*0.2,y:VIEW_H*0.18,w:VIEW_W*0.6,h:VIEW_H*0.64};
+}
+
+
+function polygonAreaSigned(poly){
+  var area = 0;
+  for(var i=0, j=poly.length-1; i<poly.length; j=i++){
+    area += poly[j][0] * poly[i][1] - poly[i][0] * poly[j][1];
+  }
+  return area * 0.5;
+}
+
+function parcelSpanAtY(poly, y){
+  var xs = [];
+  for(var i=0, j=poly.length-1; i<poly.length; j=i++){
+    var yi = poly[i][1], yj = poly[j][1];
+    if((yi < y && yj >= y) || (yj < y && yi >= y)){
+      var t = (y - yi) / (yj - yi);
+      xs.push(poly[i][0] + t * (poly[j][0] - poly[i][0]));
+    }
+  }
+  if(xs.length < 2) return null;
+  xs.sort(function(a,b){ return a-b; });
+
+  // Build interior intervals pairwise and keep the widest contiguous span.
+  // This avoids bridging across concave "notches" that would place blocks
+  // outside the parcel boundary.
+  var best = null;
+  for(var k=0; k+1<xs.length; k+=2){
+    var x0 = xs[k], x1 = xs[k+1];
+    var w = x1 - x0;
+    if(w <= 0) continue;
+    if(!best || w > best.width) best = { xMin:x0, xMax:x1, width:w };
+  }
+  return best;
+}
+
+function getSiteFootprintFt(){
+  if(!siteGeo || !Array.isArray(siteGeo._siteFt) || !siteGeo._siteFt.length) return null;
+  var pts = siteGeo._siteFt;
+  var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(function(p){
+    if(p[0] < minX) minX = p[0];
+    if(p[0] > maxX) maxX = p[0];
+    if(p[1] < minY) minY = p[1];
+    if(p[1] > maxY) maxY = p[1];
+  });
+  var cx = (minX + maxX) / 2;
+  var cy = (minY + maxY) / 2;
+  return pts.map(function(p){ return [p[0] - cx, p[1] - cy]; });
+}
+
+function rotatePt(x, y, angRad){
+  var ca = Math.cos(angRad), sa = Math.sin(angRad);
+  return [x * ca - y * sa, x * sa + y * ca];
+}
+
+function pointInPolygon(pt, poly){
+  var x = pt[0], y = pt[1], inside = false;
+  for(var i=0, j=poly.length-1; i<poly.length; j=i++){
+    var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+    var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / Math.max(1e-9, (yj - yi)) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function rectCornersInside(poly, cx, cy, w, d, rotRad){
+  var hw = w * 0.5, hd = d * 0.5;
+  var local = [[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]];
+  for(var i=0;i<local.length;i++){
+    var r = rotatePt(local[i][0], local[i][1], rotRad);
+    if(!pointInPolygon([cx + r[0], cy + r[1]], poly)) return false;
+  }
+  return true;
+}
+
+function bestFitRectInPolygon(poly, baseW, baseD, rotRad){
+  if(!poly || poly.length < 3) return {scale:1, cx:0, cy:0};
+  var cx = 0, cy = 0;
+  poly.forEach(function(p){ cx += p[0]; cy += p[1]; });
+  cx /= poly.length; cy /= poly.length;
+  var lo = 0, hi = 1;
+  for(var i=0;i<28;i++){
+    var mid = (lo + hi) * 0.5;
+    if(rectCornersInside(poly, cx, cy, baseW * mid, baseD * mid, rotRad)) lo = mid;
+    else hi = mid;
+  }
+  return {scale:lo, cx:cx, cy:cy};
+}
+
+/* =========================
+   LAYOUT ENGINE
+   Places program blocks inside a (possibly rotated/scaled) parcel polygon.
+   At compactness 0 the blocks fill the full parcel; as compactness rises
+   the footprint shrinks (offset inward) and blocks stack onto more floors.
+   Upper floors never exceed the footprint of the floor below.
+========================= */
+
+function offsetPolygon(poly, amount){
+  // Shrink polygon inward by `amount` (positive = inward).
+  // Simple vertex-offset approach: move each vertex toward centroid.
+  if(amount <= 0) return poly.slice();
+  var cx = 0, cy = 0;
+  poly.forEach(function(p){ cx += p[0]; cy += p[1]; });
+  cx /= poly.length; cy /= poly.length;
+  // Find the minimum distance from centroid to any vertex
+  var minDist = Infinity;
+  poly.forEach(function(p){
+    var d = Math.hypot(p[0] - cx, p[1] - cy);
+    if(d < minDist) minDist = d;
+  });
+  if(minDist < 1) return poly.slice();
+  var ratio = Math.max(0.05, 1 - amount / minDist);
+  return poly.map(function(p){
+    return [cx + (p[0] - cx) * ratio, cy + (p[1] - cy) * ratio];
+  });
+}
+
+function scalePolygon(poly, factor){
+  // Scale polygon about its centroid
+  if(Math.abs(factor - 1) < 0.001) return poly.slice();
+  var cx = 0, cy = 0;
+  poly.forEach(function(p){ cx += p[0]; cy += p[1]; });
+  cx /= poly.length; cy /= poly.length;
+  return poly.map(function(p){
+    return [cx + (p[0] - cx) * factor, cy + (p[1] - cy) * factor];
+  });
+}
+
+
+function splitBlocksForMassing(blocks, compactness){
+  // Keep exact area totals, but allow larger programs to be split so packing
+  // can flow naturally across floors.
+  var minChunk = 120;
+  var maxChunk = 5200 - 2900 * clamp(compactness, 0, 1);
+  maxChunk = Math.max(900, maxChunk);
+  var out = [];
+
+  blocks.forEach(function(b){
+    var remaining = Math.max(1, b.area_sf || 0);
+    var idx = 0;
+    while(remaining > 1e-6){
+      var a = Math.min(remaining, maxChunk);
+      if(remaining - a > 0 && remaining - a < minChunk){
+        a = remaining;
+      }
+      out.push({
+        id: b.id,
+        name: b.name,
+        category: b.category,
+        area_sf: a,
+        parentArea_sf: b.area_sf,
+        part: idx
+      });
+      remaining -= a;
+      idx++;
+    }
+  });
+
+  return out.sort(function(a,b){ return b.area_sf - a.area_sf; });
+}
+
+/* =========================================================
+   POLYGON UTILITIES — used by the massing partition algorithm
+   ========================================================= */
+
+// Signed area of polygon (positive = CCW winding)
+function polyArea(pts){
+  var a = 0;
+  for(var i = 0, n = pts.length; i < n; i++){
+    var j = (i + 1) % n;
+    a += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1];
+  }
+  return a / 2;
+}
+
+// Axis-aligned bounding box
+function polyBBox(pts){
+  var mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity;
+  for(var i = 0; i < pts.length; i++){
+    if(pts[i][0] < mnX) mnX = pts[i][0];
+    if(pts[i][0] > mxX) mxX = pts[i][0];
+    if(pts[i][1] < mnY) mnY = pts[i][1];
+    if(pts[i][1] > mxY) mxY = pts[i][1];
+  }
+  return {minX:mnX, maxX:mxX, minY:mnY, maxY:mxY};
+}
+
+// Geometric area of a block (polygon area when available, else w*d)
+function blockGeoArea(bl){
+  if(bl.poly && bl.poly.length >= 3) return Math.abs(polyArea(bl.poly));
+  return (bl.w_ft || 0) * (bl.d_ft || 0);
+}
+
+// Centroid of polygon
+function polyCentroid(pts){
+  var cx = 0, cy = 0;
+  for(var i = 0; i < pts.length; i++){ cx += pts[i][0]; cy += pts[i][1]; }
+  return [cx / pts.length, cy / pts.length];
+}
+
+// Clip polygon to half-plane: keep points where p·(nx,ny) <= d
+function clipPolyByDot(pts, nx, ny, d){
+  if(pts.length < 3) return [];
+  var out = [];
+  for(var i = 0; i < pts.length; i++){
+    var j = (i + 1) % pts.length;
+    var di = pts[i][0] * nx + pts[i][1] * ny - d;
+    var dj = pts[j][0] * nx + pts[j][1] * ny - d;
+    if(di <= 0) out.push(pts[i].slice());
+    if((di <= 0) !== (dj <= 0)){
+      var t = di / (di - dj);
+      out.push([
+        pts[i][0] + t * (pts[j][0] - pts[i][0]),
+        pts[i][1] + t * (pts[j][1] - pts[i][1])
+      ]);
+    }
+  }
+  return out;
+}
+
+// Slice polygon into two halves at the line p·(nx,ny) = d
+function slicePolyByDot(pts, nx, ny, d){
+  var below = clipPolyByDot(pts, nx, ny, d);
+  var above = clipPolyByDot(pts, -nx, -ny, -d);
+  return [below, above];
+}
+
+// Binary-search for offset d such that clipPolyByDot area ≈ targetArea
+function findSliceOffset(pts, nx, ny, targetArea){
+  var dots = pts.map(function(p){ return p[0] * nx + p[1] * ny; });
+  var lo = Math.min.apply(null, dots) - 0.01;
+  var hi = Math.max.apply(null, dots) + 0.01;
+  for(var iter = 0; iter < 60; iter++){
+    var mid = (lo + hi) / 2;
+    var piece = clipPolyByDot(pts, nx, ny, mid);
+    var area = Math.abs(polyArea(piece));
+    if(area < targetArea) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+// Minimum bounding rectangle aspect ratio (edge-aligned rotating calipers)
+function minBoundingRectRatio(poly){
+  if(!poly || poly.length < 3) return 999;
+  var bestRatio = 999;
+  for(var i = 0; i < poly.length; i++){
+    var j = (i + 1) % poly.length;
+    var dx = poly[j][0] - poly[i][0];
+    var dy = poly[j][1] - poly[i][1];
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if(len < 0.001) continue;
+    var c = dx / len, s = dy / len;
+    var mnU = Infinity, mxU = -Infinity, mnV = Infinity, mxV = -Infinity;
+    for(var k = 0; k < poly.length; k++){
+      var u = poly[k][0] * c + poly[k][1] * s;
+      var v = -poly[k][0] * s + poly[k][1] * c;
+      if(u < mnU) mnU = u;  if(u > mxU) mxU = u;
+      if(v < mnV) mnV = v;  if(v > mxV) mxV = v;
+    }
+    var w = mxU - mnU, h = mxV - mnV;
+    if(w > 0 && h > 0){
+      var r = Math.max(w, h) / Math.min(w, h);
+      if(r < bestRatio) bestRatio = r;
+    }
+  }
+  return bestRatio;
+}
+
+/* =========================================================
+   POLYGON PARTITIONING — slice footprint into program blocks
+   Uses recursive binary-space partitioning so blocks can sit
+   side-by-side (not just stacked north-to-south) and each
+   piece stays close to the golden ratio (1 : 1.618).
+   ========================================================= */
+
+function partitionPolygon(footprint, blocks, floorIdx){
+  if(!blocks.length) return [];
+  var sorted = blocks.slice().sort(function(a, b){ return b.area_sf - a.area_sf; });
+
+  var totalBlockArea = 0;
+  for(var bi = 0; bi < sorted.length; bi++) totalBlockArea += sorted[bi].area_sf;
+
+  var fullArea = Math.abs(polyArea(footprint));
+
+  // If the floor is partially full, clip footprint to the northern
+  // portion that matches total block area so empty space stays south.
+  var workPoly = footprint.map(function(p){ return p.slice(); });
+  if(totalBlockArea < fullArea * 0.98 && fullArea > 1){
+    var clipOffset = findSliceOffset(workPoly, 0, -1, totalBlockArea);
+    var clipped = clipPolyByDot(workPoly, 0, -1, clipOffset);
+    if(clipped && clipped.length >= 3) workPoly = clipped;
+  }
+
+  var result = [];
+  var PHI = 1.618;
+
+  // Recursive BSP: given a polygon and a list of blocks (sorted large→small),
+  // split the polygon in two and assign blocks to each half, then recurse.
+  function bspPartition(poly, blks){
+    if(!blks.length) return;
+    if(!poly || poly.length < 3) return;
+    var area = Math.abs(polyArea(poly));
+    if(area < 1) return;
+
+    // Base case: single block gets the whole polygon
+    if(blks.length === 1){
+      var bb = polyBBox(poly);
+      result.push({
+        id: blks[0].id, name: blks[0].name, category: blks[0].category,
+        area_sf: blks[0].area_sf, poly: poly,
+        x_ft: bb.minX, y_ft: bb.minY,
+        w_ft: bb.maxX - bb.minX, d_ft: bb.maxY - bb.minY,
+        floor: floorIdx, part: blks[0].part || 0
+      });
+      return;
+    }
+
+    // Find the bounding box to decide cut direction
+    var bbox = polyBBox(poly);
+    var polyW = bbox.maxX - bbox.minX;
+    var polyH = bbox.maxY - bbox.minY;
+
+    // Choose cut axis to keep resulting pieces closest to golden ratio.
+    // Cut along the longer axis so pieces become more square / golden.
+    var cutHorizontal = polyH >= polyW;
+
+    // Split blocks into two groups. Put the first group's total area
+    // proportional to approximately half (greedy partition by area).
+    var totalArea = 0;
+    for(var i = 0; i < blks.length; i++) totalArea += blks[i].area_sf;
+
+    // Find the split point that puts roughly the first block(s) area
+    // in the first partition. Use a greedy approach: fill group A until
+    // its area exceeds half the total.
+    var groupA = [], groupB = [];
+    var areaA = 0;
+    var halfArea = totalArea * 0.5;
+
+    for(var j = 0; j < blks.length; j++){
+      if(areaA < halfArea || groupA.length === 0){
+        groupA.push(blks[j]);
+        areaA += blks[j].area_sf;
+      } else {
+        groupB.push(blks[j]);
+      }
+    }
+
+    // If one group is empty, just put everything in A
+    if(groupB.length === 0){
+      // Can't split further meaningfully; assign linearly
+      var rem = poly;
+      for(var si = 0; si < groupA.length; si++){
+        var remA = Math.abs(polyArea(rem));
+        if(remA < 1) break;
+        if(si === groupA.length - 1){
+          var sbb = polyBBox(rem);
+          result.push({
+            id: groupA[si].id, name: groupA[si].name, category: groupA[si].category,
+            area_sf: groupA[si].area_sf, poly: rem,
+            x_ft: sbb.minX, y_ft: sbb.minY,
+            w_ft: sbb.maxX - sbb.minX, d_ft: sbb.maxY - sbb.minY,
+            floor: floorIdx, part: groupA[si].part || 0
+          });
+          break;
+        }
+        var remBlkArea = 0;
+        for(var sk = si; sk < groupA.length; sk++) remBlkArea += groupA[sk].area_sf;
+        var tgt = (groupA[si].area_sf / remBlkArea) * remA;
+        var cnx = cutHorizontal ? 0 : 1;
+        var cny = cutHorizontal ? -1 : 0;
+        var off = findSliceOffset(rem, cnx, cny, tgt);
+        var sp = slicePolyByDot(rem, cnx, cny, off);
+        if(sp[0] && sp[0].length >= 3){
+          var sbb2 = polyBBox(sp[0]);
+          result.push({
+            id: groupA[si].id, name: groupA[si].name, category: groupA[si].category,
+            area_sf: groupA[si].area_sf, poly: sp[0],
+            x_ft: sbb2.minX, y_ft: sbb2.minY,
+            w_ft: sbb2.maxX - sbb2.minX, d_ft: sbb2.maxY - sbb2.minY,
+            floor: floorIdx, part: groupA[si].part || 0
+          });
+        }
+        rem = (sp[1] && sp[1].length >= 3) ? sp[1] : null;
+        if(!rem) break;
+      }
+      return;
+    }
+
+    // Cut polygon into two pieces with area proportional to group totals.
+    var areaB = totalArea - areaA;
+    var targetA = (areaA / totalArea) * area;
+
+    var nx = cutHorizontal ? 0 : 1;
+    var ny = cutHorizontal ? -1 : 0;
+    var cutOff = findSliceOffset(poly, nx, ny, targetA);
+    var halves = slicePolyByDot(poly, nx, ny, cutOff);
+
+    var polyA = halves[0];
+    var polyB = halves[1];
+
+    if(!polyA || polyA.length < 3){ polyA = null; }
+    if(!polyB || polyB.length < 3){ polyB = null; }
+
+    // Recurse into each half
+    if(polyA && polyB){
+      bspPartition(polyA, groupA);
+      bspPartition(polyB, groupB);
+    } else if(polyA){
+      bspPartition(polyA, blks);
+    } else if(polyB){
+      bspPartition(polyB, blks);
+    }
+  }
+
+  bspPartition(workPoly, sorted);
+  return result;
+}
+
+
+function layoutBlocksInParcel(blocks, parcelPoly, compactness){
+  var workPoly = parcelPoly.map(function(p){ return [p[0], p[1]]; });
+
+  // Shrink by compactness (0 = full parcel, 1 = compact tower)
+  var factor = 1.0 - 0.82 * clamp(compactness, 0, 1); // 1.0 → 0.18
+  workPoly = scalePolygon(workPoly, factor);
+
+  // Enforce minimum footprint so blocks are not too small to occupy
+  var fpMinX = Infinity, fpMaxX = -Infinity, fpMinY = Infinity, fpMaxY = -Infinity;
+  workPoly.forEach(function(p){
+    if(p[0] < fpMinX) fpMinX = p[0];
+    if(p[0] > fpMaxX) fpMaxX = p[0];
+    if(p[1] < fpMinY) fpMinY = p[1];
+    if(p[1] > fpMaxY) fpMaxY = p[1];
+  });
+  var fpW = fpMaxX - fpMinX;
+  var fpH = fpMaxY - fpMinY;
+  var minFootprintDim = 40;
+  if(fpW > 0 && fpH > 0 && (fpW < minFootprintDim || fpH < minFootprintDim)){
+    var rescale = Math.max(minFootprintDim / fpW, minFootprintDim / fpH);
+    workPoly = scalePolygon(workPoly, rescale);
+  }
+
+  // Ensure CCW winding for polygon partitioning
+  if(polyArea(workPoly) < 0) workPoly.reverse();
+
+  // Split blocks as needed for robust packing while preserving exact area
+  var remaining = splitBlocksForMassing(blocks, compactness);
+
+  // Compute footprint area for floor assignment
+  var footprintArea = polyArea(workPoly);
+  if(footprintArea < 1) return { floors: [], scaledPoly: workPoly, nFloors: 0 };
+
+  // Assign blocks to floors greedily, then partition each floor polygon.
+  // Each floor's footprint is scaled to match its content area so that
+  // upper floors never have larger plates than the floor below.
+  var floors = [];
+  var idx = 0;
+  var maxFloors = 120;
+  var prevFloorArea = Infinity; // track the floor below's used area
+
+  while(idx < remaining.length && floors.length < maxFloors){
+    var floorBlocks = [];
+    var floorArea = 0;
+    // Use the smaller of the base footprint and the previous floor's area
+    // so plates only shrink (or stay the same) as we go up.
+    var maxPlateArea = Math.min(footprintArea, prevFloorArea);
+
+    while(idx < remaining.length){
+      var nextArea = remaining[idx].area_sf;
+      // If this block alone exceeds floor capacity, split it
+      if(floorBlocks.length === 0 && nextArea > maxPlateArea){
+        floorBlocks.push({
+          id: remaining[idx].id, name: remaining[idx].name,
+          category: remaining[idx].category,
+          area_sf: maxPlateArea * 0.98,
+          parentArea_sf: remaining[idx].parentArea_sf,
+          part: remaining[idx].part
+        });
+        remaining[idx] = {
+          id: remaining[idx].id, name: remaining[idx].name,
+          category: remaining[idx].category,
+          area_sf: nextArea - maxPlateArea * 0.98,
+          parentArea_sf: remaining[idx].parentArea_sf,
+          part: (remaining[idx].part || 0) + 1
+        };
+        floorArea = maxPlateArea * 0.98;
+        break;
+      }
+      if(floorArea > 0 && floorArea + nextArea > maxPlateArea * 1.05) break;
+      floorBlocks.push(remaining[idx]);
+      floorArea += nextArea;
+      idx++;
+      if(floorArea >= maxPlateArea * 0.88) break;
+    }
+
+    if(floorBlocks.length === 0 && idx < remaining.length){
+      floorBlocks.push(remaining[idx]);
+      idx++;
+      floorArea = floorBlocks[0].area_sf;
+    }
+    if(floorBlocks.length === 0) break;
+
+    // Scale the footprint polygon to match this floor's content area.
+    // This ensures upper floors with less program get a smaller plate.
+    var thisFloorArea = floorBlocks.reduce(function(s,b){ return s + b.area_sf; }, 0);
+    var floorPoly = workPoly;
+    if(thisFloorArea < footprintArea * 0.95){
+      var shrink = Math.sqrt(thisFloorArea / footprintArea);
+      shrink = clamp(shrink, 0.15, 1.0);
+      floorPoly = scalePolygon(workPoly, shrink);
+    }
+
+    // Partition the footprint polygon among this floor's blocks
+    var partitioned = partitionPolygon(floorPoly, floorBlocks, floors.length);
+    if(partitioned.length === 0) break;
+
+    var usedArea = partitioned.reduce(function(s, b){ return s + b.area_sf; }, 0);
+    floors.push({
+      blocks: partitioned,
+      usedArea: usedArea
+    });
+    // Next floor's plate cannot exceed this floor's used area
+    prevFloorArea = usedArea;
+  }
+
+  return { floors: floors, scaledPoly: workPoly, nFloors: floors.length };
+}
+
+function applyOrganizedPlanLayout(organized){
+  if(!organized || !currentNodes || !currentNodes.length) return;
+  var b = getOrganizeBoundsPx();
+  var pxPerFt = Math.min(b.w / organized.siteW, b.h / organized.siteH) * 0.96;
+
+  var posById = new Map();
+  organized.floors.forEach(function(f){ f.blocks.forEach(function(bl){ if(!posById.has(bl.id)) posById.set(bl.id, bl); }); });
+
+  // Blocks are in layout-frame coordinates (axis-aligned within building)
+  var centerX = b.x + b.w * 0.5;
+  var centerY = b.y + b.h * 0.5;
+  currentNodes.forEach(function(n){
+    var p = posById.get(n.id); if(!p) return;
+    n.w = Math.max(24, p.w_ft * pxPerFt);
+    n.h = Math.max(24, p.d_ft * pxPerFt);
+    var bCx = p.x_ft + p.w_ft * 0.5;
+    var bCy = p.y_ft + p.d_ft * 0.5;
+    n.x = centerX + bCx * pxPerFt - n.w * 0.5;
+    n.y = centerY - bCy * pxPerFt - n.h * 0.5;
+    clampRectToBounds(n, VIEW_W, VIEW_H);
+  });
+
+  svg.selectAll('.node').attr('transform', function(d){
+    return 'translate(' + d.x + ',' + d.y + ')';
+  });
+  renderWebGLBlocks(currentNodes);
+  applyIsolationStyles();
+}
+
+function buildMassing(){
+  if(!currentNodes || !currentNodes.length){
+    document.getElementById('organizeStatus').textContent = 'No program loaded. Select a building type first.';
+    return;
+  }
+  var compactness = parseFloat(document.getElementById('compactSlider').value);
+  var floorH = 12;
+  var sitePoly = getSiteFootprintFt();
+  var sW = (siteGeo && siteGeo._siteW) ? siteGeo._siteW : 200;
+  var sD = (siteGeo && siteGeo._siteH) ? siteGeo._siteH : 120;
+  if(!sitePoly || sitePoly.length < 3){
+    sitePoly = [[-sW/2,-sD/2],[sW/2,-sD/2],[sW/2,sD/2],[-sW/2,sD/2]];
+  }
+
+  var parcelW = sW, parcelD = sD;
+
+  var blocks = currentNodes.map(function(n){ return {id:n.id,name:n.name,category:n.category,area_sf:n.area_sf,w:n.w,h:n.h}; }).sort(function(a,b){ return b.area_sf - a.area_sf; });
+
+  var totalProgramArea = blocks.reduce(function(s,b){ return s + b.area_sf; }, 0);
+
+  var layout = layoutBlocksInParcel(blocks, sitePoly, compactness);
+
+  if(!layout.floors.length){
+    document.getElementById('organizeStatus').textContent = 'Unable to fit mass. Adjust compactness.';
+    return;
+  }
+
+  var floors = layout.floors;
+  var totalH = floors.length * floorH;
+
+  // Update floor count display
+  document.getElementById('floorVal').textContent = floors.length;
+  var floorS = document.getElementById('floorValS');
+  if(floorS) floorS.textContent = floors.length === 1 ? '' : 's';
+
+  // Compute effective building bounding box from polygon vertices
+  var bMinX = Infinity, bMaxX = -Infinity, bMinY = Infinity, bMaxY = -Infinity;
+  floors.forEach(function(fl){ fl.blocks.forEach(function(bl){
+    if(bl.poly && bl.poly.length >= 3){
+      bl.poly.forEach(function(pt){
+        if(pt[0] < bMinX) bMinX = pt[0];
+        if(pt[0] > bMaxX) bMaxX = pt[0];
+        if(pt[1] < bMinY) bMinY = pt[1];
+        if(pt[1] > bMaxY) bMaxY = pt[1];
+      });
+    } else {
+      if(bl.x_ft < bMinX) bMinX = bl.x_ft;
+      if(bl.x_ft + bl.w_ft > bMaxX) bMaxX = bl.x_ft + bl.w_ft;
+      if(bl.y_ft < bMinY) bMinY = bl.y_ft;
+      if(bl.y_ft + bl.d_ft > bMaxY) bMaxY = bl.y_ft + bl.d_ft;
+    }
+  }); });
+  var buildW = bMaxX - bMinX;
+  var buildD = bMaxY - bMinY;
+
+  organizedData = {
+    floors: floors,
+    totalHeight: totalH,
+    floorHeight: floorH,
+    siteW: parcelW,
+    siteH: parcelD,
+    siteFootprintFt: sitePoly,
+    scaledParcelPoly: layout.scaledPoly,
+    buildW_ft: buildW,
+    buildD_ft: buildD,
+    compactness: compactness,
+    footprintScale: 1
+  };
+
+  applyOrganizedPlanLayout(organizedData);
+  // Report program area (sum of block area_sf values) to confirm totals are maintained
+  var programGSF = 0;
+  floors.forEach(function(fl){
+    fl.blocks.forEach(function(bl){ programGSF += bl.area_sf; });
+  });
+  document.getElementById('organizeStatus').textContent =
+    floors.length + ' floor' + (floors.length > 1 ? 's' : '') + ' · ' + totalH + ' ft tall · ' +
+    Math.round(programGSF).toLocaleString() + ' sf program area';
+  drawElevation(organizedData);
+  saveProgramData();
+  updateFloatingNext();
+}
+
+document.getElementById('organizeBtn').addEventListener('click', buildMassing);
+
+var ghostBtn = document.getElementById('ghostBlockBtn');
+if(ghostBtn){
+  ghostBtn.addEventListener('click', function(){
+    ghostBlockEnabled = !ghostBlockEnabled;
+    ghostBtn.classList.toggle('active', ghostBlockEnabled);
+    ghostBtn.textContent = ghostBlockEnabled ? 'Hide Program Mass' : 'Form Program Mass';
+    if(organizedData) renderMassing3D(organizedData);
+  });
+}
+document.getElementById('nextProgramBtn').addEventListener('click', buildMassing);
+document.getElementById('nextProgramBtnFloat').addEventListener('click', buildMassing);
+
+document.getElementById('compactSlider').addEventListener('input', function(){
+  if(organizedData) buildMassing();
+});
+
+function drawElevation(data){
+  var el = document.getElementById('elevationDiagram');
+  el.style.display = 'block';
+
+  var nFloors = data.floors.length;
+  var fH = data.floorHeight;
+  var totalH = data.totalHeight;
+  var sW = data.siteW || 200;
+  var sD = data.siteH || 120;
+
+  drawPlanView('elevPlanSvg', data, sW, sD);
+  drawScaledView('elevFrontSvg', data, sW, data.buildW_ft, totalH, fH, nFloors, 'FRONT', true);
+  drawScaledView('elevSideSvg', data, sD, data.buildD_ft, totalH, fH, nFloors, 'SIDE', false);
+  renderMassing3D(data);
+
+  var outlineData = {
+    nFloors: nFloors,
+    floorHeight: fH,
+    totalHeight: totalH,
+    buildingWidth: data.buildW_ft,
+    buildingDepth: data.buildD_ft,
+    siteWidth: sW,
+    siteDepth: sD,
+    compactness: data.compactness,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem('calvey_program_outline', JSON.stringify(outlineData));
+
+  // Save building outline with floor block details for 03_SUN page
+  var floorOutlines = data.floors.map(function(fl){
+    // Use geometric area (w_ft × d_ft) for accuracy
+    var geoArea = fl.blocks.reduce(function(s,b){ return s + blockGeoArea(b); }, 0);
+    return {
+      blocks: fl.blocks.map(function(b){
+        return {
+          id: b.id, name: b.name, category: b.category,
+          area_sf: blockGeoArea(b) || ((b.w_ft || 10) * (b.d_ft || 10)),
+          widthFraction: (b.w_ft || 10) / Math.max(data.buildW_ft, 1),
+          x_ft: b.x_ft || 0, y_ft: b.y_ft || 0,
+          w_ft: b.w_ft || 10, d_ft: b.d_ft || 10
+        };
+      }),
+      usedArea: geoArea
+    };
+  });
+  var buildingOutline = {
+    nFloors: nFloors,
+    floorHeight: fH,
+    totalHeight: totalH,
+    buildingWidth: data.buildW_ft,
+    buildingDepth: data.buildD_ft,
+    floorOutlines: floorOutlines,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem('calvey_building_outline', JSON.stringify(buildingOutline));
+
+  // Compute total GSF from program block areas to confirm totals are maintained
+  var totalGSF = 0;
+  data.floors.forEach(function(fl){
+    fl.blocks.forEach(function(bl){
+      totalGSF += bl.area_sf;
+    });
+  });
+  var avgPerFloor = nFloors ? totalGSF / nFloors : 0;
+  document.getElementById('elevMetrics').innerHTML =
+    '<div class="mi"><div class="ml">Total Height</div><div class="mv">' + totalH + ' ft</div><div class="ms">' + nFloors + ' floors @ 12 ft</div></div>'+
+    '<div class="mi"><div class="ml">Program Area</div><div class="mv">' + Math.round(totalGSF).toLocaleString() + ' sf</div><div class="ms">total program maintained</div></div>'+
+    '<div class="mi"><div class="ml">Avg Floor</div><div class="mv">' + Math.round(avgPerFloor).toLocaleString() + ' sf</div><div class="ms">per floor</div></div>'+
+    '<div class="mi"><div class="ml">Parcel</div><div class="mv">' + Math.round(sW) + '×' + Math.round(sD) + ' ft</div><div class="ms">program blocks within parcel</div></div>';
+}
+
+function drawPlanView(svgId, data, parcelW, parcelD){
+  var eSvg = document.getElementById(svgId);
+  if(!eSvg) return;
+  var svgW = 420, svgH = 250;
+  eSvg.setAttribute('viewBox', '0 0 ' + svgW + ' ' + svgH);
+  var margin = 22;
+  var scale = Math.min((svgW-2*margin)/parcelW, (svgH-2*margin)/parcelD);
+  // Center of SVG = center of parcel (parcel coords centered at 0,0)
+  var cx = svgW/2, cy = svgH/2;
+
+  var s = '';
+  s += '<rect x="0" y="0" width="100%" height="100%" fill="transparent"/>';
+
+  // Draw parcel boundary
+  if(data.siteFootprintFt && data.siteFootprintFt.length > 2){
+    var fpPts = data.siteFootprintFt.map(function(pt){
+      return (cx + pt[0]*scale) + ',' + (cy - pt[1]*scale);
+    }).join(' ');
+    s += '<polygon points="' + fpPts + '" fill="none" stroke="#c9a959" stroke-width="1.2" stroke-dasharray="5,4"/>';
+  }
+
+  s += '<g>';
+
+  // Draw scaled parcel shape (the effective footprint boundary)
+  if(data.scaledParcelPoly && data.scaledParcelPoly.length > 2){
+    var spPts = data.scaledParcelPoly.map(function(pt){
+      return (cx + pt[0]*scale) + ',' + (cy - pt[1]*scale);
+    }).join(' ');
+    s += '<polygon points="' + spPts + '" fill="none" stroke="rgba(106,156,196,0.6)" stroke-width="0.8" stroke-dasharray="3,3"/>';
+  }
+
+  // Draw program blocks (floor 0) — polygon shapes from partitioning
+  var base = data.floors[0] ? data.floors[0].blocks : [];
+  base.forEach(function(bl){
+    if(bl.poly && bl.poly.length >= 3){
+      var pts = bl.poly.map(function(pt){
+        return (cx + pt[0] * scale) + ',' + (cy - pt[1] * scale);
+      }).join(' ');
+      s += '<polygon points="' + pts + '" fill="' + colorForCategory(bl.category) + '" fill-opacity="0.45" stroke="rgba(255,255,255,0.25)" stroke-width="0.6"/>';
+    } else {
+      // Fallback to bounding-box rectangle
+      var bCx = bl.x_ft + bl.w_ft/2;
+      var bCy = bl.y_ft + bl.d_ft/2;
+      var sx = cx + bCx * scale;
+      var sy = cy - bCy * scale;
+      var w = Math.max(2, bl.w_ft * scale);
+      var h = Math.max(2, bl.d_ft * scale);
+      s += '<rect x="'+(-w/2)+'" y="'+(-h/2)+'" width="'+w+'" height="'+h+'" fill="'+colorForCategory(bl.category)+'" fill-opacity="0.45" stroke="rgba(255,255,255,0.25)" stroke-width="0.6" transform="translate('+sx+','+sy+')"/>';
+    }
+  });
+  s += '</g>';
+  s += '<text x="'+(svgW/2)+'" y="16" text-anchor="middle" fill="var(--text)" font-size="9" font-family="Space Mono,monospace" letter-spacing="0.1em">PLAN</text>';
+  eSvg.innerHTML = s;
+}
+
+function drawScaledView(svgId, data, parcelDim, buildDim, totalH, fH, nFloors, label, isFront){
+  var eSvg = document.getElementById(svgId);
+  if(!eSvg) return;
+  var svgW = 420, svgH = 230;
+  eSvg.setAttribute('viewBox', '0 0 ' + svgW + ' ' + svgH);
+  var margin = 18, ground = svgH - 30;
+  var scale = Math.min((svgW-2*margin)/parcelDim, (ground-margin)/Math.max(totalH,12));
+  var hPx = totalH*scale;
+  var top = ground - hPx;
+  // Center of SVG corresponds to parcel center (0 in ft coords)
+  var centerX = svgW / 2;
+
+  var s = '<rect x="0" y="0" width="100%" height="100%" fill="transparent"/>';
+  s += '<line x1="0" y1="'+ground+'" x2="'+svgW+'" y2="'+ground+'" stroke="var(--border)" stroke-width="1"/>';
+
+  data.floors.forEach(function(fl, fi){
+    fl.blocks.forEach(function(bl){
+      // Blocks are in layout-frame coords (axis-aligned within building)
+      var bCx = bl.x_ft + bl.w_ft/2;
+      var bCy = bl.y_ft + bl.d_ft/2;
+      var wFt = bl.w_ft;
+      var dFt = bl.d_ft;
+      // For front view show x span, for side view show y span
+      var pos = isFront ? bCx : bCy;
+      var dim = isFront ? wFt : dFt;
+      var x = centerX + (pos - dim/2) * scale;
+      var y = ground - (fi + 1) * fH * scale;
+      var w = Math.max(1.4, dim * scale);
+      var h = Math.max(1.4, fH * scale);
+      s += '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+colorForCategory(bl.category)+'" fill-opacity="0.4" stroke="rgba(255,255,255,0.24)" stroke-width="0.7"/>';
+    });
+  });
+
+  s += '<text x="'+(svgW/2)+'" y="16" text-anchor="middle" fill="var(--text)" font-size="9" font-family="Space Mono,monospace" letter-spacing="0.1em">'+label+'</text>';
+  s += '<text x="'+(svgW-margin)+'" y="'+(top+hPx/2)+'" fill="var(--accent)" font-size="12" font-family="Cormorant Garamond,serif" text-anchor="end">'+totalH+' ft</text>';
+  eSvg.innerHTML = s;
+}
+
+function renderMassing3D(data){
+  if(!window.THREE || !data) return;
+  var host = document.getElementById('massing3dView');
+  if(!host) return;
+
+  if(!massing3D){
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060606);
+    var renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    host.appendChild(renderer.domElement);
+
+    var camera = new THREE.PerspectiveCamera(52, 1, 1, 9000);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+    var sun = new THREE.DirectionalLight(0xffffff, 0.75);
+    sun.position.set(260, 420, 320);
+    scene.add(sun);
+
+    var ground = new THREE.GridHelper(1200, 24, 0x2d2d2d, 0x1a1a1a);
+    scene.add(ground);
+
+    massing3D = {
+      host: host,
+      scene: scene,
+      renderer: renderer,
+      camera: camera,
+      model: new THREE.Group(),
+      center: new THREE.Vector3(),
+      yaw: Math.PI * 0.25,
+      pitch: 0.55,
+      distance: 420,
+      panX: 0,
+      panZ: 0,
+      pointers: new Map(),
+      prevPinchDist: null,
+      prevPinchMid: null
+    };
+    scene.add(massing3D.model);
+
+    function resize3D(){
+      if(!massing3D) return;
+      var w = host.clientWidth || 1;
+      var h = host.clientHeight || 1;
+      massing3D.renderer.setSize(w, h, false);
+      massing3D.camera.aspect = w / Math.max(h,1);
+      massing3D.camera.updateProjectionMatrix();
+    }
+
+    function cameraUpdate(){
+      if(!massing3D) return;
+      var st = massing3D;
+      var pitch = clamp(st.pitch, 0.15, 1.45);
+      st.pitch = pitch;
+      st.distance = clamp(st.distance, 80, 2600);
+      var tx = st.center.x + st.panX;
+      var ty = st.center.y;
+      var tz = st.center.z + st.panZ;
+      var cp = Math.cos(pitch), sp = Math.sin(pitch);
+      var cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+      st.camera.position.set(
+        tx + st.distance * cp * cy,
+        ty + st.distance * sp,
+        tz + st.distance * cp * sy
+      );
+      st.camera.lookAt(tx, ty, tz);
+    }
+
+    function onPointerDown(ev){
+      if(!massing3D) return;
+      host.setPointerCapture(ev.pointerId);
+      massing3D.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      massing3D.prevPinchDist = null;
+      massing3D.prevPinchMid = null;
+    }
+
+    function onPointerMove(ev){
+      if(!massing3D || !massing3D.pointers.has(ev.pointerId)) return;
+      ev.preventDefault();
+      massing3D.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      var pts = Array.from(massing3D.pointers.values());
+      if(pts.length === 1){
+        var prev = massing3D.prevSingle || pts[0];
+        var dx = pts[0].x - prev.x;
+        var dy = pts[0].y - prev.y;
+        massing3D.yaw -= dx * 0.008;
+        massing3D.pitch += dy * 0.006;
+        massing3D.prevSingle = {x:pts[0].x, y:pts[0].y};
+      }else if(pts.length >= 2){
+        var p0 = pts[0], p1 = pts[1];
+        var dist = Math.hypot(p1.x-p0.x, p1.y-p0.y);
+        var mid = {x:(p0.x+p1.x)/2, y:(p0.y+p1.y)/2};
+        if(massing3D.prevPinchDist){
+          var ratio = massing3D.prevPinchDist / Math.max(dist,1);
+          massing3D.distance = clamp(massing3D.distance * ratio, 80, 2600);
+        }
+        if(massing3D.prevPinchMid){
+          var mdx = mid.x - massing3D.prevPinchMid.x;
+          var mdy = mid.y - massing3D.prevPinchMid.y;
+          var panScale = massing3D.distance * 0.0018;
+          massing3D.panX -= mdx * panScale;
+          massing3D.panZ += mdy * panScale;
+        }
+        massing3D.prevPinchDist = dist;
+        massing3D.prevPinchMid = mid;
+      }
+      cameraUpdate();
+    }
+
+    function onPointerUp(ev){
+      if(!massing3D) return;
+      massing3D.pointers.delete(ev.pointerId);
+      massing3D.prevSingle = null;
+      massing3D.prevPinchDist = null;
+      massing3D.prevPinchMid = null;
+      try{ host.releasePointerCapture(ev.pointerId); }catch(_e){}
+    }
+
+    host.style.touchAction = 'none';
+    host.addEventListener('pointerdown', onPointerDown);
+    host.addEventListener('pointermove', onPointerMove, {passive:false});
+    host.addEventListener('pointerup', onPointerUp);
+    host.addEventListener('pointercancel', onPointerUp);
+    host.addEventListener('wheel', function(ev){
+      if(!massing3D) return;
+      ev.preventDefault();
+      massing3D.distance = clamp(massing3D.distance * Math.exp(ev.deltaY * 0.0011), 80, 2600);
+      cameraUpdate();
+    }, {passive:false});
+    window.addEventListener('resize', function(){ resize3D(); cameraUpdate(); });
+
+    (function loop(){
+      if(!massing3D) return;
+      massing3D.renderer.render(massing3D.scene, massing3D.camera);
+      requestAnimationFrame(loop);
+    })();
+
+    resize3D();
+    cameraUpdate();
+  }
+
+  var model = massing3D.model;
+  // Dispose all children recursively (including sub-groups)
+  function disposeChildren(group){
+    while(group.children.length){
+      var child = group.children.pop();
+      if(child.children && child.children.length) disposeChildren(child);
+      if(child.geometry) child.geometry.dispose();
+      if(child.material){
+        if(Array.isArray(child.material)) child.material.forEach(function(m){ m.dispose(); });
+        else child.material.dispose();
+      }
+    }
+  }
+  disposeChildren(model);
+  model.rotation.y = 0;
+
+  var bw = data.buildW_ft;
+  var bd = data.buildD_ft;
+  var fh = data.floorHeight;
+  var totalH = data.totalHeight;
+
+  var building = new THREE.Group();
+
+  // Render program blocks as extruded polygon shapes
+  data.floors.forEach(function(fl, fi){
+    fl.blocks.forEach(function(bl){
+      var geo;
+      if(bl.poly && bl.poly.length >= 3){
+        // Create THREE.Shape from polygon vertices (XY plane)
+        var shape = new THREE.Shape();
+        shape.moveTo(bl.poly[0][0], bl.poly[0][1]);
+        for(var vi = 1; vi < bl.poly.length; vi++){
+          shape.lineTo(bl.poly[vi][0], bl.poly[vi][1]);
+        }
+        shape.closePath();
+        geo = new THREE.ExtrudeGeometry(shape, { depth: fh, bevelEnabled: false });
+        // Rotate so extrusion goes up (Y+) instead of Z+
+        // After rotateX(-PI/2): shape X stays X, shape Y → -Z, extrude Z → Y
+        geo.rotateX(-Math.PI / 2);
+      } else {
+        // Fallback to box
+        geo = new THREE.BoxGeometry(bl.w_ft, fh, bl.d_ft);
+        geo.translate(bl.x_ft + bl.w_ft / 2, fh / 2, -(bl.y_ft + bl.d_ft / 2));
+      }
+      var mat = new THREE.MeshStandardMaterial({
+        color: colorHex(bl.category),
+        roughness: 0.72,
+        metalness: 0.04,
+        transparent: true,
+        opacity: 0.94
+      });
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(0, fi * fh, 0);
+      building.add(mesh);
+
+      var edge = new THREE.LineSegments(
+        new THREE.EdgesGeometry(geo),
+        new THREE.LineBasicMaterial({color:0x0f0f0f, transparent:true, opacity:0.95})
+      );
+      mesh.add(edge);
+    });
+  });
+
+  // Scaled parcel boundary (effective footprint) — rotates with the building
+  if(data.scaledParcelPoly && data.scaledParcelPoly.length > 2){
+    var spPts = data.scaledParcelPoly.map(function(pt){
+      return new THREE.Vector3(pt[0], 0.35, -pt[1]);
+    });
+    spPts.push(new THREE.Vector3(data.scaledParcelPoly[0][0], 0.35, -data.scaledParcelPoly[0][1]));
+    var spGeo = new THREE.BufferGeometry().setFromPoints(spPts);
+    building.add(new THREE.Line(spGeo, new THREE.LineBasicMaterial({color:0x6a9cc4, transparent:true, opacity:0.6})));
+  }
+
+  model.add(building);
+
+  // Site/parcel boundary — stays in world coords (no rotation)
+  if(data.siteFootprintFt && data.siteFootprintFt.length > 2){
+    var footprintPts = data.siteFootprintFt.map(function(pt){
+      return new THREE.Vector3(pt[0], 0.25, -pt[1]);
+    });
+    footprintPts.push(new THREE.Vector3(data.siteFootprintFt[0][0], 0.25, -data.siteFootprintFt[0][1]));
+    var fpGeo = new THREE.BufferGeometry().setFromPoints(footprintPts);
+    model.add(new THREE.Line(fpGeo, new THREE.LineBasicMaterial({color:0xc9a959, transparent:true, opacity:0.85})));
+  }
+
+  var radius = Math.max(140, Math.hypot(bw, bd, totalH) * 0.9);
+  massing3D.center.set(0, totalH*0.5, 0);
+  massing3D.distance = clamp(radius * 1.3, 120, 2200);
+  massing3D.panX = 0;
+  massing3D.panZ = 0;
+
+  var pitch = clamp(massing3D.pitch, 0.15, 1.45);
+  massing3D.pitch = pitch;
+  var tx = massing3D.center.x + massing3D.panX;
+  var ty = massing3D.center.y;
+  var tz = massing3D.center.z + massing3D.panZ;
+  var cp = Math.cos(pitch), sp = Math.sin(pitch);
+  var cy = Math.cos(massing3D.yaw), sy = Math.sin(massing3D.yaw);
+  massing3D.camera.position.set(
+    tx + massing3D.distance * cp * cy,
+    ty + massing3D.distance * sp,
+    tz + massing3D.distance * cp * sy
+  );
+  massing3D.camera.lookAt(tx, ty, tz);
+}
+
+function saveProgramData(){
+  try{
+    if(!organizedData) return;
+    var compactness = parseFloat(document.getElementById('compactSlider').value) || 0;
+    var programData = {
+      buildingType: currentDb ? currentDb.building_type : 'unknown',
+      gsf: parseInt(elGSF.value, 10),
+      floors: organizedData.floors.map(function(f){
+        var geoArea = f.blocks.reduce(function(s,b){ return s + blockGeoArea(b); }, 0);
+        return {
+          blocks: f.blocks.map(function(b){
+            return {id: b.id, name: b.name, category: b.category, area_sf: blockGeoArea(b)};
+          }),
+          usedArea: geoArea
+        };
+      }),
+      totalHeight: organizedData.totalHeight,
+      floorHeight: organizedData.floorHeight,
+      nFloors: organizedData.floors.length,
+      buildingWidth: organizedData.buildW_ft,
+      buildingDepth: organizedData.buildD_ft,
+      siteWidth: organizedData.siteW,
+      siteDepth: organizedData.siteH,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('calvey_program_data', JSON.stringify(programData));
+  }catch(e){ console.warn('Program save failed:', e); }
+}
+
+/* =========================
+   FLOATING NEXT BUTTON
+========================= */
+function updateFloatingNext(){
+  var bar = document.getElementById('nextFloatBar');
+  var inPage = document.getElementById('nextBtnInPage');
+  if(!bar || !inPage) return;
+
+  // Show floating button only when organize has been run
+  var ready = !!organizedData;
+  if(!ready){ bar.classList.remove('visible'); return; }
+
+  // Update button text and behavior once massing is ready
+  var floatBtn = document.getElementById('nextProgramBtnFloat');
+  var inPageBtn = document.getElementById('nextProgramBtn');
+  if(floatBtn && floatBtn.dataset.mode !== 'nav'){
+    floatBtn.textContent = 'Next: 03 Sun \u2192';
+    floatBtn.dataset.mode = 'nav';
+    floatBtn.onclick = function(){ window.location.href = '03_SUN.html'; };
+  }
+  if(inPageBtn && inPageBtn.dataset.mode !== 'nav'){
+    inPageBtn.textContent = 'Next: 03 Sun \u2192';
+    inPageBtn.dataset.mode = 'nav';
+    inPageBtn.onclick = function(){ window.location.href = '03_SUN.html'; };
+  }
+
+  // Check if the in-page button is scrolled out of view (below viewport)
+  var rect = inPage.getBoundingClientRect();
+  var inPageVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+  if(!inPageVisible){
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+window.addEventListener('scroll', updateFloatingNext);
+window.addEventListener('resize', updateFloatingNext);
+</script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Community College Academic Building", "location": "Various US", "approx_sf": 50000, "notes": "2-3 stories; general classrooms; faculty offices; student lounge"},
+    "medium": {"name": "Boston University Center for Computing & Data Sciences", "location": "Boston, MA", "approx_sf": 160000, "notes": "19 stories; STEM classrooms; computing labs; faculty suites; green roof"},
+    "large": {"name": "Cornell Tech Bloomberg Center", "location": "New York, NY", "approx_sf": 300000, "notes": "Net-zero academic building; open studios; maker spaces; event space"}
+  },
+  "building_type": "Higher Education",
+  "subtypes": [
+    {
+      "id": "HIED_ACAD",
+      "name": "Academic Building (General)",
+      "gross_sf_typical": [
+        60000,
+        300000
+      ],
+      "efficiency_ratio_target_range": [
+        0.7,
+        0.82
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "HIED_STEM",
+      "name": "STEM / Research Academic",
+      "gross_sf_typical": [
+        80000,
+        450000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.78
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "HIED_STUDENT",
+      "name": "Student Center",
+      "gross_sf_typical": [
+        40000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.82
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "HE_ENTRY",
+      "name": "Main Entry + Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        600,
+        5000
+      ],
+      "percent_of_gross_range": [
+        0.004,
+        0.03
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_COMMONS",
+          "weight": 0.8,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "HE_ADMIN",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HE_VERTICAL",
+          "weight": 0.8,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_COMMONS",
+      "name": "Commons / Collaboration",
+      "category": "Learning Commons",
+      "nsf_range": [
+        1500,
+        15000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Crossroads space; connects classrooms, lounge, dining"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HE_CLASS",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HE_LIBRARY",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HE_CAFE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_VERTICAL",
+      "name": "Elevator Lobby + Stairs",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        300,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.003,
+        0.02
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CORRIDOR",
+          "weight": 0.8,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_CORRIDOR",
+      "name": "Corridors / Circulation",
+      "category": "Circulation",
+      "nsf_range": [
+        2000,
+        25000
+      ],
+      "percent_of_gross_range": [
+        0.1,
+        0.22
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CLASS",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "HE_SEMINAR",
+          "weight": 0.7,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_CLASS",
+      "name": "Classroom (Typical)",
+      "category": "Instruction",
+      "nsf_range": [
+        750,
+        1400
+      ],
+      "percent_of_gross_range": [
+        0.1,
+        0.3
+      ],
+      "occupancy_load": "25-60",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CORRIDOR",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_SEMINAR",
+      "name": "Seminar Room",
+      "category": "Instruction",
+      "nsf_range": [
+        300,
+        700
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.1
+      ],
+      "occupancy_load": "10-30",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_FACULTY",
+      "name": "Faculty Offices",
+      "category": "Administration/Academic",
+      "nsf_range": [
+        800,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.05,
+        0.2
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CONF",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_CONF",
+      "name": "Meeting / Conference",
+      "category": "Support",
+      "nsf_range": [
+        200,
+        900
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.05
+      ],
+      "occupancy_load": "6-20",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_FACULTY",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_LIBRARY",
+      "name": "Library / Study",
+      "category": "Learning",
+      "nsf_range": [
+        3000,
+        40000
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.2
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_COMMONS",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_CAFE",
+      "name": "Cafe / Dining (Student)",
+      "category": "Food Service",
+      "nsf_range": [
+        1000,
+        10000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_COMMONS",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HE_KITCHEN",
+          "weight": 0.8,
+          "relationship": "Near/Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_KITCHEN",
+      "name": "Kitchen Support (if needed)",
+      "category": "Food Service",
+      "nsf_range": [
+        600,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CAFE",
+          "weight": 0.8,
+          "relationship": "Near/Direct"
+        }
+      ]
+    },
+    {
+      "id": "HE_ADMIN",
+      "name": "Admin Suite",
+      "category": "Administration",
+      "nsf_range": [
+        400,
+        2500
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Staff/Semi-Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_ENTRY",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_RESTROOM",
+      "name": "Restrooms (Banks)",
+      "category": "Support",
+      "nsf_range": [
+        300,
+        2500
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HE_CORRIDOR",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HE_MECH",
+      "name": "Main Mechanical",
+      "category": "MEP",
+      "nsf_range": [
+        1000,
+        9000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "HE_ENTRY",
+      "to": "HE_COMMONS",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_ENTRY",
+      "to": "HE_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_ENTRY",
+      "to": "HE_VERTICAL",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_COMMONS",
+      "to": "HE_CLASS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_COMMONS",
+      "to": "HE_LIBRARY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_COMMONS",
+      "to": "HE_CAFE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_VERTICAL",
+      "to": "HE_CORRIDOR",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_CORRIDOR",
+      "to": "HE_CLASS",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_CORRIDOR",
+      "to": "HE_SEMINAR",
+      "weight": 3,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_CLASS",
+      "to": "HE_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_SEMINAR",
+      "to": "HE_CORRIDOR",
+      "weight": 3,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_FACULTY",
+      "to": "HE_CONF",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_CONF",
+      "to": "HE_FACULTY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_LIBRARY",
+      "to": "HE_COMMONS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_CAFE",
+      "to": "HE_COMMONS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_CAFE",
+      "to": "HE_KITCHEN",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_KITCHEN",
+      "to": "HE_CAFE",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HE_ADMIN",
+      "to": "HE_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HE_RESTROOM",
+      "to": "HE_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "HIGHERED__DEFAULT__US-NATIONAL",
+    "cost": "HIGHERED__DEFAULT__US-NE",
+    "parking": "HIGHERED__DEFAULT__BOSTON-MA"
+  }
+}

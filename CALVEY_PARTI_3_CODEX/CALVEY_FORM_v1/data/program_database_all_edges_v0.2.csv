@@ -1,0 +1,478 @@
+building_type,from,to,weight,relationship
+Civic / Government,CIV_AV,CIV_MEETING,3,should_adjoin
+Civic / Government,CIV_BACK_OFFICE,CIV_SERVICE,3,should_adjoin
+Civic / Government,CIV_CONF,CIV_BACK_OFFICE,3,should_adjoin
+Civic / Government,CIV_ENTRY,CIV_LOBBY,5,must_adjoin
+Civic / Government,CIV_ENTRY,CIV_SECURITY,4,must_adjoin
+Civic / Government,CIV_LOBBY,CIV_MEETING,2,should_adjoin
+Civic / Government,CIV_LOBBY,CIV_SERVICE,3,should_adjoin
+Civic / Government,CIV_MEETING,CIV_AV,3,should_adjoin
+Civic / Government,CIV_MEETING,CIV_LOBBY,2,should_adjoin
+Civic / Government,CIV_RESTROOM,CIV_LOBBY,2,should_adjoin
+Civic / Government,CIV_SECURITY,CIV_ENTRY,4,must_adjoin
+Civic / Government,CIV_SERVICE,CIV_BACK_OFFICE,3,should_adjoin
+Civic / Government,CIV_SERVICE,CIV_LOBBY,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_CLEAN,HC_EXAM,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_ENTRY,HC_REG,5,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_ENTRY,HC_WAIT,5,must_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_EXAM,HC_CLEAN,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_EXAM,HC_NURSE,4,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_EXAM,HC_SOILED,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_IMAGING,HC_PROC,2,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_IMAGING,HC_WAIT,2,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_MED,HC_NURSE,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_NURSE,HC_EXAM,4,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_NURSE,HC_MED,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_PROC,HC_NURSE,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_REG,HC_ENTRY,5,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_REG,HC_WAIT,5,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_SOILED,HC_EXAM,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_TOILET_PAT,HC_EXAM,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_TOILET_PUBLIC,HC_WAIT,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_WAIT,HC_EXAM,3,should_adjoin
+Healthcare (Outpatient / Inpatient mix),HC_WAIT,HC_TOILET_PUBLIC,3,should_adjoin
+Higher Education,HE_ADMIN,HE_ENTRY,2,should_adjoin
+Higher Education,HE_CAFE,HE_COMMONS,2,should_adjoin
+Higher Education,HE_CAFE,HE_KITCHEN,4,must_adjoin
+Higher Education,HE_CLASS,HE_CORRIDOR,5,must_adjoin
+Higher Education,HE_COMMONS,HE_CAFE,2,should_adjoin
+Higher Education,HE_COMMONS,HE_CLASS,3,should_adjoin
+Higher Education,HE_COMMONS,HE_LIBRARY,3,should_adjoin
+Higher Education,HE_CONF,HE_FACULTY,2,should_adjoin
+Higher Education,HE_CORRIDOR,HE_CLASS,5,must_adjoin
+Higher Education,HE_CORRIDOR,HE_SEMINAR,3,must_adjoin
+Higher Education,HE_ENTRY,HE_ADMIN,2,should_adjoin
+Higher Education,HE_ENTRY,HE_COMMONS,4,must_adjoin
+Higher Education,HE_ENTRY,HE_VERTICAL,4,should_adjoin
+Higher Education,HE_FACULTY,HE_CONF,2,should_adjoin
+Higher Education,HE_KITCHEN,HE_CAFE,4,must_adjoin
+Higher Education,HE_LIBRARY,HE_COMMONS,3,should_adjoin
+Higher Education,HE_RESTROOM,HE_CORRIDOR,3,should_adjoin
+Higher Education,HE_SEMINAR,HE_CORRIDOR,3,must_adjoin
+Higher Education,HE_VERTICAL,HE_CORRIDOR,4,must_adjoin
+Hospitality (Hotel),HOT_CORRIDOR,HOT_ELEV_LOBBY,5,must_adjoin
+Hospitality (Hotel),HOT_CORRIDOR,HOT_GUESTROOM,5,must_adjoin
+Hospitality (Hotel),HOT_ELEV_LOBBY,HOT_CORRIDOR,5,must_adjoin
+Hospitality (Hotel),HOT_FITNESS,HOT_LOBBY,1,optional
+Hospitality (Hotel),HOT_FRONTDESK,HOT_LOBBY,5,must_adjoin
+Hospitality (Hotel),HOT_GUESTROOM,HOT_CORRIDOR,5,must_adjoin
+Hospitality (Hotel),HOT_HOUSEKEEP,HOT_CORRIDOR,2,should_adjoin
+Hospitality (Hotel),HOT_HOUSEKEEP,HOT_LAUNDRY,2,optional
+Hospitality (Hotel),HOT_KITCHEN,HOT_LOADING,3,should_adjoin
+Hospitality (Hotel),HOT_KITCHEN,HOT_RESTAURANT,5,must_adjoin
+Hospitality (Hotel),HOT_LAUNDRY,HOT_LOADING,3,should_adjoin
+Hospitality (Hotel),HOT_LOADING,HOT_KITCHEN,3,should_adjoin
+Hospitality (Hotel),HOT_LOADING,HOT_LAUNDRY,3,should_adjoin
+Hospitality (Hotel),HOT_LOBBY,HOT_ELEV_LOBBY,4,should_adjoin
+Hospitality (Hotel),HOT_LOBBY,HOT_FRONTDESK,5,must_adjoin
+Hospitality (Hotel),HOT_LOBBY,HOT_LOUNGE,3,should_adjoin
+Hospitality (Hotel),HOT_LOUNGE,HOT_LOBBY,3,should_adjoin
+Hospitality (Hotel),HOT_LOUNGE,HOT_RESTAURANT,2,optional
+Hospitality (Hotel),HOT_MEETING,HOT_LOBBY,1,optional
+Hospitality (Hotel),HOT_RESTAURANT,HOT_KITCHEN,5,must_adjoin
+K-12 School,K12_ADMIN,K12_CONF,2,should_adjoin
+K-12 School,K12_ADMIN,K12_ENTRY,4,should_adjoin
+K-12 School,K12_CAFE,K12_KITCHEN,5,must_adjoin
+K-12 School,K12_CAFE,K12_LOBBY,3,should_adjoin
+K-12 School,K12_CLASS,K12_CORRIDOR,5,must_adjoin
+K-12 School,K12_CLASS,K12_SMALL_GROUP,2,should_adjoin
+K-12 School,K12_CLASS,K12_TOILETS,2,should_adjoin
+K-12 School,K12_CONF,K12_ADMIN,2,should_adjoin
+K-12 School,K12_CORRIDOR,K12_CLASS,5,must_adjoin
+K-12 School,K12_CORRIDOR,K12_TOILETS,3,should_adjoin
+K-12 School,K12_ENTRY,K12_ADMIN,4,should_adjoin
+K-12 School,K12_ENTRY,K12_HEALTH,2,should_adjoin
+K-12 School,K12_ENTRY,K12_LOBBY,4,must_adjoin
+K-12 School,K12_GYM,K12_LOCKERS,3,should_adjoin
+K-12 School,K12_GYM,K12_STAGE,1,optional
+K-12 School,K12_HEALTH,K12_ADMIN,2,should_adjoin
+K-12 School,K12_HEALTH,K12_ENTRY,2,should_adjoin
+K-12 School,K12_KITCHEN,K12_CAFE,5,must_adjoin
+K-12 School,K12_KITCHEN,K12_LOADING,3,should_adjoin
+K-12 School,K12_LIBRARY,K12_LOBBY,2,should_adjoin
+K-12 School,K12_LOADING,K12_KITCHEN,3,should_adjoin
+K-12 School,K12_LOBBY,K12_CAFE,3,should_adjoin
+K-12 School,K12_LOBBY,K12_GYM,2,should_adjoin
+K-12 School,K12_LOBBY,K12_LIBRARY,2,should_adjoin
+K-12 School,K12_LOCKERS,K12_GYM,3,should_adjoin
+K-12 School,K12_SMALL_GROUP,K12_CLASS,2,should_adjoin
+K-12 School,K12_STAGE,K12_LOBBY,1,optional
+K-12 School,K12_TOILETS,K12_CORRIDOR,3,should_adjoin
+Laboratory,LAB_ADMIN,LAB_ENTRY,2,should_adjoin
+Laboratory,LAB_CORRIDOR,LAB_MODULE,5,must_adjoin
+Laboratory,LAB_CORRIDOR,LAB_SUPPORT,3,should_adjoin
+Laboratory,LAB_ENTRY,LAB_ADMIN,2,should_adjoin
+Laboratory,LAB_ENTRY,LAB_CORRIDOR,4,should_adjoin
+Laboratory,LAB_LOADING,LAB_WASTE,3,should_adjoin
+Laboratory,LAB_MODULE,LAB_OFFICE,2,should_adjoin
+Laboratory,LAB_MODULE,LAB_SUPPORT,4,should_adjoin
+Laboratory,LAB_OFFICE,LAB_MODULE,2,should_adjoin
+Laboratory,LAB_SUPPORT,LAB_MODULE,4,should_adjoin
+Laboratory,LAB_SUPPORT,LAB_WASTE,3,should_adjoin
+Laboratory,LAB_WASTE,LAB_LOADING,3,should_adjoin
+Laboratory,LAB_WASTE,LAB_SUPPORT,3,should_adjoin
+Multifamily Residential,AMENITY_KITCHEN,LOUNGE,3,should_adjoin
+Multifamily Residential,BATH_UNIT,BEDROOM_UNIT,3,should_adjoin
+Multifamily Residential,BATH_UNIT,KITCHEN_UNIT,2,should_adjoin
+Multifamily Residential,BEDROOM_UNIT,BATH_UNIT,3,should_adjoin
+Multifamily Residential,BIKE_STORAGE,ELEV_LOBBY,2,should_adjoin
+Multifamily Residential,BIKE_STORAGE,PARKING_GARAGE,2,should_adjoin
+Multifamily Residential,BIKE_STORAGE,SERVICE_ENTRY,1,optional
+Multifamily Residential,CONF_SMALL,MGMT_OFFICE,2,optional
+Multifamily Residential,CORRIDOR,ELEV_LOBBY,5,must_adjoin
+Multifamily Residential,CORRIDOR,JANITOR_CLOSET,2,should_adjoin
+Multifamily Residential,CORRIDOR,MEP_RISER,3,should_adjoin
+Multifamily Residential,CORRIDOR,TRASH_CHUTE,2,optional
+Multifamily Residential,CORRIDOR,UNIT_ENTRY,5,must_adjoin
+Multifamily Residential,CO_WORK,LOBBY_MAIN,2,optional
+Multifamily Residential,CO_WORK,LOUNGE,2,optional
+Multifamily Residential,ELEC_CLOSET,CORRIDOR,1,should_adjoin
+Multifamily Residential,ELEC_CLOSET,MEP_RISER,3,should_adjoin
+Multifamily Residential,ELEV_LOBBY,CORRIDOR,5,must_adjoin
+Multifamily Residential,ELEV_LOBBY,MEP_RISER,2,should_adjoin
+Multifamily Residential,ELEV_LOBBY,STAIR_RES,3,should_adjoin
+Multifamily Residential,ELEV_LOBBY,TRASH_CHUTE,1,optional
+Multifamily Residential,FITNESS,LOCKERS,1,optional
+Multifamily Residential,FITNESS,LOUNGE,2,optional
+Multifamily Residential,FITNESS,TOILET_AMENITY,1,optional
+Multifamily Residential,FUEL_STORAGE,GENERATOR,3,optional
+Multifamily Residential,GENERATOR,FUEL_STORAGE,3,optional
+Multifamily Residential,GENERATOR,MECH_MAIN,2,should_adjoin
+Multifamily Residential,IT_MDF,MGMT_OFFICE,1,optional
+Multifamily Residential,IT_MDF,TELCOM_CLOSET,2,should_adjoin
+Multifamily Residential,JANITOR_CLOSET,CORRIDOR,2,should_adjoin
+Multifamily Residential,JANITOR_CLOSET,SERVICE_CORRIDOR,2,optional
+Multifamily Residential,KITCHEN_UNIT,BATH_UNIT,2,should_adjoin
+Multifamily Residential,KITCHEN_UNIT,LIVING_UNIT,5,must_adjoin
+Multifamily Residential,LAUNDRY_COMMON,CORRIDOR,3,should_adjoin
+Multifamily Residential,LAUNDRY_COMMON,ELEV_LOBBY,2,optional
+Multifamily Residential,LIVING_UNIT,BEDROOM_UNIT,3,should_adjoin
+Multifamily Residential,LIVING_UNIT,KITCHEN_UNIT,5,must_adjoin
+Multifamily Residential,LOADING_DOCK,SERVICE_ENTRY,4,must_adjoin
+Multifamily Residential,LOADING_DOCK,STORAGE_BULK,3,should_adjoin
+Multifamily Residential,LOADING_DOCK,TRASH_ROOM,4,should_adjoin
+Multifamily Residential,LOBBY_MAIN,ELEV_LOBBY,5,must_adjoin
+Multifamily Residential,LOBBY_MAIN,MAIL_PACKAGE,5,should_adjoin
+Multifamily Residential,LOBBY_MAIN,SECURITY_CONCIERGE,3,should_adjoin
+Multifamily Residential,LOBBY_MAIN,STAIR_PUBLIC,3,should_adjoin
+Multifamily Residential,LOBBY_MAIN,TOILET_PUBLIC,2,should_adjoin
+Multifamily Residential,LOBBY_MAIN,VESTIBULE,5,must_adjoin
+Multifamily Residential,LOCKERS,FITNESS,1,optional
+Multifamily Residential,LOUNGE,AMENITY_KITCHEN,3,optional
+Multifamily Residential,LOUNGE,FITNESS,2,optional
+Multifamily Residential,LOUNGE,LOBBY_MAIN,3,should_adjoin
+Multifamily Residential,LOUNGE,OUTDOOR_TERRACE,3,optional
+Multifamily Residential,MAIL_PACKAGE,LOBBY_MAIN,5,should_adjoin
+Multifamily Residential,MAIL_PACKAGE,MGMT_OFFICE,2,should_adjoin
+Multifamily Residential,MAIL_PACKAGE,SECURITY_CONCIERGE,3,should_adjoin
+Multifamily Residential,MECH_MAIN,LOADING_DOCK,2,optional
+Multifamily Residential,MECH_MAIN,MECH_SUB,2,optional
+Multifamily Residential,MECH_MAIN,SERVICE_ENTRY,3,should_adjoin
+Multifamily Residential,MECH_SUB,MEP_RISER,3,should_adjoin
+Multifamily Residential,MEP_RISER,CORRIDOR,3,should_adjoin
+Multifamily Residential,MEP_RISER,ELEC_CLOSET,3,should_adjoin
+Multifamily Residential,MEP_RISER,ELEV_LOBBY,2,should_adjoin
+Multifamily Residential,MEP_RISER,TELCOM_CLOSET,3,should_adjoin
+Multifamily Residential,MGMT_OFFICE,CONF_SMALL,2,optional
+Multifamily Residential,MGMT_OFFICE,LOBBY_MAIN,2,should_adjoin
+Multifamily Residential,OUTDOOR_TERRACE,LOUNGE,3,optional
+Multifamily Residential,PARKING_GARAGE,BIKE_STORAGE,2,should_adjoin
+Multifamily Residential,PARKING_GARAGE,ELEV_LOBBY,3,should_adjoin
+Multifamily Residential,PARKING_GARAGE,PET_WASH,1,optional
+Multifamily Residential,PET_WASH,BIKE_STORAGE,1,optional
+Multifamily Residential,PET_WASH,PARKING_GARAGE,1,optional
+Multifamily Residential,SECURITY_CONCIERGE,LOBBY_MAIN,3,should_adjoin
+Multifamily Residential,SECURITY_CONCIERGE,MAIL_PACKAGE,3,should_adjoin
+Multifamily Residential,SERVICE_CORRIDOR,MECH_MAIN,2,should_adjoin
+Multifamily Residential,SERVICE_CORRIDOR,SERVICE_ENTRY,3,must_adjoin
+Multifamily Residential,SERVICE_CORRIDOR,TRASH_ROOM,3,should_adjoin
+Multifamily Residential,SERVICE_ENTRY,LOADING_DOCK,4,must_adjoin
+Multifamily Residential,SERVICE_ENTRY,MECH_MAIN,3,should_adjoin
+Multifamily Residential,SERVICE_ENTRY,SERVICE_CORRIDOR,3,must_adjoin
+Multifamily Residential,SPRINKLER_RISER,MECH_MAIN,2,should_adjoin
+Multifamily Residential,SPRINKLER_RISER,SERVICE_ENTRY,3,should_adjoin
+Multifamily Residential,STAFF_BREAK,MGMT_OFFICE,1,optional
+Multifamily Residential,STAFF_BREAK,SERVICE_CORRIDOR,1,optional
+Multifamily Residential,STAIR_PUBLIC,LOBBY_MAIN,3,should_adjoin
+Multifamily Residential,STAIR_RES,CORRIDOR,3,should_adjoin
+Multifamily Residential,STAIR_RES,ELEV_LOBBY,3,should_adjoin
+Multifamily Residential,STORAGE_BULK,LOADING_DOCK,3,should_adjoin
+Multifamily Residential,STORAGE_BULK,SERVICE_CORRIDOR,2,should_adjoin
+Multifamily Residential,STORAGE_RES,ELEV_LOBBY,1,optional
+Multifamily Residential,STORAGE_RES,PARKING_GARAGE,1,optional
+Multifamily Residential,STROLLER_STORAGE,ELEV_LOBBY,2,optional
+Multifamily Residential,STROLLER_STORAGE,LOBBY_MAIN,2,optional
+Multifamily Residential,TELCOM_CLOSET,MEP_RISER,3,should_adjoin
+Multifamily Residential,TOILET_AMENITY,FITNESS,1,optional
+Multifamily Residential,TOILET_AMENITY,LOUNGE,1,optional
+Multifamily Residential,TOILET_PUBLIC,LOBBY_MAIN,2,should_adjoin
+Multifamily Residential,TRASH_CHUTE,CORRIDOR,2,should_adjoin
+Multifamily Residential,TRASH_CHUTE,ELEV_LOBBY,1,optional
+Multifamily Residential,TRASH_CHUTE,TRASH_ROOM,2,optional
+Multifamily Residential,TRASH_ROOM,LOADING_DOCK,4,must_adjoin
+Multifamily Residential,TRASH_ROOM,SERVICE_CORRIDOR,3,should_adjoin
+Multifamily Residential,TRASH_ROOM,TRASH_CHUTE,2,optional
+Multifamily Residential,VESTIBULE,LOBBY_MAIN,5,must_adjoin
+Multifamily Residential,VESTIBULE,PARKING_GARAGE,1,optional
+Multifamily Residential,VESTIBULE,TRASH_ROOM,1,avoid
+Office,OFF_AV,OFF_CONF_LARGE,3,should_adjoin
+Office,OFF_CAFE,OFF_LOBBY,2,optional
+Office,OFF_CAFE,OFF_PANTRY,1,optional
+Office,OFF_CONF_LARGE,OFF_AV,3,should_adjoin
+Office,OFF_CONF_LARGE,OFF_PANTRY,2,should_adjoin
+Office,OFF_CONF_SMALL,OFF_CORRIDOR,3,should_adjoin
+Office,OFF_CONF_SMALL,OFF_OPEN_WORK,3,should_adjoin
+Office,OFF_CORE_ELEC,OFF_ELEV_LOBBY,3,should_adjoin
+Office,OFF_CORE_MECH,OFF_ELEV_LOBBY,3,should_adjoin
+Office,OFF_CORRIDOR,OFF_CONF_SMALL,3,should_adjoin
+Office,OFF_CORRIDOR,OFF_ELEV_LOBBY,4,must_adjoin
+Office,OFF_CORRIDOR,OFF_OPEN_WORK,5,must_adjoin
+Office,OFF_CORRIDOR,OFF_PANTRY,3,should_adjoin
+Office,OFF_ELEV_LOBBY,OFF_CORE_ELEC,3,should_adjoin
+Office,OFF_ELEV_LOBBY,OFF_CORE_MECH,3,should_adjoin
+Office,OFF_ELEV_LOBBY,OFF_CORRIDOR,4,must_adjoin
+Office,OFF_FOCUS,OFF_OPEN_WORK,3,should_adjoin
+Office,OFF_LOBBY,OFF_CAFE,2,optional
+Office,OFF_LOBBY,OFF_ELEV_LOBBY,5,must_adjoin
+Office,OFF_LOBBY,OFF_SECURITY,4,should_adjoin
+Office,OFF_MOTHER,OFF_RESTROOM,2,should_adjoin
+Office,OFF_OPEN_WORK,OFF_CONF_SMALL,3,should_adjoin
+Office,OFF_OPEN_WORK,OFF_FOCUS,3,should_adjoin
+Office,OFF_OPEN_WORK,OFF_PANTRY,2,should_adjoin
+Office,OFF_PANTRY,OFF_OPEN_WORK,2,should_adjoin
+Office,OFF_PANTRY,OFF_RESTROOM,3,should_adjoin
+Office,OFF_RESTROOM,OFF_CORRIDOR,3,should_adjoin
+Office,OFF_RESTROOM,OFF_PANTRY,3,should_adjoin
+Office,OFF_SECURITY,OFF_LOBBY,4,should_adjoin
+Retail / Mixed-Use,RET_ENTRY,RET_MALL_CONCOURSE,5,must_adjoin
+Retail / Mixed-Use,RET_ENTRY,RET_TENANT_SHELL,3,should_adjoin
+Retail / Mixed-Use,RET_MALL_CONCOURSE,RET_ENTRY,5,must_adjoin
+Retail / Mixed-Use,RET_MALL_CONCOURSE,RET_TENANT_SHELL,5,must_adjoin
+Retail / Mixed-Use,RET_MALL_CONCOURSE,RET_FOOD_COURT,3,should_adjoin
+Retail / Mixed-Use,RET_MALL_CONCOURSE,RET_RESTROOM_PUB,3,should_adjoin
+Retail / Mixed-Use,RET_MALL_CONCOURSE,RET_VERTICAL_CIRC,4,must_adjoin
+Retail / Mixed-Use,RET_TENANT_SHELL,RET_MALL_CONCOURSE,5,must_adjoin
+Retail / Mixed-Use,RET_TENANT_SHELL,RET_TENANT_STOCK,4,should_adjoin
+Retail / Mixed-Use,RET_TENANT_SHELL,RET_SERVICE_CORRIDOR,3,should_adjoin
+Retail / Mixed-Use,RET_ANCHOR,RET_MALL_CONCOURSE,3,should_adjoin
+Retail / Mixed-Use,RET_ANCHOR,RET_LOADING,3,should_adjoin
+Retail / Mixed-Use,RET_FOOD_COURT,RET_MALL_CONCOURSE,3,should_adjoin
+Retail / Mixed-Use,RET_FOOD_COURT,RET_FOOD_PREP,5,must_adjoin
+Retail / Mixed-Use,RET_FOOD_COURT,RET_RESTROOM_PUB,3,should_adjoin
+Retail / Mixed-Use,RET_FOOD_PREP,RET_FOOD_COURT,5,must_adjoin
+Retail / Mixed-Use,RET_FOOD_PREP,RET_LOADING,3,should_adjoin
+Retail / Mixed-Use,RET_FOOD_PREP,RET_TRASH_COMPACTOR,3,should_adjoin
+Retail / Mixed-Use,RET_TENANT_STOCK,RET_TENANT_SHELL,4,should_adjoin
+Retail / Mixed-Use,RET_TENANT_STOCK,RET_SERVICE_CORRIDOR,3,should_adjoin
+Retail / Mixed-Use,RET_SERVICE_CORRIDOR,RET_TENANT_STOCK,3,should_adjoin
+Retail / Mixed-Use,RET_SERVICE_CORRIDOR,RET_LOADING,4,must_adjoin
+Retail / Mixed-Use,RET_SERVICE_CORRIDOR,RET_MECH,2,should_adjoin
+Retail / Mixed-Use,RET_SERVICE_CORRIDOR,RET_TRASH_COMPACTOR,3,should_adjoin
+Retail / Mixed-Use,RET_VERTICAL_CIRC,RET_MALL_CONCOURSE,4,must_adjoin
+Retail / Mixed-Use,RET_LOADING,RET_SERVICE_CORRIDOR,4,must_adjoin
+Retail / Mixed-Use,RET_LOADING,RET_TRASH_COMPACTOR,3,should_adjoin
+Retail / Mixed-Use,RET_TRASH_COMPACTOR,RET_LOADING,3,should_adjoin
+Retail / Mixed-Use,RET_TRASH_COMPACTOR,RET_SERVICE_CORRIDOR,3,should_adjoin
+Retail / Mixed-Use,RET_MECH,RET_ELEC,3,should_adjoin
+Retail / Mixed-Use,RET_ELEC,RET_MECH,3,should_adjoin
+Retail / Mixed-Use,RET_SECURITY,RET_ENTRY,2,should_adjoin
+Retail / Mixed-Use,RET_SECURITY,RET_MGMT_OFFICE,2,should_adjoin
+Retail / Mixed-Use,RET_MGMT_OFFICE,RET_SECURITY,2,should_adjoin
+Industrial / Warehouse,IND_ENTRY,IND_OFFICE,4,must_adjoin
+Industrial / Warehouse,IND_OFFICE,IND_ENTRY,4,must_adjoin
+Industrial / Warehouse,IND_OFFICE,IND_BREAK,2,should_adjoin
+Industrial / Warehouse,IND_OFFICE,IND_WAREHOUSE,3,should_adjoin
+Industrial / Warehouse,IND_WAREHOUSE,IND_LOADING,5,must_adjoin
+Industrial / Warehouse,IND_WAREHOUSE,IND_SHIPPING,4,must_adjoin
+Industrial / Warehouse,IND_WAREHOUSE,IND_RECEIVING,4,must_adjoin
+Industrial / Warehouse,IND_WAREHOUSE,IND_OFFICE,3,should_adjoin
+Industrial / Warehouse,IND_MFG_FLOOR,IND_WAREHOUSE,3,should_adjoin
+Industrial / Warehouse,IND_MFG_FLOOR,IND_QC_LAB,3,should_adjoin
+Industrial / Warehouse,IND_MFG_FLOOR,IND_TOOL_CRIB,3,should_adjoin
+Industrial / Warehouse,IND_MFG_FLOOR,IND_LOADING,2,should_adjoin
+Industrial / Warehouse,IND_LOADING,IND_WAREHOUSE,5,must_adjoin
+Industrial / Warehouse,IND_LOADING,IND_SHIPPING,5,must_adjoin
+Industrial / Warehouse,IND_LOADING,IND_RECEIVING,5,must_adjoin
+Industrial / Warehouse,IND_SHIPPING,IND_LOADING,5,must_adjoin
+Industrial / Warehouse,IND_SHIPPING,IND_WAREHOUSE,4,must_adjoin
+Industrial / Warehouse,IND_RECEIVING,IND_LOADING,5,must_adjoin
+Industrial / Warehouse,IND_RECEIVING,IND_WAREHOUSE,4,must_adjoin
+Industrial / Warehouse,IND_QC_LAB,IND_MFG_FLOOR,3,should_adjoin
+Industrial / Warehouse,IND_TOOL_CRIB,IND_MFG_FLOOR,3,should_adjoin
+Industrial / Warehouse,IND_BREAK,IND_OFFICE,2,should_adjoin
+Industrial / Warehouse,IND_BREAK,IND_RESTROOM,3,should_adjoin
+Industrial / Warehouse,IND_BREAK,IND_LOCKERS,2,should_adjoin
+Industrial / Warehouse,IND_RESTROOM,IND_BREAK,3,should_adjoin
+Industrial / Warehouse,IND_RESTROOM,IND_LOCKERS,3,should_adjoin
+Industrial / Warehouse,IND_LOCKERS,IND_RESTROOM,3,should_adjoin
+Industrial / Warehouse,IND_MECH,IND_ELEC,3,should_adjoin
+Industrial / Warehouse,IND_ELEC,IND_MECH,3,should_adjoin
+Industrial / Warehouse,IND_IT_SERVER,IND_OFFICE,2,should_adjoin
+Industrial / Warehouse,IND_IT_SERVER,IND_ELEC,2,should_adjoin
+Cultural / Museum,CUL_LOBBY,CUL_TICKETING,5,must_adjoin
+Cultural / Museum,CUL_LOBBY,CUL_GIFT_SHOP,3,should_adjoin
+Cultural / Museum,CUL_LOBBY,CUL_COAT_CHECK,3,should_adjoin
+Cultural / Museum,CUL_LOBBY,CUL_GALLERY,4,should_adjoin
+Cultural / Museum,CUL_LOBBY,CUL_RESTROOM_PUB,3,should_adjoin
+Cultural / Museum,CUL_TICKETING,CUL_LOBBY,5,must_adjoin
+Cultural / Museum,CUL_TICKETING,CUL_SECURITY,3,should_adjoin
+Cultural / Museum,CUL_GALLERY,CUL_LOBBY,4,should_adjoin
+Cultural / Museum,CUL_GALLERY,CUL_GALLERY_TEMP,3,should_adjoin
+Cultural / Museum,CUL_GALLERY,CUL_ART_HANDLING,2,should_adjoin
+Cultural / Museum,CUL_GALLERY_TEMP,CUL_GALLERY,3,should_adjoin
+Cultural / Museum,CUL_GALLERY_TEMP,CUL_ART_HANDLING,3,should_adjoin
+Cultural / Museum,CUL_THEATER,CUL_LOBBY,3,should_adjoin
+Cultural / Museum,CUL_THEATER,CUL_BACKSTAGE,5,must_adjoin
+Cultural / Museum,CUL_THEATER,CUL_CONTROL_BOOTH,4,must_adjoin
+Cultural / Museum,CUL_THEATER,CUL_RESTROOM_PUB,3,should_adjoin
+Cultural / Museum,CUL_BACKSTAGE,CUL_THEATER,5,must_adjoin
+Cultural / Museum,CUL_BACKSTAGE,CUL_DRESSING,3,should_adjoin
+Cultural / Museum,CUL_BACKSTAGE,CUL_SCENE_SHOP,3,should_adjoin
+Cultural / Museum,CUL_BACKSTAGE,CUL_LOADING,2,should_adjoin
+Cultural / Museum,CUL_DRESSING,CUL_BACKSTAGE,3,should_adjoin
+Cultural / Museum,CUL_DRESSING,CUL_RESTROOM_STAFF,2,should_adjoin
+Cultural / Museum,CUL_CONTROL_BOOTH,CUL_THEATER,4,must_adjoin
+Cultural / Museum,CUL_SCENE_SHOP,CUL_BACKSTAGE,3,should_adjoin
+Cultural / Museum,CUL_SCENE_SHOP,CUL_LOADING,3,should_adjoin
+Cultural / Museum,CUL_ART_HANDLING,CUL_LOADING,4,must_adjoin
+Cultural / Museum,CUL_ART_HANDLING,CUL_ART_STORAGE,3,should_adjoin
+Cultural / Museum,CUL_ART_HANDLING,CUL_GALLERY_TEMP,3,should_adjoin
+Cultural / Museum,CUL_ART_STORAGE,CUL_ART_HANDLING,3,should_adjoin
+Cultural / Museum,CUL_ART_STORAGE,CUL_CONSERVATION,3,should_adjoin
+Cultural / Museum,CUL_CONSERVATION,CUL_ART_STORAGE,3,should_adjoin
+Cultural / Museum,CUL_LOADING,CUL_ART_HANDLING,4,must_adjoin
+Cultural / Museum,CUL_LOADING,CUL_SCENE_SHOP,3,should_adjoin
+Cultural / Museum,CUL_SECURITY,CUL_TICKETING,3,should_adjoin
+Cultural / Museum,CUL_MECH,CUL_ELEC,3,should_adjoin
+Cultural / Museum,CUL_ELEC,CUL_MECH,3,should_adjoin
+Religious / Worship,REL_SANCTUARY,REL_NARTHEX,5,must_adjoin
+Religious / Worship,REL_SANCTUARY,REL_CHANCEL,5,must_adjoin
+Religious / Worship,REL_SANCTUARY,REL_CHOIR_MUSIC,3,should_adjoin
+Religious / Worship,REL_SANCTUARY,REL_AV_BOOTH,3,should_adjoin
+Religious / Worship,REL_NARTHEX,REL_SANCTUARY,5,must_adjoin
+Religious / Worship,REL_NARTHEX,REL_RESTROOM,3,should_adjoin
+Religious / Worship,REL_NARTHEX,REL_FELLOWSHIP,2,should_adjoin
+Religious / Worship,REL_NARTHEX,REL_OFFICE,2,should_adjoin
+Religious / Worship,REL_CHANCEL,REL_SANCTUARY,5,must_adjoin
+Religious / Worship,REL_CHANCEL,REL_SACRISTY,3,should_adjoin
+Religious / Worship,REL_CHANCEL,REL_CHOIR_MUSIC,3,should_adjoin
+Religious / Worship,REL_SACRISTY,REL_CHANCEL,3,should_adjoin
+Religious / Worship,REL_CHOIR_MUSIC,REL_SANCTUARY,3,should_adjoin
+Religious / Worship,REL_FELLOWSHIP,REL_KITCHEN,5,must_adjoin
+Religious / Worship,REL_FELLOWSHIP,REL_NARTHEX,2,should_adjoin
+Religious / Worship,REL_FELLOWSHIP,REL_RESTROOM,2,should_adjoin
+Religious / Worship,REL_KITCHEN,REL_FELLOWSHIP,5,must_adjoin
+Religious / Worship,REL_KITCHEN,REL_LOADING,2,should_adjoin
+Religious / Worship,REL_EDUCATION,REL_NARTHEX,2,should_adjoin
+Religious / Worship,REL_EDUCATION,REL_RESTROOM,2,should_adjoin
+Religious / Worship,REL_EDUCATION,REL_NURSERY,2,should_adjoin
+Religious / Worship,REL_NURSERY,REL_EDUCATION,2,should_adjoin
+Religious / Worship,REL_NURSERY,REL_RESTROOM,2,should_adjoin
+Religious / Worship,REL_WUDU,REL_NARTHEX,3,should_adjoin
+Religious / Worship,REL_WUDU,REL_SANCTUARY,3,should_adjoin
+Religious / Worship,REL_WUDU,REL_RESTROOM,2,should_adjoin
+Religious / Worship,REL_OFFICE,REL_NARTHEX,2,should_adjoin
+Religious / Worship,REL_OFFICE,REL_CONF,2,should_adjoin
+Religious / Worship,REL_CONF,REL_OFFICE,2,should_adjoin
+Religious / Worship,REL_MECH,REL_ELEC,3,should_adjoin
+Religious / Worship,REL_ELEC,REL_MECH,3,should_adjoin
+Recreation / Sports,REC_LOBBY,REC_FRONT_DESK,5,must_adjoin
+Recreation / Sports,REC_LOBBY,REC_LOCKER_MALE,3,should_adjoin
+Recreation / Sports,REC_LOBBY,REC_LOCKER_FEMALE,3,should_adjoin
+Recreation / Sports,REC_LOBBY,REC_GYM,2,should_adjoin
+Recreation / Sports,REC_FRONT_DESK,REC_LOBBY,5,must_adjoin
+Recreation / Sports,REC_FRONT_DESK,REC_OFFICE,2,should_adjoin
+Recreation / Sports,REC_GYM,REC_LOCKER_MALE,2,should_adjoin
+Recreation / Sports,REC_GYM,REC_LOCKER_FEMALE,2,should_adjoin
+Recreation / Sports,REC_GYM,REC_STORAGE_EQUIP,3,should_adjoin
+Recreation / Sports,REC_FITNESS_FLOOR,REC_GROUP_EX,2,should_adjoin
+Recreation / Sports,REC_FITNESS_FLOOR,REC_LOCKER_MALE,2,should_adjoin
+Recreation / Sports,REC_FITNESS_FLOOR,REC_LOCKER_FEMALE,2,should_adjoin
+Recreation / Sports,REC_GROUP_EX,REC_FITNESS_FLOOR,2,should_adjoin
+Recreation / Sports,REC_GROUP_EX,REC_STORAGE_EQUIP,3,should_adjoin
+Recreation / Sports,REC_POOL,REC_POOL_MECH,4,must_adjoin
+Recreation / Sports,REC_POOL,REC_LOCKER_MALE,3,should_adjoin
+Recreation / Sports,REC_POOL,REC_LOCKER_FEMALE,3,should_adjoin
+Recreation / Sports,REC_POOL,REC_POOL_OFFICE,2,should_adjoin
+Recreation / Sports,REC_POOL_MECH,REC_POOL,4,must_adjoin
+Recreation / Sports,REC_LOCKER_MALE,REC_LOBBY,3,should_adjoin
+Recreation / Sports,REC_LOCKER_MALE,REC_POOL,3,should_adjoin
+Recreation / Sports,REC_LOCKER_FEMALE,REC_LOBBY,3,should_adjoin
+Recreation / Sports,REC_LOCKER_FEMALE,REC_POOL,3,should_adjoin
+Recreation / Sports,REC_INDOOR_TRACK,REC_GYM,2,should_adjoin
+Recreation / Sports,REC_CHILDCARE,REC_LOBBY,2,should_adjoin
+Recreation / Sports,REC_MULTIPURPOSE,REC_RESTROOM_PUB,2,should_adjoin
+Recreation / Sports,REC_STORAGE_EQUIP,REC_GYM,3,should_adjoin
+Recreation / Sports,REC_MECH,REC_ELEC,3,should_adjoin
+Recreation / Sports,REC_ELEC,REC_MECH,3,should_adjoin
+Data Center / Tech,DC_LOBBY,DC_SECURITY,5,must_adjoin
+Data Center / Tech,DC_SECURITY,DC_LOBBY,5,must_adjoin
+Data Center / Tech,DC_SECURITY,DC_NOC,2,should_adjoin
+Data Center / Tech,DC_SERVER_HALL,DC_COOLING,5,must_adjoin
+Data Center / Tech,DC_SERVER_HALL,DC_UPS,4,should_adjoin
+Data Center / Tech,DC_SERVER_HALL,DC_PDU,5,must_adjoin
+Data Center / Tech,DC_SERVER_HALL,DC_MEET_ME,3,should_adjoin
+Data Center / Tech,DC_NOC,DC_SECURITY,2,should_adjoin
+Data Center / Tech,DC_NOC,DC_SERVER_HALL,2,should_adjoin
+Data Center / Tech,DC_NOC,DC_BREAK,2,should_adjoin
+Data Center / Tech,DC_UPS,DC_SERVER_HALL,4,should_adjoin
+Data Center / Tech,DC_UPS,DC_PDU,3,should_adjoin
+Data Center / Tech,DC_UPS,DC_SWITCHGEAR,3,should_adjoin
+Data Center / Tech,DC_PDU,DC_SERVER_HALL,5,must_adjoin
+Data Center / Tech,DC_PDU,DC_UPS,3,should_adjoin
+Data Center / Tech,DC_SWITCHGEAR,DC_UPS,3,should_adjoin
+Data Center / Tech,DC_SWITCHGEAR,DC_GENERATOR,3,should_adjoin
+Data Center / Tech,DC_GENERATOR,DC_SWITCHGEAR,3,should_adjoin
+Data Center / Tech,DC_GENERATOR,DC_FUEL,4,should_adjoin
+Data Center / Tech,DC_FUEL,DC_GENERATOR,4,should_adjoin
+Data Center / Tech,DC_COOLING,DC_SERVER_HALL,5,must_adjoin
+Data Center / Tech,DC_STAGING,DC_LOADING,3,should_adjoin
+Data Center / Tech,DC_STAGING,DC_SERVER_HALL,2,should_adjoin
+Data Center / Tech,DC_LOADING,DC_STAGING,3,should_adjoin
+Data Center / Tech,DC_BREAK,DC_NOC,2,should_adjoin
+Data Center / Tech,DC_BREAK,DC_RESTROOM,2,should_adjoin
+Parking Structure,PKG_ENTRY_EXIT,PKG_REVENUE_CTRL,4,must_adjoin
+Parking Structure,PKG_ENTRY_EXIT,PKG_PARKING_FLOOR,5,must_adjoin
+Parking Structure,PKG_PARKING_FLOOR,PKG_RAMP,5,must_adjoin
+Parking Structure,PKG_PARKING_FLOOR,PKG_STAIR_ELEV,4,must_adjoin
+Parking Structure,PKG_PARKING_FLOOR,PKG_PED_LOBBY,2,should_adjoin
+Parking Structure,PKG_RAMP,PKG_PARKING_FLOOR,5,must_adjoin
+Parking Structure,PKG_STAIR_ELEV,PKG_PARKING_FLOOR,4,must_adjoin
+Parking Structure,PKG_STAIR_ELEV,PKG_PED_LOBBY,3,should_adjoin
+Parking Structure,PKG_PED_LOBBY,PKG_STAIR_ELEV,3,should_adjoin
+Parking Structure,PKG_REVENUE_CTRL,PKG_ENTRY_EXIT,4,must_adjoin
+Parking Structure,PKG_REVENUE_CTRL,PKG_MGMT_OFFICE,2,should_adjoin
+Parking Structure,PKG_MGMT_OFFICE,PKG_REVENUE_CTRL,2,should_adjoin
+Parking Structure,PKG_EV_CHARGING,PKG_PARKING_FLOOR,3,should_adjoin
+Parking Structure,PKG_EV_CHARGING,PKG_ELEC,2,should_adjoin
+Parking Structure,PKG_RESTROOM,PKG_PED_LOBBY,2,should_adjoin
+Parking Structure,PKG_MECH,PKG_ELEC,3,should_adjoin
+Parking Structure,PKG_ELEC,PKG_MECH,3,should_adjoin
+Parking Structure,PKG_ELEC,PKG_EV_CHARGING,2,should_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_TICKETING,4,must_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_WAITING,3,should_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_PLATFORM,4,should_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_RETAIL,2,should_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_RESTROOM,2,should_adjoin
+Transit / Transportation,TRA_CONCOURSE,TRA_FARE_CTRL,3,should_adjoin
+Transit / Transportation,TRA_TICKETING,TRA_CONCOURSE,4,must_adjoin
+Transit / Transportation,TRA_TICKETING,TRA_FARE_CTRL,3,should_adjoin
+Transit / Transportation,TRA_FARE_CTRL,TRA_CONCOURSE,3,should_adjoin
+Transit / Transportation,TRA_FARE_CTRL,TRA_PLATFORM,3,should_adjoin
+Transit / Transportation,TRA_WAITING,TRA_CONCOURSE,3,should_adjoin
+Transit / Transportation,TRA_WAITING,TRA_PLATFORM,3,should_adjoin
+Transit / Transportation,TRA_PLATFORM,TRA_VERTICAL_CIRC,4,must_adjoin
+Transit / Transportation,TRA_PLATFORM,TRA_CONCOURSE,4,should_adjoin
+Transit / Transportation,TRA_VERTICAL_CIRC,TRA_PLATFORM,4,must_adjoin
+Transit / Transportation,TRA_VERTICAL_CIRC,TRA_CONCOURSE,3,should_adjoin
+Transit / Transportation,TRA_BUS_BERTHS,TRA_CONCOURSE,3,should_adjoin
+Transit / Transportation,TRA_BUS_BERTHS,TRA_DRIVER_ROOM,2,should_adjoin
+Transit / Transportation,TRA_DRIVER_ROOM,TRA_BUS_BERTHS,2,should_adjoin
+Transit / Transportation,TRA_DRIVER_ROOM,TRA_DISPATCH,3,should_adjoin
+Transit / Transportation,TRA_DRIVER_ROOM,TRA_RESTROOM_STAFF,2,should_adjoin
+Transit / Transportation,TRA_DISPATCH,TRA_DRIVER_ROOM,3,should_adjoin
+Transit / Transportation,TRA_DISPATCH,TRA_SECURITY,2,should_adjoin
+Transit / Transportation,TRA_SECURITY,TRA_CONCOURSE,2,should_adjoin
+Transit / Transportation,TRA_SECURITY,TRA_DISPATCH,2,should_adjoin
+Transit / Transportation,TRA_MECH,TRA_ELEC,3,should_adjoin
+Transit / Transportation,TRA_ELEC,TRA_MECH,3,should_adjoin

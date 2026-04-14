@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent: #c9a959;">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CALVEY FORMING — Solar Component</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="./vendor/three.min.js"></script>
+<script>if(typeof THREE==='undefined'){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<style>
+:root{
+  --bg:#0c0c0c;
+  --surface:#131313;
+  --border:#222;
+  --text:#ddd8d0;
+  --text-dim:#8a857e;
+  --text-muted:#504c46;
+
+  --accent:#c9a959;    /* SUN */
+  --cold:#6a9cc4;
+  --hot:#c45c3e;
+  --balanced:#8a7abf;
+  --glass:#6bb8d4;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+h1,.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--text);
+}
+h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(28px,4vw,42px);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text);
+  margin-bottom:24px;
+  line-height:1.3;
+}
+h3{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  font-weight:400;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-top:36px;
+  margin-bottom:12px;
+}
+p{
+  font-size:18px;
+  font-weight:300;
+  color:var(--text-dim);
+  margin-bottom:20px;
+  line-height:1.85;
+}
+p strong{color:var(--text);font-weight:600}
+sup{font-size:11px;color:var(--accent)}
+
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:80px 24px;
+  position:relative;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(201,169,89,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse at 50% 120%, rgba(106,156,196,0.03) 0%, transparent 65%);
+}
+.hero-topline{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  position:relative;
+  margin-bottom:18px;
+}
+.hero-line{
+  width:40px;height:1px;
+  background:var(--accent);
+  margin:0 auto 18px;
+  position:relative;
+}
+.hero-title{
+  font-size:clamp(48px,9vw,100px);
+  line-height:1.05;
+  margin-bottom:16px;
+  position:relative;
+}
+.hero-sub{
+  font-size:clamp(16px,2vw,22px);
+  font-weight:300;
+  font-style:italic;
+  color:var(--text-dim);
+  max-width:760px;
+  line-height:1.7;
+  margin-bottom:16px;
+  position:relative;
+}
+.hero-sub2{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  position:relative;
+  margin-bottom:30px;
+}
+.hero-meta{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  position:relative;
+}
+
+.content{max-width:760px;margin:0 auto;padding:0 24px 88px}
+.section{padding:72px 0;border-top:1px solid var(--border)}
+.section:first-child{border-top:none}
+.section-num{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--accent);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.cb{
+  border-left:1px solid var(--accent);
+  padding:20px 24px;
+  margin:28px 0;
+  background:rgba(201,169,89,0.02);
+}
+.cb p{font-size:17px;font-style:italic;color:var(--text);margin-bottom:12px}
+.cb .src{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-muted);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-style:normal;
+}
+
+.formula{
+  font-family:'Space Mono',monospace;
+  font-size:12px;
+  color:var(--accent);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:2px solid var(--accent);
+  padding:14px 18px;
+  margin:16px 0;
+  overflow-x:auto;
+  line-height:1.8;
+}
+
+.sb{background:var(--surface);border:1px solid var(--border);padding:20px;margin:28px 0}
+.sl{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+
+.strip{display:flex;gap:3px;align-items:flex-end;justify-content:center;overflow-x:auto;padding-bottom:4px}
+.cr{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0}
+.cb2{
+  padding:5px 14px;
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.05em;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-muted);
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.cb2:hover{border-color:var(--accent);color:var(--text-dim)}
+.cb2.active{border-color:var(--accent);color:var(--accent)}
+
+.slb{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:16px 20px;
+  margin:20px 0;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.slb label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--text-muted);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  min-width:70px;
+}
+.slb input[type=range]{flex:1;accent-color:var(--accent)}
+.slb .val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;
+  font-weight:300;
+  color:var(--text);
+  min-width:60px;
+  text-align:right;
+}
+
+.dg{display:grid;grid-template-columns:200px 1fr;gap:24px;margin:24px 0}
+.dgr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.dgr.two{grid-template-columns:1fr 1fr}
+.di{background:var(--bg);border:1px solid var(--border);padding:10px 12px}
+.di .dl{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.di .dv{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text)}
+.di .ds{font-family:'Space Mono',monospace;font-size:8px;color:var(--text-muted)}
+
+.fo{background:var(--bg);border:1px solid var(--border);padding:16px 18px}
+.fo .fol{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px}
+.fo .fov{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--accent);margin-bottom:4px}
+.fo .fod{font-size:14px;color:var(--text-dim)}
+.fo .fom{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:10px}
+
+.rules{background:var(--surface);border:1px solid var(--border);margin:24px 0;overflow:hidden}
+.rr{display:grid;grid-template-columns:130px 70px 1fr 90px;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:14px;align-items:center}
+.rr:last-child{border-bottom:none}
+.rr.hdr{
+  font-family:'Space Mono',monospace;
+  font-size:9px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  background:var(--bg);
+}
+.rr .f{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent)}
+.tag{font-family:'Space Mono',monospace;font-size:9px;padding:2px 8px;letter-spacing:0.05em}
+.tag-b{background:rgba(106,156,196,0.12);color:var(--cold)}
+.tag-f{background:rgba(196,92,62,0.12);color:var(--hot)}
+.tag-v{background:rgba(138,122,191,0.12);color:var(--balanced)}
+
+table{width:100%;border-collapse:collapse}
+thead th{
+  font-family:'Space Mono',monospace;
+  font-size:9px;
+  padding:8px;
+  text-align:left;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  border-bottom:1px solid var(--border)
+}
+tbody td{padding:6px 8px;border-bottom:1px solid var(--border);font-size:14px;color:var(--text-dim)}
+tbody tr:hover{background:var(--surface)}
+tbody tr.active{background:rgba(201,169,89,0.04)}
+
+.trio{display:flex;gap:20px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.trio-item{text-align:center}
+.trio-item .tl{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:6px}
+.trio-item .ts{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted)}
+
+.quint{display:flex;gap:12px;justify-content:center;margin:32px 0;flex-wrap:wrap}
+.quint-item{text-align:center;background:var(--surface);border:1px solid var(--border);padding:12px;border-radius:4px}
+.quint-item .ql{font-family:'Space Mono',monospace;font-size:11px;color:var(--hot);margin-top:8px;font-weight:700}
+.quint-item .qs{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted)}
+
+.cites{margin-top:48px;padding-top:32px;border-top:1px solid var(--border)}
+.cites h3{margin-top:0}
+.cite{font-size:14px;color:var(--text-muted);margin-bottom:10px;line-height:1.6;font-weight:300}
+.cite strong{color:var(--text-dim);font-weight:400}
+
+.footer{text-align:center;padding:60px 24px;border-top:1px solid var(--border)}
+.footer p{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.1em}
+
+.sun3d-wrap{
+  margin:28px 0;background:#060606;border:1px solid var(--border);
+  position:relative;min-height:420px;aspect-ratio:16/10;overflow:hidden;
+}
+.sun3d-wrap canvas{display:block;width:100%!important;height:100%!important}
+.sun3d-wrap .hint{position:absolute;left:10px;bottom:8px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase}
+.sun3d-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sun3d-controls .btn{
+  display:inline-flex;align-items:center;justify-content:center;height:36px;
+  background:transparent;border:1px solid var(--accent);padding:0 14px;color:var(--accent);
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.25s;
+}
+.sun3d-controls .btn:hover{background:var(--accent);color:var(--bg)}
+
+
+.detail-grid{display:grid;grid-template-columns:200px 1fr;gap:24px;margin:24px 0}
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr}}
+
+.next-float-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:linear-gradient(transparent, rgba(12,12,12,0.95) 30%);
+  padding:18px 0 22px;text-align:center;
+  transform:translateY(100%);transition:transform 0.35s ease;
+  pointer-events:none;
+}
+.next-float-bar.visible{transform:translateY(0);pointer-events:auto}
+.next-float-bar a{pointer-events:auto}
+
+@media(max-width:700px){
+  .dg{grid-template-columns:1fr}
+  .dgr{grid-template-columns:1fr 1fr}
+  .rr{grid-template-columns:1fr;gap:4px}
+  .quint{gap:8px}
+  .quint-item{padding:8px}
+  .detail-grid{grid-template-columns:1fr}
+  .sun3d-wrap{min-height:300px;aspect-ratio:auto}
+  .slb{flex-wrap:wrap;padding:14px 16px;gap:10px}
+  .slb label{min-width:auto;width:100%;margin-bottom:-4px}
+  .slb input[type=range]{flex:1 1 100%;min-width:0;order:1;height:36px}
+  .slb .val{min-width:auto;text-align:left;order:0;font-size:24px}
+  .trio{flex-direction:column;align-items:center}
+  #sunModelMetrics{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:480px){
+  .content{padding:0 16px 60px}
+  .hero{padding:60px 16px}
+  .slb{padding:12px 14px}
+  .slb .val{font-size:22px}
+  .sun3d-wrap{min-height:260px}
+  .sun3d-controls{justify-content:center}
+  .sun3d-controls .btn{padding:0 10px;font-size:9px;height:32px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <nav style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:16px;position:relative">
+    <a href="00_DATA.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">00 Data</a>
+    <a href="01_SITE.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">01 Site</a>
+    <a href="02_PROGRAM.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">02 Program</a>
+    <a href="03_SUN.html" style="color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid var(--accent)">03 Sun</a>
+    <a href="04_WIND.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">04 Wind</a>
+    <a href="05_RENDER.html" style="color:var(--text-muted);text-decoration:none;padding:4px 10px;border:1px solid transparent">05 Render</a>
+  </nav>
+  <div class="hero-topline">SUN / EARTH / PEOPLE</div>
+  <div class="hero-line"></div>
+
+  <h1 class="hero-title">CALVEY<br>FORMING</h1>
+  <div class="hero-sub2">03 — THE SUN</div>
+  <div class="hero-sub">The solar component — deriving building lean from location and sun geometry. The building section from the program step is leaned to the computed angle.</div>
+  <div class="hero-meta">Matthew Calvey · 2026 · Part I: Sun</div>
+</div>
+
+<div class="content">
+
+  <div class="section">
+    <div class="section-num">00 — Adapt &amp; Interact</div>
+    <div class="cr" id="city-buttons"></div>
+    <div class="sb">
+      <div class="sl">Equator → 70°N</div>
+      <div class="strip" id="building-strip"></div>
+    </div>
+
+    <h2>Calvey Forming: Sun</h2>
+
+    <!-- Latitude + Floors sliders stacked -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
+      <div class="slb" style="margin:0;align-items:center;gap:16px">
+        <label style="min-width:80px">Latitude</label>
+        <input type="range" id="lat-slider" min="0" max="70" step="1" value="40" style="flex:1">
+        <div class="val" id="lat-val">40°</div>
+      </div>
+      <div class="slb" id="height-slider-wrap" style="margin:0;align-items:center;gap:16px">
+        <label style="min-width:80px">Floors</label>
+        <input type="range" id="floor-slider" min="1" max="40" step="1" value="5" style="flex:1">
+        <div class="val" id="floor-val">5F</div>
+      </div>
+    </div>
+    <div id="lean-readout" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin:6px 0 0;text-align:center;display:none"></div>
+    <div id="height-slider-info" style="display:none;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.08em;margin:4px 0 12px;text-align:center">
+      Total SF preserved · floor plates resize to maintain area
+    </div>
+
+    <!-- 3D Model viewport visible right below sliders -->
+    <div id="sun-model-section" style="display:none">
+      <div id="sunModel3d" class="sun3d-wrap" style="margin:12px 0">
+        <div class="hint">drag: orbit · two fingers: pan + zoom · wheel: zoom</div>
+      </div>
+
+      <div id="sunModelMetrics" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px"></div>
+
+      <div class="sun3d-controls">
+        <button class="btn" id="exportObjBtn">Save .OBJ</button>
+        <button class="btn" id="exportGhBtn">Save GH Script</button>
+      </div>
+    </div>
+
+    <div class="detail-grid" id="detail-panel" style="display:none"></div>
+
+  </div>
+
+  <!-- Building elevation views (leaned section from program page) -->
+  <div class="section" id="building-lean-section" style="display:none">
+    <div class="section-num">05A — Building Elevations</div>
+    <h2>Leaned Building Sections</h2>
+
+    <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:24px 0">
+      <div style="flex:1;min-width:280px;max-width:400px">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Front Elevation — Leaned</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:12px">
+          <svg id="leanFrontSvg" style="width:100%;display:block"></svg>
+        </div>
+      </div>
+      <div style="flex:1;min-width:280px;max-width:400px">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Side Elevation — Leaned</div>
+        <div style="background:var(--bg);border:1px solid var(--border);padding:12px">
+          <svg id="leanSideSvg" style="width:100%;display:block"></svg>
+        </div>
+      </div>
+    </div>
+    <div id="lean-metrics" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">06 — How the Form Does the Work</div>
+    <h2>Calvey Form: Sun Strategy</h2>
+    <div class="trio" id="three-diagrams"></div>
+
+    <h3>Cold Climate — Lean Back</h3>
+    <p>The building form opens toward the sky. Low-angle winter sun enters through the facade at a near-perpendicular angle, penetrating deep into the interior. The roof mass, angled forward by the lean, naturally blocks high-angle summer sun. <strong>Stockholm, 59°N: winter noon sun at 7.3°, lean back 22°.</strong></p>
+
+    <h3>Mixed Climate — Moderate Lean</h3>
+    <p>Eight heating months, four cooling. The form leans back to receive moderate-angle winter sun. When summer arrives, the high sun strikes the backward-leaning roof mass instead of entering the facade. <strong>New York, 41°N: winter 25.7°, summer 72.4°, lean back 10°.</strong></p>
+
+    <h3>Hot Climate — Lean Forward (Aggressive)</h3>
+    <p>The form tilts toward the near-vertical sun. At equatorial latitudes where the sun passes directly overhead, the form leans forward aggressively — up to 23.4° — to deflect radiation and maximize the roof’s shading canopy. <strong>Equator, 0°: lean forward 23.4°.</strong></p>
+
+    <h3>Tropical Lean Progression: 0° – 20°</h3>
+    <p>At low latitudes where cooling dominates, the forward lean is strongest. As latitude increases, forward lean relaxes until heating begins to matter.</p>
+    <div class="quint" id="tropical-diagrams"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-num">01 — Origin</div>
+    <h2>The Sun Is the Source of All Energy</h2>
+    <p>The sun heats the atmosphere, drives the weather, grows the food, and warms the spaces we inhabit. Every climate on Earth is a function of how much solar energy a location receives and when it receives it.</p>
+    <p>Humans have always understood this. Pueblo cliff dwellings tucked under south-facing rock overhangs to capture low winter sun while staying cool in shade during summer.<sup>1</sup> Persian wind towers channeled desert breezes while thick mud walls stored the night’s coolness.<sup>2</sup> Greek and Roman cities were planned on solar grids — Socrates described the optimized house as one open to the winter sun and closed to the summer.<sup>3</sup></p>
+    <p><strong>The form of the building was inseparable from the climate it stood in.</strong></p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">02 — Divergence</div>
+    <h2>Technology Broke the Connection</h2>
+    <p>Steel, glass, and mechanical systems made it possible to build any shape, anywhere, and condition it artificially. A glass tower in Dubai runs the same HVAC logic as one in Helsinki. The curtain wall freed architecture from climatic logic.<sup>4</sup></p>
+    <p><strong>The energy cost of ignoring climate in form is enormous.</strong> Buildings account for a major share of global energy consumption, with a significant portion spent on heating and cooling that better form can reduce.<sup>5</sup></p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">03 — The Calvey Concept</div>
+    <h2>Shape Buildings to Environments Like Plants Grow in Theirs</h2>
+
+    <div class="cb">
+      <p>The architecture concept is to use passive systems that learn from indigenous practices for the environment and adapt them at various scales with organic building shapes that let sun in when you need heat and avoid it when you don't want heat gain — by the shape. Also shaped to channel energy, like wind, to activate passive ventilation and active energy generation systems. Also shaped to provide light to ground.</p>
+      <p>The mass and form is thanks to Gehry, and Bjarke Ingels; the passive systems are thanks to Frank Lloyd Wright and all indigenous strategies by the people, before mechanical systems.</p>
+      <div class="src">Matthew Calvey, 2008 — Original Concept Notes</div>
+    </div>
+
+    <p>This study encodes sun geometry and climate demand into a standard chain that outputs an optimized lean angle from location alone.</p>
+
+    <div class="cb">
+      <p>Based on this concept there has to be an "optimized" form for a lean that lets the optimized ratio of sunlight in, per the climate. Like a tree without surrounding shade. The program square footage plus optimized room shapes and proportions by use for passive light and ventilation equals number of floors — which adapts to the sunlight gain angles and heat requirement per latitude and longitude climate data. This is what makes unique shapes: simply the sun angles and when you want it or not.</p>
+      <div class="src">Matthew Calvey, 2026 — Optimized Forms Research Notes</div>
+    </div>
+
+    <p>The smooth, continuous surfaces envisioned in the concept serve solar and aerodynamic purposes simultaneously — channeling wind flows while optimizing incidence for solar gain or rejection. This page isolates the solar component: <strong>for a given location, what is the optimized lean angle?</strong></p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">04 — Two Knowable Facts</div>
+    <h2>What Latitude Tells Us</h2>
+    <p><strong>When the building wants heat from sunlight</strong> — predicted from latitude using a regression trained on global climate data.<sup>6</sup> The model estimates annual heating degree days (HDD) and cooling degree days (CDD).<sup>7</sup></p>
+    <p><strong>Where the sun is at those times</strong> — computed deterministically from latitude via solar geometry.<sup>8</sup></p>
+    <p>Combined: which months want solar heat, and how high is the sun during those months. The optimal lean follows.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">05 — The Formula Chain</div>
+    <h2>Latitude In, Form Out</h2>
+
+    <h3>Step 1 — Predict Climate</h3>
+    <p>A multivariate polynomial regression predicts heating and cooling demand from geographic coordinates:</p>
+    <div class="formula">
+      HDD = 127.09 − 36.76·|lat| + 1.86·|lat|² + 0.43·elev − 2.41·coast + 81.61·(|lat|×coast/1000)<br>
+      CDD = 2523.41 − 64.07·|lat| + 0.32·|lat|² − 0.92·elev + 0.58·coast − 1.41·(|lat|×coast/1000)
+    </div>
+    <p>Heating fraction (HF = HDD / (HDD+CDD)) determines what portion of the year benefits from solar gain.</p>
+
+    <h3>Step 2 — Compute Sun Angles</h3>
+    <p>Solar noon altitude follows standard solar position equations:</p>
+    <div class="formula">
+      δ = 23.45° × sin(2π × (284 + n) / 365)<br>
+      α = 90° − |φ − δ|
+    </div>
+
+    <h3>Step 3 — Derive the Lean Angle</h3>
+    <div class="rules">
+      <div class="rr hdr"><div>Climate</div><div>Lat</div><div>θ Formula</div><div>Direction</div></div>
+      <div class="rr"><div>Equatorial</div><div style="color:var(--text-dim)">0°</div><div class="f">−23.4°</div><div><span class="tag tag-f">Strong Fwd</span></div></div>
+      <div class="rr"><div>Near-equatorial</div><div style="color:var(--text-dim)">5°</div><div class="f">−18.4°</div><div><span class="tag tag-f">Strong Fwd</span></div></div>
+      <div class="rr"><div>Tropical</div><div style="color:var(--text-dim)">10°</div><div class="f">−13.4°</div><div><span class="tag tag-f">Forward</span></div></div>
+      <div class="rr"><div>Sub-tropical</div><div style="color:var(--text-dim)">15°</div><div class="f">−15.0°</div><div><span class="tag tag-f">Forward</span></div></div>
+      <div class="rr"><div>Low-mid</div><div style="color:var(--text-dim)">20°</div><div class="f">−20.0°</div><div><span class="tag tag-f">Strong Fwd</span></div></div>
+      <div class="rr"><div>Cooling-dom.</div><div style="color:var(--text-dim)">21–29°</div><div class="f">interpolate to −5°</div><div><span class="tag tag-f">Forward</span></div></div>
+      <div class="rr"><div>Balanced</div><div style="color:var(--text-dim)">30–40°</div><div class="f">(90−α) × 0.1 × HF</div><div><span class="tag tag-v">Slight</span></div></div>
+      <div class="rr"><div>Heating-dom.</div><div style="color:var(--text-dim)">40–55°</div><div class="f">min(18,(90−α)×.25×HF)</div><div><span class="tag tag-b">Back</span></div></div>
+      <div class="rr"><div>All heating</div><div style="color:var(--text-dim)">&gt;55°</div><div class="f">min(25,(90−α) × 0.35)</div><div><span class="tag tag-b">Strong</span></div></div>
+    </div>
+    <p>Lean is capped at 25° for feasibility, with damping reflecting diminishing returns at extreme tilt.<sup>10</sup></p>
+  </div>
+
+  <div class="section">
+    <div class="section-num">08 — Results</div>
+    <h2>Complete Latitude → Form Table</h2>
+    <p>Every 5° from equator to 70°N. Default parameters: sea level, 50 km coast distance.</p>
+    <div class="sb" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>Lat</th><th>HDD</th><th>CDD</th><th>HF</th><th>Win α</th><th>Sum α</th><th>Target</th><th>θ</th></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="nextSection" style="text-align:center">
+    <div class="section-num">09 — Next Step</div>
+    <h2>Next: Wind</h2>
+    <p>The lean angle and building form carry forward. Next, wind shaping refines the aerodynamic profile.</p>
+    <a href="04_WIND.html" id="nextInPageBtn" style="display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:16px 40px;color:#0c0c0c;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none;margin-top:16px">Next: 04 Wind &#8594;</a>
+  </div>
+
+  <div class="section cites">
+    <h3>References &amp; Citations</h3>
+    <p class="cite"><strong>[1]</strong> Knowles, R. L. (1974). <em>Energy and Form</em>. MIT Press.</p>
+    <p class="cite"><strong>[2]</strong> Bahadori, M. N. (1978). “Passive Cooling Systems in Iranian Architecture.” <em>Scientific American</em>.</p>
+    <p class="cite"><strong>[3]</strong> Xenophon. <em>Memorabilia</em>, Book III, Chapter 8. c. 370 BCE.</p>
+    <p class="cite"><strong>[4]</strong> Banham, R. (1969). <em>The Architecture of the Well-Tempered Environment</em>.</p>
+    <p class="cite"><strong>[5]</strong> U.S. EIA (2023). “Annual Energy Outlook.”</p>
+    <p class="cite"><strong>[6]</strong> Degree day regression model developed for this study (65 global cities). Model trained by Claude under direction of Matthew Calvey, February 2026.</p>
+    <p class="cite"><strong>[7]</strong> ASHRAE (2021). <em>ASHRAE Handbook — Fundamentals</em>, Ch. 14.</p>
+    <p class="cite"><strong>[8]</strong> Duffie &amp; Beckman (2013). <em>Solar Engineering of Thermal Processes</em>, 4th ed.</p>
+    <p class="cite"><strong>[9]</strong> Regression + solar geometry + visualization developed by Claude (Anthropic) with Matthew Calvey, February 2026.</p>
+    <p class="cite"><strong>[10]</strong> Compagno, A. (2002). <em>Intelligent Glass Facades</em>. Birkhäuser.</p>
+    <p class="cite"><strong>[11]</strong> Hecht, E. (2017). <em>Optics</em>, 5th ed. Pearson.</p>
+  </div>
+
+</div>
+
+<!-- Floating next button -->
+<div class="next-float-bar" id="nextFloatBar">
+  <a href="04_WIND.html" style="display:inline-flex;align-items:center;gap:10px;background:var(--accent);border:none;padding:14px 36px;color:#0c0c0c;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none">Next: 04 Wind &#8594;</a>
+</div>
+
+<div class="footer">
+  <p>CALVEY FORM · 03 Sun · Solar Component</p>
+  <p style="margin-top:6px">&copy; 2026 Matthew Calvey</p>
+</div>
+
+<script>
+/* -------------------- climate model constants -------------------- */
+const CH=[127.0861,-36.7578,1.8598,0.43,-2.4082,81.6101];
+const CC=[2523.4127,-64.0732,0.3211,-0.9156,0.5837,-1.4105];
+
+/* explicit low-lat lean overrides */
+const TROPICAL_LEAN_OVERRIDES = { 0:-23.4, 5:-18.4, 10:-13.4, 15:-15.0, 20:-20.0 };
+
+function predict(lat){
+  const a=Math.abs(lat),x=[1,a,a*a,0,50,(a*50)/1000];
+  return{
+    hdd:Math.max(0,x.reduce((s,xi,i)=>s+xi*CH[i],0)),
+    cdd:Math.max(0,x.reduce((s,xi,i)=>s+xi*CC[i],0))
+  };
+}
+function noonAlt(lat,doy){
+  const d=23.45*Math.sin(((284+doy)*2*Math.PI)/365);
+  return Math.max(0,Math.min(90,90-Math.abs(lat-d)));
+}
+
+function computeForm(lat){
+  const {hdd,cdd}=predict(lat);
+  const tot=Math.max(hdd+cdd,1),hf=hdd/tot;
+  const wN=noonAlt(lat,355),sN=noonAlt(lat,172);
+
+  let nH;
+  if(hf>0.95)nH=12;
+  else if(hf>0.85)nH=10;
+  else if(hf>0.7)nH=8;
+  else if(hf>0.55)nH=7;
+  else if(hf>0.4)nH=6;
+  else if(hf>0.25)nH=5;
+  else if(hf>0.15)nH=4;
+  else if(hf>0.05)nH=2;
+  else nH=0;
+
+  const mD=[21,52,80,111,141,172,202,233,264,294,325,355];
+  const wc=lat>=0?0:6;
+  const ms=[...Array(12).keys()].sort((a,b)=>
+    Math.min(Math.abs(a-wc),12-Math.abs(a-wc)) - Math.min(Math.abs(b-wc),12-Math.abs(b-wc))
+  );
+  const hM=ms.slice(0,nH);
+
+  let tgt=null;
+  if(nH===0) tgt=null;
+  else if(nH===12){
+    let ws=0,wt=0;
+    for(const m of hM){
+      const a2=noonAlt(lat,mD[m]);
+      const dist=Math.min(Math.abs(m-wc),12-Math.abs(m-wc));
+      const w=1+(6-dist)*0.5;
+      ws+=a2*w; wt+=w;
+    }
+    tgt=ws/wt;
+  } else {
+    let s=0; for(const m of hM) s+=noonAlt(lat,mD[m]);
+    tgt=s/hM.length;
+  }
+
+  let lean,desc;
+  const absLat=Math.abs(lat);
+
+  if (TROPICAL_LEAN_OVERRIDES.hasOwnProperty(absLat)){
+    lean=TROPICAL_LEAN_OVERRIDES[absLat];
+    desc="Strong forward lean — deflects near-vertical equatorial sun";
+  } else if (absLat>20 && absLat<25){
+    const t=(absLat-20)/5;
+    lean=-20.0 + t*15; // -20 to -5
+    desc="Forward lean — transition zone, reducing cooling emphasis";
+  } else if (tgt===null || absLat<=20){
+    if (absLat<5){
+      const t=absLat/5;
+      lean=-23.4 + t*5;
+    } else if (absLat<10){
+      const t=(absLat-5)/5;
+      lean=-18.4 + t*5;
+    } else if (absLat<15){
+      const t=(absLat-10)/5;
+      lean=-13.4 - t*1.6;
+    } else {
+      const t=(absLat-15)/5;
+      lean=-15.0 - t*5;
+    }
+    desc="Forward lean — deflects radiation";
+  } else if(hf>0.9){
+    lean=Math.min(25,(90-tgt)*0.35);
+    desc="Back lean — opens form to low winter sun";
+  } else if(hf>0.6){
+    lean=Math.min(18,(90-tgt)*0.25*hf);
+    desc="Back lean — captures winter, blocks summer";
+  } else if(hf>0.4){
+    lean=Math.max(0,(90-tgt)*0.1*hf);
+    desc="Nearly vertical — balanced climate";
+  } else if(hf>0.1){
+    lean=-5*(1-hf);
+    desc="Forward lean — reduces solar gain";
+  } else {
+    lean=-8;
+    desc="Forward lean — deflects radiation";
+  }
+
+  lean=Math.round(lean*10)/10;
+
+  return{
+    lat,
+    hdd:Math.round(hdd),
+    cdd:Math.round(cdd),
+    hp:Math.round(hf*100),
+    hf:hf.toFixed(2),
+    nH,
+    nC:12-nH,
+    wN:Math.round(wN*10)/10,
+    sN:Math.round(sN*10)/10,
+    tgt:tgt!==null?Math.round(tgt*10)/10:null,
+    lean,
+    desc
+  };
+}
+
+function buildSVG(d,size){
+  size=size||140;
+  const {lean,lat,hp,wN,sN}=d;
+  const w=size,h=size,cx=w/2,gY=h*0.85,bH=h*0.55,bW=h*0.18;
+
+  const rad=(lean*Math.PI)/180;
+  const bL=cx-bW/2,bR=cx+bW/2;
+  const ts=-Math.sin(rad)*bH;
+  const tH=Math.cos(Math.abs(rad))*bH;
+  const tL=bL+ts,tR=bR+ts,tY=gY-tH;
+
+  const hc=hp>60?"#6a9cc4":hp>40?"#8a7abf":"#c45c3e";
+
+  function ray(alt,c,l){
+    if(alt<=0) return '';
+    const r=(alt*Math.PI)/180;
+    const len=w*0.35;
+    const hY=gY-tH*0.5;
+    const hX=(bL+bR)/2+ts*0.5;
+    const dx=-len*Math.cos(r);
+    const dy=-len*Math.sin(r);
+    return '<line x1="'+hX+'" y1="'+hY+'" x2="'+(hX-dx)+'" y2="'+(hY+dy)+'" stroke="'+c+'" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>'+
+           '<text x="'+(hX-dx+2)+'" y="'+(hY+dy-4)+'" fill="'+c+'" font-size="7" font-family="Space Mono,monospace">'+l+' '+alt+'°</text>';
+  }
+
+  const lbl=lean>0?('back '+lean+'°'):lean<0?('fwd '+Math.abs(lean)+'°'):'vertical';
+
+  return ''+
+  '<svg viewBox="0 0 '+w+' '+h+'" width="'+size+'" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect width="'+w+'" height="'+h+'" fill="#0c0c0c"/>'+
+    '<line x1="0" y1="'+gY+'" x2="'+w+'" y2="'+gY+'" stroke="#222" stroke-width="1"/>'+
+    '<polygon points="'+bL+','+gY+' '+bR+','+gY+' '+tR+','+tY+' '+tL+','+tY+'" fill="'+hc+'" fill-opacity="0.08" stroke="#333" stroke-width="1"/>'+
+    '<line x1="'+tL+'" y1="'+tY+'" x2="'+tR+'" y2="'+tY+'" stroke="#555" stroke-width="2"/>'+
+    '<line x1="'+bL+'" y1="'+gY+'" x2="'+tL+'" y2="'+tY+'" stroke="#444" stroke-width="1.5"/>'+
+    '<line x1="'+bL+'" y1="'+gY+'" x2="'+bR+'" y2="'+gY+'" stroke="#555" stroke-width="2"/>'+
+    '<line x1="'+bR+'" y1="'+gY+'" x2="'+tR+'" y2="'+tY+'" stroke="#6bb8d4" stroke-width="2.5"/>'+
+    ray(wN,"#c9a959","Win")+
+    ray(sN,"#c45c3e","Sum")+
+    '<text x="'+(w/2)+'" y="'+(h-4)+'" fill="#504c46" font-size="7" text-anchor="middle" font-family="Space Mono,monospace">'+lat+'° '+lbl+'</text>'+
+  '</svg>';
+}
+
+/* city presets */
+const cities=[
+  {name:"Equator",lat:0},
+  {name:"Singapore",lat:1},
+  {name:"Kuala Lumpur",lat:3},
+  {name:"Lagos",lat:6},
+  {name:"Caracas",lat:10},
+  {name:"Dubai",lat:25},
+  {name:"Cairo",lat:30},
+  {name:"Los Angeles",lat:34},
+  {name:"Tokyo",lat:36},
+  {name:"New York",lat:41},
+  {name:"Paris",lat:49},
+  {name:"London",lat:52},
+  {name:"Stockholm",lat:59},
+  {name:"Helsinki",lat:60},
+  {name:"Reykjavik",lat:64}
+];
+
+/* global data */
+const allLats=[]; for(let l=0;l<=70;l+=5) allLats.push(l);
+const allData=allLats.map(computeForm);
+let sel=null;
+
+/* three diagrams */
+document.getElementById('three-diagrams').innerHTML=[
+  {lat:59,l:"Stockholm",s:"Back 22°"},
+  {lat:41,l:"New York",s:"Back 10°"},
+  {lat:0,l:"Equator",s:"Fwd 23.4°"}
+].map(function(e){
+  var d=computeForm(e.lat);
+  return '<div class="trio-item">'+buildSVG(d,170)+
+         '<div class="tl">'+e.l+' ('+e.lat+'°N)</div>'+
+         '<div class="ts">'+e.s+'</div></div>';
+}).join('');
+
+/* tropical strip */
+document.getElementById('tropical-diagrams').innerHTML=[
+  {lat:0,lbl:"0° Equator",angle:"-23.4°"},
+  {lat:5,lbl:"5°",angle:"-18.4°"},
+  {lat:10,lbl:"10°",angle:"-13.4°"},
+  {lat:15,lbl:"15°",angle:"-15.0°"},
+  {lat:20,lbl:"20°",angle:"-20.0°"}
+].map(function(e){
+  var d=computeForm(e.lat);
+  return '<div class="quint-item">'+buildSVG(d,130)+
+         '<div class="ql">'+e.angle+'</div>'+
+         '<div class="qs">'+e.lbl+'</div></div>';
+}).join('');
+
+function renderStrip(){
+  document.getElementById('building-strip').innerHTML=allData.map(function(d){
+    const on = sel===d.lat;
+    return '<div style="cursor:pointer;opacity:'+(on?1:0.5)+';transform:'+(on?'scale(1.06)':'none')+';transition:all 0.2s" onclick="pick('+d.lat+')">'+
+      buildSVG(d,85)+
+    '</div>';
+  }).join('');
+}
+function renderCities(){
+  document.getElementById('city-buttons').innerHTML=cities.map(function(c){
+    return '<button class="cb2 '+(sel===c.lat?'active':'')+'" onclick="pick('+c.lat+')">'+c.name+' '+c.lat+'°</button>';
+  }).join('');
+}
+function renderDetail(){
+  var el=document.getElementById('detail-panel');
+  if(sel===null){el.style.display='none';return;}
+  el.style.display='grid';
+  var d=computeForm(sel);
+  var lt=d.lean>0?('Back '+d.lean+'°'):d.lean<0?('Forward '+Math.abs(d.lean)+'°'):'Vertical';
+  var mt=d.tgt!==null?('Target: '+d.tgt+'° · '+d.nH+' heating / '+d.nC+' cooling months'):'All-cooling · Forward lean';
+
+  el.innerHTML=
+    '<div>'+buildSVG(d,200)+'</div>'+
+    '<div>'+
+      '<div class="dgr">'+
+        '<div class="di"><div class="dl">HDD</div><div class="dv" style="color:var(--cold)">'+d.hdd+'</div><div class="ds">Heating degree days</div></div>'+
+        '<div class="di"><div class="dl">CDD</div><div class="dv" style="color:var(--hot)">'+d.cdd+'</div><div class="ds">Cooling degree days</div></div>'+
+        '<div class="di"><div class="dl">HF</div><div class="dv" style="color:var(--balanced)">'+d.hf+'</div><div class="ds">Heating fraction</div></div>'+
+      '</div>'+
+      '<div class="dgr two">'+
+        '<div class="di"><div class="dl">Winter α</div><div class="dv" style="color:var(--accent)">'+d.wN+'°</div><div class="ds">Dec 21</div></div>'+
+        '<div class="di"><div class="dl">Summer α</div><div class="dv" style="color:var(--hot)">'+d.sN+'°</div><div class="ds">Jun 21</div></div>'+
+      '</div>'+
+      '<div class="fo">'+
+        '<div class="fol">Calvey Form Output</div>'+
+        '<div class="fov">'+lt+'</div>'+
+        '<div class="fod">'+d.desc+'</div>'+
+        '<div class="fom">'+mt+'</div>'+
+      '</div>'+
+    '</div>';
+}
+function renderTable(){
+  document.getElementById('results-body').innerHTML=allData.map(function(d){
+    var ac=sel===d.lat?' class="active"':'';
+    var ls=d.lean>0?('↶ '+d.lean+'°'):d.lean<0?('↷ '+Math.abs(d.lean)+'°'):'0°';
+    return '<tr'+ac+' style="cursor:pointer" onclick="pick('+d.lat+')">'+
+      '<td style="font-weight:600;color:var(--text)">'+d.lat+'°</td>'+
+      '<td style="color:var(--cold)">'+d.hdd+'</td>'+
+      '<td style="color:var(--hot)">'+d.cdd+'</td>'+
+      '<td style="color:var(--balanced)">'+d.hf+'</td>'+
+      '<td style="color:var(--accent)">'+d.wN+'°</td>'+
+      '<td style="color:var(--hot)">'+d.sN+'°</td>'+
+      '<td style="color:var(--glass)">'+(d.tgt!==null?(d.tgt+'°'):'—')+'</td>'+
+      '<td style="color:var(--accent);font-weight:700">'+ls+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function pick(lat){
+  sel=lat;
+  document.getElementById('lat-slider').value=lat;
+  document.getElementById('lat-val').textContent=lat+'°';
+  renderAll();
+}
+function renderAll(){
+  renderStrip();
+  renderCities();
+  renderDetail();
+  renderTable();
+}
+
+/* Save lean data whenever selection changes + draw leaned building */
+var origPick = pick;
+pick = function(lat){
+  origPick(lat);
+  try{
+    var d = computeForm(lat);
+    var sunData = {
+      latitude: lat,
+      leanAngle: d.lean,
+      leanDesc: d.desc,
+      hdd: d.hdd,
+      cdd: d.cdd,
+      heatFrac: parseFloat(d.hf),
+      winterAlt: d.wN,
+      summerAlt: d.sN,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('calvey_sun_data', JSON.stringify(sunData));
+    drawLeanedBuilding(d);
+    updateFloatingNext();
+  }catch(e){ console.error('03_SUN pick error:', e); }
+};
+
+document.getElementById('lat-slider').addEventListener('input',function(){
+  var lat = parseInt(this.value,10);
+  pick(lat);
+});
+
+renderAll();
+
+/* NOTE: Auto-load IIFE moved to end of script so all vars (CATEGORY_COLORS_SUN etc.) are initialized */
+
+/* ============================
+   LEANED BUILDING SECTION
+============================ */
+var CATEGORY_COLORS_SUN = {
+  "Public/Entry":"#c9a959","Public/Commons":"#b5a06a","Public/Support":"#a08a55",
+  "Administration":"#8a7abf","Work":"#6bb8d4","Meeting":"#5aa8c4",
+  "Learning":"#74c07a","Instruction":"#74c07a",
+  "Clinical":"#c45c3e","Clinical/Support":"#b65335","Clinical/Diagnostics":"#a84e36",
+  "Food Service":"#d0a36a","Amenity":"#6a9cc4","Amenity/Outdoor":"#6a9cc4",
+  "Operations":"#7e7e7e","Operations/Circulation":"#6f6f6f",
+  "Circulation":"#505050","Circulation/Core":"#4a4a4a",
+  "MEP":"#3a3a3a","MEP/Tech":"#3a3a3a",
+  "Mobility":"#8aa0a8","Parking":"#2f2f2f","Safety/Operations":"#6b3b3b",
+  "Rooms":"#6a9cc4","Support":"#7e7e7e"
+};
+
+/* Height slider state */
+var origOutline = null;   // original building outline from program
+var origTotalSF = 0;      // original total SF (preserved)
+var origAspect = 1;       // W:D ratio
+var currentFormData = null;
+var currentOutline = null; // tracks floor-adjusted outline for lean slider
+
+function initHeightSlider(outline){
+  // Compute total SF from original outline
+  origTotalSF = 0;
+  if(outline.floorOutlines){
+    outline.floorOutlines.forEach(function(fl){
+      origTotalSF += fl.usedArea || (outline.buildingWidth * outline.buildingDepth);
+    });
+  } else {
+    origTotalSF = outline.buildingWidth * outline.buildingDepth * outline.nFloors;
+  }
+  origAspect = outline.buildingWidth / Math.max(outline.buildingDepth, 1);
+
+  var slider = document.getElementById('floor-slider');
+  var valEl = document.getElementById('floor-val');
+  slider.value = outline.nFloors;
+  slider.min = 1;
+  slider.max = Math.max(40, outline.nFloors + 10);
+  valEl.textContent = outline.nFloors + 'F';
+
+  document.getElementById('height-slider-info').style.display = 'block';
+
+  if(!_floorSliderBound){
+    _floorSliderBound = true;
+    slider.addEventListener('input', function(){
+      var newFloors = parseInt(this.value, 10);
+      valEl.textContent = newFloors + 'F';
+      applyHeightChange(newFloors);
+    });
+  }
+}
+
+function applyHeightChange(newFloors){
+  if(!origOutline || !currentFormData) return;
+  var fH = origOutline.floorHeight || 12;
+  var areaPerFloor = origTotalSF / newFloors;
+  var newW = Math.sqrt(areaPerFloor * origAspect);
+  var newD = areaPerFloor / newW;
+  var newTotalH = newFloors * fH;
+
+  // Build a simplified outline with uniform floor plates (no individual program blocks)
+  var newOutline = {
+    nFloors: newFloors,
+    floorHeight: fH,
+    totalHeight: newTotalH,
+    buildingWidth: newW,
+    buildingDepth: newD,
+    totalSF: origTotalSF,
+    floorOutlines: []
+  };
+  for(var fi = 0; fi < newFloors; fi++){
+    newOutline.floorOutlines.push({
+      blocks: [{
+        id: 'floor_' + fi,
+        name: 'Floor ' + (fi + 1),
+        category: 'Work',
+        area_sf: areaPerFloor,
+        widthFraction: 1,
+        x_ft: 0, y_ft: 0,
+        w_ft: newW, d_ft: newD
+      }],
+      usedArea: areaPerFloor
+    });
+  }
+
+  currentOutline = newOutline;
+  renderLeanedBuilding(newOutline, currentFormData);
+}
+
+function initLeanReadout(formData){
+  var el = document.getElementById('lean-readout');
+  if(!el) return;
+  var lbl = formData.lean > 0 ? ('Computed Lean: Back ' + formData.lean + '°') : formData.lean < 0 ? ('Computed Lean: Forward ' + Math.abs(formData.lean) + '°') : 'Computed Lean: 0° (Vertical)';
+  el.textContent = lbl;
+  el.style.display = 'block';
+}
+
+var _floorSliderBound = false;
+
+function drawLeanedBuilding(formData){
+  origOutline = null;
+  try{ origOutline = JSON.parse(localStorage.getItem('calvey_building_outline')); }catch(e){}
+
+  // Fallback: try calvey_program_data if building outline is missing
+  if(!origOutline || !origOutline.floorOutlines){
+    try{
+      var progData = JSON.parse(localStorage.getItem('calvey_program_data'));
+      if(progData && progData.floors && progData.floors.length){
+        origOutline = {
+          nFloors: progData.nFloors || progData.floors.length,
+          floorHeight: progData.floorHeight || 12,
+          totalHeight: progData.totalHeight || (progData.floors.length * 12),
+          buildingWidth: progData.buildingWidth || 100,
+          buildingDepth: progData.buildingDepth || 60,
+          floorOutlines: progData.floors.map(function(fl){
+            var bWidth = progData.buildingWidth || 100;
+            var bDepth = progData.buildingDepth || 60;
+            var floorArea = fl.usedArea || bWidth * bDepth;
+            var xOff = 0;
+            return {
+              blocks: fl.blocks.map(function(b){
+                var wFrac = b.area_sf / Math.max(floorArea, 1);
+                var w_ft = wFrac * bWidth;
+                var d_ft = bDepth;
+                var x_ft = xOff;
+                xOff += w_ft;
+                return {
+                  id: b.id, name: b.name, category: b.category,
+                  area_sf: b.area_sf,
+                  widthFraction: wFrac,
+                  w_ft: w_ft,
+                  d_ft: d_ft,
+                  x_ft: x_ft,
+                  y_ft: 0
+                };
+              }),
+              usedArea: fl.usedArea || floorArea
+            };
+          })
+        };
+      }
+    }catch(e2){}
+  }
+
+  if(!origOutline || !origOutline.floorOutlines){ return; }
+
+  currentFormData = formData;
+  currentOutline = origOutline;
+
+  document.getElementById('building-lean-section').style.display = 'block';
+
+  // Show computed lean readout
+  initLeanReadout(formData);
+
+  // Initialize the height slider
+  initHeightSlider(origOutline);
+
+  // Render with original outline
+  renderLeanedBuilding(origOutline, formData);
+}
+
+function renderLeanedBuilding(outline, formData){
+  var lean = formData.lean;
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight;
+  var totalH = outline.totalHeight;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+
+  drawLeanedView('leanFrontSvg', outline, lean, bW, totalH, fH, nFloors, formData, 'FRONT');
+  drawLeanedView('leanSideSvg', outline, lean, bD, totalH, fH, nFloors, formData, 'SIDE');
+
+  // Save leaned outline for wind page
+  var leanedOutline = JSON.parse(JSON.stringify(outline));
+  leanedOutline.leanAngle = lean;
+  leanedOutline.leanDesc = formData.desc;
+  leanedOutline.leanDirection = lean > 0 ? 'back' : lean < 0 ? 'forward' : 'vertical';
+  leanedOutline.tropicalOverride = Math.abs(formData.lat) <= 20;
+  leanedOutline.winterAlt = formData.wN;
+  leanedOutline.summerAlt = formData.sN;
+  leanedOutline.winterNoon = formData.wN;
+  leanedOutline.summerNoon = formData.sN;
+  leanedOutline.latitude = formData.lat;
+  leanedOutline.hdd = formData.hdd;
+  leanedOutline.cdd = formData.cdd;
+  leanedOutline.heatFrac = parseFloat(formData.hf);
+  leanedOutline.totalSF = origTotalSF;
+  try{ localStorage.setItem('calvey_leaned_outline', JSON.stringify(leanedOutline)); }catch(e){}
+
+  // Metrics
+  var lbl = lean > 0 ? ('Back ' + lean + '°') : lean < 0 ? ('Forward ' + Math.abs(lean) + '°') : 'Vertical';
+  var floorSF = Math.round(bW * bD);
+  document.getElementById('lean-metrics').innerHTML = [
+    ['Lean Angle', lbl, formData.desc],
+    ['Building', totalH + ' ft / ' + nFloors + 'F', Math.round(bW) + '×' + Math.round(bD) + ' ft footprint'],
+    ['Total SF', Math.round(origTotalSF).toLocaleString() + ' sf', floorSF.toLocaleString() + ' sf/floor'],
+    ['Solar', 'Win ' + formData.wN + '° / Sum ' + formData.sN + '°', 'noon altitude']
+  ].map(function(m){
+    return '<div style="background:var(--surface);border:1px solid var(--border);padding:10px 12px"><div style="font-family:Space Mono,monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase">' + m[0] + '</div><div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:300;color:var(--text)">' + m[1] + '</div><div style="font-family:Space Mono,monospace;font-size:8px;color:var(--text-muted)">' + m[2] + '</div></div>';
+  }).join('');
+
+  // Build the 3D sun model
+  build3DSunModel(outline, formData);
+
+  // Show floating next button
+  updateFloatingNext();
+}
+
+/* ============================
+   SITE BOUNDARY HELPER
+============================ */
+function getSiteFootprintFtSun(){
+  var siteGeo = null;
+  try{ siteGeo = JSON.parse(localStorage.getItem('calvey_site_geo')); }catch(e){}
+  if(!siteGeo) return null;
+  var feature = siteGeo.parcel || siteGeo.footprint || siteGeo.userBoundary;
+  if(!feature || !feature.geometry) return null;
+  var coords = feature.geometry.type === 'Polygon' ? feature.geometry.coordinates[0] :
+               feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates[0][0] : null;
+  if(!coords || coords.length < 3) return null;
+  var lat0 = siteGeo.lat, lon0 = siteGeo.lon;
+  var mPerDegLat = 111320;
+  var mPerDegLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+  var mCoords = coords.map(function(c){ return [(c[0] - lon0) * mPerDegLon, (c[1] - lat0) * mPerDegLat]; });
+  var ftCoords = mCoords.map(function(c){ return [c[0] * 3.28084, c[1] * 3.28084]; });
+  var minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  ftCoords.forEach(function(c){
+    if(c[0]<minX) minX=c[0]; if(c[0]>maxX) maxX=c[0];
+    if(c[1]<minY) minY=c[1]; if(c[1]>maxY) maxY=c[1];
+  });
+  var cx=(minX+maxX)/2, cy=(minY+maxY)/2;
+  return ftCoords.map(function(c){ return [c[0]-cx, c[1]-cy]; });
+}
+
+/* ============================
+   3D SUN MODEL (leaned at computed angle)
+============================ */
+var sunModel3DState = null;
+
+function build3DSunModel(outline, formData){
+  if(!window.THREE || !outline || !outline.floorOutlines) return;
+
+  var host = document.getElementById('sunModel3d');
+  if(!host) return;
+
+  document.getElementById('sun-model-section').style.display = 'block';
+
+  var LEAN_ANGLE = formData.lean; // degrees from climate model (positive=back, negative=forward)
+  var leanRad = LEAN_ANGLE * Math.PI / 180;
+  var nFloors = outline.nFloors;
+  var fH = outline.floorHeight;
+  var totalH = outline.totalHeight;
+  var bW = outline.buildingWidth;
+  var bD = outline.buildingDepth;
+
+  if(!sunModel3DState){
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060606);
+
+    var renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    // Remove hint after canvas added
+    var existingCanvas = host.querySelector('canvas');
+    if(existingCanvas) existingCanvas.remove();
+    host.insertBefore(renderer.domElement, host.firstChild);
+
+    var camera = new THREE.PerspectiveCamera(50, 1, 1, 9000);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    var sunLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    sunLight.position.set(200, 400, -300);
+    scene.add(sunLight);
+
+    var ground = new THREE.GridHelper(800, 20, 0x2a2a2a, 0x181818);
+    scene.add(ground);
+
+    sunModel3DState = {
+      host: host,
+      scene: scene,
+      renderer: renderer,
+      buildCenterX: 0, buildCenterZ: 0,
+      camera: camera,
+      model: new THREE.Group(),
+      yaw: Math.PI * 0.25,
+      pitch: 0.5,
+      distance: 500,
+      panX: 0, panZ: 0,
+      pointers: new Map(),
+      prevPinchDist: null,
+      prevPinchMid: null,
+      prevSingle: null
+    };
+    scene.add(sunModel3DState.model);
+
+    function resize3D(){
+      var w = host.clientWidth || 1;
+      var h = host.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / Math.max(h,1);
+      camera.updateProjectionMatrix();
+    }
+
+    function cameraUpdate(){
+      var st = sunModel3DState;
+      var pitch = Math.max(0.1, Math.min(1.45, st.pitch));
+      st.pitch = pitch;
+      st.distance = Math.max(80, Math.min(2600, st.distance));
+      var tx = (st.buildCenterX || 0) + st.panX;
+      var ty = totalH * 0.4;
+      var tz = (st.buildCenterZ || 0) + st.panZ;
+      var cp = Math.cos(pitch), sp = Math.sin(pitch);
+      var cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+      camera.position.set(
+        tx + st.distance * cp * cy,
+        ty + st.distance * sp,
+        tz + st.distance * cp * sy
+      );
+      camera.lookAt(tx, ty, tz);
+    }
+
+    host.style.touchAction = 'none';
+    host.addEventListener('pointerdown', function(ev){
+      host.setPointerCapture(ev.pointerId);
+      sunModel3DState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      sunModel3DState.prevPinchDist = null;
+      sunModel3DState.prevPinchMid = null;
+    });
+    host.addEventListener('pointermove', function(ev){
+      if(!sunModel3DState.pointers.has(ev.pointerId)) return;
+      ev.preventDefault();
+      sunModel3DState.pointers.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+      var pts = Array.from(sunModel3DState.pointers.values());
+      if(pts.length === 1){
+        var prev = sunModel3DState.prevSingle || pts[0];
+        sunModel3DState.yaw -= (pts[0].x - prev.x) * 0.008;
+        sunModel3DState.pitch += (pts[0].y - prev.y) * 0.006;
+        sunModel3DState.prevSingle = {x:pts[0].x, y:pts[0].y};
+      } else if(pts.length >= 2){
+        var p0=pts[0], p1=pts[1];
+        var dist = Math.hypot(p1.x-p0.x, p1.y-p0.y);
+        if(sunModel3DState.prevPinchDist){
+          sunModel3DState.distance *= sunModel3DState.prevPinchDist / Math.max(dist,1);
+        }
+        sunModel3DState.prevPinchDist = dist;
+      }
+      cameraUpdate();
+    }, {passive:false});
+    host.addEventListener('pointerup', function(ev){
+      sunModel3DState.pointers.delete(ev.pointerId);
+      sunModel3DState.prevSingle = null;
+      sunModel3DState.prevPinchDist = null;
+      try{ host.releasePointerCapture(ev.pointerId); }catch(e){}
+    });
+    host.addEventListener('pointercancel', function(ev){
+      sunModel3DState.pointers.delete(ev.pointerId);
+      sunModel3DState.prevSingle = null;
+      sunModel3DState.prevPinchDist = null;
+    });
+    host.addEventListener('wheel', function(ev){
+      ev.preventDefault();
+      sunModel3DState.distance = Math.max(80, Math.min(2600, sunModel3DState.distance * Math.exp(ev.deltaY * 0.0011)));
+      cameraUpdate();
+    }, {passive:false});
+
+    window.addEventListener('resize', function(){ resize3D(); cameraUpdate(); });
+
+    (function loop(){
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    })();
+
+    resize3D();
+    cameraUpdate();
+  }
+
+  // Clear previous model
+  var model = sunModel3DState.model;
+  while(model.children.length){
+    var child = model.children.pop();
+    if(child.geometry) child.geometry.dispose();
+    if(child.material){
+      if(Array.isArray(child.material)) child.material.forEach(function(m){ m.dispose(); });
+      else child.material.dispose();
+    }
+  }
+
+  // Compute actual building bounding box from block coordinates.
+  // Block x_ft/y_ft from calvey_building_outline are in parcel-centered coords
+  // (matching 02_PROGRAM layout), so we use them directly without re-centering.
+  var bbMinX = 0, bbMaxX = bW, bbMinY = 0, bbMaxY = bD;
+  if(outline.floorOutlines && outline.floorOutlines.length){
+    bbMinX = Infinity; bbMaxX = -Infinity; bbMinY = Infinity; bbMaxY = -Infinity;
+    outline.floorOutlines.forEach(function(fl){
+      fl.blocks.forEach(function(bl){
+        var x0 = bl.x_ft || 0, y0 = bl.y_ft || 0;
+        var w = bl.w_ft || bW, d = bl.d_ft || bD;
+        if(x0 < bbMinX) bbMinX = x0;
+        if(x0 + w > bbMaxX) bbMaxX = x0 + w;
+        if(y0 < bbMinY) bbMinY = y0;
+        if(y0 + d > bbMaxY) bbMaxY = y0 + d;
+      });
+    });
+  }
+  var bbW = bbMaxX - bbMinX;
+  var bbD = bbMaxY - bbMinY;
+
+  // White material for all program blocks
+  var whiteMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.65,
+    metalness: 0.02,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide
+  });
+  var edgeMat = new THREE.LineBasicMaterial({color:0x888888, transparent:true, opacity:0.45});
+
+  // Render program blocks per floor, shifted by lean angle
+  for(var fi = 0; fi < nFloors; fi++){
+    var floorY = fi * fH;
+    var southShift = fi * fH * Math.tan(leanRad);
+
+    var floorData = outline.floorOutlines ? outline.floorOutlines[Math.min(fi, outline.floorOutlines.length - 1)] : null;
+    var blocks = floorData ? floorData.blocks : [{x_ft:0, y_ft:0, w_ft:bW, d_ft:bD}];
+
+    blocks.forEach(function(bl){
+      var bx = (bl.x_ft || 0);
+      var bz = -(bl.y_ft || 0) - (bl.d_ft || bD);
+      var bw = bl.w_ft || bW;
+      var bd = bl.d_ft || bD;
+
+      var geo = new THREE.BoxGeometry(bw, fH, bd);
+      geo.translate(bx + bw/2, floorY + fH/2, bz + bd/2 - southShift);
+
+      var mesh = new THREE.Mesh(geo, whiteMat);
+      model.add(mesh);
+
+      var edge = new THREE.LineSegments(
+        new THREE.EdgesGeometry(geo),
+        edgeMat
+      );
+      mesh.add(edge);
+    });
+  }
+
+  // Continuous south wall highlight (the leaning face — primary solar interaction)
+  var southZ = -bbMaxY;  // south edge in 3D (max y_ft = min Z)
+  var southWallPts = [
+    new THREE.Vector3(bbMinX, 0, southZ),
+    new THREE.Vector3(bbMaxX, 0, southZ),
+    new THREE.Vector3(bbMaxX, totalH, southZ - totalH * Math.tan(leanRad)),
+    new THREE.Vector3(bbMinX, totalH, southZ - totalH * Math.tan(leanRad)),
+    new THREE.Vector3(bbMinX, 0, southZ)
+  ];
+  var southWallGeo = new THREE.BufferGeometry().setFromPoints(southWallPts);
+  model.add(new THREE.Line(southWallGeo, new THREE.LineBasicMaterial({color:0xc9a959, linewidth:2})));
+
+  // South wall translucent surface (sun-facing)
+  var wallVerts = [
+    new THREE.Vector3(bbMinX, 0, southZ),
+    new THREE.Vector3(bbMaxX, 0, southZ),
+    new THREE.Vector3(bbMaxX, totalH, southZ - totalH * Math.tan(leanRad)),
+    new THREE.Vector3(bbMinX, totalH, southZ - totalH * Math.tan(leanRad))
+  ];
+  var southGeo = new THREE.BufferGeometry();
+  var vertices = new Float32Array([
+    wallVerts[0].x, wallVerts[0].y, wallVerts[0].z,
+    wallVerts[1].x, wallVerts[1].y, wallVerts[1].z,
+    wallVerts[2].x, wallVerts[2].y, wallVerts[2].z,
+    wallVerts[0].x, wallVerts[0].y, wallVerts[0].z,
+    wallVerts[2].x, wallVerts[2].y, wallVerts[2].z,
+    wallVerts[3].x, wallVerts[3].y, wallVerts[3].z
+  ]);
+  southGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  southGeo.computeVertexNormals();
+  var southMat = new THREE.MeshStandardMaterial({
+    color: 0xc9a959,
+    roughness: 0.3,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0.18,
+    side: THREE.DoubleSide
+  });
+  model.add(new THREE.Mesh(southGeo, southMat));
+
+  // Vertical edge lines for continuous form
+  var edgeCorners = [
+    {x: bbMinX, z: -bbMaxY},          // south-west
+    {x: bbMaxX, z: -bbMaxY},          // south-east
+    {x: bbMaxX, z: -bbMinY},          // north-east
+    {x: bbMinX, z: -bbMinY}           // north-west
+  ];
+  edgeCorners.forEach(function(c){
+    var pts = [
+      new THREE.Vector3(c.x, 0, c.z),
+      new THREE.Vector3(c.x, totalH, c.z - totalH * Math.tan(leanRad))
+    ];
+    var eg = new THREE.BufferGeometry().setFromPoints(pts);
+    model.add(new THREE.Line(eg, new THREE.LineBasicMaterial({color:0x888888, transparent:true, opacity:0.5})));
+  });
+
+  // Top face outline
+  var topShift = totalH * Math.tan(leanRad);
+  var topPts = [
+    new THREE.Vector3(bbMinX, totalH, -bbMaxY - topShift),
+    new THREE.Vector3(bbMaxX, totalH, -bbMaxY - topShift),
+    new THREE.Vector3(bbMaxX, totalH, -bbMinY - topShift),
+    new THREE.Vector3(bbMinX, totalH, -bbMinY - topShift),
+    new THREE.Vector3(bbMinX, totalH, -bbMaxY - topShift)
+  ];
+  var topGeo = new THREE.BufferGeometry().setFromPoints(topPts);
+  model.add(new THREE.Line(topGeo, new THREE.LineBasicMaterial({color:0x888888, transparent:true, opacity:0.5})));
+
+  // Lean angle indicator line
+  var anglePts = [
+    new THREE.Vector3(bbMinX - 10, 0, southZ),
+    new THREE.Vector3(bbMinX - 10, totalH, southZ - totalH * Math.tan(leanRad))
+  ];
+  var angleGeo = new THREE.BufferGeometry().setFromPoints(anglePts);
+  var angleLine = new THREE.Line(angleGeo, new THREE.LineDashedMaterial({
+    color:0xc45c3e, dashSize:6, gapSize:4, transparent:true, opacity:0.7
+  }));
+  angleLine.computeLineDistances();
+  model.add(angleLine);
+
+  // Ground outline
+  var groundOutline = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(bbMinX-20, 0.1, -bbMaxY-20),
+    new THREE.Vector3(bbMaxX+20, 0.1, -bbMaxY-20),
+    new THREE.Vector3(bbMaxX+20, 0.1, -bbMinY+20),
+    new THREE.Vector3(bbMinX-20, 0.1, -bbMinY+20),
+    new THREE.Vector3(bbMinX-20, 0.1, -bbMaxY-20)
+  ]);
+  var groundLine = new THREE.Line(groundOutline, new THREE.LineDashedMaterial({color:0x444444, dashSize:8, gapSize:6}));
+  groundLine.computeLineDistances();
+  model.add(groundLine);
+
+  // Site/parcel boundary on ground plane
+  var sitePoly = getSiteFootprintFtSun();
+  if(sitePoly && sitePoly.length >= 3){
+    var sitePts = sitePoly.map(function(pt){ return new THREE.Vector3(pt[0], 0.3, -pt[1]); });
+    sitePts.push(sitePts[0].clone());
+    var siteGeo2 = new THREE.BufferGeometry().setFromPoints(sitePts);
+    var siteMat = new THREE.LineDashedMaterial({color:0xc9a959, dashSize:8, gapSize:5, transparent:true, opacity:0.7});
+    var siteLine = new THREE.Line(siteGeo2, siteMat);
+    siteLine.computeLineDistances();
+    model.add(siteLine);
+  }
+
+  // Update camera — center on building within parcel
+  sunModel3DState.buildCenterX = (bbMinX + bbMaxX) / 2;
+  sunModel3DState.buildCenterZ = -(bbMinY + bbMaxY) / 2;
+  var radius = Math.max(200, Math.hypot(bbW, bbD, totalH) * 0.9);
+  sunModel3DState.distance = Math.max(200, Math.min(2200, radius * 1.4));
+
+  var st = sunModel3DState;
+  var pitch = Math.max(0.1, Math.min(1.45, st.pitch));
+  var ty = totalH * 0.4;
+  var cp = Math.cos(pitch), sp = Math.sin(pitch);
+  var cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+  var tx = st.buildCenterX + st.panX;
+  var tz = st.buildCenterZ + st.panZ;
+  st.camera.position.set(
+    tx + st.distance * cp * cy,
+    ty + st.distance * sp,
+    tz + st.distance * cp * sy
+  );
+  st.camera.lookAt(tx, ty, tz);
+
+  // Metrics
+  var leanLabel = LEAN_ANGLE > 0 ? 'Back ' + LEAN_ANGLE + '°' : LEAN_ANGLE < 0 ? 'Forward ' + Math.abs(LEAN_ANGLE) + '°' : 'Vertical';
+  document.getElementById('sunModelMetrics').innerHTML = [
+    ['South Lean', leanLabel, 'continuous south wall'],
+    ['Floors', nFloors + 'F', fH + ' ft each'],
+    ['Height', totalH + ' ft', 'to top of lean'],
+    ['Footprint', Math.round(bW) + '×' + Math.round(bD) + ' ft', 'from program']
+  ].map(function(m){
+    return '<div style="background:var(--surface);border:1px solid var(--border);padding:10px 12px"><div style="font-family:Space Mono,monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase">'+m[0]+'</div><div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:300;color:var(--text)">'+m[1]+'</div><div style="font-family:Space Mono,monospace;font-size:8px;color:var(--text-muted)">'+m[2]+'</div></div>';
+  }).join('');
+
+  // Sun angle indicator rays (winter and summer noon sun)
+  var rayLen = Math.max(bbW, bbD, totalH) * 1.2;
+  var midY = totalH * 0.5;
+  var midZ = southZ - totalH * 0.5 * Math.tan(leanRad);
+
+  // Winter sun ray (gold)
+  if(formData.wN > 0){
+    var wRad = formData.wN * Math.PI / 180;
+    var wPts = [
+      new THREE.Vector3(-rayLen * Math.cos(wRad), midY + rayLen * Math.sin(wRad), midZ),
+      new THREE.Vector3(0, midY, midZ),
+      new THREE.Vector3(rayLen * 0.3 * Math.cos(wRad), midY - rayLen * 0.3 * Math.sin(wRad), midZ)
+    ];
+    var wGeo = new THREE.BufferGeometry().setFromPoints(wPts);
+    var wLine = new THREE.Line(wGeo, new THREE.LineDashedMaterial({color:0xc9a959, dashSize:6, gapSize:4, transparent:true, opacity:0.6}));
+    wLine.computeLineDistances();
+    model.add(wLine);
+    // Winter label sprite
+    var wCanvas = document.createElement('canvas');
+    wCanvas.width = 128; wCanvas.height = 32;
+    var wCtx2 = wCanvas.getContext('2d');
+    wCtx2.fillStyle = '#c9a959';
+    wCtx2.font = '16px Space Mono, monospace';
+    wCtx2.fillText('Win ' + formData.wN + '°', 4, 20);
+    var wTex = new THREE.CanvasTexture(wCanvas);
+    var wSprite = new THREE.Sprite(new THREE.SpriteMaterial({map:wTex, transparent:true, opacity:0.8}));
+    wSprite.scale.set(50, 12, 1);
+    wSprite.position.set(-rayLen * 0.6 * Math.cos(wRad), midY + rayLen * 0.6 * Math.sin(wRad) + 8, midZ);
+    model.add(wSprite);
+  }
+
+  // Summer sun ray (red)
+  if(formData.sN > 0){
+    var sRad = formData.sN * Math.PI / 180;
+    var sPts = [
+      new THREE.Vector3(-rayLen * 0.5 * Math.cos(sRad), midY + rayLen * 0.5 * Math.sin(sRad), midZ),
+      new THREE.Vector3(0, midY, midZ),
+      new THREE.Vector3(rayLen * 0.2 * Math.cos(sRad), midY - rayLen * 0.2 * Math.sin(sRad), midZ)
+    ];
+    var sGeo = new THREE.BufferGeometry().setFromPoints(sPts);
+    var sLine = new THREE.Line(sGeo, new THREE.LineDashedMaterial({color:0xc45c3e, dashSize:6, gapSize:4, transparent:true, opacity:0.6}));
+    sLine.computeLineDistances();
+    model.add(sLine);
+    var sCanvas = document.createElement('canvas');
+    sCanvas.width = 128; sCanvas.height = 32;
+    var sCtx2 = sCanvas.getContext('2d');
+    sCtx2.fillStyle = '#c45c3e';
+    sCtx2.font = '16px Space Mono, monospace';
+    sCtx2.fillText('Sum ' + formData.sN + '°', 4, 20);
+    var sTex = new THREE.CanvasTexture(sCanvas);
+    var sSprite = new THREE.Sprite(new THREE.SpriteMaterial({map:sTex, transparent:true, opacity:0.8}));
+    sSprite.scale.set(50, 12, 1);
+    sSprite.position.set(-rayLen * 0.3 * Math.cos(sRad), midY + rayLen * 0.3 * Math.sin(sRad) + 8, midZ);
+    model.add(sSprite);
+  }
+
+  // Store model data for export
+  sunModel3DState.buildData = {
+    bW:bW, bD:bD, nFloors:nFloors, fH:fH, totalH:totalH,
+    leanAngle:LEAN_ANGLE, leanRad:leanRad, outline:outline, formData:formData,
+    bbMinX:bbMinX, bbMaxX:bbMaxX, bbMinY:bbMinY, bbMaxY:bbMaxY
+  };
+}
+
+/* ============================
+   EXPORT: OBJ FILE
+============================ */
+function exportOBJ(){
+  if(!sunModel3DState || !sunModel3DState.buildData) return;
+  var d = sunModel3DState.buildData;
+  var nFloors=d.nFloors, fH=d.fH, leanRad=d.leanRad;
+  var ox=d.bbMinX, oz=-d.bbMaxY, eW=d.bbMaxX-d.bbMinX, eD=d.bbMaxY-d.bbMinY;
+  var verts = [], faces = [], vi = 1;
+
+  for(var fi=0; fi<nFloors; fi++){
+    var y0 = fi*fH, y1 = (fi+1)*fH;
+    var shift0 = fi*fH*Math.tan(leanRad);
+    var shift1 = (fi+1)*fH*Math.tan(leanRad);
+    var z0 = oz-shift0, z1 = oz+eD-shift0;
+    var z0t = oz-shift1, z1t = oz+eD-shift1;
+
+    // 8 vertices per floor box
+    verts.push('v '+ox+' '+y0+' '+z0);
+    verts.push('v '+(ox+eW)+' '+y0+' '+z0);
+    verts.push('v '+(ox+eW)+' '+y0+' '+z1);
+    verts.push('v '+ox+' '+y0+' '+z1);
+    verts.push('v '+ox+' '+y1+' '+z0t);
+    verts.push('v '+(ox+eW)+' '+y1+' '+z0t);
+    verts.push('v '+(ox+eW)+' '+y1+' '+z1t);
+    verts.push('v '+ox+' '+y1+' '+z1t);
+
+    var b = vi;
+    faces.push('f '+b+' '+(b+1)+' '+(b+5)+' '+(b+4));
+    faces.push('f '+(b+1)+' '+(b+2)+' '+(b+6)+' '+(b+5));
+    faces.push('f '+(b+2)+' '+(b+3)+' '+(b+7)+' '+(b+6));
+    faces.push('f '+(b+3)+' '+b+' '+(b+4)+' '+(b+7));
+    faces.push('f '+(b+4)+' '+(b+5)+' '+(b+6)+' '+(b+7));
+    faces.push('f '+b+' '+(b+3)+' '+(b+2)+' '+(b+1));
+    vi += 8;
+  }
+
+  var obj = '# CALVEY FORM Sun Model\n# South wall lean: '+d.leanAngle+' degrees\n# Floors: '+nFloors+'\n\n'+verts.join('\n')+'\n\n'+faces.join('\n')+'\n';
+  var blob = new Blob([obj], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_sun_model.obj';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================
+   EXPORT: GRASSHOPPER SCRIPT
+============================ */
+function exportGH(){
+  if(!sunModel3DState || !sunModel3DState.buildData) return;
+  var d = sunModel3DState.buildData;
+  var script = '// CALVEY FORM - Grasshopper/RhinoScript\n';
+  script += '// Sun Model with ' + d.leanAngle + '° south wall lean\n';
+  script += '// Generated: ' + new Date().toISOString() + '\n\n';
+  script += '// === PARAMETERS ===\n';
+  script += 'var bW = ' + d.bW.toFixed(2) + ';  // building width (ft)\n';
+  script += 'var bD = ' + d.bD.toFixed(2) + ';  // building depth (ft)\n';
+  script += 'var nFloors = ' + d.nFloors + ';\n';
+  script += 'var fH = ' + d.fH + ';  // floor height (ft)\n';
+  script += 'var leanAngle = ' + d.leanAngle + ';  // south wall lean (degrees)\n';
+  script += 'var leanRad = ' + d.leanRad.toFixed(6) + ';\n\n';
+  script += '// === RHINOCOMMON / GRASSHOPPER C# ===\n';
+  script += '// Paste into a C# scripting component in Grasshopper\n\n';
+  script += 'using Rhino.Geometry;\n';
+  script += 'using System.Collections.Generic;\n\n';
+  script += 'private void RunScript(ref object Breps)\n';
+  script += '{\n';
+  script += '  double bW = ' + d.bW.toFixed(2) + ';\n';
+  script += '  double bD = ' + d.bD.toFixed(2) + ';\n';
+  script += '  int nFloors = ' + d.nFloors + ';\n';
+  script += '  double fH = ' + d.fH + ';\n';
+  script += '  double leanTan = ' + Math.tan(d.leanRad).toFixed(6) + '; // tan(' + d.leanAngle + '°)\n\n';
+  script += '  var breps = new List<Brep>();\n\n';
+  script += '  for(int fi = 0; fi < nFloors; fi++)\n';
+  script += '  {\n';
+  script += '    double y0 = fi * fH;\n';
+  script += '    double y1 = (fi + 1) * fH;\n';
+  script += '    double shift0 = y0 * leanTan;\n';
+  script += '    double shift1 = y1 * leanTan;\n\n';
+  script += '    // Bottom rectangle\n';
+  script += '    var p0 = new Point3d(-bW/2, -bD/2 + shift0, y0);\n';
+  script += '    var p1 = new Point3d(bW/2, -bD/2 + shift0, y0);\n';
+  script += '    var p2 = new Point3d(bW/2, bD/2 + shift0, y0);\n';
+  script += '    var p3 = new Point3d(-bW/2, bD/2 + shift0, y0);\n\n';
+  script += '    // Top rectangle (shifted by lean)\n';
+  script += '    var p4 = new Point3d(-bW/2, -bD/2 + shift1, y1);\n';
+  script += '    var p5 = new Point3d(bW/2, -bD/2 + shift1, y1);\n';
+  script += '    var p6 = new Point3d(bW/2, bD/2 + shift1, y1);\n';
+  script += '    var p7 = new Point3d(-bW/2, bD/2 + shift1, y1);\n\n';
+  script += '    var box = Brep.CreateFromBox(new [] {\n';
+  script += '      new Point3d[] { p0, p1, p2, p3 },\n';
+  script += '      new Point3d[] { p4, p5, p6, p7 }\n';
+  script += '    });\n';
+  script += '    if(box != null) breps.Add(box);\n';
+  script += '  }\n\n';
+  script += '  Breps = breps;\n';
+  script += '}\n';
+
+  var blob = new Blob([script], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'calvey_sun_model_gh.cs';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================
+   FLOATING NEXT BUTTON
+============================ */
+function updateFloatingNext(){
+  var bar = document.getElementById('nextFloatBar');
+  var nextSection = document.getElementById('nextSection');
+  if(!bar || !nextSection) return;
+
+  // Show when model section or lean section is visible (inputs done)
+  var hasModel = document.getElementById('sun-model-section').style.display !== 'none' ||
+                 document.getElementById('building-lean-section').style.display !== 'none';
+  if(!hasModel){ bar.classList.remove('visible'); return; }
+
+  var rect = nextSection.getBoundingClientRect();
+  var inView = rect.top < window.innerHeight && rect.bottom > 0;
+  if(!inView){
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+window.addEventListener('scroll', updateFloatingNext);
+window.addEventListener('resize', updateFloatingNext);
+
+// Bind export buttons
+document.getElementById('exportObjBtn').addEventListener('click', exportOBJ);
+document.getElementById('exportGhBtn').addEventListener('click', exportGH);
+
+function drawLeanedView(svgId, outline, leanDeg, buildDim, totalH, fH, nFloors, formData, label){
+  var leanRad = leanDeg * Math.PI / 180;
+  var margin = {top:40, right:50, bottom:40, left:50};
+  var maxW = 360, maxH = 380;
+  var drawW = maxW - margin.left - margin.right;
+  var drawH = maxH - margin.top - margin.bottom;
+
+  // Account for lean offset in width
+  var leanOffset = Math.abs(Math.sin(leanRad) * totalH);
+  var totalWidth = buildDim + leanOffset;
+
+  var scaleX = drawW / Math.max(totalWidth, 1);
+  var scaleY = drawH / Math.max(totalH, 1);
+  var scale = Math.min(scaleX, scaleY);
+
+  var bPx = buildDim * scale;
+  var hPx = totalH * scale;
+  var flPx = fH * scale;
+  var leanPx = Math.sin(leanRad) * hPx; // horizontal shift at top
+
+  var svgW = margin.left + Math.max(totalWidth * scale, bPx + Math.abs(leanPx)) + margin.right;
+  var svgH = margin.top + hPx + margin.bottom;
+
+  var svg = document.getElementById(svgId);
+  svg.setAttribute('viewBox', '0 0 ' + svgW + ' ' + svgH);
+
+  var gY = svgH - margin.bottom;
+  var baseLeft = margin.left + (leanDeg < 0 ? Math.abs(leanPx) : 0);
+
+  var s = '';
+
+  // Ground line
+  s += '<line x1="0" y1="' + gY + '" x2="' + svgW + '" y2="' + gY + '" stroke="#222" stroke-width="1"/>';
+
+  // Draw leaned floors — each floor is a parallelogram
+  for(var f = 0; f < nFloors; f++){
+    var botFrac = f / nFloors;
+    var topFrac = (f + 1) / nFloors;
+    var botY = gY - f * flPx;
+    var topY = gY - (f + 1) * flPx;
+    var botShift = -leanPx * botFrac;
+    var topShift = -leanPx * topFrac;
+
+    var fl = outline.floorOutlines[f];
+    if(!fl) continue;
+
+    // Draw blocks within the parallelogram floor
+    var xOff = 0;
+    fl.blocks.forEach(function(b){
+      var bw = b.widthFraction * bPx;
+      var col = '#d0cdc8';
+      // Four corners of this block's parallelogram
+      var blX = baseLeft + xOff + botShift;
+      var brX = baseLeft + xOff + bw + botShift;
+      var tlX = baseLeft + xOff + topShift;
+      var trX = baseLeft + xOff + bw + topShift;
+      s += '<polygon points="' + blX + ',' + botY + ' ' + brX + ',' + botY + ' ' + trX + ',' + topY + ' ' + tlX + ',' + topY + '" fill="' + col + '" fill-opacity="0.3" stroke="' + col + '" stroke-width="0.4"/>';
+      xOff += bw;
+    });
+
+    // Floor line
+    s += '<line x1="' + (baseLeft + topShift) + '" y1="' + topY + '" x2="' + (baseLeft + bPx + topShift) + '" y2="' + topY + '" stroke="#333" stroke-width="0.4"/>';
+
+    // Floor label
+    if(flPx > 8){
+      s += '<text x="' + (baseLeft + topShift - 6) + '" y="' + ((botY + topY)/2 + 3) + '" text-anchor="end" fill="#504c46" font-size="7" font-family="Space Mono,monospace">F' + (f+1) + '</text>';
+    }
+  }
+
+  // Building outline (leaned trapezoid)
+  var bL = baseLeft;
+  var bR = baseLeft + bPx;
+  var tL = baseLeft - leanPx;
+  var tR = baseLeft + bPx - leanPx;
+  var topBY = gY - hPx;
+  s += '<polygon points="' + bL + ',' + gY + ' ' + bR + ',' + gY + ' ' + tR + ',' + topBY + ' ' + tL + ',' + topBY + '" fill="none" stroke="var(--accent)" stroke-width="1.5"/>';
+
+  // Sun rays
+  function ray(alt, color, lbl){
+    if(alt <= 0) return '';
+    var r = alt * Math.PI / 180;
+    var midX = (bL + bR + tL + tR) / 4;
+    var midY = (gY + topBY) / 2;
+    var len = Math.min(svgW * 0.3, 100);
+    var dx = -len * Math.cos(r);
+    var dy = -len * Math.sin(r);
+    return '<line x1="' + midX + '" y1="' + midY + '" x2="' + (midX - dx) + '" y2="' + (midY + dy) + '" stroke="' + color + '" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5"/>' +
+           '<text x="' + (midX - dx + 2) + '" y="' + (midY + dy - 4) + '" fill="' + color + '" font-size="7" font-family="Space Mono,monospace">' + lbl + ' ' + alt + '°</text>';
+  }
+
+  // Only show sun rays on side view (building leans toward/away from south)
+  if(label === 'SIDE'){
+    s += ray(formData.wN, '#c9a959', 'Win');
+    s += ray(formData.sN, '#c45c3e', 'Sum');
+  }
+
+  // Height label
+  s += '<text x="' + (Math.max(bR, tR) + 10) + '" y="' + ((topBY + gY) / 2) + '" fill="var(--accent)" font-size="11" font-family="Cormorant Garamond,serif" font-weight="300">' + totalH + '\'</text>';
+
+  // Lean angle indicator
+  var lbl2 = leanDeg > 0 ? ('back ' + leanDeg + '°') : leanDeg < 0 ? ('fwd ' + Math.abs(leanDeg) + '°') : 'vertical';
+  s += '<text x="' + (svgW/2) + '" y="16" text-anchor="middle" fill="#ddd8d0" font-size="9" font-family="Space Mono,monospace" letter-spacing="0.1em">' + label + ' — ' + lbl2 + '</text>';
+
+  // Ground
+  s += '<text x="' + (svgW/2) + '" y="' + (gY + 16) + '" text-anchor="middle" fill="#504c46" font-size="7" font-family="Space Mono,monospace">GROUND</text>';
+
+  svg.innerHTML = s;
+}
+
+/* ============================
+   AUTO-LOAD LATITUDE (must be after all var initializations)
+============================ */
+(function(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('calvey_site_data'));
+    if(saved && saved.lat){
+      var lat = Math.round(Math.abs(saved.lat));
+      lat = Math.min(70, Math.max(0, lat));
+      pick(lat);
+    } else {
+      pick(41);
+    }
+  }catch(e){
+    pick(41);
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,868 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-03-20",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical 2-Bay Volunteer Station", "location": "Various US", "approx_sf": 6000, "notes": "2 apparatus bays; day room; kitchen; bunk area; single bathroom; office"},
+    "medium": {"name": "Seattle Fire Station 32", "location": "Seattle, WA", "approx_sf": 16000, "notes": "Miller Hull; 3 bays; LEED Gold; bunk rooms; training tower; community room; decon"},
+    "large": {"name": "FDNY Rescue Company 1", "location": "New York, NY", "approx_sf": 28000, "notes": "5 bays; specialized rescue; HAZMAT storage; fitness; training; multiple bunk rooms; command center"}
+  },
+  "building_type": "Fire Station / Emergency Services",
+  "subtypes": [
+    {
+      "id": "FS_VOLUNTEER",
+      "name": "Volunteer / Small Community Station",
+      "gross_sf_typical": [
+        4000,
+        10000
+      ],
+      "efficiency_ratio_target_range": [
+        0.72,
+        0.85
+      ],
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "id": "FS_CAREER",
+      "name": "Career / Professional Station",
+      "gross_sf_typical": [
+        8000,
+        20000
+      ],
+      "efficiency_ratio_target_range": [
+        0.70,
+        0.82
+      ],
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "id": "FS_REGIONAL",
+      "name": "Regional / Headquarters Station",
+      "gross_sf_typical": [
+        15000,
+        35000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.80
+      ],
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "FS_APPARATUS_BAY",
+      "name": "Apparatus Bay (Drive-Through)",
+      "category": "Operations",
+      "nsf_range": [
+        700,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.35,
+        0.50
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "14 ft wide x 60-80 ft deep per bay; 14 ft clear min door height; drive-through preferred; exhaust extraction system; trench drains; non-slip epoxy floor; 100 PSF floor load"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_WATCH_ROOM",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_TURNOUT",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_DECON",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_HOSE_TOWER",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "FS_EMS_SUPPLY",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_WATCH_ROOM",
+      "name": "Watch Room / Dispatch Area",
+      "category": "Operations",
+      "nsf_range": [
+        100,
+        300
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Sightline to apparatus bay and entry; dispatch console; alarm notification; CCTV monitors; always staffed"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_APPARATUS_BAY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_OFFICE",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "FS_COMM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_DAY_ROOM",
+      "name": "Day Room / Living Area",
+      "category": "Living Quarters",
+      "nsf_range": [
+        300,
+        800
+      ],
+      "percent_of_gross_range": [
+        0.05,
+        0.10
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Recliners; TV; transition to residential character; acoustic separation from apparatus bay; 35-50 SF per on-duty member"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_KITCHEN",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_BUNK_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_KITCHEN",
+      "name": "Kitchen / Dining",
+      "category": "Living Quarters",
+      "nsf_range": [
+        200,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Full residential kitchen; dining table for crew; 6-person min; commercial-grade appliances; exhaust hood; adjacent to day room"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_DAY_ROOM",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "FS_BUNK_ROOM",
+      "name": "Bunk Rooms",
+      "category": "Living Quarters",
+      "nsf_range": [
+        80,
+        150
+      ],
+      "percent_of_gross_range": [
+        0.10,
+        0.18
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Individual rooms preferred over open dorm; 80-120 SF per person; sound attenuation STC 45+; blackout shades; emergency alerting; near bathrooms; gender-inclusive design"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_BATHROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "FS_DAY_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_BATHROOM",
+      "name": "Bathrooms / Showers",
+      "category": "Living Quarters",
+      "nsf_range": [
+        60,
+        120
+      ],
+      "percent_of_gross_range": [
+        0.03,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Separate from decon; 1 shower per 4 firefighters; gender-inclusive; residential-grade fixtures"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_BUNK_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "FS_DECON",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_FITNESS",
+      "name": "Fitness / Physical Training Room",
+      "category": "Living Quarters",
+      "nsf_range": [
+        300,
+        1000
+      ],
+      "percent_of_gross_range": [
+        0.04,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Cardio; free weights; functional training; rubber floor; natural light preferred; ventilation per ASHRAE; 50 SF per station"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_BATHROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_DECON",
+      "name": "Decontamination Room",
+      "category": "Operations",
+      "nsf_range": [
+        100,
+        300
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Between apparatus bay and living quarters; extractor washer; gear drying; shower; dirty-to-clean flow; cancer prevention; NFPA 1851"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_APPARATUS_BAY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "FS_BATHROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_TURNOUT",
+      "name": "Turnout Gear Storage",
+      "category": "Operations",
+      "nsf_range": [
+        150,
+        500
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Individual lockers; open-front for quick access; ventilated; near apparatus bay; SCBA fill station adjacent; 15-20 SF per firefighter"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_APPARATUS_BAY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "FS_EMS_SUPPLY",
+      "name": "EMS Supply / Medical Storage",
+      "category": "Operations",
+      "nsf_range": [
+        80,
+        250
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Narcotics lock; crash cart parking; bio-waste; resupply from ambulance; climate-controlled medications"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_APPARATUS_BAY",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_OFFICE",
+      "name": "Station Officer / Admin Office",
+      "category": "Administration",
+      "nsf_range": [
+        100,
+        300
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Captain/lieutenant office; records; computer; privacy for disciplinary or counseling; near watch room"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_WATCH_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_TRAINING",
+      "name": "Training Room / Community Room",
+      "category": "Training",
+      "nsf_range": [
+        200,
+        800
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Classroom setup; projector; doubled as community room; public access possible; 15 SF/person; divisible"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_DAY_ROOM",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_HOSE_TOWER",
+      "name": "Hose Tower / Training Tower",
+      "category": "Training",
+      "nsf_range": [
+        100,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "40-60 ft tall; hose drying; rappelling; ladder training; exterior access; fire-resistant construction"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_APPARATUS_BAY",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_LAUNDRY",
+      "name": "Laundry (Residential + Gear)",
+      "category": "Support",
+      "nsf_range": [
+        60,
+        200
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Separate from gear extractor washer in decon; residential laundry for crew personal items"
+      ],
+      "adjacencies": []
+    },
+    {
+      "id": "FS_STORAGE",
+      "name": "General Storage / Supply",
+      "category": "Support",
+      "nsf_range": [
+        100,
+        400
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Hose; nozzles; tools; PPE inventory; seasonal equipment"
+      ],
+      "adjacencies": []
+    },
+    {
+      "id": "FS_MECH",
+      "name": "Mechanical Room",
+      "category": "MEP",
+      "nsf_range": [
+        150,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.04
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Emergency generator; apparatus bay heating (radiant preferred); exhaust system controls; fire alarm panel"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_ELEC",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_ELEC",
+      "name": "Electrical Room",
+      "category": "MEP",
+      "nsf_range": [
+        80,
+        250
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Transfer switch; emergency power; shore power for apparatus; charging stations"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_MECH",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FS_COMM",
+      "name": "Communications / IT Room",
+      "category": "MEP",
+      "nsf_range": [
+        60,
+        200
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Radio equipment; CAD terminals; antenna infrastructure; UPS; alarm receiving equipment"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "FS_WATCH_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "FS_APPARATUS_BAY",
+      "to": "FS_WATCH_ROOM",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_APPARATUS_BAY",
+      "to": "FS_TURNOUT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_APPARATUS_BAY",
+      "to": "FS_DECON",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_APPARATUS_BAY",
+      "to": "FS_HOSE_TOWER",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_WATCH_ROOM",
+      "to": "FS_APPARATUS_BAY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_WATCH_ROOM",
+      "to": "FS_OFFICE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_WATCH_ROOM",
+      "to": "FS_COMM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_TURNOUT",
+      "to": "FS_APPARATUS_BAY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_DECON",
+      "to": "FS_APPARATUS_BAY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_DECON",
+      "to": "FS_BATHROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_DAY_ROOM",
+      "to": "FS_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_DAY_ROOM",
+      "to": "FS_BUNK_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_KITCHEN",
+      "to": "FS_DAY_ROOM",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "FS_BUNK_ROOM",
+      "to": "FS_BATHROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_BUNK_ROOM",
+      "to": "FS_DAY_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_BATHROOM",
+      "to": "FS_BUNK_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_BATHROOM",
+      "to": "FS_DECON",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_FITNESS",
+      "to": "FS_BATHROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_EMS_SUPPLY",
+      "to": "FS_APPARATUS_BAY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_OFFICE",
+      "to": "FS_WATCH_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_TRAINING",
+      "to": "FS_DAY_ROOM",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_MECH",
+      "to": "FS_ELEC",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_ELEC",
+      "to": "FS_MECH",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FS_COMM",
+      "to": "FS_WATCH_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "FIRE_STATION__DEFAULT__US-NATIONAL",
+    "cost": "FIRE_STATION__DEFAULT__US-NE",
+    "parking": "FIRE_STATION__DEFAULT__BOSTON-MA"
+  }
+}

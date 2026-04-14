@@ -1,0 +1,2754 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Garden Apartment Complex", "location": "Various US", "approx_sf": 40000, "notes": "24-unit garden style; 2-3 stories; surface parking; laundry room; leasing office"},
+    "medium": {"name": "The Ayer", "location": "Boston, MA", "approx_sf": 200000, "notes": "Midrise; 8 stories; 200 units; amenity deck; fitness; co-working lounge; structured parking"},
+    "large": {"name": "One Manhattan Square", "location": "New York, NY", "approx_sf": 1200000, "notes": "Highrise; 80 stories; 815 units; 100,000 SF amenity space; pool; spa; IMAX; garden"}
+  },
+  "building_type": "Multifamily Residential",
+  "subtypes": [
+    {
+      "id": "MF_GARDEN",
+      "name": "Multifamily - Garden/Lowrise",
+      "stories_typical": [
+        1,
+        3
+      ],
+      "gross_sf_typical": [
+        15000,
+        120000
+      ],
+      "efficiency_ratio_target_range": [
+        0.78,
+        0.86
+      ],
+      "unit_mix_defaults": {
+        "Studio": 0.15,
+        "1BR": 0.5,
+        "2BR": 0.3,
+        "3BR": 0.05
+      },
+      "tiers": [
+        "Affordable",
+        "Market",
+        "Luxury"
+      ]
+    },
+    {
+      "id": "MF_MIDRISE",
+      "name": "Multifamily - Midrise",
+      "stories_typical": [
+        4,
+        9
+      ],
+      "gross_sf_typical": [
+        35000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.8,
+        0.87
+      ],
+      "unit_mix_defaults": {
+        "Studio": 0.12,
+        "1BR": 0.48,
+        "2BR": 0.33,
+        "3BR": 0.07
+      },
+      "tiers": [
+        "Affordable",
+        "Market",
+        "Luxury"
+      ]
+    },
+    {
+      "id": "MF_HIGHRISE",
+      "name": "Multifamily - Highrise",
+      "stories_typical": [
+        10,
+        50
+      ],
+      "gross_sf_typical": [
+        120000,
+        1500000
+      ],
+      "efficiency_ratio_target_range": [
+        0.78,
+        0.86
+      ],
+      "unit_mix_defaults": {
+        "Studio": 0.1,
+        "1BR": 0.45,
+        "2BR": 0.35,
+        "3BR": 0.1
+      },
+      "tiers": [
+        "Affordable",
+        "Market",
+        "Luxury"
+      ]
+    }
+  ],
+  "default_unit_types": [
+    {
+      "id": "UNIT_STUDIO",
+      "name": "Studio Unit",
+      "nsf_range": [
+        400,
+        600
+      ],
+      "occ_range": [
+        1,
+        2
+      ],
+      "wet_rooms": [
+        "Bathroom",
+        "Kitchenette"
+      ],
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "mep_intensity": "Medium",
+      "adjacency_profile": "ResidentialUnit"
+    },
+    {
+      "id": "UNIT_1BR",
+      "name": "1BR Unit",
+      "nsf_range": [
+        550,
+        850
+      ],
+      "occ_range": [
+        1,
+        3
+      ],
+      "wet_rooms": [
+        "Bathroom",
+        "Kitchen"
+      ],
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "mep_intensity": "Medium",
+      "adjacency_profile": "ResidentialUnit"
+    },
+    {
+      "id": "UNIT_2BR",
+      "name": "2BR Unit",
+      "nsf_range": [
+        800,
+        1200
+      ],
+      "occ_range": [
+        2,
+        5
+      ],
+      "wet_rooms": [
+        "Bathroom",
+        "Kitchen"
+      ],
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "mep_intensity": "Medium",
+      "adjacency_profile": "ResidentialUnit"
+    },
+    {
+      "id": "UNIT_3BR",
+      "name": "3BR Unit",
+      "nsf_range": [
+        1050,
+        1600
+      ],
+      "occ_range": [
+        3,
+        7
+      ],
+      "wet_rooms": [
+        "Bathroom",
+        "Kitchen"
+      ],
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "mep_intensity": "Medium",
+      "adjacency_profile": "ResidentialUnit"
+    }
+  ],
+  "space_library": [
+    {
+      "id": "MF_UNITS_ALL",
+      "name": "Residential Units (All)",
+      "category": "Rooms",
+      "nsf_range": [
+        5000,
+        900000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.55,
+        0.75
+      ],
+      "occupancy_load": "Resident",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Aggregate of all residential unit types (Studio, 1BR, 2BR, 3BR); typically 55-75% of GSF"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.8,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LOBBY_MAIN",
+      "name": "Main Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        1500
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.004,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "Include package visibility if feasible",
+        "Buffer to residential for acoustic/privacy"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "VESTIBULE",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "MAIL_PACKAGE",
+          "weight": 0.9,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SECURITY_CONCIERGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STAIR_PUBLIC",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "TOILET_PUBLIC",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "VESTIBULE",
+      "name": "Vestibule / Airlock",
+      "category": "Public/Entry",
+      "nsf_range": [
+        60,
+        200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.003
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Useful for cold climates and IAQ",
+        "Coordinate door swings and ADA clearances"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "PARKING_GARAGE",
+          "weight": 0.3,
+          "relationship": "Optional"
+        },
+        {
+          "space_id": "TRASH_ROOM",
+          "weight": 0.2,
+          "relationship": "Avoid direct"
+        }
+      ]
+    },
+    {
+      "id": "MAIL_PACKAGE",
+      "name": "Mail + Package Room",
+      "category": "Public/Support",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.008
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Design for delivery workflow",
+        "Consider smart lockers"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.9,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SECURITY_CONCIERGE",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "MGMT_OFFICE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SECURITY_CONCIERGE",
+      "name": "Concierge / Security Desk",
+      "category": "Public/Support",
+      "nsf_range": [
+        60,
+        160
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.003
+      ],
+      "occupancy_load": "1-2 staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Sightlines to entry, lobby, package/mail"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.7,
+          "relationship": "Direct/Near"
+        },
+        {
+          "space_id": "MAIL_PACKAGE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "TOILET_PUBLIC",
+      "name": "Public Restroom (Single-User)",
+      "category": "Public/Support",
+      "nsf_range": [
+        35,
+        70
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0005,
+        0.0015
+      ],
+      "occupancy_load": "1",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [
+        "ADA"
+      ],
+      "notes": [
+        "Often omit in small buildings; add if leasing/amenities justify"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "ELEV_LOBBY",
+      "name": "Elevator Lobby (Typical Floor)",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        80,
+        300
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.006
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Size increases with elevator count and corridor config"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STAIR_RES",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "TRASH_CHUTE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "MEP_RISER",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STAIR_RES",
+      "name": "Stair (Resident)",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        120,
+        250
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.003,
+        0.008
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [
+        "Egress"
+      ],
+      "notes": [
+        "Coordinate egress, pressurization, and smoke control"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STAIR_PUBLIC",
+      "name": "Stair (Public/Entry)",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        120,
+        250
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.004
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground+Mezz",
+      "typical_location": "Interior",
+      "code_tags": [
+        "Egress"
+      ],
+      "notes": [
+        "Only if public program requires dedicated stair access"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "CORRIDOR",
+      "name": "Resident Corridor",
+      "category": "Circulation",
+      "nsf_range": [
+        250,
+        2000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.08,
+        0.18
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Gross impact is huge: single-loaded vs double-loaded drives efficiency"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "UNIT_ENTRY",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "TRASH_CHUTE",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "JANITOR_CLOSET",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "MEP_RISER",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "UNIT_ENTRY",
+      "name": "Unit Entry Zone (internal placeholder)",
+      "category": "Residential",
+      "nsf_range": [
+        0,
+        0
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [
+        "Placeholder for adjacency anchoring to unit types"
+      ],
+      "adjacencies": []
+    },
+    {
+      "id": "TRASH_ROOM",
+      "name": "Trash + Recycling Room",
+      "category": "Operations",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Staff/Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Locate for hauling; odor control; wash-down preferred"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SERVICE_CORRIDOR",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LOADING_DOCK",
+          "weight": 0.8,
+          "relationship": "Near/Direct (if present)"
+        },
+        {
+          "space_id": "TRASH_CHUTE",
+          "weight": 0.5,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "TRASH_CHUTE",
+      "name": "Trash Chute / Disposal Room",
+      "category": "Operations",
+      "nsf_range": [
+        40,
+        120
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0005,
+        0.002
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Often near elevator lobby; consider fire-rated vestibule"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "TRASH_ROOM",
+          "weight": 0.5,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "JANITOR_CLOSET",
+      "name": "Janitor Closet",
+      "category": "Operations",
+      "nsf_range": [
+        25,
+        80
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0005,
+        0.002
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Mop sink; locate per floor or per wing"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.4,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SERVICE_CORRIDOR",
+          "weight": 0.4,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "MEP_RISER",
+      "name": "MEP Riser / Shaft Zone",
+      "category": "MEP",
+      "nsf_range": [
+        20,
+        120
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "n/a",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Aggregate risers centrally; align wet stacks where possible"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "ELEC_CLOSET",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "TELCOM_CLOSET",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "ELEC_CLOSET",
+      "name": "Electrical Closet (Per Floor)",
+      "category": "MEP",
+      "nsf_range": [
+        30,
+        120
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.004
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Coordinate with utility company metering approach"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MEP_RISER",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.3,
+          "relationship": "Near (secured)"
+        }
+      ]
+    },
+    {
+      "id": "TELCOM_CLOSET",
+      "name": "Telecom / Low Voltage Closet",
+      "category": "MEP",
+      "nsf_range": [
+        30,
+        120
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.003
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "MEP_RISER",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SPRINKLER_RISER",
+      "name": "Fire Sprinkler Riser Room",
+      "category": "MEP",
+      "nsf_range": [
+        60,
+        200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.004
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [
+        "Fire"
+      ],
+      "notes": [
+        "Typically at ground/basement with FDC access"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SERVICE_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "MECH_MAIN",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "MECH_MAIN",
+      "name": "Main Mechanical Room",
+      "category": "MEP",
+      "nsf_range": [
+        400,
+        2500
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.03
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Size depends on system type (central plant vs distributed)"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SERVICE_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "LOADING_DOCK",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "MECH_SUB",
+          "weight": 0.5,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "MECH_SUB",
+      "name": "Mechanical Room (Sub / Floor)",
+      "category": "MEP",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.006
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Use where stacked PTAC/ERV/HRV equipment or hydronic distribution requires"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MEP_RISER",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "GENERATOR",
+      "name": "Generator Room (Optional)",
+      "category": "MEP",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.01
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Acoustics, ventilation, and code separation drive layout"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MECH_MAIN",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "FUEL_STORAGE",
+          "weight": 0.6,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "FUEL_STORAGE",
+      "name": "Fuel Storage (Optional)",
+      "category": "MEP",
+      "nsf_range": [
+        80,
+        400
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.004
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Local code dependent; may be exterior tank"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "GENERATOR",
+          "weight": 0.6,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "IT_MDF",
+      "name": "IT / Server Room (MDF)",
+      "category": "MEP/Tech",
+      "nsf_range": [
+        80,
+        300
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0005,
+        0.003
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Dedicated cooling may be required"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "TELCOM_CLOSET",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "MGMT_OFFICE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "SERVICE_ENTRY",
+      "name": "Service Entry / Receiving",
+      "category": "Operations",
+      "nsf_range": [
+        80,
+        250
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.004
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LOADING_DOCK",
+          "weight": 0.8,
+          "relationship": "Near/Direct"
+        },
+        {
+          "space_id": "SERVICE_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "MECH_MAIN",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LOADING_DOCK",
+      "name": "Loading / Dock (Optional)",
+      "category": "Operations",
+      "nsf_range": [
+        250,
+        900
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.01
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often absent in small sites; replaced by curbside loading zone"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SERVICE_ENTRY",
+          "weight": 0.8,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "TRASH_ROOM",
+          "weight": 0.8,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STORAGE_BULK",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "SERVICE_CORRIDOR",
+      "name": "Service Corridor (BOH)",
+      "category": "Operations/Circulation",
+      "nsf_range": [
+        150,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Useful for separating resident/public from trash/mechanical routes"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SERVICE_ENTRY",
+          "weight": 0.7,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "TRASH_ROOM",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "MECH_MAIN",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STORAGE_BULK",
+      "name": "Bulk Storage / Owner Storage",
+      "category": "Operations",
+      "nsf_range": [
+        150,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.02
+      ],
+      "occupancy_load": "Staff/Occasional",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LOADING_DOCK",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SERVICE_CORRIDOR",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LOUNGE",
+      "name": "Resident Lounge",
+      "category": "Amenity",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.003,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often paired with kitchen/bar and outdoor terrace"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "AMENITY_KITCHEN",
+          "weight": 0.6,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "OUTDOOR_TERRACE",
+          "weight": 0.6,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "FITNESS",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "AMENITY_KITCHEN",
+      "name": "Amenity Kitchen / Serving",
+      "category": "Amenity",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.008
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Not a commercial kitchen; confirm grease requirements"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOUNGE",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "FITNESS",
+      "name": "Fitness Room",
+      "category": "Amenity",
+      "nsf_range": [
+        300,
+        1800
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.002,
+        0.015
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "Higher ventilation requirement; consider acoustics to units"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOUNGE",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "LOCKERS",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "TOILET_AMENITY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "LOCKERS",
+      "name": "Lockers / Changing (Optional)",
+      "category": "Amenity",
+      "nsf_range": [
+        80,
+        350
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.004
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "FITNESS",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "TOILET_AMENITY",
+      "name": "Amenity Restroom (Single-User)",
+      "category": "Amenity",
+      "nsf_range": [
+        35,
+        70
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.002
+      ],
+      "occupancy_load": "1",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Interior",
+      "code_tags": [
+        "ADA"
+      ],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "FITNESS",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "LOUNGE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "CO_WORK",
+      "name": "Co-Working / Work Lounge",
+      "category": "Amenity",
+      "nsf_range": [
+        200,
+        1500
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.015
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Podium",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Acoustic separation from lounge; consider phone booths"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOUNGE",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "PET_WASH",
+      "name": "Pet Wash (Optional)",
+      "category": "Amenity",
+      "nsf_range": [
+        40,
+        120
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.002
+      ],
+      "occupancy_load": "1",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "PARKING_GARAGE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "BIKE_STORAGE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "LAUNDRY_COMMON",
+      "name": "Common Laundry Room (Optional)",
+      "category": "Amenity/Operations",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Energy/pressure impacts; consider out-of-envelope option in high performance projects"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "CORRIDOR",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "PARKING_GARAGE",
+      "name": "Parking Garage / Structured Parking",
+      "category": "Parking",
+      "nsf_range": [
+        0,
+        0
+      ],
+      "gsf_range": [
+        5000,
+        300000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident/Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Basement/Podium",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [
+        "Not always counted in building GSF; treat separately per pro forma"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "BIKE_STORAGE",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "PET_WASH",
+          "weight": 0.3,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "BIKE_STORAGE",
+      "name": "Bicycle Storage",
+      "category": "Mobility",
+      "nsf_range": [
+        120,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Consider e-bike charging, ramps vs stairs"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "PARKING_GARAGE",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "SERVICE_ENTRY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "STROLLER_STORAGE",
+      "name": "Stroller / Mobility Storage (Optional)",
+      "category": "Mobility",
+      "nsf_range": [
+        40,
+        200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.003
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "MGMT_OFFICE",
+      "name": "Management Office / Leasing",
+      "category": "Administration",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.001,
+        0.008
+      ],
+      "occupancy_load": "1-6 staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff/Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "If leasing: place near lobby; if only management: can be BOH"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOBBY_MAIN",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "CONF_SMALL",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "CONF_SMALL",
+      "name": "Small Conference / Interview Room",
+      "category": "Administration",
+      "nsf_range": [
+        80,
+        220
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.003
+      ],
+      "occupancy_load": "2-8",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "MGMT_OFFICE",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "STAFF_BREAK",
+      "name": "Staff Break Room (Optional)",
+      "category": "Administration",
+      "nsf_range": [
+        80,
+        250
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.003
+      ],
+      "occupancy_load": "2-10",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "MGMT_OFFICE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "SERVICE_CORRIDOR",
+          "weight": 0.2,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "OUTDOOR_TERRACE",
+      "name": "Outdoor Terrace / Roof Deck",
+      "category": "Amenity/Outdoor",
+      "nsf_range": [
+        300,
+        6000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Podium/Roof",
+      "typical_location": "Exterior",
+      "code_tags": [],
+      "notes": [
+        "Not in GSF typically; confirm with pro forma"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LOUNGE",
+          "weight": 0.6,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "STORAGE_RES",
+      "name": "Resident Storage Lockers",
+      "category": "Operations/Resident",
+      "nsf_range": [
+        200,
+        4000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.02
+      ],
+      "occupancy_load": "Occasional",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident/Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "ELEV_LOBBY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        },
+        {
+          "space_id": "PARKING_GARAGE",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "KITCHEN_UNIT",
+      "name": "Unit Kitchen (internal component)",
+      "category": "Residential/Component",
+      "nsf_range": [
+        60,
+        140
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [
+        "Component for deeper unit planning; not used in coarse programming"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIVING_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "BATH_UNIT",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "BATH_UNIT",
+      "name": "Unit Bathroom (internal component)",
+      "category": "Residential/Component",
+      "nsf_range": [
+        35,
+        80
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "BEDROOM_UNIT",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "KITCHEN_UNIT",
+          "weight": 0.4,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "LIVING_UNIT",
+      "name": "Unit Living/Dining (internal component)",
+      "category": "Residential/Component",
+      "nsf_range": [
+        160,
+        420
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "KITCHEN_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "BEDROOM_UNIT",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "BEDROOM_UNIT",
+      "name": "Unit Bedroom (internal component)",
+      "category": "Residential/Component",
+      "nsf_range": [
+        110,
+        180
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.0,
+        0.0
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "n/a",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "BATH_UNIT",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "MF_UNITS_ALL",
+      "to": "CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MF_UNITS_ALL",
+      "to": "ELEV_LOBBY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "VESTIBULE",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "MAIL_PACKAGE",
+      "weight": 5,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "SECURITY_CONCIERGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "ELEV_LOBBY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "STAIR_PUBLIC",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOBBY_MAIN",
+      "to": "TOILET_PUBLIC",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "VESTIBULE",
+      "to": "LOBBY_MAIN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "VESTIBULE",
+      "to": "PARKING_GARAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "VESTIBULE",
+      "to": "TRASH_ROOM",
+      "weight": 1,
+      "relationship": "avoid"
+    },
+    {
+      "from": "MAIL_PACKAGE",
+      "to": "LOBBY_MAIN",
+      "weight": 5,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MAIL_PACKAGE",
+      "to": "SECURITY_CONCIERGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MAIL_PACKAGE",
+      "to": "MGMT_OFFICE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SECURITY_CONCIERGE",
+      "to": "LOBBY_MAIN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SECURITY_CONCIERGE",
+      "to": "MAIL_PACKAGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "TOILET_PUBLIC",
+      "to": "LOBBY_MAIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "ELEV_LOBBY",
+      "to": "CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "ELEV_LOBBY",
+      "to": "STAIR_RES",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "ELEV_LOBBY",
+      "to": "TRASH_CHUTE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "ELEV_LOBBY",
+      "to": "MEP_RISER",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STAIR_RES",
+      "to": "ELEV_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STAIR_RES",
+      "to": "CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STAIR_PUBLIC",
+      "to": "LOBBY_MAIN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CORRIDOR",
+      "to": "ELEV_LOBBY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "CORRIDOR",
+      "to": "UNIT_ENTRY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "CORRIDOR",
+      "to": "TRASH_CHUTE",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "CORRIDOR",
+      "to": "JANITOR_CLOSET",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "CORRIDOR",
+      "to": "MEP_RISER",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "TRASH_ROOM",
+      "to": "SERVICE_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "TRASH_ROOM",
+      "to": "LOADING_DOCK",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "TRASH_ROOM",
+      "to": "TRASH_CHUTE",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "TRASH_CHUTE",
+      "to": "ELEV_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "TRASH_CHUTE",
+      "to": "CORRIDOR",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "TRASH_CHUTE",
+      "to": "TRASH_ROOM",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "JANITOR_CLOSET",
+      "to": "CORRIDOR",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "JANITOR_CLOSET",
+      "to": "SERVICE_CORRIDOR",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "MEP_RISER",
+      "to": "ELEV_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MEP_RISER",
+      "to": "CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MEP_RISER",
+      "to": "ELEC_CLOSET",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MEP_RISER",
+      "to": "TELCOM_CLOSET",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "ELEC_CLOSET",
+      "to": "MEP_RISER",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "ELEC_CLOSET",
+      "to": "CORRIDOR",
+      "weight": 1,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "TELCOM_CLOSET",
+      "to": "MEP_RISER",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SPRINKLER_RISER",
+      "to": "SERVICE_ENTRY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SPRINKLER_RISER",
+      "to": "MECH_MAIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MECH_MAIN",
+      "to": "SERVICE_ENTRY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MECH_MAIN",
+      "to": "LOADING_DOCK",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "MECH_MAIN",
+      "to": "MECH_SUB",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "MECH_SUB",
+      "to": "MEP_RISER",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "GENERATOR",
+      "to": "MECH_MAIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "GENERATOR",
+      "to": "FUEL_STORAGE",
+      "weight": 3,
+      "relationship": "optional"
+    },
+    {
+      "from": "FUEL_STORAGE",
+      "to": "GENERATOR",
+      "weight": 3,
+      "relationship": "optional"
+    },
+    {
+      "from": "IT_MDF",
+      "to": "TELCOM_CLOSET",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "IT_MDF",
+      "to": "MGMT_OFFICE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "SERVICE_ENTRY",
+      "to": "LOADING_DOCK",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SERVICE_ENTRY",
+      "to": "SERVICE_CORRIDOR",
+      "weight": 3,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SERVICE_ENTRY",
+      "to": "MECH_MAIN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOADING_DOCK",
+      "to": "SERVICE_ENTRY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LOADING_DOCK",
+      "to": "TRASH_ROOM",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOADING_DOCK",
+      "to": "STORAGE_BULK",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SERVICE_CORRIDOR",
+      "to": "SERVICE_ENTRY",
+      "weight": 3,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SERVICE_CORRIDOR",
+      "to": "TRASH_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SERVICE_CORRIDOR",
+      "to": "MECH_MAIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STORAGE_BULK",
+      "to": "LOADING_DOCK",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STORAGE_BULK",
+      "to": "SERVICE_CORRIDOR",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOUNGE",
+      "to": "LOBBY_MAIN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LOUNGE",
+      "to": "AMENITY_KITCHEN",
+      "weight": 3,
+      "relationship": "optional"
+    },
+    {
+      "from": "LOUNGE",
+      "to": "OUTDOOR_TERRACE",
+      "weight": 3,
+      "relationship": "optional"
+    },
+    {
+      "from": "LOUNGE",
+      "to": "FITNESS",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "AMENITY_KITCHEN",
+      "to": "LOUNGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "FITNESS",
+      "to": "LOUNGE",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "FITNESS",
+      "to": "LOCKERS",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "FITNESS",
+      "to": "TOILET_AMENITY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "LOCKERS",
+      "to": "FITNESS",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "TOILET_AMENITY",
+      "to": "FITNESS",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "TOILET_AMENITY",
+      "to": "LOUNGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "CO_WORK",
+      "to": "LOUNGE",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "CO_WORK",
+      "to": "LOBBY_MAIN",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "PET_WASH",
+      "to": "PARKING_GARAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "PET_WASH",
+      "to": "BIKE_STORAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "LAUNDRY_COMMON",
+      "to": "CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LAUNDRY_COMMON",
+      "to": "ELEV_LOBBY",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "PARKING_GARAGE",
+      "to": "ELEV_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "PARKING_GARAGE",
+      "to": "BIKE_STORAGE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "PARKING_GARAGE",
+      "to": "PET_WASH",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "BIKE_STORAGE",
+      "to": "ELEV_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "BIKE_STORAGE",
+      "to": "PARKING_GARAGE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "BIKE_STORAGE",
+      "to": "SERVICE_ENTRY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "STROLLER_STORAGE",
+      "to": "LOBBY_MAIN",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "STROLLER_STORAGE",
+      "to": "ELEV_LOBBY",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "MGMT_OFFICE",
+      "to": "LOBBY_MAIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "MGMT_OFFICE",
+      "to": "CONF_SMALL",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "CONF_SMALL",
+      "to": "MGMT_OFFICE",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "STAFF_BREAK",
+      "to": "MGMT_OFFICE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "STAFF_BREAK",
+      "to": "SERVICE_CORRIDOR",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "OUTDOOR_TERRACE",
+      "to": "LOUNGE",
+      "weight": 3,
+      "relationship": "optional"
+    },
+    {
+      "from": "STORAGE_RES",
+      "to": "ELEV_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "STORAGE_RES",
+      "to": "PARKING_GARAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "KITCHEN_UNIT",
+      "to": "LIVING_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "KITCHEN_UNIT",
+      "to": "BATH_UNIT",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "BATH_UNIT",
+      "to": "BEDROOM_UNIT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "BATH_UNIT",
+      "to": "KITCHEN_UNIT",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "LIVING_UNIT",
+      "to": "KITCHEN_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIVING_UNIT",
+      "to": "BEDROOM_UNIT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "BEDROOM_UNIT",
+      "to": "BATH_UNIT",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "MULTIFAMILY__DEFAULT__US-NATIONAL",
+    "cost": "MULTIFAMILY__DEFAULT__US-NE",
+    "parking": "MULTIFAMILY__DEFAULT__BOSTON-MA"
+  }
+}

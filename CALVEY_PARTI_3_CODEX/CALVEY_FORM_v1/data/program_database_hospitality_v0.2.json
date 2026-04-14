@@ -1,0 +1,692 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-02-13",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Fairfield Inn", "location": "Various US", "approx_sf": 50000, "notes": "Select service; 100 keys; breakfast room; fitness; no restaurant or meeting space"},
+    "medium": {"name": "The Godfrey Hotel", "location": "Boston, MA", "approx_sf": 200000, "notes": "Full service boutique; 242 keys; rooftop bar; restaurant; meeting rooms; fitness"},
+    "large": {"name": "Marriott Marquis", "location": "New York, NY", "approx_sf": 1200000, "notes": "1,966 keys; 100,000 SF meeting/ballroom; multiple restaurants; 8-story atrium lobby"}
+  },
+  "building_type": "Hospitality (Hotel)",
+  "subtypes": [
+    {
+      "id": "HOT_SELECT",
+      "name": "Select Service Hotel",
+      "gross_sf_typical": [
+        40000,
+        180000
+      ],
+      "efficiency_ratio_target_range": [
+        0.7,
+        0.84
+      ],
+      "keys_typical": [
+        80,
+        250
+      ],
+      "tiers": [
+        "Budget",
+        "Select_Service",
+        "Full_Service",
+        "Luxury"
+      ]
+    },
+    {
+      "id": "HOT_FULL",
+      "name": "Full Service Hotel",
+      "gross_sf_typical": [
+        120000,
+        600000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.78
+      ],
+      "keys_typical": [
+        200,
+        700
+      ],
+      "tiers": [
+        "Budget",
+        "Select_Service",
+        "Full_Service",
+        "Luxury"
+      ]
+    },
+    {
+      "id": "HOT_BOUTIQUE",
+      "name": "Boutique Hotel",
+      "gross_sf_typical": [
+        25000,
+        150000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.82
+      ],
+      "keys_typical": [
+        40,
+        150
+      ],
+      "tiers": [
+        "Budget",
+        "Select_Service",
+        "Full_Service",
+        "Luxury"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "HOT_LOBBY",
+      "name": "Lobby / Reception",
+      "category": "Public/Entry",
+      "nsf_range": [
+        1000,
+        9000
+      ],
+      "percent_of_gross_range": [
+        0.02,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Includes check-in, seating, circulation"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HOT_FRONTDESK",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "HOT_LOUNGE",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HOT_ELEV_LOBBY",
+          "weight": 0.8,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_FRONTDESK",
+      "name": "Front Desk / Back Office",
+      "category": "Public/Support",
+      "nsf_range": [
+        250,
+        1200
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff/Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LOBBY",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HOT_LOUNGE",
+      "name": "Lobby Lounge / Bar (Optional)",
+      "category": "Amenity",
+      "nsf_range": [
+        400,
+        6000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.08
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LOBBY",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HOT_RESTAURANT",
+          "weight": 0.4,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_ELEV_LOBBY",
+      "name": "Elevator Lobby (Typical)",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        150,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Guest",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_CORRIDOR",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HOT_CORRIDOR",
+      "name": "Guestroom Corridor",
+      "category": "Circulation",
+      "nsf_range": [
+        1000,
+        25000
+      ],
+      "percent_of_gross_range": [
+        0.1,
+        0.22
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Guest",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_GUESTROOM",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "HOT_ELEV_LOBBY",
+          "weight": 0.9,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HOT_GUESTROOM",
+      "name": "Guestroom (Typical Key)",
+      "category": "Rooms",
+      "nsf_range": [
+        260,
+        550
+      ],
+      "percent_of_gross_range": [
+        0.45,
+        0.7
+      ],
+      "occupancy_load": "1-3",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Guest",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Net per key (without corridors)"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HOT_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HOT_HOUSEKEEP",
+      "name": "Housekeeping / Linen (per floor)",
+      "category": "Operations",
+      "nsf_range": [
+        120,
+        600
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_CORRIDOR",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HOT_LAUNDRY",
+          "weight": 0.4,
+          "relationship": "Optional"
+        }
+      ]
+    },
+    {
+      "id": "HOT_LAUNDRY",
+      "name": "Laundry (Back of House)",
+      "category": "Operations",
+      "nsf_range": [
+        600,
+        4000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Basement/Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LOADING",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_RESTAURANT",
+      "name": "Restaurant / Breakfast",
+      "category": "Food Service",
+      "nsf_range": [
+        600,
+        15000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_KITCHEN",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "HOT_KITCHEN",
+      "name": "Hotel Kitchen (if any)",
+      "category": "Food Service",
+      "nsf_range": [
+        400,
+        12000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_RESTAURANT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "HOT_LOADING",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_FITNESS",
+      "name": "Fitness (Guest)",
+      "category": "Amenity",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Guest",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LOBBY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_MEETING",
+      "name": "Meeting / Ballroom (Full Service)",
+      "category": "Assembly",
+      "nsf_range": [
+        1000,
+        30000
+      ],
+      "percent_of_gross_range": [
+        0.0,
+        0.12
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Add prefunction in v0.2"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LOBBY",
+          "weight": 0.3,
+          "relationship": "Optional/Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_LOADING",
+      "name": "Loading / Receiving",
+      "category": "Operations",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "percent_of_gross_range": [
+        0.005,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "HOT_LAUNDRY",
+          "weight": 0.6,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "HOT_KITCHEN",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "HOT_MECH",
+      "name": "Main Mechanical",
+      "category": "MEP",
+      "nsf_range": [
+        1000,
+        15000
+      ],
+      "percent_of_gross_range": [
+        0.01,
+        0.08
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Roof/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": []
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "HOT_LOBBY",
+      "to": "HOT_FRONTDESK",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_LOBBY",
+      "to": "HOT_LOUNGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_LOBBY",
+      "to": "HOT_ELEV_LOBBY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_FRONTDESK",
+      "to": "HOT_LOBBY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_LOUNGE",
+      "to": "HOT_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_LOUNGE",
+      "to": "HOT_RESTAURANT",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "HOT_ELEV_LOBBY",
+      "to": "HOT_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_CORRIDOR",
+      "to": "HOT_GUESTROOM",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_CORRIDOR",
+      "to": "HOT_ELEV_LOBBY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_GUESTROOM",
+      "to": "HOT_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_HOUSEKEEP",
+      "to": "HOT_CORRIDOR",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_HOUSEKEEP",
+      "to": "HOT_LAUNDRY",
+      "weight": 2,
+      "relationship": "optional"
+    },
+    {
+      "from": "HOT_LAUNDRY",
+      "to": "HOT_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_RESTAURANT",
+      "to": "HOT_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_KITCHEN",
+      "to": "HOT_RESTAURANT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "HOT_KITCHEN",
+      "to": "HOT_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_FITNESS",
+      "to": "HOT_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "HOT_MEETING",
+      "to": "HOT_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "HOT_LOADING",
+      "to": "HOT_LAUNDRY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "HOT_LOADING",
+      "to": "HOT_KITCHEN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "HOSPITALITY__DEFAULT__US-NATIONAL",
+    "cost": "HOSPITALITY__DEFAULT__US-NE",
+    "parking": "HOSPITALITY__DEFAULT__BOSTON-MA"
+  }
+}

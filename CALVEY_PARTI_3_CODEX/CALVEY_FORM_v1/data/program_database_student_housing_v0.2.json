@@ -1,0 +1,1015 @@
+{
+  "schema_version": "0.2",
+  "created_date": "2026-03-20",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {"name": "Typical Residence Hall", "location": "Various US", "approx_sf": 30000, "notes": "100 beds; traditional double rooms; shared bathrooms; common lounge; laundry"},
+    "medium": {"name": "MIT Simmons Hall", "location": "Cambridge, MA", "approx_sf": 195000, "notes": "Steven Holl; 350 beds; 10 stories; dining hall; theater; study rooms; perforated aluminum facade"},
+    "large": {"name": "Arizona State University Tooker House", "location": "Tempe, AZ", "approx_sf": 430000, "notes": "1,700 beds; suite-style; dining; academic support; recreation; convenience retail"}
+  },
+  "building_type": "Student Housing / Dormitory",
+  "subtypes": [
+    {
+      "id": "STU_TRADITIONAL",
+      "name": "Traditional Residence Hall",
+      "gross_sf_typical": [
+        20000,
+        150000
+      ],
+      "efficiency_ratio_target_range": [
+        0.70,
+        0.82
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "STU_SUITE",
+      "name": "Suite-Style Housing",
+      "gross_sf_typical": [
+        30000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.72,
+        0.84
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "STU_APARTMENT",
+      "name": "Student Apartment Complex",
+      "gross_sf_typical": [
+        40000,
+        500000
+      ],
+      "efficiency_ratio_target_range": [
+        0.75,
+        0.86
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "space_library": [
+    {
+      "id": "STU_ENTRY",
+      "name": "Main Entry / Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Card access; mailboxes; package lockers; RA desk; sightlines to elevators"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_MAIL",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_LOUNGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_MULTIPURPOSE",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_FITNESS",
+          "weight": 0.5,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_BIKE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_DOUBLE_ROOM",
+      "name": "Double Room (Traditional)",
+      "category": "Residential/Room",
+      "nsf_range": [
+        180,
+        240
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.20,
+        0.40
+      ],
+      "occupancy_load": "2",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Upper",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Two beds; two desks; two wardrobes; 90-120 SF/bed; lofted beds common; data outlets per bed"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_SHARED_BATH",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_SINGLE_ROOM",
+      "name": "Single Room",
+      "category": "Residential/Room",
+      "nsf_range": [
+        100,
+        160
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.10,
+        0.25
+      ],
+      "occupancy_load": "1",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Upper",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "One bed, desk, wardrobe; 100-160 SF; premium assignment"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_SHARED_BATH",
+          "weight": 0.6,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_SUITE_UNIT",
+      "name": "Suite (4-person typical)",
+      "category": "Residential/Suite",
+      "nsf_range": [
+        500,
+        900
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.25,
+        0.45
+      ],
+      "occupancy_load": "4",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Upper",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "2 double bedrooms sharing bathroom; common area 80-100 SF; kitchenette optional"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "STU_APT_UNIT",
+      "name": "Student Apartment (2-4 bedroom)",
+      "category": "Residential/Apartment",
+      "nsf_range": [
+        700,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.30,
+        0.50
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Upper",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Full kitchen; living/dining; private or shared bath; laundry hookups optional"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "STU_SHARED_BATH",
+      "name": "Shared Bathroom (Gang/Community)",
+      "category": "Residential/Support",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Upper",
+      "typical_location": "Interior",
+      "code_tags": [
+        "ADA"
+      ],
+      "notes": [
+        "1 toilet per 8-10 residents; 1 shower per 8-12; gender-inclusive options; ADA stall"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_DOUBLE_ROOM",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_CORRIDOR",
+      "name": "Corridors / Circulation",
+      "category": "Circulation/Core",
+      "nsf_range": [
+        1500,
+        15000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.10,
+        0.18
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [
+        "Egress"
+      ],
+      "notes": [
+        "Double-loaded typical; 6 ft min width; ADA clearances; fire-rated corridor walls"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_DOUBLE_ROOM",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_SINGLE_ROOM",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_SUITE_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_APT_UNIT",
+          "weight": 1.0,
+          "relationship": "Direct"
+        },
+        {
+          "space_id": "STU_SHARED_BATH",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_LOUNGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_STUDY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_LAUNDRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_RA_OFFICE",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_LOUNGE",
+      "name": "Floor Lounge / Common Room",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        200,
+        1500
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "TV; soft seating; kitchenette; vending; one per floor or wing; 15-20 SF/resident served"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 0.7,
+          "relationship": "Near"
+        },
+        {
+          "space_id": "STU_KITCHEN",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_STUDY",
+      "name": "Study Room / Quiet Space",
+      "category": "Amenity/Academic",
+      "nsf_range": [
+        100,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior or Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Individual carrels; group study rooms 4-8 person; whiteboard; power outlets; distributed per floor"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_LAUNDRY",
+      "name": "Laundry Room",
+      "category": "Residential/Support",
+      "nsf_range": [
+        100,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "1 washer/dryer pair per 15-25 residents; card-operated; folding table; 1 per floor or centralized"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_KITCHEN",
+      "name": "Community Kitchen",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        150,
+        800
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior or Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Full-size appliances; multiple cooking stations; exhaust hood; traditional halls only"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_LOUNGE",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_MAIL",
+      "name": "Mailroom / Package Center",
+      "category": "Public/Support",
+      "nsf_range": [
+        80,
+        500
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.01
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Package lockers; Amazon lockers; staffed window for large campus; near lobby"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 1.0,
+          "relationship": "Direct"
+        }
+      ]
+    },
+    {
+      "id": "STU_RA_OFFICE",
+      "name": "RA Office / Staff Suite",
+      "category": "Staff/Administrative",
+      "nsf_range": [
+        150,
+        400
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.01
+      ],
+      "occupancy_load": "1-2 staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "RA apartment or on-call room; desk; program supplies; one per floor/wing"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_CORRIDOR",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_MULTIPURPOSE",
+      "name": "Multipurpose / Programming Room",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior or Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Floor programs; meetings; game room; flexible furniture; projector"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_FITNESS",
+      "name": "Fitness Room (if included)",
+      "category": "Amenity/Recreation",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "Cardio; free weights; rubber floor; optional for larger halls"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_BIKE",
+      "name": "Bike Storage",
+      "category": "Operations/Storage",
+      "nsf_range": [
+        100,
+        800
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter or Interior",
+      "code_tags": [],
+      "notes": [
+        "6 SF per bike; secure; ground level; one per 4-5 residents typical"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ENTRY",
+          "weight": 0.5,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_MECH",
+      "name": "Mechanical Room",
+      "category": "MEP/Infrastructure",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.02,
+        0.04
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "HVAC equipment; boilers; water heaters; fire pump"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_ELEC",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    },
+    {
+      "id": "STU_ELEC",
+      "name": "Electrical Room",
+      "category": "MEP/Infrastructure",
+      "nsf_range": [
+        100,
+        600
+      ],
+      "gsf_range": null,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Basement",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Main switchgear; panels; transformer; emergency power transfer"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "STU_MECH",
+          "weight": 0.7,
+          "relationship": "Near"
+        }
+      ]
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_MAIL",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_MAIL",
+      "to": "STU_ENTRY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_ENTRY",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_LOUNGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_LOUNGE",
+      "to": "STU_ENTRY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_DOUBLE_ROOM",
+      "to": "STU_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_DOUBLE_ROOM",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_SINGLE_ROOM",
+      "to": "STU_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_SINGLE_ROOM",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_SUITE_UNIT",
+      "to": "STU_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_SUITE_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_APT_UNIT",
+      "to": "STU_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_APT_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "STU_SHARED_BATH",
+      "to": "STU_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_SHARED_BATH",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_SHARED_BATH",
+      "to": "STU_DOUBLE_ROOM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_DOUBLE_ROOM",
+      "to": "STU_SHARED_BATH",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_LOUNGE",
+      "to": "STU_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_LOUNGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_STUDY",
+      "to": "STU_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_STUDY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_LAUNDRY",
+      "to": "STU_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_LAUNDRY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_KITCHEN",
+      "to": "STU_LOUNGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_LOUNGE",
+      "to": "STU_KITCHEN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_RA_OFFICE",
+      "to": "STU_CORRIDOR",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_CORRIDOR",
+      "to": "STU_RA_OFFICE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_MULTIPURPOSE",
+      "to": "STU_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_MULTIPURPOSE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_FITNESS",
+      "to": "STU_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_FITNESS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_BIKE",
+      "to": "STU_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_ENTRY",
+      "to": "STU_BIKE",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_MECH",
+      "to": "STU_ELEC",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "STU_ELEC",
+      "to": "STU_MECH",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "STUDENT_HOUSING__DEFAULT__US-NATIONAL",
+    "cost": "STUDENT_HOUSING__DEFAULT__US-NE",
+    "parking": "STUDENT_HOUSING__DEFAULT__BOSTON-MA"
+  }
+}
