@@ -125,6 +125,89 @@
       margin: 16px 0;
     }
 
+    .onboard-card {
+      border: 1px solid var(--calvey-rule);
+      padding: 32px;
+      margin-top: 24px;
+      background: white;
+    }
+
+    .onboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 640px) {
+      .onboard-grid.two { grid-template-columns: 1fr 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; }
+    .field label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--calvey-muted);
+      margin-bottom: 6px;
+    }
+    .field select,
+    .field input[type="number"],
+    .field input[type="text"] {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      padding: 10px 12px;
+      border: 1px solid var(--calvey-text);
+      background: white;
+      color: var(--calvey-text);
+      width: 100%;
+    }
+    .field .hint {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--calvey-muted);
+      margin-top: 6px;
+    }
+
+    .preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .preset-row button {
+      padding: 6px 10px;
+      margin: 0;
+      font-size: 10px;
+    }
+
+    .primary {
+      background: var(--calvey-text);
+      color: white;
+    }
+    .primary:hover { background: var(--calvey-accent); border-color: var(--calvey-accent); }
+
+    .linkish {
+      background: transparent;
+      border: none;
+      color: var(--calvey-muted);
+      padding: 6px 0;
+      text-decoration: underline;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .linkish:hover { background: transparent; color: var(--calvey-text); }
+
+    .soft-rule {
+      text-align: center;
+      color: var(--calvey-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 24px 0 16px;
+    }
+
     footer {
       margin-top: 64px;
       padding-top: 16px;
@@ -439,10 +522,201 @@
       );
     }
 
+    // Fallback building types if program database isn't available yet.
+    // Mirrors the canonical list in CALVEY_PROGRAM/data/building_program_database_master_updated.json.
+    const FALLBACK_BUILDING_TYPES = [
+      "Office",
+      "Multifamily Residential",
+      "K-12 School",
+      "Higher Education",
+      "Healthcare (Outpatient / Inpatient mix)",
+      "Civic / Government",
+      "Laboratory",
+      "Hospitality (Hotel)",
+      "Retail / Mixed-Use",
+      "Industrial / Warehouse",
+      "Cultural / Museum",
+      "Religious / Worship",
+      "Recreation / Sports",
+      "Data Center / Tech",
+      "Parking Structure",
+      "Transit / Transportation",
+      "Senior Living / Assisted Living",
+      "Student Housing / Dormitory",
+      "Convention Center / Exhibition Hall",
+      "Fire Station / Emergency Services",
+      "Public Library",
+      "Restaurant / Food Hall"
+    ];
+
+    function buildRectanglePolygon(widthFt, depthFt) {
+      const w = Math.max(0, Number(widthFt) || 0);
+      const d = Math.max(0, Number(depthFt) || 0);
+      // CCW starting at origin, feet.
+      return [
+        [0, 0],
+        [w, 0],
+        [w, d],
+        [0, d]
+      ];
+    }
+
+    // Is this a fresh, not-yet-started project? Used to decide whether to show
+    // the onboarding screen vs. the metadata/JSON view.
+    function isFreshProject(p) {
+      if (!isPlainObject(p)) return true;
+      const polyEmpty =
+        isPlainObject(p.context) &&
+        isPlainObject(p.context.footprint) &&
+        Array.isArray(p.context.footprint.polygon) &&
+        p.context.footprint.polygon.length === 0;
+      const noType =
+        isPlainObject(p.context) &&
+        isPlainObject(p.context.program) &&
+        (p.context.program.building_type === null || p.context.program.building_type === undefined);
+      return polyEmpty && noType;
+    }
+
+    function OnboardingView({ buildingTypes, dbLoaded, onStart, onUpload, onBlank, uploadError }) {
+      const availableTypes = buildingTypes && buildingTypes.length > 0
+        ? buildingTypes
+        : FALLBACK_BUILDING_TYPES;
+
+      const [buildingType, setBuildingType] = React.useState(availableTypes[0] || "");
+      const [width, setWidth] = React.useState(150);
+      const [depth, setDepth] = React.useState(100);
+
+      // If the db loads after mount and our selection isn't in its list, realign
+      // to the first real option so submission matches the database.
+      React.useEffect(() => {
+        if (!dbLoaded) return;
+        if (!buildingTypes || buildingTypes.length === 0) return;
+        if (!buildingTypes.includes(buildingType)) {
+          setBuildingType(buildingTypes[0]);
+        }
+      }, [dbLoaded, buildingTypes]);
+
+      const area = Math.max(0, Number(width) || 0) * Math.max(0, Number(depth) || 0);
+
+      function applyPreset(w, d) {
+        setWidth(w);
+        setDepth(d);
+      }
+
+      function handleCreate() {
+        const w = Math.max(1, Math.round(Number(width) || 0));
+        const d = Math.max(1, Math.round(Number(depth) || 0));
+        onStart({ buildingType, width: w, depth: d });
+      }
+
+      return (
+        <div className="app">
+          <header className="section">
+            <h1>CALVEY PARTY 2</h1>
+            <div className="label">SANDBOX · WELCOME</div>
+          </header>
+
+          <div className="block-note">
+            Let's set up a new project. Pick a building type and a starting footprint size
+            to get going. You can reshape the footprint later.
+          </div>
+
+          {uploadError && (
+            <div className="section">
+              <span className="chip chip-error">UPLOAD FAILED: {uploadError}</span>
+            </div>
+          )}
+
+          <div className="onboard-card">
+            <h3>01 · Building Type</h3>
+            <div className="field" style={{ marginBottom: 24 }}>
+              <label htmlFor="building-type-select">What are you designing?</label>
+              <select
+                id="building-type-select"
+                value={buildingType}
+                onChange={(e) => setBuildingType(e.target.value)}
+              >
+                {availableTypes.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              <div className="hint">
+                {dbLoaded
+                  ? (buildingTypes.length + " types loaded from program database")
+                  : "Program database not detected — using fallback list"}
+              </div>
+            </div>
+
+            <h3>02 · Starting Footprint</h3>
+            <div className="onboard-grid two">
+              <div className="field">
+                <label htmlFor="fp-width">Width (ft)</label>
+                <input
+                  id="fp-width"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="fp-depth">Depth (ft)</label>
+                <input
+                  id="fp-depth"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={depth}
+                  onChange={(e) => setDepth(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="preset-row">
+              <button type="button" onClick={() => applyPreset(80, 60)}>Small · 80×60</button>
+              <button type="button" onClick={() => applyPreset(150, 100)}>Medium · 150×100</button>
+              <button type="button" onClick={() => applyPreset(220, 160)}>Large · 220×160</button>
+              <button type="button" onClick={() => applyPreset(300, 200)}>XL · 300×200</button>
+            </div>
+            <div className="hint" style={{ marginTop: 12 }}>
+              FOOTPRINT AREA · {area.toLocaleString()} SF
+            </div>
+
+            <div style={{ marginTop: 28 }}>
+              <button type="button" className="primary" onClick={handleCreate}>
+                Create Project
+              </button>
+            </div>
+          </div>
+
+          <div className="soft-rule">— OR —</div>
+
+          <div className="section" style={{ textAlign: "center" }}>
+            <label className="upload">
+              Load existing .calvey-party.json
+              <input type="file" accept=".json,application/json" onChange={onUpload} />
+            </label>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <button type="button" className="linkish" onClick={onBlank}>
+              Skip setup · start from blank JSON (advanced)
+            </button>
+          </div>
+
+          <footer>
+            SCHEMA 2.1-PARTY · ENGINE 0.1.0-STEP01 · STEP 01 OF 09
+          </footer>
+        </div>
+      );
+    }
+
     function App() {
       const [project, setProject] = React.useState(() => loadFromLocalStorage() ?? emptyProject());
       const [validation, setValidation] = React.useState(() => validateProject(project));
-      const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null });
+      const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null, types: [] });
+      const [forceAdvanced, setForceAdvanced] = React.useState(false);
       const [textareaValue, setTextareaValue] = React.useState(() => JSON.stringify(project, null, 2));
       const [applyError, setApplyError] = React.useState(null);
       const [uploadError, setUploadError] = React.useState(null);
@@ -476,22 +750,44 @@
               const json = await res.json();
               if (cancelled) return;
               let count = 0;
+              let types = [];
               if (Array.isArray(json)) {
                 count = json.length;
+                types = json
+                  .map(x => (isPlainObject(x) ? (x.building_type || x.name || null) : null))
+                  .filter(Boolean);
               } else if (isPlainObject(json)) {
-                if (Array.isArray(json.databases)) count = json.databases.length;
-                else if (Array.isArray(json.building_types)) count = json.building_types.length;
-                else if (Array.isArray(json.types)) count = json.types.length;
-                else count = Object.keys(json).length;
+                const arr = Array.isArray(json.databases)
+                  ? json.databases
+                  : Array.isArray(json.building_types)
+                    ? json.building_types
+                    : Array.isArray(json.types)
+                      ? json.types
+                      : null;
+                if (arr) {
+                  count = arr.length;
+                  types = arr
+                    .map(x => (isPlainObject(x) ? (x.building_type || x.name || null) : (typeof x === "string" ? x : null)))
+                    .filter(Boolean);
+                } else {
+                  count = Object.keys(json).length;
+                }
               }
-              setDbStatus({ loaded: true, count, error: null, source: path });
+              // De-duplicate while preserving order
+              const seen = new Set();
+              types = types.filter(t => {
+                if (seen.has(t)) return false;
+                seen.add(t);
+                return true;
+              });
+              setDbStatus({ loaded: true, count, error: null, source: path, types });
               return;
             } catch (e) {
               console.debug("program database probe miss:", path, e && e.message);
             }
           }
           if (cancelled) return;
-          setDbStatus({ loaded: false, count: 0, error: "no master index found", source: null });
+          setDbStatus({ loaded: false, count: 0, error: "no master index found", source: null, types: [] });
         })();
         return () => { cancelled = true; };
       }, []);
@@ -499,6 +795,27 @@
       function handleNewProject() {
         const p = emptyProject();
         setProject(p);
+        setApplyError(null);
+        setUploadError(null);
+        setForceAdvanced(false);
+      }
+
+      function handleStartFromOnboarding({ buildingType, width, depth }) {
+        const p = emptyProject();
+        if (buildingType) {
+          p.context.program.building_type = buildingType;
+        }
+        p.context.footprint.polygon = buildRectanglePolygon(width, depth);
+        p.context.footprint.source = "onboarding_rectangle";
+        setProject(p);
+        setApplyError(null);
+        setUploadError(null);
+        setForceAdvanced(false);
+      }
+
+      function handleBlankStart() {
+        // Escape hatch for power users who want to hand-edit JSON immediately.
+        setForceAdvanced(true);
         setApplyError(null);
         setUploadError(null);
       }
@@ -547,6 +864,21 @@
         ? ("PROGRAM DATABASE LOADED · " + dbStatus.count + " building types · " + (dbStatus.source || ""))
         : "PROGRAM DATABASE NOT PRESENT — copy CALVEY_PROGRAM/data into ./data/ and reload";
 
+      const showOnboarding = !forceAdvanced && isFreshProject(project);
+
+      if (showOnboarding) {
+        return (
+          <OnboardingView
+            buildingTypes={dbStatus.types || []}
+            dbLoaded={dbStatus.loaded}
+            onStart={handleStartFromOnboarding}
+            onUpload={handleUpload}
+            onBlank={handleBlankStart}
+            uploadError={uploadError}
+          />
+        );
+      }
+
       return (
         <div className="app">
           <header className="section">
@@ -555,7 +887,7 @@
           </header>
 
           <div className="section">
-            <button onClick={handleNewProject}>New Project</button>
+            <button onClick={handleNewProject}>Start Over</button>
             <label className="upload">
               Load .calvey-party.json
               <input type="file" accept=".json,application/json" onChange={handleUpload} />
