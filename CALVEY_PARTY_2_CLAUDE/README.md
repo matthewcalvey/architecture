@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.6.2-stepT1`
+`0.6.3-stepT2`
 
 ## Build status
 
@@ -53,8 +53,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview.
 - [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1.
 - [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only.
-- [x] **Step T1** — Touch input framework foundation + pan/pinch-zoom/drag retrofit. Viewport + CSS setup, `useLongPress` / `fatFingerRadius` helpers, multi-pointer tracking, pinch-to-zoom (midpoint-stable), ghost offset + finger connector on touch drag, debug gesture readout. Lock gesture (right-click/long-press) and wall scrub unchanged — those ship in T2. *(current)*
-- [ ] Step T2 — Touch lock gesture + touch wall scrub
+- [x] **Step T1** — Touch input framework foundation + pan/pinch-zoom/drag retrofit. Viewport + CSS setup, `useLongPress` / `fatFingerRadius` helpers, multi-pointer tracking, pinch-to-zoom (midpoint-stable), ghost offset + finger connector on touch drag, debug gesture readout. Lock gesture (right-click/long-press) and wall scrub unchanged — those ship in T2.
+- [x] **Step T2** — Touch lock gesture + touch wall scrub. `useLongPress` now owns the 500 ms room-hold timer (mouse + touch); double-tap-to-lock retired on touch. Wall scrub flips from hover-to-preview to press-to-preview on touch, with the alignment-group highlight painted during the scrub and the live area tooltip mirrored 40 px above the finger. Fat-finger pointer-down radius is 8 px on touch / 4 px on mouse (separate from the 12 px T1 hover radius). Lock chip lays out as a 2-column button grid with 36×72-min tap targets and clamps to the viewport with an 80 px thumb-zone gap at the bottom. `onContextMenu` always preventDefaults. *(current)*
 - [ ] Step T3 — Cross-floor drag visual feedback for touch
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
@@ -241,6 +241,66 @@ What T1 deliberately does NOT do:
 - Cross-floor drag still uses the in-canvas ghost; on touch the ghost
   is hidden under the finger when hovering a floor tile. T3 adds a
   ring-around-finger overlay.
+
+### Step T2 notes
+
+Step T2 retrofits the two remaining gestures that fought Safari's default
+touch behavior: the lock chip (previously right-click / long-press /
+double-tap) and the wall scrub (previously hover-to-preview). Desktop
+behavior is preserved — every mouse interaction works identically.
+
+**Lock gesture.** The inline 500 ms `setTimeout` from Step 05 is gone;
+all long-press logic now flows through the shared `useLongPress` helper
+from T1, which handles both the timer and the 3 px move-cancel rule for
+mouse and touch alike. Double-tap-to-lock is retired on touch (iOS
+Safari's synthesized mouse events around taps collide with the native
+double-tap-zoom gesture); it remains on desktop mouse. Right-click on
+desktop is unchanged and is still the primary lock trigger there.
+
+**Wall scrub.** On touch there's no hover, so the hover-to-preview flow
+can't work. T2 replaces it with press-to-preview: a finger landing on
+a scrubbable wall starts the `reproportioning` gesture at cell offset 0,
+paints the alignment-group highlight immediately, and waits for the
+finger to actually move before advancing. A zero-motion release is a
+silent no-op (the existing `commitReproportion` short-circuits on
+`cellOffset === 0`). The idle hover preview is still alive on desktop
+but is now gated on `pointerType === "mouse"` so a stray Safari
+pointermove can't accidentally arm it on touch.
+
+**Fat-finger hit radius** has three distinct values by design:
+- T1 hover radius: 12 px on touch, 4 px on mouse (desktop idle preview).
+- T2 pointer-down radius: 8 px on touch, 4 px on mouse. Tighter than
+  the hover radius so a finger clearly inside a room falls through to
+  room-drag instead of hijacking into a wall scrub. If gate test 15
+  reveals this is still too aggressive, the follow-up is an 80 ms delay
+  after pointerdown during which movement toward a room cancels the
+  wall scrub — deferred unless needed.
+
+**Tooltip mirror axis.** The live area tooltip was positioned 12 px
+below-right of the cursor on desktop; on touch the finger would cover
+that region. Touch scrubs mirror the tooltip 40 px above the finger,
+same sign convention as the T1 drag ghost offset.
+
+**Lock chip.** Six reason buttons in a single row pushed the chip past
+the right edge of an iPhone viewport, and each button was below Apple's
+44×44 HIG minimum. T2 stacks them into a 2-column grid with a 36×72
+px min tap target (applied unconditionally — the desktop chip is
+slightly wider but still readable). Placement logic adds left/top/bottom
+clamps with a 16 px margin and reserves 80 px at the bottom for the
+thumb-resting zone (Step 09 will populate this with the weight slider
+strip; until then the reservation is harmless).
+
+**Context menu.** `onContextMenu` on the canvas SVG now preventDefaults
+unconditionally — belt-and-suspenders alongside `-webkit-touch-callout:
+none` and the native preventDefault on pointerdown — so iOS Safari
+never pops its copy/lookup menu over the canvas. Desktop right-click
+on a room still opens the lock chip; right-click on the canvas
+background is now a no-op (no browser menu, no lock chip).
+
+**Debug readout** now reports the wall id, cell offset, and affected
+room count during reproportion, and the room id during the lock-chip
+state, so the iPhone test session can verify gesture transitions
+without console logging.
 
 ### Step 07.1 notes
 
