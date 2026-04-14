@@ -1,0 +1,1303 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-02",
+  "source_version": "0.1",
+  "units": {
+    "area": "sf",
+    "distance": "ft"
+  },
+  "notes": [
+    "v0.2 wraps the v0.1 per-building-type libraries into a graph-native Program Database format.",
+    "Adjacency edges are stored as weighted edges with relationship enums suitable for bubble diagram solvers.",
+    "Benchmarks in v0.2 are templates/placeholders to be populated with verified data (EUI, cost, parking).",
+    "Calibration hooks are included for importing and normalizing your firm's project schedules."
+  ],
+  "relationship_enum": [
+    "must_adjoin",
+    "should_adjoin",
+    "near",
+    "optional",
+    "separate",
+    "avoid",
+    "secure_separation",
+    "vertical_stack"
+  ],
+  "databases": [
+    {
+      "category": "Office",
+      "building_type": "Office",
+      "json": "program_database_office.json",
+      "space_count": 15,
+      "edge_count": 29,
+      "tiers_present": [
+        "Class_A",
+        "Class_B",
+        "Class_C"
+      ],
+      "corridor_typology": "central_core",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.85,
+      "file": "program_database_office.json"
+    },
+    {
+      "category": "Multifamily",
+      "building_type": "Multifamily Residential",
+      "json": "program_database_multifamily.json",
+      "space_count": 47,
+      "edge_count": 106,
+      "tiers_present": [
+        "Affordable",
+        "Luxury",
+        "Market"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_multifamily.json"
+    },
+    {
+      "category": "K12",
+      "building_type": "K-12 School",
+      "json": "program_database_k12.json",
+      "space_count": 23,
+      "edge_count": 40,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_k12.json"
+    },
+    {
+      "category": "HigherEd",
+      "building_type": "Higher Education",
+      "json": "program_database_higher_ed.json",
+      "space_count": 14,
+      "edge_count": 19,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_higher_ed.json"
+    },
+    {
+      "category": "Healthcare",
+      "building_type": "Healthcare (Outpatient / Inpatient mix)",
+      "json": "program_database_healthcare.json",
+      "space_count": 13,
+      "edge_count": 19,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "racetrack",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.8,
+      "file": "program_database_healthcare.json"
+    },
+    {
+      "category": "Civic",
+      "building_type": "Civic / Government",
+      "json": "program_database_civic.json",
+      "space_count": 10,
+      "edge_count": 13,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_civic.json"
+    },
+    {
+      "category": "Laboratory",
+      "building_type": "Laboratory",
+      "json": "program_database_laboratory.json",
+      "space_count": 9,
+      "edge_count": 13,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "single_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.75,
+      "file": "program_database_laboratory.json"
+    },
+    {
+      "category": "Hospitality",
+      "building_type": "Hospitality (Hotel)",
+      "json": "program_database_hospitality.json",
+      "space_count": 14,
+      "edge_count": 20,
+      "tiers_present": [
+        "Budget",
+        "Full_Service",
+        "Luxury",
+        "Select_Service"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_hospitality.json"
+    },
+    {
+      "category": "Retail",
+      "building_type": "Retail / Mixed-Use",
+      "json": "program_database_retail.json",
+      "space_count": 16,
+      "edge_count": 34,
+      "tiers_present": [
+        "Budget",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "open_plan",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.92,
+      "file": "program_database_retail.json"
+    },
+    {
+      "category": "Industrial",
+      "building_type": "Industrial / Warehouse",
+      "json": "program_database_industrial.json",
+      "space_count": 15,
+      "edge_count": 31,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "open_plan",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.92,
+      "file": "program_database_industrial.json"
+    },
+    {
+      "category": "Cultural",
+      "building_type": "Cultural / Museum",
+      "json": "program_database_cultural.json",
+      "space_count": 24,
+      "edge_count": 36,
+      "tiers_present": [
+        "Community",
+        "Regional",
+        "Major"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_cultural.json"
+    },
+    {
+      "category": "Religious",
+      "building_type": "Religious / Worship",
+      "json": "program_database_religious.json",
+      "space_count": 18,
+      "edge_count": 31,
+      "tiers_present": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ],
+      "corridor_typology": "open_plan",
+      "typical_bay_spacing_ft": 25,
+      "typical_floor_plate_efficiency": 0.92,
+      "file": "program_database_religious.json"
+    },
+    {
+      "category": "Recreation",
+      "building_type": "Recreation / Sports",
+      "json": "program_database_recreation.json",
+      "space_count": 18,
+      "edge_count": 29,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 25,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_recreation.json"
+    },
+    {
+      "category": "DataCenter",
+      "building_type": "Data Center / Tech",
+      "json": "program_database_datacenter.json",
+      "space_count": 16,
+      "edge_count": 26,
+      "tiers_present": [
+        "Tier_II",
+        "Tier_III",
+        "Tier_IV"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_datacenter.json"
+    },
+    {
+      "category": "Parking",
+      "building_type": "Parking Structure",
+      "json": "program_database_parking.json",
+      "space_count": 13,
+      "edge_count": 23,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "open_plan",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.92,
+      "file": "program_database_parking.json"
+    },
+    {
+      "category": "Transit",
+      "building_type": "Transit / Transportation",
+      "json": "program_database_transit.json",
+      "space_count": 18,
+      "edge_count": 27,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_transit.json"
+    },
+    {
+      "category": "SeniorLiving",
+      "building_type": "Senior Living / Assisted Living",
+      "json": "program_database_senior_living.json",
+      "space_count": 18,
+      "edge_count": 36,
+      "tiers_present": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_senior_living.json"
+    },
+    {
+      "category": "StudentHousing",
+      "building_type": "Student Housing / Dormitory",
+      "json": "program_database_student_housing.json",
+      "space_count": 18,
+      "edge_count": 36,
+      "tiers_present": [
+        "Baseline",
+        "Enhanced"
+      ],
+      "corridor_typology": "double_loaded",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.82,
+      "file": "program_database_student_housing.json"
+    },
+    {
+      "category": "ConventionCenter",
+      "building_type": "Convention Center / Exhibition Hall",
+      "json": "program_database_convention_center.json",
+      "space_count": 18,
+      "edge_count": 29,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_convention_center.json"
+    },
+    {
+      "category": "FireStation",
+      "building_type": "Fire Station / Emergency Services",
+      "json": "program_database_fire_station.json",
+      "space_count": 18,
+      "edge_count": 24,
+      "tiers_present": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "corridor_typology": "open_plan",
+      "typical_bay_spacing_ft": 20,
+      "typical_floor_plate_efficiency": 0.92,
+      "file": "program_database_fire_station.json"
+    },
+    {
+      "category": "CruiseTerminal",
+      "building_type": "Cruise Terminal",
+      "json": "program_database_cruiseport.json",
+      "space_count": 36,
+      "edge_count": 0,
+      "tiers_present": [
+        "Standard",
+        "VIP / Loyalty"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "file": "program_database_cruiseport.json"
+    },
+    {
+      "category": "CruiseTerminalCruiseDay",
+      "building_type": "Cruise Terminal — Cruise Day",
+      "json": "program_database_cruise_terminal_cruise_day.json",
+      "space_count": 36,
+      "edge_count": 48,
+      "tiers_present": [
+        "Standard",
+        "VIP / Loyalty"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "project_specific": true,
+      "project_name": "Cruise Terminal 5 — Port Tampa Bay"
+    },
+    {
+      "category": "CruiseTerminalNonCruiseDay",
+      "building_type": "Cruise Terminal — Non-Cruise Day",
+      "json": "program_database_cruise_terminal_non_cruise_day.json",
+      "space_count": 36,
+      "edge_count": 48,
+      "tiers_present": [
+        "Full",
+        "Partial",
+        "Fixed"
+      ],
+      "corridor_typology": "branching",
+      "typical_bay_spacing_ft": 30,
+      "typical_floor_plate_efficiency": 0.78,
+      "project_specific": true,
+      "project_name": "Cruise Terminal 5 — Port Tampa Bay"
+    }
+  ],
+  "benchmarks": {
+    "eui_targets": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__US-NATIONAL",
+        "building_type": "Office",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 55,
+        "median": 85,
+        "p75": 130,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Office, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__US-NATIONAL",
+        "building_type": "Multifamily Residential",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 35,
+        "median": 55,
+        "p75": 80,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Multifamily Residential, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "K_12_SCHOOL__DEFAULT__US-NATIONAL",
+        "building_type": "K-12 School",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 40,
+        "median": 58,
+        "p75": 85,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "K-12 School, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "HIGHER_EDUCATION__DEFAULT__US-NATIONAL",
+        "building_type": "Higher Education",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 60,
+        "median": 100,
+        "p75": 150,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Higher Education, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__US-NATIONAL",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 100,
+        "median": 165,
+        "p75": 250,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Healthcare (Outpatient / Inpatient mix), national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__US-NATIONAL",
+        "building_type": "Civic / Government",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 50,
+        "median": 80,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Civic / Government, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__US-NATIONAL",
+        "building_type": "Laboratory",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 150,
+        "median": 250,
+        "p75": 400,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Laboratory, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__US-NATIONAL",
+        "building_type": "Hospitality (Hotel)",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 70,
+        "median": 95,
+        "p75": 130,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Hospitality (Hotel), national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__US-NATIONAL",
+        "building_type": "Retail / Mixed-Use",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 40,
+        "median": 65,
+        "p75": 100,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Retail / Mixed-Use, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__US-NATIONAL",
+        "building_type": "Industrial / Warehouse",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 30,
+        "median": 50,
+        "p75": 80,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Industrial / Warehouse, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__US-NATIONAL",
+        "building_type": "Cultural / Museum",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 50,
+        "median": 80,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Cultural / Museum, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__US-NATIONAL",
+        "building_type": "Religious / Worship",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 35,
+        "median": 50,
+        "p75": 75,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Religious / Worship, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__US-NATIONAL",
+        "building_type": "Recreation / Sports",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 55,
+        "median": 85,
+        "p75": 130,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Recreation / Sports, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "DATA_CENTER__DEFAULT__US-NATIONAL",
+        "building_type": "Data Center / Tech",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 400,
+        "median": 700,
+        "p75": 1200,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Data Center / Tech, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__US-NATIONAL",
+        "building_type": "Parking Structure",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 5,
+        "median": 10,
+        "p75": 20,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Parking Structure, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__US-NATIONAL",
+        "building_type": "Transit / Transportation",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 50,
+        "median": 80,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Transit / Transportation, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__US-NATIONAL",
+        "building_type": "Senior Living / Assisted Living",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 55,
+        "median": 85,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Senior Living / Assisted Living, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__US-NATIONAL",
+        "building_type": "Student Housing / Dormitory",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 40,
+        "median": 60,
+        "p75": 90,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Student Housing / Dormitory, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__US-NATIONAL",
+        "building_type": "Convention Center / Exhibition Hall",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 60,
+        "median": 90,
+        "p75": 130,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Convention Center / Exhibition Hall, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__US-NATIONAL",
+        "building_type": "Fire Station / Emergency Services",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 60,
+        "median": 90,
+        "p75": 130,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Fire Station / Emergency Services, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NATIONAL",
+        "building_type": "Cruise Terminal",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 50,
+        "median": 80,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Cruise Terminal, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NATIONAL",
+        "building_type": "Cruise Terminal — Cruise Day",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 85,
+        "median": 110,
+        "p75": 150,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Cruise Terminal — Cruise Day, national average. CBECS Table C1."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NATIONAL",
+        "building_type": "Cruise Terminal — Non-Cruise Day",
+        "region": "US-NATIONAL",
+        "metric": "site_eui_kbtu_sf_yr",
+        "p25": 50,
+        "median": 80,
+        "p75": 120,
+        "source": "CBECS 2018 + ENERGY STAR",
+        "notes": "Cruise Terminal — Non-Cruise Day, national average. CBECS Table C1."
+      }
+    ],
+    "cost_per_sf": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__US-NE",
+        "building_type": "Office",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 250,
+        "median": 350,
+        "p75": 500,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Office, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__US-NE",
+        "building_type": "Multifamily Residential",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 200,
+        "median": 300,
+        "p75": 450,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Multifamily Residential, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "K_12_SCHOOL__DEFAULT__US-NE",
+        "building_type": "K-12 School",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 425,
+        "p75": 600,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "K-12 School, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "HIGHER_EDUCATION__DEFAULT__US-NE",
+        "building_type": "Higher Education",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 350,
+        "median": 500,
+        "p75": 700,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Higher Education, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__US-NE",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 400,
+        "median": 600,
+        "p75": 900,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Healthcare (Outpatient / Inpatient mix), new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__US-NE",
+        "building_type": "Civic / Government",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 450,
+        "p75": 650,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Civic / Government, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__US-NE",
+        "building_type": "Laboratory",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 500,
+        "median": 750,
+        "p75": 1100,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Laboratory, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__US-NE",
+        "building_type": "Hospitality (Hotel)",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 220,
+        "median": 300,
+        "p75": 450,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Hospitality (Hotel), new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__US-NE",
+        "building_type": "Retail / Mixed-Use",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 150,
+        "median": 225,
+        "p75": 350,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Retail / Mixed-Use, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__US-NE",
+        "building_type": "Industrial / Warehouse",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 100,
+        "median": 175,
+        "p75": 275,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Industrial / Warehouse, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__US-NE",
+        "building_type": "Cultural / Museum",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 350,
+        "median": 500,
+        "p75": 750,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Cultural / Museum, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__US-NE",
+        "building_type": "Religious / Worship",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 180,
+        "median": 250,
+        "p75": 350,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Religious / Worship, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__US-NE",
+        "building_type": "Recreation / Sports",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 250,
+        "median": 375,
+        "p75": 550,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Recreation / Sports, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "DATA_CENTER__DEFAULT__US-NE",
+        "building_type": "Data Center / Tech",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 600,
+        "median": 900,
+        "p75": 1400,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Data Center / Tech, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__US-NE",
+        "building_type": "Parking Structure",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 60,
+        "median": 85,
+        "p75": 120,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Parking Structure, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__US-NE",
+        "building_type": "Transit / Transportation",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 450,
+        "p75": 650,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Transit / Transportation, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__US-NE",
+        "building_type": "Senior Living / Assisted Living",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 250,
+        "median": 375,
+        "p75": 550,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Senior Living / Assisted Living, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__US-NE",
+        "building_type": "Student Housing / Dormitory",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 250,
+        "median": 375,
+        "p75": 550,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Student Housing / Dormitory, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__US-NE",
+        "building_type": "Convention Center / Exhibition Hall",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 450,
+        "p75": 650,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Convention Center / Exhibition Hall, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__US-NE",
+        "building_type": "Fire Station / Emergency Services",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 350,
+        "median": 500,
+        "p75": 700,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Fire Station / Emergency Services, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NE",
+        "building_type": "Cruise Terminal",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 450,
+        "p75": 650,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Cruise Terminal, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NE",
+        "building_type": "Cruise Terminal — Cruise Day",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 400,
+        "median": 500,
+        "p75": 700,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Cruise Terminal — Cruise Day, new construction, Northeast US. Excludes land and soft costs."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__US-NE",
+        "building_type": "Cruise Terminal — Non-Cruise Day",
+        "region": "US-NE",
+        "metric": "total_cost_usd_per_sf",
+        "p25": 300,
+        "median": 450,
+        "p75": 650,
+        "source": "RSMeans 2024 + industry benchmarks",
+        "year": 2024,
+        "escalation_index": 1,
+        "notes": "Cruise Terminal — Non-Cruise Day, new construction, Northeast US. Excludes land and soft costs."
+      }
+    ],
+    "parking_ratios": [
+      {
+        "lookup_key": "OFFICE__DEFAULT__BOSTON-MA",
+        "building_type": "Office",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 2,
+        "rule_type": "zoning_maximum",
+        "source": "Boston Zoning Article 23",
+        "notes": "Office. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "MULTIFAMILY__DEFAULT__BOSTON-MA",
+        "building_type": "Multifamily Residential",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1,
+        "rule_type": "per_unit",
+        "source": "Boston Zoning Article 23",
+        "notes": "Multifamily Residential. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "K_12_SCHOOL__DEFAULT__BOSTON-MA",
+        "building_type": "K-12 School",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "zoning_minimum",
+        "source": "Typical suburban zoning",
+        "notes": "K-12 School. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "HIGHER_EDUCATION__DEFAULT__BOSTON-MA",
+        "building_type": "Higher Education",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1.5,
+        "rule_type": "zoning_minimum",
+        "source": "Typical campus zoning",
+        "notes": "Higher Education. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "HEALTHCARE__DEFAULT__BOSTON-MA",
+        "building_type": "Healthcare (Outpatient / Inpatient mix)",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 3,
+        "rule_type": "zoning_minimum",
+        "source": "Typical healthcare zoning",
+        "notes": "Healthcare (Outpatient / Inpatient mix). See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CIVIC__DEFAULT__BOSTON-MA",
+        "building_type": "Civic / Government",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 2,
+        "rule_type": "zoning_minimum",
+        "source": "Typical government zoning",
+        "notes": "Civic / Government. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "LABORATORY__DEFAULT__BOSTON-MA",
+        "building_type": "Laboratory",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 2,
+        "rule_type": "zoning_minimum",
+        "source": "Typical suburban zoning",
+        "notes": "Laboratory. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "HOSPITALITY__DEFAULT__BOSTON-MA",
+        "building_type": "Hospitality (Hotel)",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1,
+        "rule_type": "zoning_minimum",
+        "source": "Urban hotel zoning",
+        "notes": "Hospitality (Hotel). See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "RETAIL__DEFAULT__BOSTON-MA",
+        "building_type": "Retail / Mixed-Use",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 4,
+        "rule_type": "zoning_minimum",
+        "source": "Typical retail zoning",
+        "notes": "Retail / Mixed-Use. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "INDUSTRIAL__DEFAULT__BOSTON-MA",
+        "building_type": "Industrial / Warehouse",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1,
+        "rule_type": "zoning_minimum",
+        "source": "Typical industrial zoning",
+        "notes": "Industrial / Warehouse. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CULTURAL__DEFAULT__BOSTON-MA",
+        "building_type": "Cultural / Museum",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1.5,
+        "rule_type": "zoning_minimum",
+        "source": "Typical urban zoning",
+        "notes": "Cultural / Museum. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "RELIGIOUS__DEFAULT__BOSTON-MA",
+        "building_type": "Religious / Worship",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.33,
+        "rule_type": "per_seat",
+        "source": "Typical zoning ordinance",
+        "notes": "Religious / Worship. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "RECREATION__DEFAULT__BOSTON-MA",
+        "building_type": "Recreation / Sports",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 3,
+        "rule_type": "zoning_minimum",
+        "source": "Typical recreation zoning",
+        "notes": "Recreation / Sports. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "DATA_CENTER__DEFAULT__BOSTON-MA",
+        "building_type": "Data Center / Tech",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "zoning_minimum",
+        "source": "Typical data center zoning",
+        "notes": "Data Center / Tech. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "PARKING__DEFAULT__BOSTON-MA",
+        "building_type": "Parking Structure",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0,
+        "rule_type": "not_applicable",
+        "source": "N/A",
+        "notes": "Parking Structure. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "TRANSIT__DEFAULT__BOSTON-MA",
+        "building_type": "Transit / Transportation",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 1,
+        "rule_type": "zoning_minimum",
+        "source": "Transit-oriented development",
+        "notes": "Transit / Transportation. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "SENIOR_LIVING__DEFAULT__BOSTON-MA",
+        "building_type": "Senior Living / Assisted Living",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "per_unit",
+        "source": "Typical senior housing zoning",
+        "notes": "Senior Living / Assisted Living. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "STUDENT_HOUSING__DEFAULT__BOSTON-MA",
+        "building_type": "Student Housing / Dormitory",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "per_bed",
+        "source": "Campus zoning",
+        "notes": "Student Housing / Dormitory. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CONVENTION_CENTER__DEFAULT__BOSTON-MA",
+        "building_type": "Convention Center / Exhibition Hall",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 2,
+        "rule_type": "zoning_minimum",
+        "source": "Typical event venue zoning",
+        "notes": "Convention Center / Exhibition Hall. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "FIRE_STATION__DEFAULT__BOSTON-MA",
+        "building_type": "Fire Station / Emergency Services",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 2,
+        "rule_type": "zoning_minimum",
+        "source": "Municipal code",
+        "notes": "Fire Station / Emergency Services. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__BOSTON-MA",
+        "building_type": "Cruise Terminal",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "per_1000_passengers",
+        "source": "Port authority standards",
+        "notes": "Cruise Terminal. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__BOSTON-MA",
+        "building_type": "Cruise Terminal — Cruise Day",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "per_1000_passengers",
+        "source": "Port authority standards",
+        "notes": "Cruise Terminal — Cruise Day. See local zoning for specific requirements."
+      },
+      {
+        "lookup_key": "CRUISE_TERMINAL__DEFAULT__BOSTON-MA",
+        "building_type": "Cruise Terminal — Non-Cruise Day",
+        "jurisdiction": "Boston, MA",
+        "metric": "stalls_per_1000sf",
+        "ratio": 0.5,
+        "rule_type": "per_1000_passengers",
+        "source": "Port authority standards",
+        "notes": "Cruise Terminal — Non-Cruise Day. See local zoning for specific requirements."
+      }
+    ]
+  },
+  "normalization": {
+    "space_id_map_template": [],
+    "space_type_taxonomy_notes": [
+      "space_id is a stable canonical identifier (e.g., OFF_OPEN_WORK).",
+      "raw_name is the original room name from your project export.",
+      "map raw_name -> space_id; store confidence and notes."
+    ]
+  },
+  "schema_notes": "v0.4 adds building-type structural/code fields, space-level dimensional constraints, stack groups, core templates",
+  "climate_zone_defaults": {
+    "4A": {
+      "hdd_65_typical": 4500,
+      "cdd_50_typical": 1200,
+      "peak_summer_temp_f": 95,
+      "peak_winter_temp_f": 12,
+      "annual_solar_kwh_m2": 1500,
+      "dominant_wind_direction": "NW",
+      "iecc_year": 2021
+    },
+    "5A": {
+      "hdd_65_typical": 5600,
+      "cdd_50_typical": 900,
+      "peak_summer_temp_f": 92,
+      "peak_winter_temp_f": 5,
+      "annual_solar_kwh_m2": 1400,
+      "dominant_wind_direction": "NW",
+      "iecc_year": 2021
+    },
+    "6A": {
+      "hdd_65_typical": 7200,
+      "cdd_50_typical": 500,
+      "peak_summer_temp_f": 88,
+      "peak_winter_temp_f": -5,
+      "annual_solar_kwh_m2": 1300,
+      "dominant_wind_direction": "NW",
+      "iecc_year": 2021
+    }
+  },
+  "driver_registry": {
+    "workstations": {
+      "label": "Workstations",
+      "unit": "ea",
+      "building_types": [
+        "Office",
+        "Civic / Government"
+      ]
+    },
+    "students": {
+      "label": "Students",
+      "unit": "ea",
+      "building_types": [
+        "K-12 School",
+        "Higher Education"
+      ]
+    },
+    "beds": {
+      "label": "Beds",
+      "unit": "ea",
+      "building_types": [
+        "Healthcare (Outpatient / Inpatient mix)",
+        "Student Housing / Dormitory"
+      ]
+    },
+    "keys": {
+      "label": "Guest Rooms",
+      "unit": "ea",
+      "building_types": [
+        "Hospitality (Hotel)"
+      ]
+    },
+    "units": {
+      "label": "Dwelling Units",
+      "unit": "ea",
+      "building_types": [
+        "Multifamily Residential",
+        "Senior Living / Assisted Living"
+      ]
+    },
+    "seats": {
+      "label": "Seats",
+      "unit": "ea",
+      "building_types": [
+        "Cultural / Museum",
+        "Religious / Worship",
+        "Convention Center / Exhibition Hall"
+      ]
+    },
+    "sf_served": {
+      "label": "SF Served",
+      "unit": "sf",
+      "building_types": [
+        "Retail / Mixed-Use",
+        "Industrial / Warehouse",
+        "Recreation / Sports",
+        "Data Center / Tech",
+        "Parking Structure",
+        "Transit / Transportation"
+      ]
+    },
+    "apparatus_bays": {
+      "label": "Apparatus Bays",
+      "unit": "ea",
+      "building_types": [
+        "Fire Station / Emergency Services"
+      ]
+    },
+    "researchers": {
+      "label": "Researchers",
+      "unit": "ea",
+      "building_types": [
+        "Laboratory"
+      ]
+    },
+    "passengers": {
+      "label": "Passengers",
+      "unit": "ea",
+      "building_types": [
+        "Cruise Terminal",
+        "Cruise Terminal — Cruise Day",
+        "Cruise Terminal — Non-Cruise Day"
+      ]
+    }
+  }
+}

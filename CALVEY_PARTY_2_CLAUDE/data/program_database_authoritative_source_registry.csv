@@ -1,0 +1,25 @@
+field_family,source_name,authority,use_for,schema_fields,access
+code_minimums,International Building Code (IBC),ICC,"Primary for occupancy, egress, fire/life safety, plumbing fixture calculations, special room/space provisions",occupant_load_factor; ibc_occupancy_group; fire_separation_hr; egress-sensitive widths; special room rules,Licensed/copyrighted; use adopted local edition
+accessibility,2010 ADA Standards for Accessible Design,U.S. DOJ / ADA.gov,Federal accessibility minimums for scoping and technical requirements,accessibility_type; toilet clearances; maneuvering clearances; accessible routes; counters; seating dispersion,Public
+accessibility,ICC A117.1,ICC,Technical accessibility standard commonly referenced by code,clearances; turning radii; reach ranges; technical accessibility dimensions,Licensed/copyrighted
+ventilation,ASHRAE 62.1,ASHRAE,Ventilation and IAQ minimums,ashrae_62_1_outdoor_air_cfm_person; ashrae_62_1_outdoor_air_cfm_sf; exhaust_required; exhaust_cfm_sf; pressure_relationship,Licensed/copyrighted; cite edition
+thermal_comfort,ASHRAE 55,ASHRAE,Thermal comfort criteria and PMV/SET basis,heating_setpoint_f; cooling_setpoint_f; humidity_range_rh_pct; pmv_target_range,Licensed/copyrighted; cite edition
+daylighting,IES LM-83,IES,Method for sDA/ASE daylight metrics,target_sda_300_50_pct; max_ase_1000_250_pct,Licensed/copyrighted
+daylighting,LEED daylight credit guidance,USGBC,Practical implementation path for LM-83 in projects,view_access_required; daylight performance thresholds,Public summaries; some resources gated
+energy_benchmark,ENERGY STAR Portfolio Manager,EPA,Property-type benchmarking and normalized EUI comparison,benchmark_eui; target_eui; occupancy_schedule_profile calibration,Public
+energy_benchmark,CBECS 2018,EIA,National building stock benchmark data,benchmark_eui; hours; size distributions; energy spend ranges,Public
+cost,RSMeans Data,Gordian,Localized unit cost data and assemblies,cost_per_sf; escalation assumptions; elemental cost checks,Licensed/commercial
+cost,GSA P-120,GSA,Cost and schedule management policy/process structure,estimate_class; contingency logic; design phase cost governance,Public
+acoustics,ANSI/ASA S12.60,ANSI/ASA,School acoustics criteria,background_noise_dba_max; nc_rating_max; reverberation_time_target_s for learning spaces,Licensed/copyrighted; public previews available
+acoustics,WBDG/GSA Acoustic Comfort,WBDG/GSA,Practical acoustic criteria for office/classroom/conference types,nc_rating_max; speech privacy targets; room type heuristics,Public
+bim,IFC / buildingSMART,buildingSMART,Semantic BIM mapping for spaces/types,ifc_space_type; ifc_predefined_type,Public
+bim,OmniClass,CSI,Classification taxonomy,omniclass_number,Licensed but publicly described
+bim,UniFormat,CSI,Elemental classification system,uniformat_code,Licensed but publicly described
+wellness,WELL v2,IWBI,"Wellness framework across air, light, sound, thermal comfort, mind, etc.",biophilic_priority; circadian_lighting_zone; indoor_air_quality_monitoring; active_design_feature,Public overview; standard details partially gated
+climate,NSRDB / TMY / EPW weather files,NREL,Weather and solar data for simulation inputs,preferred_orientation; daylight simulation; energy model climate baselines,Public
+airport,AC 150/5360-13A Airport Terminal Planning,FAA,Primary public guide for airport passenger terminal planning,adjacencies; processor-concourse logic; holdrooms; landside/airside planning,Public PDF
+courthouse,U.S. Courts Design Guide,U.S. Courts,Primary courthouse design guide,secure circulation; courtroom support; zoning; adjacencies,Public PDF
+childcare,Child Care Center Design Guide,GSA,Primary child care planning guide,classroom sizes; support spaces; play areas; adjacencies,Public PDF
+library,Library Space: A Planning Resource for Librarians,MBLC,Strong public-library planning source,space mix; program methodology; support areas,Public PDF
+outpatient,Lease Based Outpatient Clinic Design Guide,VA,Strong public outpatient clinic planning source,exam module; support spaces; clinic flow,Public PDF
+corrections,"Jail Design Guide, Third Edition",NIC,Primary public detention planning guide,housing units; intake/release; control; visitation; support,Public PDF

@@ -1,0 +1,3681 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-02",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {
+      "name": "Typical Assisted Living Community",
+      "location": "Various US",
+      "approx_sf": 25000,
+      "notes": "40-unit single-story; dining room; activity room; shared bathing; nurse station"
+    },
+    "medium": {
+      "name": "Watermark at Brooklyn Heights",
+      "location": "Brooklyn, NY",
+      "approx_sf": 120000,
+      "notes": "4 stories; 283 units; memory care wing; full commercial kitchen; spa; theater; rooftop garden"
+    },
+    "large": {
+      "name": "Vi at the Glen",
+      "location": "Glenview, IL",
+      "approx_sf": 650000,
+      "notes": "CCRC campus; 318 IL units; 60 AL units; 39 memory care; skilled nursing; wellness center; multiple dining venues"
+    }
+  },
+  "building_type": "Senior Living / Assisted Living",
+  "subtypes": [
+    {
+      "id": "SL_ASSISTED",
+      "name": "Assisted Living",
+      "gross_sf_typical": [
+        15000,
+        150000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.78
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "id": "SL_MEMORY",
+      "name": "Memory Care / Dementia",
+      "gross_sf_typical": [
+        8000,
+        60000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.75
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    },
+    {
+      "id": "SL_CCRC",
+      "name": "Continuing Care Retirement Community (CCRC)",
+      "gross_sf_typical": [
+        100000,
+        800000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.8
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Small_Community",
+        "Mid_Size",
+        "Large_Campus"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "SL_ENTRY",
+      "name": "Entry / Reception Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ADMIN",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_LOUNGE",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 300,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 11 00",
+        "uniformat_code": null,
+        "classification_description": "Entry / Reception Lobby",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "polished_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "glass"
+      },
+      "parti": {
+        "parti_name": "Entry / Reception Lobby",
+        "department_group": "Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 8,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_ADMIN",
+      "name": "Administrative Offices",
+      "category": "Administration",
+      "nsf_range": [
+        200,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 150,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 36,
+        "typical_depth": 12,
+        "typical_area_sf": 432,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 200,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.93,
+          "equipment_power_density_w_sf": 2,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 21 00",
+        "uniformat_code": null,
+        "classification_description": "Administrative Offices",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "carpet_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Administrative Offices",
+        "department_group": "Admin",
+        "placement_zone": "support",
+        "parti_area_cells": 7,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_RESIDENT_UNIT",
+      "name": "Resident Suite (Typical AL)",
+      "category": "Residential",
+      "nsf_range": [
+        300,
+        550
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 200,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.35,
+        0.55
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Studio/1BR with kitchenette, accessible bathroom, emergency call system; min 100 SF per state codes"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "R-2",
+      "repeatable": true,
+      "count_rule": "unit_count",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "Type_B",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 12,
+        "typical_area_sf": 360,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 300,
+        "max_area_sf": 550,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "units",
+        "area_per_driver_sf": 4,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 550,
+        "min_area_sf": 300,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.68,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 61 00",
+        "uniformat_code": null,
+        "classification_description": "Resident Suite (Typical AL)",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "lvp",
+        "finish_ceiling": "gypsum_board",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Resident Suite",
+        "department_group": "Residential",
+        "placement_zone": "primary",
+        "parti_area_cells": 3,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_MEMORY_UNIT",
+      "name": "Memory Care Resident Room",
+      "category": "Residential/Memory Care",
+      "nsf_range": [
+        250,
+        400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 200,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.3,
+        0.45
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Secured/Memory Care",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Simpler layout; no kitchenette; wander-guard system; inboard bathroom"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "I-1",
+      "repeatable": true,
+      "count_rule": "unit_count",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "Type_B",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 27.1,
+        "typical_depth": 12,
+        "typical_area_sf": 325,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 250,
+        "max_area_sf": 400,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "units",
+        "area_per_driver_sf": 3,
+        "base_area_sf": 250,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 400,
+        "min_area_sf": 250,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.68,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 61 00",
+        "uniformat_code": null,
+        "classification_description": "Memory Care Resident Room",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "lvp",
+        "finish_ceiling": "gypsum_board",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Memory Care Resident Room",
+        "department_group": "Residential",
+        "placement_zone": "primary",
+        "parti_area_cells": 2,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_CORRIDOR",
+      "name": "Resident Corridor",
+      "category": "Circulation",
+      "nsf_range": [
+        1000,
+        15000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 8,
+      "percent_of_gross_range": [
+        0.1,
+        0.18
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "5 ft min width; handrails both sides; wander loops for memory care; way-finding"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_RESIDENT_UNIT",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "SL_MEMORY_UNIT",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_MED_STATION",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_SPA_BATH",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_ACTIVITY",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_OUTDOOR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_LAUNDRY",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_SALON",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_LOUNGE",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 5,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 30,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 0,
+      "door_clear_width_in": null,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 400,
+        "typical_depth": 20,
+        "typical_area_sf": 8000,
+        "min_width": 5,
+        "min_depth": 20,
+        "min_area_sf": 1000,
+        "max_area_sf": 15000,
+        "clear_height_min_ft": 8,
+        "clear_height_typical_ft": 9,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 1000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 15000,
+        "min_area_sf": 1000,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.66,
+          "equipment_power_density_w_sf": 0.1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 0,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-33 00 00",
+        "uniformat_code": null,
+        "classification_description": "Resident Corridor",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "polished_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Resident Corridor",
+        "department_group": "Core",
+        "placement_zone": "core",
+        "parti_area_cells": 53,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 30,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_DINING",
+      "name": "Main Dining Room",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        600,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.05,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Residential character; flexible seating; 2-3 seatings per meal typical; 18-22 SF/seat"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_KITCHEN",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_ACTIVITY",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_OUTDOOR",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 600,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 600,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 600,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.75,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 00",
+        "uniformat_code": null,
+        "classification_description": "Main Dining Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "porcelain_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Main Dining Room",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 22,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_KITCHEN",
+      "name": "Commercial Kitchen",
+      "category": "Food Service",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 200,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "3 meals/day + snacks; dietary restrictions; tray service for memory care"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_DINING",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 18,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "A-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": "WET_STACK_B",
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 18,
+        "typical_area_sf": 810,
+        "min_width": 15,
+        "min_depth": 18,
+        "min_area_sf": 300,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.99,
+          "equipment_power_density_w_sf": 3,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 50,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 55,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 13",
+        "uniformat_code": null,
+        "classification_description": "Commercial Kitchen",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "quarry_tile",
+        "finish_ceiling": "washable_panel",
+        "finish_walls": "frp_panel",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Commercial Kitchen",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 11,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_ACTIVITY",
+      "name": "Activity / Multi-Purpose Room",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.03,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Exercise classes; crafts; movies; divisible partitions; 15 SF/person"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 400,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 400,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 400,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.75,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 00",
+        "uniformat_code": null,
+        "classification_description": "Activity / Multi-Purpose Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "porcelain_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Activity / Multi-Purpose Room",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 11,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_WELLNESS",
+      "name": "Wellness / Clinic Room",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 100,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Physician visits; medication management; vitals station; med storage with narcotics lock"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_MED_STATION",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 44,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 18,
+        "typical_depth": 12,
+        "typical_area_sf": 216,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 200,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Wellness / Clinic Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Wellness / Clinic Room",
+        "department_group": "Clinical",
+        "placement_zone": "support",
+        "parti_area_cells": 5,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_MED_STATION",
+      "name": "Medication Station / Nurse Station",
+      "category": "Clinical/Support",
+      "nsf_range": [
+        80,
+        400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 100,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Narcotics safe; medication cart parking; emergency supplies; centrally located on each floor"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_WELLNESS",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 44,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 18,
+        "typical_depth": 12,
+        "typical_area_sf": 216,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 120,
+        "max_area_sf": 400,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 80,
+        "coefficient": 15.5,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 400,
+        "min_area_sf": 80,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Medication Station / Nurse Station",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Medication Station / Nurse Station",
+        "department_group": "Clinical",
+        "placement_zone": "support",
+        "parti_area_cells": 2,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_SPA_BATH",
+      "name": "Spa Bathing / Assisted Bathing",
+      "category": "Support",
+      "nsf_range": [
+        200,
+        800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Roll-in tub; ceiling lift; warm surfaces; privacy; 1 per 15-20 residents"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 10,
+        "typical_area_sf": 250,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 200,
+        "max_area_sf": 800,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": 22.4,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 800,
+        "min_area_sf": 200,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Spa Bathing / Assisted Bathing",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Spa Bathing / Assisted Bathing",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 3,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_SALON",
+      "name": "Beauty Salon / Barber",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        100,
+        400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.005,
+        0.01
+      ],
+      "occupancy_load": "2-4",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Standard",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Shampoo bowl; styling chair; accessible"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 16.7,
+        "typical_depth": 15,
+        "typical_area_sf": 251,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 180,
+        "max_area_sf": 400,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 100,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 400,
+        "min_area_sf": 100,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.75,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 00",
+        "uniformat_code": null,
+        "classification_description": "Beauty Salon / Barber",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "porcelain_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Beauty Salon / Barber",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 2,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_LAUNDRY",
+      "name": "Laundry (Central + Resident)",
+      "category": "Operations/BOH",
+      "nsf_range": [
+        200,
+        1500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 100,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Commercial washers/dryers; soiled/clean separation; resident laundry room separate"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": "WET_STACK_C",
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 10,
+        "typical_area_sf": 300,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 200,
+        "max_area_sf": 1500,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1500,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "none",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 29 48",
+        "uniformat_code": null,
+        "classification_description": "Laundry (Central + Resident)",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Laundry",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_LOUNGE",
+      "name": "Living Room / Lounge",
+      "category": "Amenity/Social",
+      "nsf_range": [
+        300,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.05
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Residential character; fireplace common; library corner; multiple small lounges preferred"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 300,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.75,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 00",
+        "uniformat_code": null,
+        "classification_description": "Living Room / Lounge",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "porcelain_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Living Room / Lounge",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 8,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_OUTDOOR",
+      "name": "Secure Courtyard / Garden",
+      "category": "Amenity/Outdoor",
+      "nsf_range": [
+        500,
+        5000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": null,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Resident",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Enclosed for memory care; walking paths; raised garden beds; shade structures; emergency egress"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "SL_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "SL_DINING",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 500,
+        "max_area_sf": 5000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 500,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 5000,
+        "min_area_sf": 500,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.75,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 00",
+        "uniformat_code": null,
+        "classification_description": "Secure Courtyard / Garden",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "porcelain_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Secure Courtyard / Garden",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 18,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_RESTROOM",
+      "name": "Public Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        100,
+        600
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ENTRY",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "unit_count",
+      "stack_group": "WET_STACK_A",
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 10,
+        "typical_area_sf": 250,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 100,
+        "max_area_sf": 600,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 100,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 600,
+        "min_area_sf": 100,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "none",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Public Restrooms",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Public Restrooms",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 2,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_MECH",
+      "name": "Mechanical Room",
+      "category": "MEP",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.015,
+        0.04
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_ELEC",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 6,
+      "min_depth_ft": 8,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": "CORE_MECH",
+      "floor_priority": 5,
+      "regularly_occupied": false,
+      "acoustic_class": "loud",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 10,
+        "typical_area_sf": 200,
+        "min_width": 6,
+        "min_depth": 8,
+        "min_area_sf": 300,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 300,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.42,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "special"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 0,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 55,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 60,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-35 00 00",
+        "uniformat_code": null,
+        "classification_description": "Mechanical Room",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "cmu"
+      },
+      "parti": {
+        "parti_name": "Mechanical Room",
+        "department_group": "Core",
+        "placement_zone": "core",
+        "parti_area_cells": 11,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "SL_ELEC",
+      "name": "Electrical Room",
+      "category": "MEP",
+      "nsf_range": [
+        100,
+        800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "SL_MECH",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 6,
+      "min_depth_ft": 8,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": false,
+      "acoustic_class": "loud",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 10,
+        "typical_area_sf": 200,
+        "min_width": 6,
+        "min_depth": 8,
+        "min_area_sf": 100,
+        "max_area_sf": 800,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 10
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 100,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 800,
+        "min_area_sf": 100,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.42,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "senior_living_standard",
+          "hvac_zone_type": "special"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 0,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 55,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 60,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-35 00 00",
+        "uniformat_code": null,
+        "classification_description": "Electrical Room",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "cmu"
+      },
+      "parti": {
+        "parti_name": "Electrical Room",
+        "department_group": "Core",
+        "placement_zone": "core",
+        "parti_area_cells": 3,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_ADMIN",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ADMIN",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ENTRY",
+      "to": "SL_LOUNGE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LOUNGE",
+      "to": "SL_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_RESIDENT_UNIT",
+      "to": "SL_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_RESIDENT_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_MEMORY_UNIT",
+      "to": "SL_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_MEMORY_UNIT",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_KITCHEN",
+      "to": "SL_DINING",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_WELLNESS",
+      "to": "SL_MED_STATION",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MED_STATION",
+      "to": "SL_WELLNESS",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MED_STATION",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_MED_STATION",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_SPA_BATH",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_SPA_BATH",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ACTIVITY",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_ACTIVITY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ACTIVITY",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_ACTIVITY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_OUTDOOR",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_OUTDOOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_OUTDOOR",
+      "to": "SL_DINING",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_DINING",
+      "to": "SL_OUTDOOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LAUNDRY",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_LAUNDRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_SALON",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_SALON",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_LOUNGE",
+      "to": "SL_CORRIDOR",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_CORRIDOR",
+      "to": "SL_LOUNGE",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_MECH",
+      "to": "SL_ELEC",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "SL_ELEC",
+      "to": "SL_MECH",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "SENIOR_LIVING__DEFAULT__US-NATIONAL",
+    "cost": "SENIOR_LIVING__DEFAULT__US-NE",
+    "parking": "SENIOR_LIVING__DEFAULT__BOSTON-MA"
+  },
+  "structural_bay_module_ft": [
+    24,
+    28
+  ],
+  "floor_to_floor_ft": {
+    "ground": 14,
+    "typical": 10
+  },
+  "construction_type": [
+    "I-A",
+    "II-A",
+    "V-A"
+  ],
+  "sprinklered": true,
+  "ibc_primary_occupancy": "I-1",
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": {
+    "sprinklered": 200,
+    "unsprinklered": 150
+  },
+  "dead_end_max_ft": {
+    "sprinklered": 50,
+    "unsprinklered": 20
+  },
+  "wall_thickness_in": {
+    "exterior": 14,
+    "interior": 5,
+    "rated_corridor": 6,
+    "demising": 8
+  },
+  "envelope_assembly": "wood_frame",
+  "wwr_target": 0.3,
+  "core_templates": [
+    "Residential_Core_A"
+  ],
+  "scaling_config": {
+    "primary_driver": "units",
+    "driver_label": "Dwelling Units",
+    "driver_range": [
+      30,
+      200
+    ],
+    "gsf_per_driver_range": [
+      600,
+      1000
+    ],
+    "secondary_drivers": [
+      "dining_seats",
+      "nursing_stations"
+    ],
+    "grossing_factor": 1.35,
+    "efficiency_target_range": [
+      0.65,
+      0.78
+    ]
+  },
+  "energy_targets": {
+    "climate_zone_default": "5A",
+    "site_eui_target_kbtu_sf_yr": {
+      "baseline": 85,
+      "good": 64,
+      "stretch": 45,
+      "net_zero_ready": 26
+    },
+    "envelope_targets": {
+      "wall_u_factor_max": 0.064,
+      "roof_u_factor_max": 0.032,
+      "window_u_factor_max": 0.32,
+      "window_shgc_max": 0.4,
+      "air_barrier_cfm_sf_75pa": 0.04,
+      "wwr_prescriptive_max": 0.3,
+      "wwr_with_tradeoffs_max": 0.4
+    },
+    "lighting_targets": {
+      "whole_building_lpd_w_sf": 0.74,
+      "daylight_controls_required_above_sf": 150,
+      "occupancy_sensors_required": true
+    },
+    "mechanical_targets": {
+      "heating_efficiency_min": 0.9,
+      "cooling_efficiency_min_seer": 14,
+      "energy_recovery_required_above_cfm": 750,
+      "demand_controlled_ventilation_above_persons": 25
+    }
+  },
+  "sustainability_targets": {
+    "leed_v4_1_target": "Silver",
+    "well_v2_target": "Bronze",
+    "energy_star_target_score": null,
+    "living_building_challenge": false,
+    "passive_house": false,
+    "local_stretch_code": "MA_Stretch_2023"
+  },
+  "parti_config": {
+    "sf_range": [
+      20000,
+      200000
+    ],
+    "sf_default": 60000,
+    "grossing_factor": 1.35,
+    "icon": "🏡",
+    "corridor_typology": "double-loaded",
+    "department_palette": [
+      {
+        "department_group": "Common",
+        "color": "#c9a959",
+        "placement_strategy": "entry"
+      },
+      {
+        "department_group": "Residential",
+        "color": "#c87a8a",
+        "placement_strategy": "wing"
+      },
+      {
+        "department_group": "Support",
+        "color": "#708878",
+        "placement_strategy": "bridge"
+      },
+      {
+        "department_group": "Core",
+        "color": "#607080",
+        "placement_strategy": "service"
+      },
+      {
+        "department_group": "Admin",
+        "color": "#9b7ec8",
+        "placement_strategy": "entry"
+      },
+      {
+        "department_group": "Clinical",
+        "color": "#d05a42",
+        "placement_strategy": "wing"
+      }
+    ],
+    "variants": {
+      "Senior Living / Assisted Living": {
+        "room_selection": [
+          {
+            "space_id": "SL_ENTRY",
+            "parti_name": "Entry / Reception Lobby",
+            "department_group": "Support",
+            "placement_zone": "foh",
+            "parti_area_cells": 8,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_ADMIN",
+            "parti_name": "Administrative Offices",
+            "department_group": "Admin",
+            "placement_zone": "support",
+            "parti_area_cells": 7,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_RESIDENT_UNIT",
+            "parti_name": "Resident Suite",
+            "department_group": "Residential",
+            "placement_zone": "primary",
+            "parti_area_cells": 3,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_MEMORY_UNIT",
+            "parti_name": "Memory Care Resident Room",
+            "department_group": "Residential",
+            "placement_zone": "primary",
+            "parti_area_cells": 2,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_CORRIDOR",
+            "parti_name": "Resident Corridor",
+            "department_group": "Core",
+            "placement_zone": "core",
+            "parti_area_cells": 53,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 3,
+            "max_aspect_ratio": 30,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_DINING",
+            "parti_name": "Main Dining Room",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 22,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_KITCHEN",
+            "parti_name": "Commercial Kitchen",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 11,
+            "daylight_required": false,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_ACTIVITY",
+            "parti_name": "Activity / Multi-Purpose Room",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 11,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_WELLNESS",
+            "parti_name": "Wellness / Clinic Room",
+            "department_group": "Clinical",
+            "placement_zone": "support",
+            "parti_area_cells": 5,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_MED_STATION",
+            "parti_name": "Medication Station / Nurse Station",
+            "department_group": "Clinical",
+            "placement_zone": "support",
+            "parti_area_cells": 2,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_SPA_BATH",
+            "parti_name": "Spa Bathing / Assisted Bathing",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 3,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_SALON",
+            "parti_name": "Beauty Salon / Barber",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 2,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_LAUNDRY",
+            "parti_name": "Laundry",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 6,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_LOUNGE",
+            "parti_name": "Living Room / Lounge",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 8,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_OUTDOOR",
+            "parti_name": "Secure Courtyard / Garden",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 18,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_RESTROOM",
+            "parti_name": "Public Restrooms",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 2,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_MECH",
+            "parti_name": "Mechanical Room",
+            "department_group": "Core",
+            "placement_zone": "core",
+            "parti_area_cells": 11,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "SL_ELEC",
+            "parti_name": "Electrical Room",
+            "department_group": "Core",
+            "placement_zone": "core",
+            "parti_area_cells": 3,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          }
+        ],
+        "adjacency_overrides": [
+          {
+            "from": "Entry / Reception Lobby",
+            "to": "Administrative Offices",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Entry / Reception Lobby",
+            "to": "Main Dining Room",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Entry / Reception Lobby",
+            "to": "Living Room / Lounge",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Resident Suite",
+            "to": "Resident Corridor",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Memory Care Resident Room",
+            "to": "Resident Corridor",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Main Dining Room",
+            "to": "Commercial Kitchen",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Main Dining Room",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Wellness / Clinic Room",
+            "to": "Medication Station / Nurse Station",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Medication Station / Nurse Station",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Spa Bathing / Assisted Bathing",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Activity / Multi-Purpose Room",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Activity / Multi-Purpose Room",
+            "to": "Main Dining Room",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Secure Courtyard / Garden",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Secure Courtyard / Garden",
+            "to": "Main Dining Room",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Laundry",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Beauty Salon / Barber",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Living Room / Lounge",
+            "to": "Resident Corridor",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Mechanical Room",
+            "to": "Electrical Room",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          }
+        ]
+      }
+    }
+  },
+  "plan_archetypes": {
+    "primary": "double-loaded-slab",
+    "alternates": [
+      "courtyard",
+      "podium-tower"
+    ],
+    "notes": "Double-loaded for resident wings; courtyard for memory care"
+  },
+  "schedule_profiles": {
+    "senior_living_standard": {
+      "occupied_hours": [
+        0,
+        24
+      ],
+      "days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "occupancy_fraction_occupied": 0.8,
+      "occupancy_fraction_unoccupied": 0.4,
+      "lighting_fraction_occupied": 0.8,
+      "lighting_fraction_unoccupied": 0.3,
+      "equipment_fraction_occupied": 0.6,
+      "equipment_fraction_unoccupied": 0.3
+    }
+  }
+}

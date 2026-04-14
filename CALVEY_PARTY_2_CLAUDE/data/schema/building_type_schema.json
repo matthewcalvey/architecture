@@ -1,0 +1,727 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://calvey.dev/schemas/building_type_v4.json",
+  "title": "CALVEY Program Database v4 — Building Type File",
+  "description": "Schema for a complete building type JSON file (e.g., program_database_office_v4.json).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_date",
+    "building_type",
+    "reference_projects",
+    "subtypes",
+    "space_library",
+    "adjacency_edges",
+    "structural_bay_module_ft",
+    "floor_to_floor_ft",
+    "construction_type",
+    "sprinklered",
+    "ibc_primary_occupancy",
+    "corridor_width_min_in",
+    "travel_distance_max_ft",
+    "dead_end_max_ft",
+    "wall_thickness_in",
+    "envelope_assembly",
+    "wwr_target",
+    "core_templates",
+    "scaling_config",
+    "energy_targets",
+    "sustainability_targets",
+    "parti_config",
+    "schedule_profiles"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "4.0"
+    },
+    "created_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "building_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reference_projects": {
+      "type": "object",
+      "patternProperties": {
+        "^(small|medium|large)$": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "approx_sf": {
+              "type": "number"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "subtypes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "gross_sf_typical",
+          "efficiency_ratio_target_range",
+          "gross_over_net"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "gross_sf_typical": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "efficiency_ratio_target_range": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "gross_over_net": {
+            "type": "number",
+            "minimum": 1
+          },
+          "workstyle_defaults": {
+            "type": "object"
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "default_unit_types": {
+      "type": "array"
+    },
+    "space_library": {
+      "type": "array",
+      "items": {
+        "$ref": "space_schema.json"
+      },
+      "minItems": 1
+    },
+    "adjacency_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "weight",
+          "relationship"
+        ],
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0
+          },
+          "relationship": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "space_sequences": {
+      "type": "array",
+      "description": "Ordered circulation sequences describing directed paths through spaces. Each sequence represents a specific user/flow journey (e.g., passenger embarkation, patient intake). Complements adjacency_edges by adding directionality and flow logic.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "flow_type",
+          "direction",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stable sequence identifier, lower_snake_case."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable sequence name (e.g., 'Passenger Embarkation')."
+          },
+          "flow_type": {
+            "type": "string",
+            "enum": [
+              "passenger",
+              "patient",
+              "visitor",
+              "staff",
+              "student",
+              "resident",
+              "detainee",
+              "logistics",
+              "baggage",
+              "vehicle",
+              "public",
+              "performer",
+              "worshipper",
+              "guest"
+            ],
+            "description": "The type of user or material following this sequence."
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["one_way", "two_way", "loop"],
+            "description": "one_way = no backtracking; two_way = reversible; loop = returns to origin."
+          },
+          "level": {
+            "type": ["string", "null"],
+            "description": "Floor level this sequence primarily occupies (e.g., 'upper', 'ground', 'all')."
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief narrative of the sequence logic, replaces free-text logic_rule."
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["seq", "space_id"],
+              "properties": {
+                "seq": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Ordinal position in the sequence (1-based)."
+                },
+                "space_id": {
+                  "type": "string",
+                  "description": "FK to a space in space_library."
+                },
+                "dwell": {
+                  "type": "string",
+                  "enum": ["pass_through", "short", "medium", "long"],
+                  "description": "Expected dwell time at this step."
+                },
+                "checkpoint": {
+                  "type": "boolean",
+                  "description": "True if this step is a mandatory control point (security, FIS, etc.)."
+                },
+                "branch_to": {
+                  "type": ["array", "null"],
+                  "items": { "type": "string" },
+                  "description": "Optional list of alternative sequence IDs that can be taken from this step (e.g., domestic vs. international after security)."
+                }
+              }
+            },
+            "minItems": 2,
+            "description": "Ordered list of spaces in the sequence. Must have at least 2 steps."
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "no_backflow": {
+                "type": "boolean",
+                "description": "If true, step N must be further from entry than step N-1 along the circulation axis."
+              },
+              "isolate_from": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Sequence IDs whose spaces must not share corridor segments with this sequence."
+              },
+              "parallel_to": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Sequence IDs that run independently but simultaneously (e.g., baggage parallel to passengers)."
+              },
+              "same_level_required": {
+                "type": "boolean",
+                "description": "If true, all steps must be on the same floor level."
+              }
+            }
+          }
+        }
+      }
+    },
+    "structural_bay_module_ft": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0
+      },
+      "minItems": 1
+    },
+    "floor_to_floor_ft": {
+      "type": "object",
+      "properties": {
+        "ground": {
+          "type": "number",
+          "minimum": 0
+        },
+        "typical": {
+          "type": "number",
+          "minimum": 0
+        },
+        "penthouse": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "construction_type": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sprinklered": {
+      "type": "boolean"
+    },
+    "ibc_primary_occupancy": {
+      "type": "string"
+    },
+    "corridor_width_min_in": {
+      "type": "number",
+      "minimum": 0
+    },
+    "travel_distance_max_ft": {
+      "type": "object",
+      "properties": {
+        "sprinklered": {
+          "type": "number"
+        },
+        "unsprinklered": {
+          "type": "number"
+        }
+      }
+    },
+    "dead_end_max_ft": {
+      "type": "object",
+      "properties": {
+        "sprinklered": {
+          "type": "number"
+        },
+        "unsprinklered": {
+          "type": "number"
+        }
+      }
+    },
+    "wall_thickness_in": {
+      "type": "object",
+      "properties": {
+        "exterior": {
+          "type": "number"
+        },
+        "interior": {
+          "type": "number"
+        },
+        "rated_corridor": {
+          "type": "number"
+        }
+      }
+    },
+    "envelope_assembly": {
+      "type": "string"
+    },
+    "wwr_target": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "core_templates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scaling_config": {
+      "type": "object",
+      "required": [
+        "primary_driver",
+        "driver_label",
+        "driver_range",
+        "gsf_per_driver_range",
+        "secondary_drivers",
+        "grossing_factor",
+        "efficiency_target_range"
+      ],
+      "properties": {
+        "primary_driver": {
+          "type": "string"
+        },
+        "driver_label": {
+          "type": "string"
+        },
+        "driver_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "gsf_per_driver_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "secondary_drivers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "grossing_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "efficiency_target_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "energy_targets": {
+      "type": "object",
+      "required": [
+        "climate_zone_default",
+        "site_eui_target_kbtu_sf_yr",
+        "envelope_targets",
+        "lighting_targets",
+        "mechanical_targets"
+      ],
+      "properties": {
+        "climate_zone_default": {
+          "type": "string"
+        },
+        "site_eui_target_kbtu_sf_yr": {
+          "type": "object",
+          "required": [
+            "baseline",
+            "good",
+            "stretch",
+            "net_zero_ready"
+          ],
+          "properties": {
+            "baseline": {
+              "type": "number",
+              "minimum": 0
+            },
+            "good": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stretch": {
+              "type": "number",
+              "minimum": 0
+            },
+            "net_zero_ready": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "envelope_targets": {
+          "type": "object",
+          "properties": {
+            "wall_u_factor_max": {
+              "type": "number"
+            },
+            "roof_u_factor_max": {
+              "type": "number"
+            },
+            "window_u_factor_max": {
+              "type": "number"
+            },
+            "window_shgc_max": {
+              "type": "number"
+            },
+            "air_barrier_cfm_sf_75pa": {
+              "type": "number"
+            },
+            "wwr_prescriptive_max": {
+              "type": "number"
+            },
+            "wwr_with_tradeoffs_max": {
+              "type": "number"
+            }
+          }
+        },
+        "lighting_targets": {
+          "type": "object",
+          "properties": {
+            "whole_building_lpd_w_sf": {
+              "type": "number"
+            },
+            "daylight_controls_required_above_sf": {
+              "type": "number"
+            },
+            "occupancy_sensors_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "mechanical_targets": {
+          "type": "object",
+          "properties": {
+            "heating_efficiency_min": {
+              "type": "number"
+            },
+            "cooling_efficiency_min_seer": {
+              "type": "number"
+            },
+            "energy_recovery_required_above_cfm": {
+              "type": "number"
+            },
+            "demand_controlled_ventilation_above_persons": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "sustainability_targets": {
+      "type": "object",
+      "required": [
+        "leed_v4_1_target",
+        "well_v2_target",
+        "energy_star_target_score",
+        "living_building_challenge",
+        "passive_house",
+        "local_stretch_code"
+      ],
+      "properties": {
+        "leed_v4_1_target": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Certified",
+            "Silver",
+            "Gold",
+            "Platinum",
+            null
+          ]
+        },
+        "well_v2_target": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Bronze",
+            "Silver",
+            "Gold",
+            "Platinum",
+            null
+          ]
+        },
+        "energy_star_target_score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 100
+        },
+        "living_building_challenge": {
+          "type": "boolean"
+        },
+        "passive_house": {
+          "type": "boolean"
+        },
+        "local_stretch_code": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "parti_config": {
+      "type": "object",
+      "required": [
+        "sf_range",
+        "sf_default",
+        "grossing_factor",
+        "icon",
+        "corridor_typology",
+        "department_palette",
+        "variants"
+      ],
+      "properties": {
+        "sf_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "sf_default": {
+          "type": "number",
+          "minimum": 0
+        },
+        "grossing_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "icon": {
+          "type": "string"
+        },
+        "corridor_typology": {
+          "type": "string"
+        },
+        "department_palette": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "department_group",
+              "color",
+              "placement_strategy"
+            ],
+            "properties": {
+              "department_group": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "placement_strategy": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "variants": {
+          "type": "object"
+        }
+      }
+    },
+    "schedule_profiles": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "occupied_hours": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "days": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "occupancy_fraction_occupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "occupancy_fraction_unoccupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "lighting_fraction_occupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "lighting_fraction_unoccupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "equipment_fraction_occupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "equipment_fraction_unoccupied": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "plan_archetypes": {
+      "type": "object",
+      "description": "Plan archetype metadata for FORM massing pipeline",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "enum": [
+            "bar",
+            "double-loaded-slab",
+            "central-core",
+            "racetrack",
+            "donut",
+            "courtyard",
+            "podium-tower",
+            "hall-and-wing",
+            "branching-civic",
+            "shed-and-support",
+            "finger-plan",
+            "campus-cluster"
+          ]
+        },
+        "alternates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "alternates"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

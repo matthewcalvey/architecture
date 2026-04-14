@@ -1,0 +1,4711 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-02",
+  "source_version": "0.1",
+  "reference_projects": {
+    "small": {
+      "name": "Typical Elementary School",
+      "location": "Various US",
+      "approx_sf": 55000,
+      "notes": "400 students; single-story; 22 classrooms; cafetorium"
+    },
+    "medium": {
+      "name": "Cristo Rey Jesuit High School",
+      "location": "Chicago, IL",
+      "approx_sf": 130000,
+      "notes": "3 stories; 550 students; chapel; science labs; gymnasium"
+    },
+    "large": {
+      "name": "Brooklyn Technical High School",
+      "location": "New York, NY",
+      "approx_sf": 400000,
+      "notes": "2,500+ students; specialized STEM labs; auditorium; multiple gyms"
+    }
+  },
+  "building_type": "K-12 School",
+  "subtypes": [
+    {
+      "id": "K12_ELEM",
+      "name": "Elementary School",
+      "gross_sf_typical": [
+        40000,
+        120000
+      ],
+      "efficiency_ratio_target_range": [
+        0.72,
+        0.84
+      ],
+      "gross_over_net": 1.4,
+      "student_count_typical": [
+        350,
+        800
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "K12_MIDDLE",
+      "name": "Middle School",
+      "gross_sf_typical": [
+        60000,
+        160000
+      ],
+      "efficiency_ratio_target_range": [
+        0.7,
+        0.82
+      ],
+      "gross_over_net": 1.4,
+      "student_count_typical": [
+        500,
+        1000
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "K12_HS",
+      "name": "High School",
+      "gross_sf_typical": [
+        120000,
+        450000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.8
+      ],
+      "gross_over_net": 1.45,
+      "student_count_typical": [
+        800,
+        2500
+      ],
+      "tiers": [
+        "Baseline",
+        "Enhanced"
+      ]
+    }
+  ],
+  "default_unit_types": [],
+  "space_library": [
+    {
+      "id": "K12_ENTRY",
+      "name": "Main Entry + Vestibule",
+      "category": "Public/Entry",
+      "nsf_range": [
+        200,
+        1000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.003,
+        0.02
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Security vestibule common; visitor check-in"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_HEALTH",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 40,
+        "typical_depth": 15,
+        "typical_area_sf": 600,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 1000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1000,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 11 00",
+        "uniformat_code": null,
+        "classification_description": "Main Entry + Vestibule",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "polished_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "glass"
+      },
+      "parti": {
+        "parti_name": "Main Entry + Vestibule",
+        "department_group": "Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_LOBBY",
+      "name": "Lobby / Commons",
+      "category": "Public/Commons",
+      "nsf_range": [
+        800,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.06
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public/Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often doubles as cafeteria spillover / event space"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_CAFE",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_GYM",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_LIBRARY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 15,
+        "typical_area_sf": 675,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 800,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 11 42",
+        "uniformat_code": null,
+        "classification_description": "Lobby / Commons",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Lobby / Commons",
+        "department_group": "Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 23,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_ADMIN",
+      "name": "Administration Suite",
+      "category": "Administration",
+      "nsf_range": [
+        800,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 150,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Include secure vestibule and visitor waiting"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ENTRY",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CONF",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 36,
+        "typical_depth": 12,
+        "typical_area_sf": 432,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 800,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.93,
+          "equipment_power_density_w_sf": 2,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 21 00",
+        "uniformat_code": null,
+        "classification_description": "Administration Suite",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "carpet_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Administration Suite",
+        "department_group": "Admin",
+        "placement_zone": "support",
+        "parti_area_cells": 13,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_CONF",
+      "name": "Conference / Meeting",
+      "category": "Administration",
+      "nsf_range": [
+        200,
+        600
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 150,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0,
+        0.01
+      ],
+      "occupancy_load": "6-20",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 33.3,
+        "typical_depth": 12,
+        "typical_area_sf": 400,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 200,
+        "max_area_sf": 600,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 600,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.93,
+          "equipment_power_density_w_sf": 2,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 21 00",
+        "uniformat_code": null,
+        "classification_description": "Conference / Meeting",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "carpet_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Conference / Meeting",
+        "department_group": "Admin",
+        "placement_zone": "support",
+        "parti_area_cells": 3,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_HEALTH",
+      "name": "Health Suite / Nurse",
+      "category": "Support",
+      "nsf_range": [
+        250,
+        900
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Isolation room may be required"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_ADMIN",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_ENTRY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 10,
+        "typical_area_sf": 250,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 250,
+        "max_area_sf": 900,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 900,
+        "min_area_sf": 250,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Health Suite / Nurse",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Health Suite / Nurse",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_CLASS",
+      "name": "Classroom (Typical)",
+      "category": "Learning",
+      "nsf_range": [
+        850,
+        1100
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 20,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.25,
+        0.45
+      ],
+      "occupancy_load": "20-30",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Daylight critical; acoustic separation from noisy zones"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_SMALL_GROUP",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_TOILETS",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 28,
+      "min_depth_ft": 32,
+      "max_aspect_ratio": 1.33,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30.5,
+        "typical_depth": 32,
+        "typical_area_sf": 976,
+        "min_width": 28,
+        "min_depth": 32,
+        "min_area_sf": 896,
+        "max_area_sf": 1100,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "students",
+        "area_per_driver_sf": 10,
+        "base_area_sf": 850,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1100,
+        "min_area_sf": 850,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 24",
+        "uniformat_code": null,
+        "classification_description": "Classroom (Typical)",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Classroom",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 7,
+        "daylight_required": true,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.33,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_SMALL_GROUP",
+      "name": "Small Group / Intervention",
+      "category": "Learning",
+      "nsf_range": [
+        120,
+        300
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 20,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "4-8",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 24,
+      "min_depth_ft": 28,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 7.5,
+        "typical_depth": 11.3,
+        "typical_area_sf": 85,
+        "min_width": 24,
+        "min_depth": 28,
+        "min_area_sf": 200,
+        "max_area_sf": 672,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 120,
+        "coefficient": 14.5,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 300,
+        "min_area_sf": 120,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 26",
+        "uniformat_code": null,
+        "classification_description": "Small Group / Intervention",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Small Group / Intervention",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 1,
+        "daylight_required": true,
+        "min_width_cells": 3,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_LIBRARY",
+      "name": "Library / Media Center",
+      "category": "Learning",
+      "nsf_range": [
+        2000,
+        8000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 30,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": "E",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 80,
+        "typical_depth": 40,
+        "typical_area_sf": 3200,
+        "min_width": 30,
+        "min_depth": 40,
+        "min_area_sf": 2000,
+        "max_area_sf": 8000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 2000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 8000,
+        "min_area_sf": 2000,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 28",
+        "uniformat_code": null,
+        "classification_description": "Library / Media Center",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Library / Media Center",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 33,
+        "daylight_required": true,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_CAFE",
+      "name": "Cafeteria / Dining",
+      "category": "Food Service",
+      "nsf_range": [
+        2000,
+        12000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Student/Public",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often used for community events; acoustic"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_KITCHEN",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 30,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": "A-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 80,
+        "typical_depth": 40,
+        "typical_area_sf": 3200,
+        "min_width": 30,
+        "min_depth": 40,
+        "min_area_sf": 2000,
+        "max_area_sf": 12000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 2000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 12000,
+        "min_area_sf": 2000,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.99,
+          "equipment_power_density_w_sf": 3,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 50,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 55,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 13",
+        "uniformat_code": null,
+        "classification_description": "Cafeteria / Dining",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "quarry_tile",
+        "finish_ceiling": "washable_panel",
+        "finish_walls": "frp_panel",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Cafeteria / Dining",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 47,
+        "daylight_required": true,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_KITCHEN",
+      "name": "Commercial Kitchen + Support",
+      "category": "Food Service",
+      "nsf_range": [
+        800,
+        5000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter/Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CAFE",
+          "weight": 1,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_LOADING",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 18,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "A-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": "WET_STACK_B",
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 18,
+        "typical_area_sf": 810,
+        "min_width": 15,
+        "min_depth": 18,
+        "min_area_sf": 800,
+        "max_area_sf": 5000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 5000,
+        "min_area_sf": 800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.99,
+          "equipment_power_density_w_sf": 3,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 50,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 55,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 13",
+        "uniformat_code": null,
+        "classification_description": "Commercial Kitchen + Support",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "quarry_tile",
+        "finish_ceiling": "washable_panel",
+        "finish_walls": "frp_panel",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Commercial Kitchen + Support",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 19,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_GYM",
+      "name": "Gymnasium",
+      "category": "Athletics",
+      "nsf_range": [
+        5400,
+        22000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 24,
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Student/Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Often after-hours use; separate entrance desirable"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOCKERS",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_STAGE",
+          "weight": 0.3,
+          "relationship": "optional"
+        }
+      ],
+      "min_width_ft": 60,
+      "min_depth_ft": 84,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 126,
+        "typical_depth": 84,
+        "typical_area_sf": 10584,
+        "min_width": 60,
+        "min_depth": 84,
+        "min_area_sf": 5400,
+        "max_area_sf": 22000,
+        "clear_height_min_ft": 24,
+        "clear_height_typical_ft": 25,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 5400,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 22000,
+        "min_area_sf": 5400,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 12",
+        "uniformat_code": null,
+        "classification_description": "Gymnasium",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Gymnasium",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 91,
+        "daylight_required": true,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_LOCKERS",
+      "name": "Locker Rooms",
+      "category": "Athletics",
+      "nsf_range": [
+        800,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_GYM",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 30,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 60,
+        "typical_depth": 40,
+        "typical_area_sf": 2400,
+        "min_width": 30,
+        "min_depth": 40,
+        "min_area_sf": 1200,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 27 14",
+        "uniformat_code": null,
+        "classification_description": "Locker Rooms",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Locker Rooms",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 16,
+        "daylight_required": false,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_STAGE",
+      "name": "Auditorium / Performance (HS)",
+      "category": "Assembly",
+      "nsf_range": [
+        4000,
+        20000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 7,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 20,
+      "percent_of_gross_range": [
+        0,
+        0.08
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Student/Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "HS-specific; include backstage support in v0.2"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOBBY",
+          "weight": 0.3,
+          "relationship": "optional"
+        }
+      ],
+      "min_width_ft": 40,
+      "min_depth_ft": 50,
+      "max_aspect_ratio": 1.5,
+      "ibc_occupancy_group": "A-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 4,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 2,
+      "dimensions_ft": {
+        "typical_width": 75,
+        "typical_depth": 50,
+        "typical_area_sf": 3750,
+        "min_width": 40,
+        "min_depth": 50,
+        "min_area_sf": 4000,
+        "max_area_sf": 20000,
+        "clear_height_min_ft": 20,
+        "clear_height_typical_ft": 21,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 4000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 20000,
+        "min_area_sf": 4000,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.79,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 30,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 35,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 81 00",
+        "uniformat_code": null,
+        "classification_description": "Auditorium / Performance (HS)",
+        "fire_rating_walls_hr": 2,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "carpet",
+        "finish_ceiling": "acoustic_panel",
+        "finish_walls": "acoustic_panel",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Auditorium / Performance",
+        "department_group": "Assembly",
+        "placement_zone": "support",
+        "parti_area_cells": 80,
+        "daylight_required": false,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_CORRIDOR",
+      "name": "Primary Corridor",
+      "category": "Circulation",
+      "nsf_range": [
+        2000,
+        25000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.12,
+        0.22
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_TOILETS",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 30,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": null,
+      "floor_priority": 10,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 0,
+      "door_clear_width_in": null,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 600,
+        "typical_depth": 20,
+        "typical_area_sf": 12000,
+        "min_width": 8,
+        "min_depth": 20,
+        "min_area_sf": 2000,
+        "max_area_sf": 25000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 2000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 25000,
+        "min_area_sf": 2000,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.66,
+          "equipment_power_density_w_sf": 0.1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 0,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-33 00 00",
+        "uniformat_code": null,
+        "classification_description": "Primary Corridor",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "polished_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Primary Corridor",
+        "department_group": "Core",
+        "placement_zone": "core",
+        "parti_area_cells": 90,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 30,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_TOILETS",
+      "name": "Student Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        300,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "All",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "per_occupant",
+      "stack_group": "WET_STACK_A",
+      "floor_priority": 10,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 10,
+        "typical_area_sf": 250,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 300,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": 37.4,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 300,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "none",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 31 00",
+        "uniformat_code": null,
+        "classification_description": "Student Restrooms",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vct",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Student Restrooms",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 9,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2.5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_LOADING",
+      "name": "Loading / Receiving",
+      "category": "Operations",
+      "nsf_range": [
+        300,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.002,
+        0.01
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [
+        {
+          "space_id": "K12_KITCHEN",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 10,
+        "typical_area_sf": 300,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 300,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.7,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 39 32",
+        "uniformat_code": null,
+        "classification_description": "Loading / Receiving",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Loading / Receiving",
+        "department_group": "Support",
+        "placement_zone": "support",
+        "parti_area_cells": 5,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_MECH",
+      "name": "Main Mechanical",
+      "category": "MEP",
+      "nsf_range": [
+        600,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.01,
+        0.05
+      ],
+      "occupancy_load": "n/a",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "24/7",
+      "stacking_preference": "Ground/Roof",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [],
+      "adjacencies": [],
+      "min_width_ft": 6,
+      "min_depth_ft": 8,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_floor",
+      "stack_group": "CORE_MECH",
+      "floor_priority": 5,
+      "regularly_occupied": false,
+      "acoustic_class": "loud",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 10,
+        "typical_area_sf": 200,
+        "min_width": 6,
+        "min_depth": 8,
+        "min_area_sf": 600,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 600,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 600,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.42,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "special"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 0,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 55,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 60,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-35 00 00",
+        "uniformat_code": null,
+        "classification_description": "Main Mechanical",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "cmu"
+      },
+      "parti": {
+        "parti_name": "Main Mechanical",
+        "department_group": "Core",
+        "placement_zone": "core",
+        "parti_area_cells": 15,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_SCIENCE_LAB",
+      "name": "Science Laboratory",
+      "category": "Specialty Academic",
+      "nsf_range": [
+        1200,
+        1500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "24",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Any",
+      "typical_location": "Perimeter",
+      "code_tags": [
+        "fume_hood_exhaust",
+        "emergency_shower",
+        "eyewash"
+      ],
+      "notes": [
+        "Requires gas, vacuum, compressed air at bench; MSBA STEM report P-025/P-026",
+        "Pair with shared prep room (K12_SCIENCE_PREP) between 2 labs"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_SCIENCE_PREP",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 30,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 1.8,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": "academic_wing",
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 35,
+        "typical_depth": 40,
+        "typical_area_sf": 1400,
+        "min_width": 30,
+        "min_depth": 35,
+        "min_area_sf": 1200,
+        "max_area_sf": 1500,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 1200,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 400,
+            "count": 1
+          },
+          {
+            "driver_min": 401,
+            "driver_max": 800,
+            "count": 2
+          },
+          {
+            "driver_min": 801,
+            "driver_max": 1200,
+            "count": 3
+          },
+          {
+            "driver_min": 1201,
+            "driver_max": 2500,
+            "count": 4
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 1500,
+        "min_area_sf": 1200,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 1.28,
+          "equipment_power_density_w_sf": 4,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 10,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": "north"
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 75,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 11",
+        "uniformat_code": null,
+        "classification_description": "Science Laboratory",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "chemical_resistant_epoxy",
+        "finish_ceiling": "acoustical_tile",
+        "finish_walls": "chemical_resistant_panel",
+        "typical_partition_type": "rated_cmu"
+      },
+      "parti": {
+        "parti_name": "Science Lab",
+        "department_group": "Academics",
+        "placement_zone": "primary",
+        "parti_area_cells": 16,
+        "daylight_required": true,
+        "min_width_cells": 3,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 1.8,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_SCIENCE_PREP",
+      "name": "Science Prep / Storage",
+      "category": "Specialty Support",
+      "nsf_range": [
+        200,
+        400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 300,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.002,
+        0.005
+      ],
+      "occupancy_load": "1-2",
+      "daylight_priority": "None",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff Only",
+      "operations_hours": "School Day",
+      "stacking_preference": "Any",
+      "typical_location": "Interior",
+      "code_tags": [
+        "chemical_storage",
+        "flammable_cabinet"
+      ],
+      "notes": [
+        "Shared between 2 science labs per R-032; requires chemical storage cabinets and emergency shower"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_SCIENCE_LAB",
+          "weight": 0.95,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 2.5,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": "academic_wing",
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 20,
+        "typical_area_sf": 300,
+        "min_width": 10,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 400,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 800,
+            "count": 1
+          },
+          {
+            "driver_min": 801,
+            "driver_max": 2500,
+            "count": 2
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 400,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.63,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 10,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 0,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 68,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 45,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 50,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "none",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 13",
+        "uniformat_code": null,
+        "classification_description": "Science Prep Room",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "chemical_resistant_epoxy",
+        "finish_ceiling": "acoustical_tile",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "rated_cmu"
+      },
+      "parti": {
+        "parti_name": "Science Prep",
+        "department_group": "Academics",
+        "placement_zone": "support",
+        "parti_area_cells": 3,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_ART",
+      "name": "Art Room",
+      "category": "Specialty Academic",
+      "nsf_range": [
+        1200,
+        1400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.01,
+        0.02
+      ],
+      "occupancy_load": "24",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground preferred",
+      "typical_location": "Perimeter",
+      "code_tags": [
+        "kiln_exhaust",
+        "clay_trap"
+      ],
+      "notes": [
+        "R-027: 1,200-1,400 SF best practice; requires north light preferred, kiln room adjacent, clay trap at sinks",
+        "R-030: Must be adjacent to exterior wall for ventilation and natural light"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "K12_MUSIC",
+          "weight": 0.3,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 30,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 1.8,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": "arts_wing",
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 35,
+        "typical_depth": 37,
+        "typical_area_sf": 1300,
+        "min_width": 30,
+        "min_depth": 35,
+        "min_area_sf": 1200,
+        "max_area_sf": 1400,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 1200,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 600,
+            "count": 1
+          },
+          {
+            "driver_min": 601,
+            "driver_max": 1500,
+            "count": 2
+          },
+          {
+            "driver_min": 1501,
+            "driver_max": 2500,
+            "count": 3
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 1400,
+        "min_area_sf": 1200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 1.28,
+          "equipment_power_density_w_sf": 1.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 10,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.5,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": "north"
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 75,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": 45,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 15",
+        "uniformat_code": null,
+        "classification_description": "Art Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "cmu"
+      },
+      "parti": {
+        "parti_name": "Art Room",
+        "department_group": "Academics",
+        "placement_zone": "primary",
+        "parti_area_cells": 14,
+        "daylight_required": true,
+        "min_width_cells": 3,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 1.8,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_MUSIC",
+      "name": "Music / Band Room",
+      "category": "Specialty Academic",
+      "nsf_range": [
+        1500,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "30-50",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Critical",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Student",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [
+        "acoustically_isolated"
+      ],
+      "notes": [
+        "R-028: 1,500-2,000 SF best practice; R-031: Must be acoustically isolated from classrooms",
+        "Requires instrument storage, practice rooms adjacent, high ceiling for ensemble sound"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_STAGE",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_ART",
+          "weight": 0.3,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 35,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 1.8,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": "arts_wing",
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 40,
+        "typical_depth": 43,
+        "typical_area_sf": 1720,
+        "min_width": 35,
+        "min_depth": 40,
+        "min_area_sf": 1500,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 16,
+        "floor_to_floor_ft": 18
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 1500,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 800,
+            "count": 1
+          },
+          {
+            "driver_min": 801,
+            "driver_max": 2500,
+            "count": 2
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 1500,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.94,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "interior"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 7.5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 20,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 75,
+          "humidity_range_rh_pct": [
+            30,
+            50
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 25,
+          "stc_wall_rating": 55,
+          "background_noise_dba_max": 30,
+          "reverberation_time_target_s": 1.2
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 17",
+        "uniformat_code": null,
+        "classification_description": "Music / Band Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "vinyl_tile",
+        "finish_ceiling": "acoustical_panel_nrc_85",
+        "finish_walls": "acoustical_panel",
+        "typical_partition_type": "stc55_stud"
+      },
+      "parti": {
+        "parti_name": "Music",
+        "department_group": "Academics",
+        "placement_zone": "primary",
+        "parti_area_cells": 14,
+        "daylight_required": false,
+        "min_width_cells": 3,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_TECH_ED",
+      "name": "Tech Ed / Shop",
+      "category": "Specialty Academic",
+      "nsf_range": [
+        1800,
+        2400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 100,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "20-24",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [
+        "dust_collection",
+        "spray_booth_exhaust",
+        "high_power_circuits"
+      ],
+      "notes": [
+        "R-029: 1,800-2,400 SF; requires overhead door for material delivery, dust collection, eye wash, high-amperage circuits"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_LOADING",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 40,
+      "min_depth_ft": 50,
+      "max_aspect_ratio": 1.8,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 45,
+        "typical_depth": 48,
+        "typical_area_sf": 2160,
+        "min_width": 40,
+        "min_depth": 45,
+        "min_area_sf": 1800,
+        "max_area_sf": 2400,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 16,
+        "floor_to_floor_ft": 18
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 1800,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 800,
+            "count": 0
+          },
+          {
+            "driver_min": 801,
+            "driver_max": 1500,
+            "count": 1
+          },
+          {
+            "driver_min": 1501,
+            "driver_max": 2500,
+            "count": 2
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 2400,
+        "min_area_sf": 1800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 1.2,
+          "equipment_power_density_w_sf": 5,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 10,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.18,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1.5,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 68,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 50,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 55,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": true,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "air_quality_monitoring": true,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 19",
+        "uniformat_code": null,
+        "classification_description": "Technology Education Shop",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "exposed_structure",
+        "finish_walls": "painted_cmu",
+        "typical_partition_type": "cmu"
+      },
+      "parti": {
+        "parti_name": "Tech Ed",
+        "department_group": "Academics",
+        "placement_zone": "primary",
+        "parti_area_cells": 18,
+        "daylight_required": true,
+        "min_width_cells": 4,
+        "min_depth_cells": 4,
+        "max_aspect_ratio": 1.8,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "K12_SPED",
+      "name": "Special Education Resource Room",
+      "category": "Specialty Academic",
+      "nsf_range": [
+        450,
+        600
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 50,
+        "basis": "net",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.005,
+        0.015
+      ],
+      "occupancy_load": "8-12",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Student",
+      "operations_hours": "School Day",
+      "stacking_preference": "Any",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "R-033: Distributed throughout building, NOT isolated in one wing; NC guidelines 450-600 SF",
+        "Requires visual privacy, acoustic separation, calming environment"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "K12_CLASS",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "K12_CORRIDOR",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 18,
+      "min_depth_ft": 25,
+      "max_aspect_ratio": 2,
+      "ibc_occupancy_group": "E",
+      "repeatable": true,
+      "count_rule": "per_driver",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "fully_accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 22,
+        "typical_depth": 25,
+        "typical_area_sf": 550,
+        "min_width": 18,
+        "min_depth": 22,
+        "min_area_sf": 450,
+        "max_area_sf": 600,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "step",
+        "driver_key": "students",
+        "area_per_driver_sf": null,
+        "base_area_sf": 450,
+        "coefficient": null,
+        "step_thresholds": [
+          {
+            "driver_min": 0,
+            "driver_max": 300,
+            "count": 1
+          },
+          {
+            "driver_min": 301,
+            "driver_max": 600,
+            "count": 2
+          },
+          {
+            "driver_min": 601,
+            "driver_max": 1200,
+            "count": 3
+          },
+          {
+            "driver_min": 1201,
+            "driver_max": 2500,
+            "count": 4
+          }
+        ],
+        "custom_formula": null,
+        "max_area_sf": 600,
+        "min_area_sf": 450,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.98,
+          "equipment_power_density_w_sf": 1,
+          "occupancy_schedule_profile": "school_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 10,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.12,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 55,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 75,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 30,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 35,
+          "reverberation_time_target_s": 0.6
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "high",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": "calming_color_palette",
+        "air_quality_monitoring": false,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": "13-31 17 21",
+        "uniformat_code": null,
+        "classification_description": "Special Education Resource Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "carpet_tile",
+        "finish_ceiling": "acoustical_tile",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "stc50_stud"
+      },
+      "parti": {
+        "parti_name": "SPED Resource",
+        "department_group": "Academics",
+        "placement_zone": "support",
+        "parti_area_cells": 5,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 2,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_ADMIN",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_ENTRY",
+      "to": "K12_HEALTH",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_CAFE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_GYM",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOBBY",
+      "to": "K12_LIBRARY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ADMIN",
+      "to": "K12_ENTRY",
+      "weight": 4,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ADMIN",
+      "to": "K12_CONF",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CONF",
+      "to": "K12_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_HEALTH",
+      "to": "K12_ADMIN",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_HEALTH",
+      "to": "K12_ENTRY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_SMALL_GROUP",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_CORRIDOR",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CLASS",
+      "to": "K12_TOILETS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_SMALL_GROUP",
+      "to": "K12_CLASS",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LIBRARY",
+      "to": "K12_LOBBY",
+      "weight": 2,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CAFE",
+      "to": "K12_KITCHEN",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CAFE",
+      "to": "K12_LOBBY",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_KITCHEN",
+      "to": "K12_CAFE",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_KITCHEN",
+      "to": "K12_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_GYM",
+      "to": "K12_LOCKERS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_GYM",
+      "to": "K12_STAGE",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "K12_LOCKERS",
+      "to": "K12_GYM",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_STAGE",
+      "to": "K12_LOBBY",
+      "weight": 1,
+      "relationship": "optional"
+    },
+    {
+      "from": "K12_CORRIDOR",
+      "to": "K12_CLASS",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_CORRIDOR",
+      "to": "K12_TOILETS",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_TOILETS",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_LOADING",
+      "to": "K12_KITCHEN",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_SCIENCE_LAB",
+      "to": "K12_SCIENCE_PREP",
+      "weight": 5,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "K12_SCIENCE_LAB",
+      "to": "K12_CLASS",
+      "weight": 2,
+      "relationship": "near"
+    },
+    {
+      "from": "K12_SCIENCE_LAB",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ART",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_ART",
+      "to": "K12_MUSIC",
+      "weight": 2,
+      "relationship": "near"
+    },
+    {
+      "from": "K12_MUSIC",
+      "to": "K12_STAGE",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_MUSIC",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_TECH_ED",
+      "to": "K12_LOADING",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_TECH_ED",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_SPED",
+      "to": "K12_CLASS",
+      "weight": 2,
+      "relationship": "near"
+    },
+    {
+      "from": "K12_SPED",
+      "to": "K12_CORRIDOR",
+      "weight": 3,
+      "relationship": "should_adjoin"
+    },
+    {
+      "from": "K12_CAFE",
+      "to": "K12_GYM",
+      "weight": 2,
+      "relationship": "near"
+    }
+  ],
+  "benchmarks_lookup_keys": {
+    "eui": "K12__DEFAULT__US-NATIONAL",
+    "cost": "K12__DEFAULT__US-NE",
+    "parking": "K12__DEFAULT__BOSTON-MA"
+  },
+  "structural_bay_module_ft": [
+    30,
+    36
+  ],
+  "floor_to_floor_ft": {
+    "ground": 14,
+    "typical": 14
+  },
+  "construction_type": [
+    "II-B",
+    "III-A",
+    "V-B"
+  ],
+  "sprinklered": true,
+  "ibc_primary_occupancy": "E",
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": {
+    "sprinklered": 250,
+    "unsprinklered": 200
+  },
+  "dead_end_max_ft": {
+    "sprinklered": 50,
+    "unsprinklered": 20
+  },
+  "wall_thickness_in": {
+    "exterior": 12,
+    "interior": 4,
+    "rated_corridor": 6
+  },
+  "envelope_assembly": "mass_wall",
+  "wwr_target": 0.3,
+  "scaling_config": {
+    "primary_driver": "students",
+    "driver_label": "Students",
+    "driver_range": [
+      200,
+      2500
+    ],
+    "gsf_per_driver_range": [
+      88,
+      230
+    ],
+    "secondary_drivers": [
+      "classrooms",
+      "bus_lanes"
+    ],
+    "grossing_factor": 1.4,
+    "efficiency_target_range": [
+      0.72,
+      0.84
+    ]
+  },
+  "energy_targets": {
+    "climate_zone_default": "5A",
+    "site_eui_target_kbtu_sf_yr": {
+      "baseline": 58,
+      "good": 44,
+      "stretch": 31,
+      "net_zero_ready": 17
+    },
+    "envelope_targets": {
+      "wall_u_factor_max": 0.064,
+      "roof_u_factor_max": 0.032,
+      "window_u_factor_max": 0.32,
+      "window_shgc_max": 0.4,
+      "air_barrier_cfm_sf_75pa": 0.04,
+      "wwr_prescriptive_max": 0.3,
+      "wwr_with_tradeoffs_max": 0.4
+    },
+    "lighting_targets": {
+      "whole_building_lpd_w_sf": 0.87,
+      "daylight_controls_required_above_sf": 150,
+      "occupancy_sensors_required": true
+    },
+    "mechanical_targets": {
+      "heating_efficiency_min": 0.9,
+      "cooling_efficiency_min_seer": 14,
+      "energy_recovery_required_above_cfm": 750,
+      "demand_controlled_ventilation_above_persons": 25
+    }
+  },
+  "sustainability_targets": {
+    "leed_v4_1_target": "Silver",
+    "well_v2_target": null,
+    "energy_star_target_score": 75,
+    "living_building_challenge": false,
+    "passive_house": false,
+    "local_stretch_code": "MA_Stretch_2023"
+  },
+  "parti_config": {
+    "sf_range": [
+      25000,
+      400000
+    ],
+    "sf_default": 55000,
+    "grossing_factor": 1.5,
+    "icon": "🏫",
+    "corridor_typology": "double-loaded",
+    "department_palette": [
+      {
+        "department_group": "Admin",
+        "color": "#9b7ec8",
+        "placement_strategy": "entry"
+      },
+      {
+        "department_group": "Commons",
+        "color": "#c9a959",
+        "placement_strategy": "anchor"
+      },
+      {
+        "department_group": "Classrooms",
+        "color": "#5dba72",
+        "placement_strategy": "wing"
+      },
+      {
+        "department_group": "Core",
+        "color": "#607080",
+        "placement_strategy": "service"
+      },
+      {
+        "department_group": "Support",
+        "color": "#708878",
+        "placement_strategy": "bridge"
+      },
+      {
+        "department_group": "Assembly",
+        "color": "#6a6eb8",
+        "placement_strategy": "anchor"
+      }
+    ],
+    "variants": {
+      "K-12 School": {
+        "room_selection": [
+          {
+            "space_id": "K12_ENTRY",
+            "parti_name": "Main Entry + Vestibule",
+            "department_group": "Support",
+            "placement_zone": "foh",
+            "parti_area_cells": 4,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_LOBBY",
+            "parti_name": "Lobby / Commons",
+            "department_group": "Support",
+            "placement_zone": "foh",
+            "parti_area_cells": 23,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_ADMIN",
+            "parti_name": "Administration Suite",
+            "department_group": "Admin",
+            "placement_zone": "support",
+            "parti_area_cells": 13,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_CONF",
+            "parti_name": "Conference / Meeting",
+            "department_group": "Admin",
+            "placement_zone": "support",
+            "parti_area_cells": 3,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_HEALTH",
+            "parti_name": "Health Suite / Nurse",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 4,
+            "daylight_required": true,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_CLASS",
+            "parti_name": "Classroom",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 7,
+            "daylight_required": true,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.33,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_SMALL_GROUP",
+            "parti_name": "Small Group / Intervention",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 1,
+            "daylight_required": true,
+            "min_width_cells": 3,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_LIBRARY",
+            "parti_name": "Library / Media Center",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 33,
+            "daylight_required": true,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_CAFE",
+            "parti_name": "Cafeteria / Dining",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 47,
+            "daylight_required": true,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_KITCHEN",
+            "parti_name": "Commercial Kitchen + Support",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 19,
+            "daylight_required": false,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_GYM",
+            "parti_name": "Gymnasium",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 91,
+            "daylight_required": true,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_LOCKERS",
+            "parti_name": "Locker Rooms",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 16,
+            "daylight_required": false,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_STAGE",
+            "parti_name": "Auditorium / Performance",
+            "department_group": "Assembly",
+            "placement_zone": "support",
+            "parti_area_cells": 80,
+            "daylight_required": false,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_SCIENCE_LAB",
+            "parti_name": "Science Lab",
+            "department_group": "Academics",
+            "placement_zone": "primary",
+            "parti_area_cells": 16,
+            "daylight_required": true,
+            "min_width_cells": 3,
+            "min_depth_cells": 3,
+            "max_aspect_ratio": 1.8,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_SCIENCE_PREP",
+            "parti_name": "Science Prep",
+            "department_group": "Academics",
+            "placement_zone": "support",
+            "parti_area_cells": 3,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_ART",
+            "parti_name": "Art Room",
+            "department_group": "Academics",
+            "placement_zone": "primary",
+            "parti_area_cells": 14,
+            "daylight_required": true,
+            "min_width_cells": 3,
+            "min_depth_cells": 3,
+            "max_aspect_ratio": 1.8,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_MUSIC",
+            "parti_name": "Music",
+            "department_group": "Academics",
+            "placement_zone": "primary",
+            "parti_area_cells": 14,
+            "daylight_required": false,
+            "min_width_cells": 3,
+            "min_depth_cells": 3,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_TECH_ED",
+            "parti_name": "Tech Ed",
+            "department_group": "Academics",
+            "placement_zone": "primary",
+            "parti_area_cells": 18,
+            "daylight_required": true,
+            "min_width_cells": 4,
+            "min_depth_cells": 4,
+            "max_aspect_ratio": 1.8,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_SPED",
+            "parti_name": "SPED Resource",
+            "department_group": "Academics",
+            "placement_zone": "support",
+            "parti_area_cells": 5,
+            "daylight_required": true,
+            "min_width_cells": 2,
+            "min_depth_cells": 2,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_CORRIDOR",
+            "parti_name": "Primary Corridor",
+            "department_group": "Core",
+            "placement_zone": "core",
+            "parti_area_cells": 90,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 3,
+            "max_aspect_ratio": 30,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_TOILETS",
+            "parti_name": "Student Restrooms",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 9,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2.5,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_LOADING",
+            "parti_name": "Loading / Receiving",
+            "department_group": "Support",
+            "placement_zone": "support",
+            "parti_area_cells": 5,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 3,
+            "corridor_placement_pref": null
+          },
+          {
+            "space_id": "K12_MECH",
+            "parti_name": "Main Mechanical",
+            "department_group": "Core",
+            "placement_zone": "core",
+            "parti_area_cells": 15,
+            "daylight_required": false,
+            "min_width_cells": 1,
+            "min_depth_cells": 1,
+            "max_aspect_ratio": 2,
+            "corridor_placement_pref": null
+          }
+        ],
+        "adjacency_overrides": [
+          {
+            "from": "Main Entry + Vestibule",
+            "to": "Administration Suite",
+            "weight": 4,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Main Entry + Vestibule",
+            "to": "Lobby / Commons",
+            "weight": 4,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Main Entry + Vestibule",
+            "to": "Health Suite / Nurse",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Lobby / Commons",
+            "to": "Cafeteria / Dining",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Lobby / Commons",
+            "to": "Gymnasium",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Lobby / Commons",
+            "to": "Library / Media Center",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Administration Suite",
+            "to": "Conference / Meeting",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Health Suite / Nurse",
+            "to": "Administration Suite",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Classroom",
+            "to": "Small Group / Intervention",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Classroom",
+            "to": "Primary Corridor",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Classroom",
+            "to": "Student Restrooms",
+            "weight": 2,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Cafeteria / Dining",
+            "to": "Commercial Kitchen + Support",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Commercial Kitchen + Support",
+            "to": "Loading / Receiving",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Gymnasium",
+            "to": "Locker Rooms",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Gymnasium",
+            "to": "Auditorium / Performance",
+            "weight": 1,
+            "relationship": "optional"
+          },
+          {
+            "from": "Auditorium / Performance",
+            "to": "Lobby / Commons",
+            "weight": 1,
+            "relationship": "optional"
+          },
+          {
+            "from": "Primary Corridor",
+            "to": "Student Restrooms",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Science Lab",
+            "to": "Science Prep",
+            "weight": 5,
+            "relationship": "must_adjoin"
+          },
+          {
+            "from": "Science Lab",
+            "to": "Classroom",
+            "weight": 2,
+            "relationship": "near"
+          },
+          {
+            "from": "Science Lab",
+            "to": "Primary Corridor",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Art Room",
+            "to": "Primary Corridor",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Art Room",
+            "to": "Music",
+            "weight": 2,
+            "relationship": "near"
+          },
+          {
+            "from": "Music",
+            "to": "Auditorium / Performance",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Music",
+            "to": "Primary Corridor",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Tech Ed",
+            "to": "Loading / Receiving",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Tech Ed",
+            "to": "Primary Corridor",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "SPED Resource",
+            "to": "Classroom",
+            "weight": 2,
+            "relationship": "near"
+          },
+          {
+            "from": "SPED Resource",
+            "to": "Primary Corridor",
+            "weight": 3,
+            "relationship": "should_adjoin"
+          },
+          {
+            "from": "Cafeteria / Dining",
+            "to": "Gymnasium",
+            "weight": 2,
+            "relationship": "near"
+          }
+        ]
+      }
+    }
+  },
+  "plan_archetypes": {
+    "primary": "double-loaded-slab",
+    "alternates": [
+      "courtyard",
+      "finger-plan"
+    ],
+    "notes": "Primary for enrollment < 800; courtyard for enrollment > 1200"
+  },
+  "schedule_profiles": {
+    "school_standard": {
+      "occupied_hours": [
+        7,
+        16
+      ],
+      "days": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri"
+      ],
+      "occupancy_fraction_occupied": 0.75,
+      "occupancy_fraction_unoccupied": 0,
+      "lighting_fraction_occupied": 0.9,
+      "lighting_fraction_unoccupied": 0.1,
+      "equipment_fraction_occupied": 0.8,
+      "equipment_fraction_unoccupied": 0.1
+    }
+  }
+}

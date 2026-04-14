@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://calvey.dev/schemas/master_v4.json",
+  "title": "CALVEY Program Database v4 — Master Index",
+  "description": "Schema for building_program_database_master_v4.json — the top-level index of all building types with benchmarks and global configuration.",
+  "type": "object",
+  "required": [
+    "schema_version", "created_date", "units", "notes",
+    "relationship_enum", "databases", "benchmarks",
+    "climate_zone_defaults", "driver_registry"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "4.0" },
+    "created_date": { "type": "string", "format": "date" },
+    "source_version": { "type": "string" },
+    "units": {
+      "type": "object",
+      "properties": {
+        "area": { "type": "string" },
+        "distance": { "type": "string" }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "relationship_enum": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "databases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "building_type", "json", "space_count", "edge_count"],
+        "properties": {
+          "category": { "type": "string" },
+          "building_type": { "type": "string" },
+          "json": { "type": "string" },
+          "space_count": { "type": "integer", "minimum": 0 },
+          "edge_count": { "type": "integer", "minimum": 0 },
+          "tiers_present": { "type": "array", "items": { "type": "string" } },
+          "corridor_typology": { "type": "string" },
+          "typical_bay_spacing_ft": { "type": "number" },
+          "typical_floor_plate_efficiency": { "type": "number", "minimum": 0, "maximum": 1 },
+          "project_specific": { "type": "boolean" },
+          "project_name": { "type": "string" }
+        }
+      }
+    },
+
+    "benchmarks": {
+      "type": "object",
+      "required": ["eui_targets", "cost_per_sf", "parking_ratios"],
+      "properties": {
+        "eui_targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lookup_key", "building_type", "region", "metric", "p25", "median", "p75", "source"],
+            "properties": {
+              "lookup_key": { "type": "string" },
+              "building_type": { "type": "string" },
+              "region": { "type": "string" },
+              "metric": { "type": "string" },
+              "p25": { "type": "number" },
+              "median": { "type": "number" },
+              "p75": { "type": "number" },
+              "source": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "cost_per_sf": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lookup_key", "building_type", "region", "metric", "p25", "median", "p75", "source"],
+            "properties": {
+              "lookup_key": { "type": "string" },
+              "building_type": { "type": "string" },
+              "region": { "type": "string" },
+              "metric": { "type": "string" },
+              "p25": { "type": "number" },
+              "median": { "type": "number" },
+              "p75": { "type": "number" },
+              "source": { "type": "string" },
+              "year": { "type": "integer" },
+              "escalation_index": { "type": "number" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "parking_ratios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lookup_key", "building_type", "jurisdiction", "metric", "ratio", "rule_type", "source"],
+            "properties": {
+              "lookup_key": { "type": "string" },
+              "building_type": { "type": "string" },
+              "jurisdiction": { "type": "string" },
+              "metric": { "type": "string" },
+              "ratio": { "type": "number" },
+              "rule_type": { "type": "string" },
+              "source": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "climate_zone_defaults": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "hdd_65_typical": { "type": "number" },
+            "cdd_50_typical": { "type": "number" },
+            "peak_summer_temp_f": { "type": "number" },
+            "peak_winter_temp_f": { "type": "number" },
+            "annual_solar_kwh_m2": { "type": "number" },
+            "dominant_wind_direction": { "type": "string" },
+            "iecc_year": { "type": "integer" }
+          }
+        }
+      }
+    },
+
+    "driver_registry": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "required": ["label", "unit", "building_types"],
+          "properties": {
+            "label": { "type": "string" },
+            "unit": { "type": "string" },
+            "building_types": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

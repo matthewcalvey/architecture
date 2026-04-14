@@ -1,0 +1,2082 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-03",
+  "source_version": "0.2",
+  "default_unit_types": [],
+  "benchmarks_lookup_keys": [
+    "EUI",
+    "cost",
+    "parking",
+    "staffing"
+  ],
+  "structural_bay_module_ft": 30,
+  "floor_to_floor_ft": {
+    "low": 14,
+    "typical": 15,
+    "tall": 20
+  },
+  "construction_type": "Type IIA or IIIA depending height/area and jurisdiction",
+  "sprinklered": true,
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": 250,
+  "dead_end_max_ft": 20,
+  "wall_thickness_in": {
+    "interior_partition": 6,
+    "acoustic_or_rated": 8,
+    "shaft": 10,
+    "exterior": 12
+  },
+  "envelope_assembly": {
+    "roof_r_value_target": 30,
+    "wall_r_value_target": 20,
+    "glazing_u_value_target": 0.35
+  },
+  "wwr_target": {
+    "north": 0.35,
+    "east": 0.3,
+    "south": 0.35,
+    "west": 0.25
+  },
+  "scaling_config": {
+    "primary_driver_keys": [
+      "occupants",
+      "beds",
+      "keys",
+      "seats",
+      "students",
+      "sf_served"
+    ],
+    "support_space_method": "sqrt_or_step"
+  },
+  "energy_targets": {
+    "site_eui_kbtu_sf_yr": [
+      30,
+      90
+    ],
+    "electrification_preferred": true
+  },
+  "sustainability_targets": {
+    "leed_ready": true,
+    "all_electric_ready": true,
+    "enhanced_ventilation": true
+  },
+  "parti_config": {
+    "grid_cell_ft": 12,
+    "default_corridor_width_ft": 8,
+    "stacking_logic": "public low / secure-service internal / MEP stacked"
+  },
+  "plan_archetypes": [
+    "daylit perimeter reading rooms with central service core",
+    "children and noisy zones buffered from quiet reading"
+  ],
+  "schedule_profiles": [
+    "library_standard"
+  ],
+  "building_type": "Public Library",
+  "sources": [
+    {
+      "title": "Library Space: A Planning Resource for Librarians",
+      "publisher": "Massachusetts Board of Library Commissioners",
+      "year": 2020
+    },
+    {
+      "title": "Time-Saver Standards for Building Types \u2014 Libraries and Branch Libraries",
+      "publisher": "McGraw-Hill",
+      "year": 1983
+    }
+  ],
+  "reference_projects": {
+    "small": {
+      "name": "Branch Library",
+      "location": "Various US",
+      "approx_sf": 12000,
+      "notes": "Single floor branch with children's room, meeting room, staff support"
+    },
+    "medium": {
+      "name": "Urban Neighborhood Library",
+      "location": "Various US",
+      "approx_sf": 35000,
+      "notes": "Collections, digital labs, teen, community room"
+    },
+    "large": {
+      "name": "Main Public Library",
+      "location": "Various US",
+      "approx_sf": 120000,
+      "notes": "Central stacks, archives, multiple public rooms, maker and event spaces"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "LIB_BRANCH",
+      "name": "Branch Library",
+      "gross_sf_typical": [
+        8000,
+        25000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.82
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "LIB_MAIN",
+      "name": "Main / Central Library",
+      "gross_sf_typical": [
+        25000,
+        180000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.78
+      ],
+      "gross_over_net": 1.4,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "LIB_COMMUNITY",
+      "name": "Library + Community Hub",
+      "gross_sf_typical": [
+        12000,
+        60000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.8
+      ],
+      "gross_over_net": 1.38,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    }
+  ],
+  "ibc_primary_occupancy": "A-3 / B",
+  "space_library": [
+    {
+      "id": "LIB_ENTRY",
+      "name": "Entry / Welcome",
+      "category": "Public/Entry",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Visual orientation, security, and self-check often align here"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_LOBBY",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_SERVICE",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 15,
+        "typical_area_sf": 375,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Entry / Welcome",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Entry / Welcome",
+        "department_group": "Public/Entry",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_LOBBY",
+      "name": "Lobby / Public Commons",
+      "category": "Public/Primary",
+      "nsf_range": [
+        600,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.03,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "May include caf\u00e9 seating, display, informal gathering"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_SERVICE",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_STACKS",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_MEETING",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 25,
+        "typical_area_sf": 750,
+        "min_width": 20,
+        "min_depth": 20,
+        "min_area_sf": 600,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 15,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 600,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 600,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Lobby / Public Commons",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Lobby / Public Commons",
+        "department_group": "Public/Primary",
+        "placement_zone": "foh",
+        "parti_area_cells": 5,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_STACKS",
+      "name": "Collections / Stacks",
+      "category": "Collections",
+      "nsf_range": [
+        2000,
+        40000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.2,
+        0.45
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Interior/Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Mix of physical collections and browsing"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_READING",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_SERVICE",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_WORKROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 25,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": true,
+      "count_rule": "sf_served",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 40,
+        "typical_depth": 30,
+        "typical_area_sf": 1200,
+        "min_width": 20,
+        "min_depth": 25,
+        "min_area_sf": 2000,
+        "max_area_sf": 40000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "sf_served",
+        "area_per_driver_sf": null,
+        "base_area_sf": 2000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 40000,
+        "min_area_sf": 2000,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Collections / Stacks",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Collections / Stacks",
+        "department_group": "Collections",
+        "placement_zone": "foh",
+        "parti_area_cells": 8,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_READING",
+      "name": "Reading / Study Areas",
+      "category": "Public/Primary",
+      "nsf_range": [
+        800,
+        15000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.12,
+        0.3
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Quiet zone; daylight and views strongly preferred"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_STACKS",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_TEEN",
+          "weight": 0.5,
+          "relationship": "separate"
+        },
+        {
+          "space_id": "LIB_CHILDREN",
+          "weight": 0.5,
+          "relationship": "separate"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": true,
+      "count_rule": "sf_served",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 20,
+        "typical_area_sf": 600,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 800,
+        "max_area_sf": 15000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": 180,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 15000,
+        "min_area_sf": 800,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Reading / Study Areas",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Reading / Study Areas",
+        "department_group": "Public/Primary",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_CHILDREN",
+      "name": "Children's Library",
+      "category": "Youth",
+      "nsf_range": [
+        500,
+        8000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.06,
+        0.18
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often near family toilet and story room"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_LOBBY",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_RESTROOM",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_TEEN",
+          "weight": 0.5,
+          "relationship": "separate"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 20,
+        "typical_area_sf": 500,
+        "min_width": 20,
+        "min_depth": 20,
+        "min_area_sf": 500,
+        "max_area_sf": 8000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 500,
+        "coefficient": 150,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 8000,
+        "min_area_sf": 500,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Children's Library",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Children's Library",
+        "department_group": "Youth",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_TEEN",
+      "name": "Teen / Digital / Maker",
+      "category": "Youth",
+      "nsf_range": [
+        300,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.04,
+        0.14
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Buffered",
+      "code_tags": [],
+      "notes": [
+        "Noisier collaborative zone"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_STACKS",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_MEETING",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 20,
+        "typical_area_sf": 500,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 300,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": 140,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 300,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Teen / Digital / Maker",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Teen / Digital / Maker",
+        "department_group": "Youth",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_MEETING",
+      "name": "Community Room / Meeting",
+      "category": "Community",
+      "nsf_range": [
+        400,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.05,
+        0.16
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Should be usable after-hours with controlled access"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_LOBBY",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_RESTROOM",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": true,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 25,
+        "typical_area_sf": 750,
+        "min_width": 20,
+        "min_depth": 20,
+        "min_area_sf": 400,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 15,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 400,
+        "coefficient": 150,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 400,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Community Room / Meeting",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Community Room / Meeting",
+        "department_group": "Community",
+        "placement_zone": "foh",
+        "parti_area_cells": 5,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_SERVICE",
+      "name": "Service Desk / Self Check",
+      "category": "Operations",
+      "nsf_range": [
+        150,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Staff/Public",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Central",
+      "code_tags": [],
+      "notes": [
+        "Operational heart for visibility to entry and collections"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_LOBBY",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_STACKS",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_WORKROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 150,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Service Desk / Self Check",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Service Desk / Self Check",
+        "department_group": "Operations",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_WORKROOM",
+      "name": "Staff Workroom / Sorting",
+      "category": "Support",
+      "nsf_range": [
+        200,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Back-of-house",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Acquisitions, processing, holds, and back-office support"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_SERVICE",
+          "weight": 0.6,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "LIB_LOADING",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 15,
+        "typical_area_sf": 300,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": 90,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 200,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Staff Workroom / Sorting",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Staff Workroom / Sorting",
+        "department_group": "Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_LOADING",
+      "name": "Receiving / Storage",
+      "category": "Service",
+      "nsf_range": [
+        120,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Back-of-house",
+      "code_tags": [],
+      "notes": [
+        "Deliveries, carts, and archives overflow"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_WORKROOM",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 12,
+        "typical_depth": 12,
+        "typical_area_sf": 144,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 120,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 120,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 120,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Receiving / Storage",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Receiving / Storage",
+        "department_group": "Service",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "LIB_RESTROOM",
+      "name": "Public Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        100,
+        1000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Library Hours",
+      "stacking_preference": "All",
+      "typical_location": "Distributed",
+      "code_tags": [],
+      "notes": [
+        "Public restrooms near children's area, meeting rooms, and lobby; family/accessible restroom recommended near children's zone."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "LIB_CHILDREN",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "LIB_MEETING",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": true,
+      "count_rule": "distributed",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 100,
+        "max_area_sf": 1000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 100,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1000,
+        "min_area_sf": 100,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1.0,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": null,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Public Restrooms",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "ceramic_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "ceramic_tile",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Public Restrooms",
+        "department_group": "Support",
+        "placement_zone": "distributed",
+        "parti_area_cells": 3,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "LIB_ENTRY",
+      "to": "LIB_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_ENTRY",
+      "to": "LIB_SERVICE",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_LOBBY",
+      "to": "LIB_SERVICE",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_LOBBY",
+      "to": "LIB_STACKS",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_LOBBY",
+      "to": "LIB_MEETING",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_STACKS",
+      "to": "LIB_READING",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_STACKS",
+      "to": "LIB_SERVICE",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_STACKS",
+      "to": "LIB_WORKROOM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_READING",
+      "to": "LIB_STACKS",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_READING",
+      "to": "LIB_TEEN",
+      "weight": 2,
+      "relationship": "separate"
+    },
+    {
+      "from": "LIB_READING",
+      "to": "LIB_CHILDREN",
+      "weight": 2,
+      "relationship": "separate"
+    },
+    {
+      "from": "LIB_CHILDREN",
+      "to": "LIB_LOBBY",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_CHILDREN",
+      "to": "LIB_RESTROOM",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_CHILDREN",
+      "to": "LIB_TEEN",
+      "weight": 2,
+      "relationship": "separate"
+    },
+    {
+      "from": "LIB_TEEN",
+      "to": "LIB_STACKS",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_TEEN",
+      "to": "LIB_MEETING",
+      "weight": 2,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_MEETING",
+      "to": "LIB_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_MEETING",
+      "to": "LIB_RESTROOM",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_SERVICE",
+      "to": "LIB_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_SERVICE",
+      "to": "LIB_STACKS",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_SERVICE",
+      "to": "LIB_WORKROOM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_WORKROOM",
+      "to": "LIB_SERVICE",
+      "weight": 3,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "LIB_WORKROOM",
+      "to": "LIB_LOADING",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "LIB_LOADING",
+      "to": "LIB_WORKROOM",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    }
+  ]
+}

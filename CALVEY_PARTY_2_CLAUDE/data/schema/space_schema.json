@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://calvey.dev/schemas/space_v4.json",
+  "title": "CALVEY Program Database v4 — Space Entry",
+  "description": "Schema for a single space entry in a building type's space_library array.",
+  "type": "object",
+  "required": [
+    "id", "name", "category", "nsf_range", "occupant_load_factor",
+    "ceiling_height_min_ft", "percent_of_gross_range", "occupancy_load",
+    "daylight_priority", "acoustic_sensitivity", "plumbing_required",
+    "wet_zone", "mep_intensity", "security_zone", "operations_hours",
+    "stacking_preference", "typical_location", "code_tags", "notes",
+    "adjacencies", "min_width_ft", "min_depth_ft", "max_aspect_ratio",
+    "ibc_occupancy_group", "repeatable", "count_rule", "stack_group",
+    "floor_priority", "regularly_occupied", "acoustic_class",
+    "door_count", "door_clear_width_in", "accessibility_type",
+    "fire_separation_hr",
+    "dimensions_ft", "scaling", "performance", "wellness", "bim", "parti"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$",
+      "description": "Stable space identifier, UPPER_SNAKE_CASE. Never changes once assigned."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "category": {
+      "type": "string",
+      "description": "Functional category for grouping (e.g., Public/Entry, Workspace, Circulation/Core)."
+    },
+    "nsf_range": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0 },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Net square footage range [min, max]."
+    },
+    "occupant_load_factor": {
+      "type": "object",
+      "required": ["area_per_person_ft2", "basis", "code_ref"],
+      "properties": {
+        "area_per_person_ft2": { "type": "number", "minimum": 0 },
+        "basis": { "type": "string", "enum": ["gross", "net"] },
+        "code_ref": { "type": "string" }
+      }
+    },
+    "ceiling_height_min_ft": { "type": "number", "minimum": 0 },
+    "percent_of_gross_range": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0, "maximum": 1 },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "occupancy_load": { "type": "string" },
+    "daylight_priority": { "type": "string", "enum": ["High", "Medium", "Low", "None"] },
+    "acoustic_sensitivity": { "type": "string", "enum": ["High", "Medium", "Low", "None"] },
+    "plumbing_required": { "type": "boolean" },
+    "wet_zone": { "type": "boolean" },
+    "mep_intensity": { "type": "string", "enum": ["Low", "Medium", "High", "Critical"] },
+    "security_zone": { "type": "string" },
+    "operations_hours": { "type": "string" },
+    "stacking_preference": { "type": "string" },
+    "typical_location": { "type": "string" },
+    "code_tags": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "adjacencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["space_id", "weight", "relationship"],
+        "properties": {
+          "space_id": { "type": "string" },
+          "weight": { "type": "number", "minimum": 0 },
+          "relationship": { "type": "string" }
+        }
+      }
+    },
+    "min_width_ft": { "type": ["number", "null"], "minimum": 0 },
+    "min_depth_ft": { "type": ["number", "null"], "minimum": 0 },
+    "max_aspect_ratio": { "type": ["number", "null"], "minimum": 1 },
+    "ibc_occupancy_group": { "type": ["string", "null"] },
+    "repeatable": { "type": "boolean" },
+    "count_rule": {
+      "type": "string",
+      "enum": ["one_per_building", "one_per_floor", "per_driver", "repeatable"]
+    },
+    "stack_group": { "type": ["string", "null"] },
+    "floor_priority": { "type": ["integer", "null"], "minimum": 0 },
+    "regularly_occupied": { "type": "boolean" },
+    "acoustic_class": { "type": ["string", "null"] },
+    "door_count": { "type": ["integer", "null"], "minimum": 0 },
+    "door_clear_width_in": { "type": ["number", "null"], "minimum": 0 },
+    "accessibility_type": { "type": ["string", "null"] },
+    "fire_separation_hr": { "type": ["number", "null"], "minimum": 0 },
+
+    "dimensions_ft": {
+      "type": "object",
+      "required": [
+        "typical_width", "typical_depth", "typical_area_sf",
+        "min_width", "min_depth", "min_area_sf", "max_area_sf",
+        "clear_height_min_ft", "clear_height_typical_ft", "floor_to_floor_ft"
+      ],
+      "properties": {
+        "typical_width": { "type": "number", "minimum": 0 },
+        "typical_depth": { "type": "number", "minimum": 0 },
+        "typical_area_sf": { "type": "number", "minimum": 0 },
+        "min_width": { "type": "number", "minimum": 0 },
+        "min_depth": { "type": "number", "minimum": 0 },
+        "min_area_sf": { "type": "number", "minimum": 0 },
+        "max_area_sf": { "type": "number", "minimum": 0 },
+        "clear_height_min_ft": { "type": "number", "minimum": 0 },
+        "clear_height_typical_ft": { "type": "number", "minimum": 0 },
+        "floor_to_floor_ft": { "type": "number", "minimum": 0 }
+      }
+    },
+
+    "scaling": {
+      "type": "object",
+      "required": [
+        "class", "driver_relationship", "driver_key",
+        "area_per_driver_sf", "base_area_sf", "coefficient",
+        "step_thresholds", "custom_formula",
+        "max_area_sf", "min_area_sf", "priority_rank"
+      ],
+      "properties": {
+        "class": { "type": "string", "enum": ["primary", "support", "fixed", "infrastructure"] },
+        "driver_relationship": { "type": "string", "enum": ["linear", "sqrt", "log", "step", "fixed", "formula"] },
+        "driver_key": { "type": ["string", "null"] },
+        "area_per_driver_sf": { "type": ["number", "null"] },
+        "base_area_sf": { "type": "number", "minimum": 0 },
+        "coefficient": { "type": ["number", "null"] },
+        "step_thresholds": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "driver_min": { "type": "number" },
+              "driver_max": { "type": "number" },
+              "area_sf": { "type": "number" }
+            }
+          }
+        },
+        "custom_formula": { "type": ["string", "null"] },
+        "max_area_sf": { "type": "number", "minimum": 0 },
+        "min_area_sf": { "type": "number", "minimum": 0 },
+        "priority_rank": { "type": "integer", "minimum": 1, "maximum": 10 }
+      }
+    },
+
+    "performance": {
+      "type": "object",
+      "required": ["energy", "ventilation", "daylighting", "thermal_comfort", "acoustics"],
+      "properties": {
+        "energy": {
+          "type": "object",
+          "required": ["lighting_power_density_w_sf", "equipment_power_density_w_sf", "occupancy_schedule_profile", "hvac_zone_type"],
+          "properties": {
+            "lighting_power_density_w_sf": { "type": "number", "minimum": 0 },
+            "equipment_power_density_w_sf": { "type": "number", "minimum": 0 },
+            "occupancy_schedule_profile": { "type": "string" },
+            "hvac_zone_type": { "type": "string", "enum": ["perimeter", "interior", "special"] }
+          }
+        },
+        "ventilation": {
+          "type": "object",
+          "required": [
+            "ashrae_62_1_outdoor_air_cfm_person",
+            "ashrae_62_1_outdoor_air_cfm_sf",
+            "exhaust_required", "exhaust_cfm_sf", "pressure_relationship"
+          ],
+          "properties": {
+            "ashrae_62_1_outdoor_air_cfm_person": { "type": "number", "minimum": 0 },
+            "ashrae_62_1_outdoor_air_cfm_sf": { "type": "number", "minimum": 0 },
+            "exhaust_required": { "type": "boolean" },
+            "exhaust_cfm_sf": { "type": ["number", "null"] },
+            "pressure_relationship": { "type": "string", "enum": ["positive", "negative", "neutral"] }
+          }
+        },
+        "daylighting": {
+          "type": "object",
+          "required": [
+            "target_sda_300_50_pct", "max_ase_1000_250_pct",
+            "daylight_depth_rule_multiplier", "view_access_required",
+            "preferred_orientation"
+          ],
+          "properties": {
+            "target_sda_300_50_pct": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "max_ase_1000_250_pct": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+            "daylight_depth_rule_multiplier": { "type": ["number", "null"], "minimum": 0 },
+            "view_access_required": { "type": "boolean" },
+            "preferred_orientation": { "type": ["string", "null"], "enum": ["N", "S", "E", "W", null] }
+          }
+        },
+        "thermal_comfort": {
+          "type": "object",
+          "required": ["heating_setpoint_f", "cooling_setpoint_f", "humidity_range_rh_pct", "pmv_target_range"],
+          "properties": {
+            "heating_setpoint_f": { "type": "number" },
+            "cooling_setpoint_f": { "type": "number" },
+            "humidity_range_rh_pct": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2, "maxItems": 2
+            },
+            "pmv_target_range": {
+              "type": "array",
+              "items": { "type": "number" },
+              "minItems": 2, "maxItems": 2
+            }
+          }
+        },
+        "acoustics": {
+          "type": "object",
+          "required": ["nc_rating_max", "stc_wall_rating", "background_noise_dba_max", "reverberation_time_target_s"],
+          "properties": {
+            "nc_rating_max": { "type": ["integer", "null"] },
+            "stc_wall_rating": { "type": ["integer", "null"] },
+            "background_noise_dba_max": { "type": ["number", "null"] },
+            "reverberation_time_target_s": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+
+    "wellness": {
+      "type": "object",
+      "required": [
+        "biophilic_priority", "natural_light_requirement",
+        "operable_windows_preferred", "indoor_plants_zone",
+        "circadian_lighting_zone", "active_design_feature",
+        "air_quality_monitoring", "water_feature_proximity"
+      ],
+      "properties": {
+        "biophilic_priority": { "type": "string", "enum": ["high", "medium", "low", "none"] },
+        "natural_light_requirement": { "type": "boolean" },
+        "operable_windows_preferred": { "type": "boolean" },
+        "indoor_plants_zone": { "type": "boolean" },
+        "circadian_lighting_zone": { "type": "boolean" },
+        "active_design_feature": { "type": ["string", "null"] },
+        "air_quality_monitoring": { "type": "boolean" },
+        "water_feature_proximity": { "type": "boolean" }
+      }
+    },
+
+    "bim": {
+      "type": "object",
+      "required": [
+        "ifc_space_type", "ifc_predefined_type", "omniclass_number",
+        "uniformat_code", "classification_description",
+        "fire_rating_walls_hr", "fire_rating_floor_hr",
+        "sprinkler_required", "smoke_detection_required",
+        "finish_floor", "finish_ceiling", "finish_walls",
+        "typical_partition_type"
+      ],
+      "properties": {
+        "ifc_space_type": { "type": "string" },
+        "ifc_predefined_type": { "type": "string", "enum": ["INTERNAL", "EXTERNAL", "PARKING", "GFA"] },
+        "omniclass_number": { "type": ["string", "null"] },
+        "uniformat_code": { "type": ["string", "null"] },
+        "classification_description": { "type": "string" },
+        "fire_rating_walls_hr": { "type": "number", "minimum": 0 },
+        "fire_rating_floor_hr": { "type": "number", "minimum": 0 },
+        "sprinkler_required": { "type": "boolean" },
+        "smoke_detection_required": { "type": "boolean" },
+        "finish_floor": { "type": "string" },
+        "finish_ceiling": { "type": "string" },
+        "finish_walls": { "type": "string" },
+        "typical_partition_type": { "type": "string", "enum": ["gypsum_stud", "cmu", "glass", "demountable"] }
+      }
+    },
+
+    "parti": {
+      "type": "object",
+      "required": [
+        "parti_name", "department_group", "placement_zone",
+        "parti_area_cells", "daylight_required",
+        "min_width_cells", "min_depth_cells",
+        "max_aspect_ratio", "corridor_placement_pref"
+      ],
+      "properties": {
+        "parti_name": { "type": "string" },
+        "department_group": { "type": "string" },
+        "placement_zone": { "type": "string", "enum": ["foh", "primary", "support", "core"] },
+        "parti_area_cells": { "type": "integer", "minimum": 1 },
+        "daylight_required": { "type": "boolean" },
+        "min_width_cells": { "type": "integer", "minimum": 1 },
+        "min_depth_cells": { "type": "integer", "minimum": 1 },
+        "max_aspect_ratio": { "type": "number", "minimum": 1 },
+        "corridor_placement_pref": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "additionalProperties": false
+}

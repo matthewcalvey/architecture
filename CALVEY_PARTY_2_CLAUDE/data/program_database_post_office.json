@@ -1,0 +1,1711 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-03",
+  "source_version": "0.2",
+  "default_unit_types": [],
+  "benchmarks_lookup_keys": [
+    "EUI",
+    "cost",
+    "parking",
+    "staffing"
+  ],
+  "structural_bay_module_ft": 30,
+  "floor_to_floor_ft": {
+    "low": 14,
+    "typical": 15,
+    "tall": 20
+  },
+  "construction_type": "Type IIA or IIIA depending height/area and jurisdiction",
+  "sprinklered": true,
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": 250,
+  "dead_end_max_ft": 20,
+  "wall_thickness_in": {
+    "interior_partition": 6,
+    "acoustic_or_rated": 8,
+    "shaft": 10,
+    "exterior": 12
+  },
+  "envelope_assembly": {
+    "roof_r_value_target": 30,
+    "wall_r_value_target": 20,
+    "glazing_u_value_target": 0.35
+  },
+  "wwr_target": {
+    "north": 0.35,
+    "east": 0.3,
+    "south": 0.35,
+    "west": 0.25
+  },
+  "scaling_config": {
+    "primary_driver_keys": [
+      "occupants",
+      "beds",
+      "keys",
+      "seats",
+      "students",
+      "sf_served"
+    ],
+    "support_space_method": "sqrt_or_step"
+  },
+  "energy_targets": {
+    "site_eui_kbtu_sf_yr": [
+      30,
+      90
+    ],
+    "electrification_preferred": true
+  },
+  "sustainability_targets": {
+    "leed_ready": true,
+    "all_electric_ready": true,
+    "enhanced_ventilation": true
+  },
+  "parti_config": {
+    "grid_cell_ft": 12,
+    "default_corridor_width_ft": 8,
+    "stacking_logic": "public low / secure-service internal / MEP stacked"
+  },
+  "plan_archetypes": [
+    "public retail edge with secure backroom and loading",
+    "carrier and vehicle yard separated from customer access"
+  ],
+  "schedule_profiles": [
+    "postal_standard"
+  ],
+  "building_type": "Post Office / Postal Facility",
+  "sources": [
+    {
+      "title": "USPS Handbook AS-503 Standard Design Criteria",
+      "publisher": "United States Postal Service",
+      "year": 2022
+    },
+    {
+      "title": "USPS Handbook AS-506 Architect/Engineer Project Requirements",
+      "publisher": "United States Postal Service",
+      "year": 2000
+    },
+    {
+      "title": "Time-Saver Standards for Building Types \u2014 Post Offices",
+      "publisher": "McGraw-Hill",
+      "year": 1983
+    }
+  ],
+  "reference_projects": {
+    "small": {
+      "name": "Local Customer Service Post Office",
+      "location": "Various US",
+      "approx_sf": 5000,
+      "notes": "Retail lobby, PO boxes, backroom sort, dock"
+    },
+    "medium": {
+      "name": "Delivery Unit / Customer Service Facility",
+      "location": "Various US",
+      "approx_sf": 18000,
+      "notes": "Carrier workroom, vehicle staging, dock, retail"
+    },
+    "large": {
+      "name": "Mail Processing Annex",
+      "location": "Various US",
+      "approx_sf": 80000,
+      "notes": "Processing floor, dock, admin, carrier support"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "POST_RETAIL",
+      "name": "Retail Customer Service Post Office",
+      "gross_sf_typical": [
+        3000,
+        15000
+      ],
+      "efficiency_ratio_target_range": [
+        0.72,
+        0.86
+      ],
+      "gross_over_net": 1.3,
+      "tiers": [
+        "Basic",
+        "Standard"
+      ]
+    },
+    {
+      "id": "POST_DELIVERY",
+      "name": "Delivery Unit / Carrier Station",
+      "gross_sf_typical": [
+        10000,
+        40000
+      ],
+      "efficiency_ratio_target_range": [
+        0.75,
+        0.9
+      ],
+      "gross_over_net": 1.25,
+      "tiers": [
+        "Basic",
+        "Standard"
+      ]
+    },
+    {
+      "id": "POST_PROCESS",
+      "name": "Mail Processing / Annex",
+      "gross_sf_typical": [
+        30000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.78,
+        0.92
+      ],
+      "gross_over_net": 1.22,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    }
+  ],
+  "ibc_primary_occupancy": "B / S-1",
+  "space_library": [
+    {
+      "id": "POST_LOBBY",
+      "name": "Retail Lobby / Service Queue",
+      "category": "Public/Entry",
+      "nsf_range": [
+        300,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.04,
+        0.12
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Counter queue and PO boxes often share secure/public threshold"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_COUNTER",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_POBOX",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 20,
+        "typical_area_sf": 500,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 300,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Retail Lobby / Service Queue",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Retail Lobby / Service Queue",
+        "department_group": "Public/Entry",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_COUNTER",
+      "name": "Retail Counters / Transaction",
+      "category": "Operations",
+      "nsf_range": [
+        150,
+        1500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Staff/Public",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Public edge",
+      "code_tags": [],
+      "notes": [
+        "Transaction windows, parcel acceptance, secure back counter"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_LOBBY",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_BACKROOM",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 12,
+        "typical_area_sf": 240,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 1500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1500,
+        "min_area_sf": 150,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Retail Counters / Transaction",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Retail Counters / Transaction",
+        "department_group": "Operations",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_POBOX",
+      "name": "PO Box / Self-Service",
+      "category": "Public/Primary",
+      "nsf_range": [
+        150,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "May be accessible after lobby hours"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_LOBBY",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 15,
+        "typical_area_sf": 300,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 150,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "PO Box / Self-Service",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "PO Box / Self-Service",
+        "department_group": "Public/Primary",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_BACKROOM",
+      "name": "Mail Sort / Distribution Workroom",
+      "category": "Operations",
+      "nsf_range": [
+        500,
+        12000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 16,
+      "percent_of_gross_range": [
+        0.15,
+        0.45
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Secure",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Primary operational area for parcels, sorting, dispatch"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_DOCK",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_COUNTER",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_CARRIER",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 25,
+      "min_depth_ft": 25,
+      "max_aspect_ratio": 5,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "primary_area",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 40,
+        "typical_depth": 30,
+        "typical_area_sf": 1200,
+        "min_width": 25,
+        "min_depth": 25,
+        "min_area_sf": 500,
+        "max_area_sf": 12000,
+        "clear_height_min_ft": 16,
+        "clear_height_typical_ft": 18,
+        "floor_to_floor_ft": 20
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "sf_served",
+        "area_per_driver_sf": null,
+        "base_area_sf": 500,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 12000,
+        "min_area_sf": 500,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Mail Sort / Distribution Workroom",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Mail Sort / Distribution Workroom",
+        "department_group": "Operations",
+        "placement_zone": "boh",
+        "parti_area_cells": 8,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_CARRIER",
+      "name": "Carrier Workroom / Ready Room",
+      "category": "Operations",
+      "nsf_range": [
+        300,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.06,
+        0.18
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Secure",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Lockers, accountable mail, route prep"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_BACKROOM",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_YARD",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "optional_by_subtype",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 20,
+        "typical_area_sf": 500,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 300,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 12,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": 150,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Carrier Workroom / Ready Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Carrier Workroom / Ready Room",
+        "department_group": "Operations",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_DOCK",
+      "name": "Loading Dock / Dispatch",
+      "category": "Service",
+      "nsf_range": [
+        400,
+        5000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 18,
+      "percent_of_gross_range": [
+        0.04,
+        0.12
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Secure",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Back-of-house",
+      "code_tags": [],
+      "notes": [
+        "Mail truck access and dispatch"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_BACKROOM",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "POST_YARD",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 30,
+      "max_aspect_ratio": 6,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 0,
+      "door_clear_width_in": null,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 30,
+        "typical_depth": 40,
+        "typical_area_sf": 1200,
+        "min_width": 20,
+        "min_depth": 30,
+        "min_area_sf": 400,
+        "max_area_sf": 5000,
+        "clear_height_min_ft": 18,
+        "clear_height_typical_ft": 18,
+        "floor_to_floor_ft": 20
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 400,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 5000,
+        "min_area_sf": 400,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Loading Dock / Dispatch",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Loading Dock / Dispatch",
+        "department_group": "Service",
+        "placement_zone": "boh",
+        "parti_area_cells": 8,
+        "daylight_required": false,
+        "min_width_cells": 2,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 6,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_YARD",
+      "name": "Fleet / Carrier Parking Yard",
+      "category": "Vehicle",
+      "nsf_range": [
+        1000,
+        15000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 0,
+      "percent_of_gross_range": [
+        0.08,
+        0.28
+      ],
+      "occupancy_load": "Transient",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Secure",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Exterior",
+      "code_tags": [],
+      "notes": [
+        "Exterior vehicle staging; included as support placeholder even if modeled separately"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_CARRIER",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "POST_DOCK",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 40,
+      "min_depth_ft": 40,
+      "max_aspect_ratio": 8,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 0,
+      "door_clear_width_in": null,
+      "accessibility_type": "not_applicable",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 80,
+        "typical_depth": 80,
+        "typical_area_sf": 6400,
+        "min_width": 40,
+        "min_depth": 40,
+        "min_area_sf": 1000,
+        "max_area_sf": 15000,
+        "clear_height_min_ft": 0,
+        "clear_height_typical_ft": 0,
+        "floor_to_floor_ft": 0
+      },
+      "scaling": {
+        "class": "infrastructure",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 1000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 15000,
+        "min_area_sf": 1000,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Fleet / Carrier Parking Yard",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Fleet / Carrier Parking Yard",
+        "department_group": "Vehicle",
+        "placement_zone": "boh",
+        "parti_area_cells": 44,
+        "daylight_required": false,
+        "min_width_cells": 3,
+        "min_depth_cells": 3,
+        "max_aspect_ratio": 8,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_ADMIN",
+      "name": "Admin / Supervisor Offices",
+      "category": "Administration",
+      "nsf_range": [
+        150,
+        2000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Upper/Mezzanine",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Operations supervision and customer service management"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_BACKROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "POST_LOBBY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 2000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": 80,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2000,
+        "min_area_sf": 150,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Admin / Supervisor Offices",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Admin / Supervisor Offices",
+        "department_group": "Administration",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "POST_SUPPORT",
+      "name": "Break / Lockers / Toilets",
+      "category": "Support",
+      "nsf_range": [
+        150,
+        1800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Any",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Staff support functions"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "POST_BACKROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "POST_CARRIER",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 1800,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": 80,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1800,
+        "min_area_sf": 150,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.75,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Break / Lockers / Toilets",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Break / Lockers / Toilets",
+        "department_group": "Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "POST_LOBBY",
+      "to": "POST_COUNTER",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_LOBBY",
+      "to": "POST_POBOX",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_COUNTER",
+      "to": "POST_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_COUNTER",
+      "to": "POST_BACKROOM",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_POBOX",
+      "to": "POST_LOBBY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_BACKROOM",
+      "to": "POST_DOCK",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_BACKROOM",
+      "to": "POST_COUNTER",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_BACKROOM",
+      "to": "POST_CARRIER",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_CARRIER",
+      "to": "POST_BACKROOM",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_CARRIER",
+      "to": "POST_YARD",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_DOCK",
+      "to": "POST_BACKROOM",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "POST_DOCK",
+      "to": "POST_YARD",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_YARD",
+      "to": "POST_CARRIER",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_YARD",
+      "to": "POST_DOCK",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_ADMIN",
+      "to": "POST_BACKROOM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_ADMIN",
+      "to": "POST_LOBBY",
+      "weight": 2,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_SUPPORT",
+      "to": "POST_BACKROOM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "POST_SUPPORT",
+      "to": "POST_CARRIER",
+      "weight": 3,
+      "relationship": "near"
+    }
+  ]
+}

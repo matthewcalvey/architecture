@@ -1,0 +1,203 @@
+{
+  "Office_Core_A": {
+    "width_ft": 30,
+    "depth_ft": 40,
+    "components": [
+      {
+        "id": "STAIR_A",
+        "width_ft": 11,
+        "depth_ft": 22,
+        "type": "exit_stair"
+      },
+      {
+        "id": "STAIR_B",
+        "width_ft": 11,
+        "depth_ft": 22,
+        "type": "exit_stair"
+      },
+      {
+        "id": "ELEV_BANK",
+        "width_ft": 8,
+        "depth_ft": 28,
+        "count": 3,
+        "type": "passenger_elevator"
+      },
+      {
+        "id": "ELEC_CLOSET",
+        "width_ft": 6,
+        "depth_ft": 8,
+        "type": "electrical"
+      },
+      {
+        "id": "TELECOM",
+        "width_ft": 5,
+        "depth_ft": 6,
+        "type": "telecom"
+      },
+      {
+        "id": "MEP_RISER",
+        "width_ft": 4,
+        "depth_ft": 6,
+        "type": "vertical_shaft"
+      },
+      {
+        "id": "RESTROOM_M",
+        "width_ft": 10,
+        "depth_ft": 14,
+        "type": "restroom"
+      },
+      {
+        "id": "RESTROOM_F",
+        "width_ft": 10,
+        "depth_ft": 16,
+        "type": "restroom"
+      }
+    ],
+    "exit_separation": "half_diagonal",
+    "applicable_types": [
+      "Office",
+      "Higher Education",
+      "Civic / Government"
+    ]
+  },
+  "Residential_Core_A": {
+    "width_ft": 22,
+    "depth_ft": 28,
+    "components": [
+      {
+        "id": "STAIR_A",
+        "width_ft": 9,
+        "depth_ft": 18,
+        "type": "exit_stair"
+      },
+      {
+        "id": "ELEV_BANK",
+        "width_ft": 7,
+        "depth_ft": 18,
+        "count": 2,
+        "type": "passenger_elevator"
+      },
+      {
+        "id": "TRASH_CHUTE",
+        "width_ft": 4,
+        "depth_ft": 4,
+        "type": "vertical_shaft"
+      },
+      {
+        "id": "MEP_RISER",
+        "width_ft": 4,
+        "depth_ft": 5,
+        "type": "vertical_shaft"
+      }
+    ],
+    "exit_separation": "half_diagonal",
+    "applicable_types": [
+      "Multifamily Residential",
+      "Student Housing / Dormitory",
+      "Senior Living / Assisted Living"
+    ]
+  },
+  "Hotel_Core_A": {
+    "width_ft": 24,
+    "depth_ft": 30,
+    "components": [
+      {
+        "id": "STAIR_A",
+        "width_ft": 9,
+        "depth_ft": 18,
+        "type": "exit_stair"
+      },
+      {
+        "id": "STAIR_B",
+        "width_ft": 9,
+        "depth_ft": 18,
+        "type": "exit_stair"
+      },
+      {
+        "id": "ELEV_BANK",
+        "width_ft": 8,
+        "depth_ft": 22,
+        "count": 3,
+        "type": "passenger_elevator"
+      },
+      {
+        "id": "SERVICE_ELEV",
+        "width_ft": 6,
+        "depth_ft": 10,
+        "count": 1,
+        "type": "service_elevator"
+      },
+      {
+        "id": "MEP_RISER",
+        "width_ft": 4,
+        "depth_ft": 6,
+        "type": "vertical_shaft"
+      },
+      {
+        "id": "LINEN_CHUTE",
+        "width_ft": 3,
+        "depth_ft": 3,
+        "type": "vertical_shaft"
+      }
+    ],
+    "exit_separation": "half_diagonal",
+    "applicable_types": [
+      "Hospitality (Hotel)"
+    ]
+  },
+  "Institutional_Core_A": {
+    "width_ft": 28,
+    "depth_ft": 36,
+    "components": [
+      {
+        "id": "STAIR_A",
+        "width_ft": 11,
+        "depth_ft": 22,
+        "type": "exit_stair"
+      },
+      {
+        "id": "STAIR_B",
+        "width_ft": 11,
+        "depth_ft": 22,
+        "type": "exit_stair"
+      },
+      {
+        "id": "ELEV_BANK",
+        "width_ft": 8,
+        "depth_ft": 24,
+        "count": 3,
+        "type": "passenger_elevator"
+      },
+      {
+        "id": "SERVICE_ELEV",
+        "width_ft": 8,
+        "depth_ft": 12,
+        "count": 1,
+        "type": "service_elevator"
+      },
+      {
+        "id": "MEP_RISER",
+        "width_ft": 5,
+        "depth_ft": 8,
+        "type": "vertical_shaft"
+      },
+      {
+        "id": "RESTROOM_M",
+        "width_ft": 12,
+        "depth_ft": 16,
+        "type": "restroom"
+      },
+      {
+        "id": "RESTROOM_F",
+        "width_ft": 12,
+        "depth_ft": 18,
+        "type": "restroom"
+      }
+    ],
+    "exit_separation": "half_diagonal",
+    "applicable_types": [
+      "Healthcare (Outpatient / Inpatient mix)",
+      "Laboratory"
+    ]
+  }
+}

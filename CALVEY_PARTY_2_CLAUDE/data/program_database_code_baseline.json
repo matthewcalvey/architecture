@@ -1,0 +1,225 @@
+{
+  "schema_version": "4.1",
+  "created_date": "2026-04-04",
+  "source_version": "0.1",
+  "file_role": "shared_code_baseline",
+  "purpose": "Shared baseline of codes, standards, benchmark systems, and authoritative planning guides for all CALVEY program databases. Building-type JSONs should reference this file instead of duplicating source metadata.",
+  "recommended_integration_pattern": {
+    "new_top_level_key_in_each_building_type_json": "source_profiles",
+    "code_reference_strategy": "Each building-type JSON references one or more shared profile IDs from this file plus any type-specific guide IDs.",
+    "local_adoption_strategy": "Treat model codes as baseline only. Add project-specific jurisdiction overrides in a separate local_code_overrides file."
+  },
+  "shared_source_profiles": [
+    {
+      "id": "CODE_US_MODEL_BASE_2024",
+      "name": "U.S. Model Code Baseline",
+      "applies_to": "all",
+      "description": "Use for occupancy, egress, fire/life safety, and accessibility baselines. Replace with adopted local edition and amendments per project.",
+      "sources": [
+        {
+          "title": "International Building Code (edition per project)",
+          "authority": "ICC",
+          "coverage": [
+            "occupant_load_factor",
+            "ibc_occupancy_group",
+            "fire_separation_hr",
+            "egress rules",
+            "special room provisions"
+          ],
+          "public_access": "licensed"
+        },
+        {
+          "title": "2010 ADA Standards for Accessible Design",
+          "authority": "U.S. DOJ",
+          "coverage": [
+            "accessible route",
+            "clear floor space",
+            "maneuvering clearances",
+            "toilet room layout",
+            "accessible elements"
+          ],
+          "public_access": "public"
+        },
+        {
+          "title": "ICC A117.1",
+          "authority": "ICC",
+          "coverage": [
+            "technical accessibility dimensions",
+            "reach ranges",
+            "turning clearances"
+          ],
+          "public_access": "licensed"
+        }
+      ]
+    },
+    {
+      "id": "IEQ_BASELINE_US",
+      "name": "Indoor Environmental Quality Baseline",
+      "applies_to": "all regularly occupied spaces",
+      "sources": [
+        {
+          "title": "ASHRAE 62.1",
+          "authority": "ASHRAE",
+          "coverage": [
+            "outdoor air rates",
+            "exhaust",
+            "pressure relationships"
+          ],
+          "public_access": "licensed"
+        },
+        {
+          "title": "ASHRAE 55",
+          "authority": "ASHRAE",
+          "coverage": [
+            "thermal comfort",
+            "PMV/SET framework"
+          ],
+          "public_access": "licensed"
+        },
+        {
+          "title": "IES LM-83",
+          "authority": "IES",
+          "coverage": [
+            "sDA",
+            "ASE"
+          ],
+          "public_access": "licensed"
+        },
+        {
+          "title": "WELL v2",
+          "authority": "IWBI",
+          "coverage": [
+            "wellness overlays",
+            "circadian lighting",
+            "biophilia",
+            "monitoring"
+          ],
+          "public_access": "mixed"
+        }
+      ]
+    },
+    {
+      "id": "BENCHMARK_US_PUBLIC",
+      "name": "Public U.S. Benchmark Baseline",
+      "applies_to": "all benchmark fields",
+      "sources": [
+        {
+          "title": "ENERGY STAR Portfolio Manager",
+          "authority": "EPA",
+          "coverage": [
+            "property-type benchmarking",
+            "EUI comparison"
+          ],
+          "public_access": "public"
+        },
+        {
+          "title": "Commercial Buildings Energy Consumption Survey (2018 CBECS)",
+          "authority": "EIA",
+          "coverage": [
+            "national energy, size, and characteristic distributions"
+          ],
+          "public_access": "public"
+        },
+        {
+          "title": "NSRDB/TMY/EPW weather files",
+          "authority": "NREL",
+          "coverage": [
+            "climate files for simulation"
+          ],
+          "public_access": "public"
+        }
+      ]
+    },
+    {
+      "id": "COST_BASELINE_US",
+      "name": "U.S. Cost Baseline",
+      "applies_to": "all cost fields",
+      "sources": [
+        {
+          "title": "RSMeans Data",
+          "authority": "Gordian",
+          "coverage": [
+            "localized construction cost"
+          ],
+          "public_access": "licensed"
+        },
+        {
+          "title": "P-120 Public Buildings Service Cost and Schedule Management Policy",
+          "authority": "GSA",
+          "coverage": [
+            "cost process, estimate classes, contingencies, schedule governance"
+          ],
+          "public_access": "public"
+        }
+      ]
+    }
+  ],
+  "type_specific_guides": [
+    {
+      "id": "GUIDE_AIRPORT_FAA_AC150_5360_13A",
+      "building_type": "Airport Terminal",
+      "authority": "FAA",
+      "status": "public"
+    },
+    {
+      "id": "GUIDE_COURTS_USC_DG_2021",
+      "building_type": "Courthouse",
+      "authority": "U.S. Courts",
+      "status": "public"
+    },
+    {
+      "id": "GUIDE_CHILDCARE_GSA_PBS100",
+      "building_type": "Childcare",
+      "authority": "GSA",
+      "status": "public"
+    },
+    {
+      "id": "GUIDE_LIBRARY_MBLC_SPACE",
+      "building_type": "Public Library",
+      "authority": "MBLC",
+      "status": "public"
+    },
+    {
+      "id": "GUIDE_OUTPATIENT_VA_LBOC",
+      "building_type": "Medical Office / Outpatient",
+      "authority": "VA",
+      "status": "public"
+    },
+    {
+      "id": "GUIDE_CORRECTIONS_NIC_JDG3",
+      "building_type": "Correctional / Detention",
+      "authority": "NIC",
+      "status": "public"
+    }
+  ],
+  "field_mapping_rules": [
+    {
+      "field_family": "occupancy_and_code",
+      "preferred_profiles": [
+        "CODE_US_MODEL_BASE_2024"
+      ],
+      "note": "Do not store copied proprietary tables; store source reference and project-specific interpreted outputs."
+    },
+    {
+      "field_family": "ventilation",
+      "preferred_profiles": [
+        "IEQ_BASELINE_US"
+      ],
+      "note": "Store interpreted outdoor air and exhaust values only when edition and occupancy mapping are explicit."
+    },
+    {
+      "field_family": "energy_benchmark",
+      "preferred_profiles": [
+        "BENCHMARK_US_PUBLIC"
+      ],
+      "note": "Use ENERGY STAR property types first, then cross-check with CBECS."
+    },
+    {
+      "field_family": "cost",
+      "preferred_profiles": [
+        "COST_BASELINE_US"
+      ],
+      "note": "Use public process guidance plus licensed localized pricing if available."
+    }
+  ]
+}

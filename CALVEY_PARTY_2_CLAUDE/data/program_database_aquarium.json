@@ -1,0 +1,2014 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-04",
+  "source_version": "0.1",
+  "default_unit_types": [],
+  "benchmarks_lookup_keys": [],
+  "structural_bay_module_ft": 30,
+  "floor_to_floor_ft": {
+    "lowrise": 14,
+    "midrise": 16,
+    "highrise": 18
+  },
+  "construction_type": "Type I/II or project-specific",
+  "sprinklered": true,
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": 250,
+  "dead_end_max_ft": 20,
+  "wall_thickness_in": {
+    "interior_partition": 6,
+    "acoustic_partition": 8,
+    "rated_shaft": 12
+  },
+  "envelope_assembly": "Project-specific; durable waterfront/institutional envelope where applicable",
+  "wwr_target": {
+    "min": 0.2,
+    "max": 0.45
+  },
+  "scaling_config": {
+    "primary_driver": "gross_sf",
+    "secondary_driver": "occupants_or_capacity",
+    "gross_over_net_default": 1.35
+  },
+  "energy_targets": {
+    "eui_kbtu_sf_yr": null,
+    "notes": "Leave to future benchmarking pass."
+  },
+  "sustainability_targets": {
+    "leed": "Optional",
+    "well": "Optional",
+    "notes": "Populate in later benchmarking pass."
+  },
+  "parti_config": {
+    "diagram_type": "adjacency_graph",
+    "solver_ready": true
+  },
+  "plan_archetypes": [],
+  "schedule_profiles": [],
+  "building_type": "Aquarium",
+  "sources": [
+    {
+      "title": "Time-Saver Standards for Building Types \u2014 Aquariums",
+      "publisher": "McGraw-Hill",
+      "year": 1983
+    },
+    {
+      "title": "Smithsonian exhibition planning guidance (used for public-exhibit planning logic only)",
+      "publisher": "Smithsonian Institution",
+      "year": 2003
+    },
+    {
+      "title": "AZA accreditation/resources (used conceptually for animal care and operations; no dimensional standards embedded)",
+      "publisher": "Association of Zoos and Aquariums",
+      "year": null
+    }
+  ],
+  "reference_projects": {
+    "small": {
+      "name": "Regional Aquarium",
+      "location": "Various US",
+      "approx_sf": 30000,
+      "notes": "Lobby, ticketing, small galleries, life support rooms"
+    },
+    "medium": {
+      "name": "New England Aquarium",
+      "location": "Boston, MA",
+      "approx_sf": 190000,
+      "notes": "Major public aquarium with central tank and support systems"
+    },
+    "large": {
+      "name": "Georgia Aquarium",
+      "location": "Atlanta, GA",
+      "approx_sf": 550000,
+      "notes": "Large destination aquarium with multiple major habitats"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "AQU_REGIONAL",
+      "name": "Regional Aquarium",
+      "gross_sf_typical": [
+        25000,
+        120000
+      ],
+      "efficiency_ratio_target_range": [
+        0.5,
+        0.7
+      ],
+      "gross_over_net": 1.45,
+      "tiers": [
+        "Community",
+        "Regional",
+        "Major"
+      ]
+    },
+    {
+      "id": "AQU_DEST",
+      "name": "Destination Aquarium",
+      "gross_sf_typical": [
+        100000,
+        500000
+      ],
+      "efficiency_ratio_target_range": [
+        0.45,
+        0.65
+      ],
+      "gross_over_net": 1.5,
+      "tiers": [
+        "Community",
+        "Regional",
+        "Major"
+      ]
+    },
+    {
+      "id": "AQU_EDU",
+      "name": "Aquarium + Education / Research",
+      "gross_sf_typical": [
+        40000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.48,
+        0.68
+      ],
+      "gross_over_net": 1.5,
+      "tiers": [
+        "Community",
+        "Regional",
+        "Major"
+      ]
+    }
+  ],
+  "ibc_primary_occupancy": "A-3 / B / S-2 mixed-use",
+  "space_library": [
+    {
+      "id": "AQU_LOBBY",
+      "name": "Lobby / Ticketing / Orientation",
+      "category": "Public/Entry",
+      "nsf_range": [
+        800,
+        8000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 16,
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "High-volume queuing and visitor orientation zone."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_GALLERY",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "AQU_RESTROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_RETAIL",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 33.9,
+        "typical_depth": 23.6,
+        "typical_area_sf": 4400,
+        "min_width": 20,
+        "min_depth": 20,
+        "min_area_sf": 800,
+        "max_area_sf": 8000,
+        "clear_height_min_ft": 16,
+        "clear_height_typical_ft": 17,
+        "floor_to_floor_ft": 18
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 800,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 8000,
+        "min_area_sf": 800,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "aquarium_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Lobby / Ticketing / Orientation",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Lobby / Ticketing / Orientation",
+        "department_group": "Public/Entry",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_GALLERY",
+      "name": "Exhibit Gallery / Visitor Path",
+      "category": "Exhibit/Public",
+      "nsf_range": [
+        5000,
+        120000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 16,
+      "percent_of_gross_range": [
+        0.2,
+        0.55
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Sequence, sightlines, and controlled lighting are primary planning drivers.",
+        "Major tank geometry is project-specific and intentionally not over-prescribed here."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_LOBBY",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "AQU_TOUCH",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_CLASS",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_SUPPORT",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 25,
+      "max_aspect_ratio": 6,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 84.9,
+        "typical_depth": 58.9,
+        "typical_area_sf": 62500,
+        "min_width": 20,
+        "min_depth": 25,
+        "min_area_sf": 5000,
+        "max_area_sf": 120000,
+        "clear_height_min_ft": 16,
+        "clear_height_typical_ft": 17,
+        "floor_to_floor_ft": 18
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 5000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 120000,
+        "min_area_sf": 5000,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Exhibit Gallery / Visitor Path",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Exhibit Gallery / Visitor Path",
+        "department_group": "Exhibit/Public",
+        "placement_zone": "foh",
+        "parti_area_cells": 33,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 6,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_TOUCH",
+      "name": "Touch Tank / Interactive Zone",
+      "category": "Exhibit/Public",
+      "nsf_range": [
+        300,
+        5000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Requires intensive operations, hygiene, and life-support coordination."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_GALLERY",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_SUPPORT",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_RESTROOM",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 15,
+        "typical_area_sf": 2650,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 300,
+        "max_area_sf": 5000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 15,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 5000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Touch Tank / Interactive Zone",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Touch Tank / Interactive Zone",
+        "department_group": "Exhibit/Public",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_CLASS",
+      "name": "Education Classroom / Program Room",
+      "category": "Education",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Support school groups and public programs."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_GALLERY",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_LOBBY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 18,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 18,
+        "typical_area_sf": 1650,
+        "min_width": 15,
+        "min_depth": 18,
+        "min_area_sf": 300,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Education Classroom / Program Room",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Education Classroom / Program Room",
+        "department_group": "Education",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_RETAIL",
+      "name": "Gift Shop / Retail",
+      "category": "Commercial",
+      "nsf_range": [
+        250,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.1
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Often placed on visitor arrival or exit path."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_LOBBY",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_CAFE",
+          "weight": 0.3,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "M",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 19.0,
+        "typical_depth": 15,
+        "typical_area_sf": 2125,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 250,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 250,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Gift Shop / Retail",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Gift Shop / Retail",
+        "department_group": "Commercial",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_CAFE",
+      "name": "Cafe / Visitor Amenity",
+      "category": "Food & Beverage",
+      "nsf_range": [
+        300,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.12
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Optional amenity; kitchen detail deferred."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_LOBBY",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_KITCHEN",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 18,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 18,
+        "typical_area_sf": 3150,
+        "min_width": 15,
+        "min_depth": 18,
+        "min_area_sf": 300,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Cafe / Visitor Amenity",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Cafe / Visitor Amenity",
+        "department_group": "Food & Beverage",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_KITCHEN",
+      "name": "Cafe Support / Pantry",
+      "category": "BOH F&B",
+      "nsf_range": [
+        120,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.04
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Populate later if food service becomes core program."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_CAFE",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "F-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 13.1,
+        "typical_depth": 10,
+        "typical_area_sf": 660,
+        "min_width": 10,
+        "min_depth": 10,
+        "min_area_sf": 120,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 120,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 120,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Cafe Support / Pantry",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Cafe Support / Pantry",
+        "department_group": "BOH F&B",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_SUPPORT",
+      "name": "Life Support / Water Treatment",
+      "category": "Life Support / BOH",
+      "nsf_range": [
+        1000,
+        20000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 16,
+      "percent_of_gross_range": [
+        0.08,
+        0.25
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Critical aquarium-specific infrastructure; area varies widely by tank count and water volume.",
+        "Mechanical/process design intentionally left schematic."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_GALLERY",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_QUAR",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_LOADING",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 20,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "S-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 37.9,
+        "typical_depth": 26.4,
+        "typical_area_sf": 10500,
+        "min_width": 20,
+        "min_depth": 20,
+        "min_area_sf": 1000,
+        "max_area_sf": 20000,
+        "clear_height_min_ft": 16,
+        "clear_height_typical_ft": 17,
+        "floor_to_floor_ft": 18
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 1000,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 20000,
+        "min_area_sf": 1000,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Life Support / Water Treatment",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Life Support / Water Treatment",
+        "department_group": "Life Support / BOH",
+        "placement_zone": "boh",
+        "parti_area_cells": 7,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_QUAR",
+      "name": "Quarantine / Animal Care Support",
+      "category": "Animal Care / BOH",
+      "nsf_range": [
+        300,
+        5000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Secure BOH animal-care zone; detailed husbandry planning deferred."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_SUPPORT",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_LOADING",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 15,
+        "typical_area_sf": 2650,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 300,
+        "max_area_sf": 5000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 5000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Quarantine / Animal Care Support",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Quarantine / Animal Care Support",
+        "department_group": "Animal Care / BOH",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_LOADING",
+      "name": "Loading / Service",
+      "category": "Service",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Separate from public path; supports exhibits, life support, and food service."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_SUPPORT",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_QUAR",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "S-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 15,
+        "typical_area_sf": 1650,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 300,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 15,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Loading / Service",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Loading / Service",
+        "department_group": "Service",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "AQU_RESTROOM",
+      "name": "Public Restrooms",
+      "category": "Public Support",
+      "nsf_range": [
+        200,
+        1800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Fixture counts deferred to later code pass."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "AQU_LOBBY",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "AQU_GALLERY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 17.0,
+        "typical_depth": 11.8,
+        "typical_area_sf": 1000,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 200,
+        "max_area_sf": 1800,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1800,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Public Restrooms",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Public Restrooms",
+        "department_group": "Public Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "AQU_CAFE",
+      "to": "AQU_KITCHEN",
+      "weight": 0.9,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "AQU_CAFE",
+      "to": "AQU_LOBBY",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_CLASS",
+      "to": "AQU_LOBBY",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_GALLERY",
+      "to": "AQU_CLASS",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_GALLERY",
+      "to": "AQU_SUPPORT",
+      "weight": 0.8,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_GALLERY",
+      "to": "AQU_TOUCH",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_LOBBY",
+      "to": "AQU_GALLERY",
+      "weight": 0.9,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "AQU_LOBBY",
+      "to": "AQU_RESTROOM",
+      "weight": 0.6,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_LOBBY",
+      "to": "AQU_RETAIL",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_QUAR",
+      "to": "AQU_LOADING",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_RESTROOM",
+      "to": "AQU_GALLERY",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_RETAIL",
+      "to": "AQU_CAFE",
+      "weight": 0.3,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_SUPPORT",
+      "to": "AQU_LOADING",
+      "weight": 0.6,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_SUPPORT",
+      "to": "AQU_QUAR",
+      "weight": 0.7,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_TOUCH",
+      "to": "AQU_RESTROOM",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "AQU_TOUCH",
+      "to": "AQU_SUPPORT",
+      "weight": 0.7,
+      "relationship": "near"
+    }
+  ]
+}

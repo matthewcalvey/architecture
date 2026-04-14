@@ -1,0 +1,1889 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-03",
+  "source_version": "0.2",
+  "default_unit_types": [],
+  "benchmarks_lookup_keys": [
+    "EUI",
+    "cost",
+    "parking",
+    "staffing"
+  ],
+  "structural_bay_module_ft": 30,
+  "floor_to_floor_ft": {
+    "low": 14,
+    "typical": 15,
+    "tall": 20
+  },
+  "construction_type": "Type IIA or IIIA depending height/area and jurisdiction",
+  "sprinklered": true,
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": 250,
+  "dead_end_max_ft": 20,
+  "wall_thickness_in": {
+    "interior_partition": 6,
+    "acoustic_or_rated": 8,
+    "shaft": 10,
+    "exterior": 12
+  },
+  "envelope_assembly": {
+    "roof_r_value_target": 30,
+    "wall_r_value_target": 20,
+    "glazing_u_value_target": 0.35
+  },
+  "wwr_target": {
+    "north": 0.35,
+    "east": 0.3,
+    "south": 0.35,
+    "west": 0.25
+  },
+  "scaling_config": {
+    "primary_driver_keys": [
+      "occupants",
+      "beds",
+      "keys",
+      "seats",
+      "students",
+      "sf_served"
+    ],
+    "support_space_method": "sqrt_or_step"
+  },
+  "energy_targets": {
+    "site_eui_kbtu_sf_yr": [
+      30,
+      90
+    ],
+    "electrification_preferred": true
+  },
+  "sustainability_targets": {
+    "leed_ready": true,
+    "all_electric_ready": true,
+    "enhanced_ventilation": true
+  },
+  "parti_config": {
+    "grid_cell_ft": 12,
+    "default_corridor_width_ft": 8,
+    "stacking_logic": "public low / secure-service internal / MEP stacked"
+  },
+  "plan_archetypes": [
+    "onstage/offstage clinic module",
+    "shared public lobby with tenant clinic suites"
+  ],
+  "schedule_profiles": [
+    "outpatient_standard"
+  ],
+  "building_type": "Medical Office Building / Outpatient Specialty Clinic",
+  "sources": [
+    {
+      "title": "VA Lease Based Outpatient Clinics Design Guide",
+      "publisher": "U.S. Department of Veterans Affairs",
+      "year": 2016
+    },
+    {
+      "title": "VA Urgent Care Design Guide",
+      "publisher": "U.S. Department of Veterans Affairs",
+      "year": 2023
+    },
+    {
+      "title": "Time-Saver Standards for Building Types \u2014 Medical Offices, Dental Offices, Radiological Offices, Ophthalmological Offices",
+      "publisher": "McGraw-Hill",
+      "year": 1983
+    }
+  ],
+  "reference_projects": {
+    "small": {
+      "name": "Specialty Clinic",
+      "location": "Various US",
+      "approx_sf": 12000,
+      "notes": "Exam module, imaging, waiting, staff support"
+    },
+    "medium": {
+      "name": "Medical Office Building",
+      "location": "Various US",
+      "approx_sf": 80000,
+      "notes": "Multi-tenant specialists, shared lobby and diagnostics"
+    },
+    "large": {
+      "name": "Ambulatory Care Center",
+      "location": "Various US",
+      "approx_sf": 250000,
+      "notes": "Large outpatient platform with clinics, imaging, ASC or urgent care"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "MOB_SINGLE",
+      "name": "Single-Specialty Clinic",
+      "gross_sf_typical": [
+        8000,
+        30000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.78
+      ],
+      "gross_over_net": 1.4,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "MOB_MULTI",
+      "name": "Multi-Tenant Medical Office Building",
+      "gross_sf_typical": [
+        30000,
+        250000
+      ],
+      "efficiency_ratio_target_range": [
+        0.65,
+        0.82
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    },
+    {
+      "id": "MOB_URGENT",
+      "name": "Urgent Care / Immediate Care",
+      "gross_sf_typical": [
+        6000,
+        25000
+      ],
+      "efficiency_ratio_target_range": [
+        0.6,
+        0.76
+      ],
+      "gross_over_net": 1.45,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Enhanced"
+      ]
+    }
+  ],
+  "ibc_primary_occupancy": "B / I-2 outpatient areas by use and jurisdiction",
+  "space_library": [
+    {
+      "id": "MOB_ENTRY",
+      "name": "Entry / Check-In Lobby",
+      "category": "Public/Entry",
+      "nsf_range": [
+        400,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.08
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Shared building or clinic reception"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_WAIT",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MOB_REG",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 20,
+        "typical_area_sf": 500,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 400,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 400,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 400,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Entry / Check-In Lobby",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Entry / Check-In Lobby",
+        "department_group": "Public/Entry",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_REG",
+      "name": "Reception / Registration",
+      "category": "Public/Primary",
+      "nsf_range": [
+        150,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Entry",
+      "code_tags": [],
+      "notes": [
+        "Scheduling, check-in, and transactions"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_ENTRY",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MOB_WAIT",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MOB_CLINICAL_SUPPORT",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 150,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Reception / Registration",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Reception / Registration",
+        "department_group": "Public/Primary",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_WAIT",
+      "name": "Waiting",
+      "category": "Public/Primary",
+      "nsf_range": [
+        250,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Peak",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Distributed waiting or centralized depending model"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_EXAM",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_RESTROOM",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_REG",
+          "weight": 0.8,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 25,
+        "typical_depth": 15,
+        "typical_area_sf": 375,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 250,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": 120,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 250,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": 40,
+          "max_ase_1000_250_pct": 10,
+          "daylight_depth_rule_multiplier": 2.5,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": true,
+        "circadian_lighting_zone": true,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Waiting",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Waiting",
+        "department_group": "Public/Primary",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_EXAM",
+      "name": "Exam / Consult Rooms",
+      "category": "Clinical",
+      "nsf_range": [
+        500,
+        12000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.18,
+        0.42
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Interior/Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Repeatable room module; may include procedure and consult mix"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_CLINICAL_SUPPORT",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MOB_PROVIDER",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_WAIT",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "exam_rooms",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 12,
+        "typical_depth": 12,
+        "typical_area_sf": 144,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 500,
+        "max_area_sf": 12000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "primary",
+        "driver_relationship": "linear",
+        "driver_key": "exam_rooms",
+        "area_per_driver_sf": null,
+        "base_area_sf": 500,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 12000,
+        "min_area_sf": 500,
+        "priority_rank": 1
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.75,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Exam / Consult Rooms",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Exam / Consult Rooms",
+        "department_group": "Clinical",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_CLINICAL_SUPPORT",
+      "name": "Nurse / MA / Clean-Soiled / Supplies",
+      "category": "Clinical Support",
+      "nsf_range": [
+        250,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.06,
+        0.16
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Back-of-house support for exam module"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_EXAM",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MOB_PROVIDER",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "derived_from_exam_rooms",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 15,
+        "typical_area_sf": 225,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 250,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "linear",
+        "driver_key": "exam_rooms",
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 250,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.75,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Nurse / MA / Clean-Soiled / Supplies",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Nurse / MA / Clean-Soiled / Supplies",
+        "department_group": "Clinical Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_PROVIDER",
+      "name": "Provider Offices / Charting",
+      "category": "Staff",
+      "nsf_range": [
+        150,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.03,
+        0.12
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Shared workroom or dedicated offices depending specialty"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_EXAM",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_CLINICAL_SUPPORT",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "derived_from_exam_rooms",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": 90,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 150,
+        "priority_rank": 3
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Provider Offices / Charting",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Provider Offices / Charting",
+        "department_group": "Staff",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_IMAGING",
+      "name": "Imaging / Diagnostics",
+      "category": "Clinical Support",
+      "nsf_range": [
+        250,
+        6000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.14
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Optional modality suite depending specialty"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_WAIT",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_EXAM",
+          "weight": 0.6,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 20,
+        "typical_area_sf": 400,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 250,
+        "max_area_sf": 6000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 12,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": 140,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 6000,
+        "min_area_sf": 250,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.75,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Imaging / Diagnostics",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Imaging / Diagnostics",
+        "department_group": "Clinical Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 2,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_PROC",
+      "name": "Minor Procedure / Treatment",
+      "category": "Clinical Support",
+      "nsf_range": [
+        150,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "High",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Any",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Optional treatment room, urgent care, infusion, or specialty procedure"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_EXAM",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MOB_CLINICAL_SUPPORT",
+          "weight": 0.7,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "optional",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "quiet",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 15,
+        "typical_area_sf": 225,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 150,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": 100,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 150,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 0.75,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": 50,
+          "background_noise_dba_max": 40,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Minor Procedure / Treatment",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Minor Procedure / Treatment",
+        "department_group": "Clinical Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_ADMIN",
+      "name": "Admin / Billing / Staff Break",
+      "category": "Support",
+      "nsf_range": [
+        150,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Staff",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Any",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Nonclinical operations"
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_PROVIDER",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_or_more",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 15,
+        "typical_depth": 12,
+        "typical_area_sf": 180,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": 80,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 150,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Admin / Billing / Staff Break",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "resilient_or_polished",
+        "finish_ceiling": "acoustic_or_exposed",
+        "finish_walls": "painted_gypsum",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Admin / Billing / Staff Break",
+        "department_group": "Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 4,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MOB_RESTROOM",
+      "name": "Public Restrooms",
+      "category": "Support",
+      "nsf_range": [
+        100,
+        800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.01,
+        0.03
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Business Hours",
+      "stacking_preference": "All",
+      "typical_location": "Distributed",
+      "code_tags": [],
+      "notes": [
+        "Patient and visitor restrooms adjacent to waiting areas; ADA-compliant; sized per IPC fixture counts for outpatient occupancy."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MOB_WAIT",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 10,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": true,
+      "count_rule": "distributed",
+      "stack_group": null,
+      "floor_priority": 2,
+      "regularly_occupied": true,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 1,
+      "dimensions_ft": {
+        "typical_width": 12,
+        "typical_depth": 10,
+        "typical_area_sf": 120,
+        "min_width": 8,
+        "min_depth": 10,
+        "min_area_sf": 100,
+        "max_area_sf": 800,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 13
+      },
+      "scaling": {
+        "class": "support",
+        "driver_relationship": "sqrt",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 100,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 800,
+        "min_area_sf": 100,
+        "priority_rank": 4
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "mixed"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1.0,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 35,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": null,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "low",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Public Restrooms",
+        "fire_rating_walls_hr": 1,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "ceramic_tile",
+        "finish_ceiling": "acoustic_tile",
+        "finish_walls": "ceramic_tile",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Public Restrooms",
+        "department_group": "Support",
+        "placement_zone": "distributed",
+        "parti_area_cells": 2,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "MOB_ENTRY",
+      "to": "MOB_WAIT",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_ENTRY",
+      "to": "MOB_REG",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_REG",
+      "to": "MOB_ENTRY",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_REG",
+      "to": "MOB_WAIT",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_REG",
+      "to": "MOB_CLINICAL_SUPPORT",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_WAIT",
+      "to": "MOB_EXAM",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_WAIT",
+      "to": "MOB_RESTROOM",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_WAIT",
+      "to": "MOB_REG",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_EXAM",
+      "to": "MOB_CLINICAL_SUPPORT",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_EXAM",
+      "to": "MOB_PROVIDER",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_EXAM",
+      "to": "MOB_WAIT",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_CLINICAL_SUPPORT",
+      "to": "MOB_EXAM",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_CLINICAL_SUPPORT",
+      "to": "MOB_PROVIDER",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_PROVIDER",
+      "to": "MOB_EXAM",
+      "weight": 4,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_PROVIDER",
+      "to": "MOB_CLINICAL_SUPPORT",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_IMAGING",
+      "to": "MOB_WAIT",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_IMAGING",
+      "to": "MOB_EXAM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_PROC",
+      "to": "MOB_EXAM",
+      "weight": 3,
+      "relationship": "near"
+    },
+    {
+      "from": "MOB_PROC",
+      "to": "MOB_CLINICAL_SUPPORT",
+      "weight": 4,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MOB_ADMIN",
+      "to": "MOB_PROVIDER",
+      "weight": 2,
+      "relationship": "near"
+    }
+  ]
+}

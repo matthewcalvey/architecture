@@ -1,0 +1,1874 @@
+{
+  "schema_version": "4.0",
+  "created_date": "2026-04-04",
+  "source_version": "0.1",
+  "default_unit_types": [],
+  "benchmarks_lookup_keys": [],
+  "structural_bay_module_ft": 30,
+  "floor_to_floor_ft": {
+    "lowrise": 14,
+    "midrise": 16,
+    "highrise": 18
+  },
+  "construction_type": "Type I/II or project-specific",
+  "sprinklered": true,
+  "corridor_width_min_in": 72,
+  "travel_distance_max_ft": 250,
+  "dead_end_max_ft": 20,
+  "wall_thickness_in": {
+    "interior_partition": 6,
+    "acoustic_partition": 8,
+    "rated_shaft": 12
+  },
+  "envelope_assembly": "Project-specific; durable waterfront/institutional envelope where applicable",
+  "wwr_target": {
+    "min": 0.2,
+    "max": 0.45
+  },
+  "scaling_config": {
+    "primary_driver": "gross_sf",
+    "secondary_driver": "occupants_or_capacity",
+    "gross_over_net_default": 1.35
+  },
+  "energy_targets": {
+    "eui_kbtu_sf_yr": null,
+    "notes": "Leave to future benchmarking pass."
+  },
+  "sustainability_targets": {
+    "leed": "Optional",
+    "well": "Optional",
+    "notes": "Populate in later benchmarking pass."
+  },
+  "parti_config": {
+    "diagram_type": "adjacency_graph",
+    "solver_ready": true
+  },
+  "plan_archetypes": [],
+  "schedule_profiles": [],
+  "building_type": "Marina / Waterfront Recreation",
+  "sources": [
+    {
+      "title": "Time-Saver Standards for Building Types \u2014 Marinas, Swimming Docks, Camps and Nature Center sections",
+      "publisher": "McGraw-Hill",
+      "year": 1983
+    },
+    {
+      "title": "USACE shoreline management planning documents (used only for public-waterfront operational context, not dimensional standards)",
+      "publisher": "U.S. Army Corps of Engineers",
+      "year": 2020
+    },
+    {
+      "title": "ADA Standards for Accessible Design (for gangways, routes, toilets, and public access)",
+      "publisher": "U.S. DOJ",
+      "year": 2010
+    }
+  ],
+  "reference_projects": {
+    "small": {
+      "name": "Typical Municipal Marina",
+      "location": "Various US",
+      "approx_sf": 8000,
+      "notes": "Harbormaster office; restrooms; limited retail; transient slips"
+    },
+    "medium": {
+      "name": "Harbor East Marina",
+      "location": "Baltimore, MD",
+      "approx_sf": 25000,
+      "notes": "Marina office, showers, docks, waterfront retail/restaurant edge"
+    },
+    "large": {
+      "name": "Chelsea Piers Marina / Waterfront Complex",
+      "location": "New York, NY",
+      "approx_sf": 80000,
+      "notes": "Large mixed waterfront recreation environment"
+    }
+  },
+  "subtypes": [
+    {
+      "id": "MAR_PUBLIC",
+      "name": "Public Marina / Harbormaster Facility",
+      "gross_sf_typical": [
+        5000,
+        30000
+      ],
+      "efficiency_ratio_target_range": [
+        0.68,
+        0.82
+      ],
+      "gross_over_net": 1.3,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "id": "MAR_CLUB",
+      "name": "Yacht Club / Marina Campus",
+      "gross_sf_typical": [
+        12000,
+        80000
+      ],
+      "efficiency_ratio_target_range": [
+        0.62,
+        0.78
+      ],
+      "gross_over_net": 1.35,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    {
+      "id": "MAR_WATERFRONT",
+      "name": "Waterfront Recreation / Mixed-Use Marina",
+      "gross_sf_typical": [
+        15000,
+        150000
+      ],
+      "efficiency_ratio_target_range": [
+        0.6,
+        0.76
+      ],
+      "gross_over_net": 1.4,
+      "tiers": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    }
+  ],
+  "ibc_primary_occupancy": "A-3 / B / S-2 mixed-use",
+  "space_library": [
+    {
+      "id": "MAR_LOBBY",
+      "name": "Lobby / Harbormaster Reception",
+      "category": "Public/Entry",
+      "nsf_range": [
+        250,
+        1500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Public-facing check-in, permits, and slip assignment.",
+        "Keep direct visual connection to docks where feasible."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_HARBORMASTER",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MAR_RESTROOM",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.8,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 19.0,
+        "typical_depth": 15,
+        "typical_area_sf": 875,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 250,
+        "max_area_sf": 1500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 250,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1500,
+        "min_area_sf": 250,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "marina_standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Lobby / Harbormaster Reception",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Lobby / Harbormaster Reception",
+        "department_group": "Public/Entry",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_HARBORMASTER",
+      "name": "Harbormaster Office / Operations",
+      "category": "Administration",
+      "nsf_range": [
+        150,
+        1000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Operational control, radio, records, and emergency coordination."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_LOBBY",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_SERVICE_YARD",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 14.7,
+        "typical_depth": 12,
+        "typical_area_sf": 575,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 150,
+        "max_area_sf": 1000,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 150,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1000,
+        "min_area_sf": 150,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Harbormaster Office / Operations",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Harbormaster Office / Operations",
+        "department_group": "Administration",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_DOCK_ACCESS",
+      "name": "Dock Access Control / Gangway Landing",
+      "category": "Circulation/Waterside",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.02,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Low",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Critical land-water threshold; dimensional design is project-specific and tide-dependent.",
+        "Use ADA-compliant accessible route where required."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_LOBBY",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_HARBORMASTER",
+          "weight": 0.8,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_FUEL",
+          "weight": 0.3,
+          "relationship": "separate"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 5,
+      "ibc_occupancy_group": null,
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 0,
+      "door_clear_width_in": null,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 17.0,
+        "typical_depth": 12,
+        "typical_area_sf": 700,
+        "min_width": 8,
+        "min_depth": 12,
+        "min_area_sf": 200,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Dock Access Control / Gangway Landing",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Dock Access Control / Gangway Landing",
+        "department_group": "Circulation/Waterside",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 5,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_RESTROOM",
+      "name": "Public Restrooms / Showers",
+      "category": "Public Support",
+      "nsf_range": [
+        200,
+        1800
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 15,
+        "basis": "gross",
+        "code_ref": "IBC Table 1004.5"
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.03,
+        0.1
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Common in transient marinas; showers may be controlled-access."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_LOBBY",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_LAUNDRY",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "A-3",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 17.0,
+        "typical_depth": 12,
+        "typical_area_sf": 1000,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 200,
+        "max_area_sf": 1800,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1800,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": 5,
+          "ashrae_62_1_outdoor_air_cfm_sf": 0.06,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Public Restrooms / Showers",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Public Restrooms / Showers",
+        "department_group": "Public Support",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_LAUNDRY",
+      "name": "Laundry / Boater Support",
+      "category": "Support",
+      "nsf_range": [
+        80,
+        400
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 9,
+      "percent_of_gross_range": [
+        0.005,
+        0.02
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Semi-Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Optional for transient and liveaboard-support facilities."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_RESTROOM",
+          "weight": 0.7,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 8,
+      "min_depth_ft": 8,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "B",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 10.7,
+        "typical_depth": 8,
+        "typical_area_sf": 240,
+        "min_width": 8,
+        "min_depth": 8,
+        "min_area_sf": 80,
+        "max_area_sf": 400,
+        "clear_height_min_ft": 9,
+        "clear_height_typical_ft": 10,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 80,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 400,
+        "min_area_sf": 80,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Laundry / Boater Support",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Laundry / Boater Support",
+        "department_group": "Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_RETAIL",
+      "name": "Waterfront Retail / Ship Store",
+      "category": "Commercial",
+      "nsf_range": [
+        200,
+        2500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.02,
+        0.12
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Extended",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Optional convenience and marine-supply retail."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_LOBBY",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.6,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_CAFE",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 12,
+      "min_depth_ft": 15,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "M",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 17.0,
+        "typical_depth": 15,
+        "typical_area_sf": 1350,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 2500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 2500,
+        "min_area_sf": 200,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Waterfront Retail / Ship Store",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Waterfront Retail / Ship Store",
+        "department_group": "Commercial",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_CAFE",
+      "name": "Cafe / Club Lounge",
+      "category": "Food & Beverage",
+      "nsf_range": [
+        300,
+        4000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.03,
+        0.18
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "High",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Public",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Optional mixed-use waterfront amenity; use only where operator model supports it."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_LOBBY",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_RETAIL",
+          "weight": 0.4,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_KITCHEN",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 18,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "A-2",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 18,
+        "typical_area_sf": 2150,
+        "min_width": 15,
+        "min_depth": 18,
+        "min_area_sf": 300,
+        "max_area_sf": 4000,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 13,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 4000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": true,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": true,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Cafe / Club Lounge",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Cafe / Club Lounge",
+        "department_group": "Food & Beverage",
+        "placement_zone": "foh",
+        "parti_area_cells": 6,
+        "daylight_required": true,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_KITCHEN",
+      "name": "Service Pantry / Kitchen",
+      "category": "BOH F&B",
+      "nsf_range": [
+        120,
+        1500
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 10,
+      "percent_of_gross_range": [
+        0.01,
+        0.08
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Medium",
+      "acoustic_sensitivity": "Medium",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "High",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Interior",
+      "code_tags": [],
+      "notes": [
+        "Populate detailed kitchen data in later pass; grease and exhaust design deferred."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_CAFE",
+          "weight": 0.9,
+          "relationship": "must_adjoin"
+        },
+        {
+          "space_id": "MAR_SERVICE_YARD",
+          "weight": 0.7,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 10,
+      "min_depth_ft": 12,
+      "max_aspect_ratio": 3,
+      "ibc_occupancy_group": "F-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": true,
+      "acoustic_class": "moderate",
+      "door_count": 2,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 13.1,
+        "typical_depth": 12,
+        "typical_area_sf": 810,
+        "min_width": 10,
+        "min_depth": 12,
+        "min_area_sf": 120,
+        "max_area_sf": 1500,
+        "clear_height_min_ft": 10,
+        "clear_height_typical_ft": 11,
+        "floor_to_floor_ft": 12
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 120,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1500,
+        "min_area_sf": 120,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Service Pantry / Kitchen",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Service Pantry / Kitchen",
+        "department_group": "BOH F&B",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 3,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_SERVICE_YARD",
+      "name": "Service Yard / Marine Support Storage",
+      "category": "Operations/Support",
+      "nsf_range": [
+        300,
+        3000
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": null,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 14,
+      "percent_of_gross_range": [
+        0.03,
+        0.14
+      ],
+      "occupancy_load": "Variable",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": false,
+      "wet_zone": false,
+      "mep_intensity": "Medium",
+      "security_zone": "Staff",
+      "operations_hours": "Typical",
+      "stacking_preference": "Ground",
+      "typical_location": "Perimeter",
+      "code_tags": [],
+      "notes": [
+        "Boat-support gear, maintenance supplies, refuse, and dock cart staging."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_HARBORMASTER",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_KITCHEN",
+          "weight": 0.5,
+          "relationship": "near"
+        },
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.4,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "S-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 0,
+      "dimensions_ft": {
+        "typical_width": 20.8,
+        "typical_depth": 20,
+        "typical_area_sf": 1650,
+        "min_width": 15,
+        "min_depth": 20,
+        "min_area_sf": 300,
+        "max_area_sf": 3000,
+        "clear_height_min_ft": 14,
+        "clear_height_typical_ft": 15,
+        "floor_to_floor_ft": 16
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 300,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 3000,
+        "min_area_sf": 300,
+        "priority_rank": 2
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.9,
+          "equipment_power_density_w_sf": 0.5,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": false,
+          "exhaust_cfm_sf": null,
+          "pressure_relationship": "neutral"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Service Yard / Marine Support Storage",
+        "fire_rating_walls_hr": 0,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "project_specific",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Service Yard / Marine Support Storage",
+        "department_group": "Operations/Support",
+        "placement_zone": "boh",
+        "parti_area_cells": 6,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    },
+    {
+      "id": "MAR_FUEL",
+      "name": "Fuel Dock / Fueling Station",
+      "category": "Waterfront Operations",
+      "nsf_range": [
+        200,
+        1200
+      ],
+      "occupant_load_factor": {
+        "area_per_person_ft2": 100,
+        "basis": "n/a",
+        "code_ref": null
+      },
+      "ceiling_height_min_ft": 12,
+      "percent_of_gross_range": [
+        0.02,
+        0.06
+      ],
+      "occupancy_load": "Low",
+      "daylight_priority": "Low",
+      "acoustic_sensitivity": "Low",
+      "plumbing_required": true,
+      "wet_zone": true,
+      "mep_intensity": "Medium",
+      "security_zone": "Restricted",
+      "operations_hours": "Scheduled",
+      "stacking_preference": "Ground",
+      "typical_location": "Waterside",
+      "code_tags": [
+        "hazardous_materials",
+        "fire_separation"
+      ],
+      "notes": [
+        "Fuel dock requires fire-rated separation from occupied buildings per NFPA 30A and local fire marshal requirements.",
+        "Spill containment, emergency shutoff, and vapor recovery systems typically required."
+      ],
+      "adjacencies": [
+        {
+          "space_id": "MAR_DOCK_ACCESS",
+          "weight": 0.7,
+          "relationship": "separate"
+        },
+        {
+          "space_id": "MAR_SERVICE_YARD",
+          "weight": 0.5,
+          "relationship": "near"
+        }
+      ],
+      "min_width_ft": 15,
+      "min_depth_ft": 20,
+      "max_aspect_ratio": 4,
+      "ibc_occupancy_group": "H-2/S-1",
+      "repeatable": false,
+      "count_rule": "one_per_building",
+      "stack_group": null,
+      "floor_priority": 1,
+      "regularly_occupied": false,
+      "acoustic_class": "tolerant",
+      "door_count": 1,
+      "door_clear_width_in": 36,
+      "accessibility_type": "accessible",
+      "fire_separation_hr": 2,
+      "dimensions_ft": {
+        "typical_width": 20,
+        "typical_depth": 40,
+        "typical_area_sf": 800,
+        "min_width": 12,
+        "min_depth": 15,
+        "min_area_sf": 200,
+        "max_area_sf": 1200,
+        "clear_height_min_ft": 12,
+        "clear_height_typical_ft": 14,
+        "floor_to_floor_ft": 14
+      },
+      "scaling": {
+        "class": "fixed",
+        "driver_relationship": "fixed",
+        "driver_key": null,
+        "area_per_driver_sf": null,
+        "base_area_sf": 200,
+        "coefficient": null,
+        "step_thresholds": null,
+        "custom_formula": null,
+        "max_area_sf": 1200,
+        "min_area_sf": 200,
+        "priority_rank": 8
+      },
+      "performance": {
+        "energy": {
+          "lighting_power_density_w_sf": 0.5,
+          "equipment_power_density_w_sf": 2.0,
+          "occupancy_schedule_profile": "standard",
+          "hvac_zone_type": "perimeter"
+        },
+        "ventilation": {
+          "ashrae_62_1_outdoor_air_cfm_person": null,
+          "ashrae_62_1_outdoor_air_cfm_sf": null,
+          "exhaust_required": true,
+          "exhaust_cfm_sf": 1.5,
+          "pressure_relationship": "negative"
+        },
+        "daylighting": {
+          "target_sda_300_50_pct": null,
+          "max_ase_1000_250_pct": null,
+          "daylight_depth_rule_multiplier": null,
+          "view_access_required": false,
+          "preferred_orientation": null
+        },
+        "thermal_comfort": {
+          "heating_setpoint_f": 70,
+          "cooling_setpoint_f": 76,
+          "humidity_range_rh_pct": [
+            30,
+            60
+          ],
+          "pmv_target_range": [
+            -0.5,
+            0.5
+          ]
+        },
+        "acoustics": {
+          "nc_rating_max": 40,
+          "stc_wall_rating": null,
+          "background_noise_dba_max": 45,
+          "reverberation_time_target_s": null
+        }
+      },
+      "wellness": {
+        "biophilic_priority": "medium",
+        "natural_light_requirement": false,
+        "operable_windows_preferred": false,
+        "indoor_plants_zone": false,
+        "circadian_lighting_zone": false,
+        "active_design_feature": null,
+        "water_feature_proximity": false
+      },
+      "bim": {
+        "ifc_space_type": "IfcSpace",
+        "ifc_predefined_type": "INTERNAL",
+        "omniclass_number": null,
+        "uniformat_code": null,
+        "classification_description": "Fuel Dock / Fueling Station",
+        "fire_rating_walls_hr": 2,
+        "fire_rating_floor_hr": 0,
+        "sprinkler_required": true,
+        "smoke_detection_required": true,
+        "finish_floor": "sealed_concrete",
+        "finish_ceiling": "project_specific",
+        "finish_walls": "project_specific",
+        "typical_partition_type": "gypsum_stud"
+      },
+      "parti": {
+        "parti_name": "Fuel Dock / Fueling Station",
+        "department_group": "Operations",
+        "placement_zone": "boh",
+        "parti_area_cells": 3,
+        "daylight_required": false,
+        "min_width_cells": 1,
+        "min_depth_cells": 1,
+        "max_aspect_ratio": 4,
+        "corridor_placement_pref": null
+      }
+    }
+  ],
+  "adjacency_edges": [
+    {
+      "from": "MAR_CAFE",
+      "to": "MAR_KITCHEN",
+      "weight": 0.9,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MAR_CAFE",
+      "to": "MAR_LOBBY",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_DOCK_ACCESS",
+      "to": "MAR_FUEL",
+      "weight": 0.3,
+      "relationship": "separate"
+    },
+    {
+      "from": "MAR_HARBORMASTER",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.8,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_HARBORMASTER",
+      "to": "MAR_SERVICE_YARD",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_KITCHEN",
+      "to": "MAR_SERVICE_YARD",
+      "weight": 0.7,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_LAUNDRY",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_LOBBY",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.8,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_LOBBY",
+      "to": "MAR_HARBORMASTER",
+      "weight": 0.9,
+      "relationship": "must_adjoin"
+    },
+    {
+      "from": "MAR_LOBBY",
+      "to": "MAR_RESTROOM",
+      "weight": 0.6,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_RESTROOM",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.7,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_RESTROOM",
+      "to": "MAR_LAUNDRY",
+      "weight": 0.7,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_RETAIL",
+      "to": "MAR_CAFE",
+      "weight": 0.4,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_RETAIL",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.6,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_RETAIL",
+      "to": "MAR_LOBBY",
+      "weight": 0.5,
+      "relationship": "near"
+    },
+    {
+      "from": "MAR_SERVICE_YARD",
+      "to": "MAR_DOCK_ACCESS",
+      "weight": 0.4,
+      "relationship": "near"
+    }
+  ]
+}
