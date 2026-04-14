@@ -445,21 +445,34 @@
       letter-spacing: 0.05em;
       display: flex;
       gap: 8px;
-      align-items: center;
+      align-items: flex-start;
       pointer-events: auto;
       z-index: 10;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
+    /* Step T2 — 2-column grid of reason buttons. Works on desktop too; the
+       chip is just a bit wider. Keeps the chip from blowing past an iPhone
+       viewport's right edge when all six reasons are shown in a single row. */
+    .lock-chip .reasons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+    }
     .lock-chip button {
       background: white;
       border: 1px solid var(--calvey-rule);
-      padding: 4px 8px;
+      padding: 8px 14px;
       margin: 0;
       cursor: pointer;
       font-family: inherit;
       font-size: inherit;
       text-transform: inherit;
       color: var(--calvey-text);
+      /* Step T2 — touch-friendly minimum tap target. 36×72 is a compromise
+         between Apple HIG's 44×44 (bulky) and the original 24-ish height
+         (too small for fingers). */
+      min-height: 36px;
+      min-width: 72px;
     }
     .lock-chip button:hover {
       background: var(--calvey-text);
@@ -467,7 +480,8 @@
     }
     .lock-chip .close {
       color: var(--calvey-muted);
-      padding: 4px 6px;
+      padding: 6px 10px;
+      min-width: 32px;
     }
 
     /* Step 05 — rejection chip (bottom-left, 2s auto-clear). */
@@ -700,7 +714,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.6.2-stepT1";
+    const ENGINE_VERSION = "0.6.3-stepT2";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -3336,10 +3350,21 @@
         return "dragging_room " + rid + at;
       }
       if (gesture.type === "reproportioning") {
-        return "reproportioning · " + suffix;
+        // Step T2 — show wall id, cell offset, and affected-room count so the
+        // iPhone test session can verify the scrub state at a glance.
+        const parts = ["reproportioning"];
+        if (gesture.wallId) parts.push("wall " + gesture.wallId);
+        parts.push("offset " + ((gesture.cellOffset | 0)));
+        const nRooms = gesture.ghostRooms
+          ? Object.keys(gesture.ghostRooms).length : 0;
+        if (nRooms > 0) parts.push(nRooms + " rooms affected");
+        return parts.join(" · ");
       }
       if (gesture.type === "showing_lock_chip") {
-        return "showing_lock_chip";
+        // Step T2 — room id lets the tester confirm which room the chip is
+        // anchored to when it's far from its origin (e.g. viewport-clamped).
+        return "showing_lock_chip" + (gesture.roomId
+          ? " · room " + gesture.roomId : "");
       }
       return gesture.type + " · " + suffix;
     }
@@ -3633,11 +3658,15 @@
       return Math.sqrt(ex * ex + ey * ey);
     }
 
-    // Pick the closest hoverable wall within 4 screen pixels of the cursor.
-    // Skip walls whose alignment group contains a locked-room-adjacent wall.
-    function findHoverableWall(walls, rooms, worldX, worldY, zoom) {
+    // Pick the closest hoverable wall within `radiusPx` screen pixels of the
+    // cursor. Default radius is 4 px (mouse hover); T2 passes 8 px at
+    // pointer-down on touch to widen the fat-finger hit target without
+    // encroaching on room-drag territory. Skip walls whose alignment group
+    // contains a locked-room-adjacent wall.
+    function findHoverableWall(walls, rooms, worldX, worldY, zoom, radiusPx) {
       if (!Array.isArray(walls) || walls.length === 0) return null;
-      const maxDistFt = 4 / Math.max(zoom, 0.0001);
+      const px = Number.isFinite(radiusPx) ? radiusPx : 4;
+      const maxDistFt = px / Math.max(zoom, 0.0001);
       let best = null, bestDist = Infinity;
       for (const w of walls) {
         const d = distanceToWallWorld(w, worldX, worldY);
@@ -4112,9 +4141,27 @@
       // outside React state so that we can mutate it on every pointermove
       // without causing a re-render per frame.
       const dragStateRef = React.useRef(null);
-      // Step 05 — long-press timer (500 ms) shared by any room pointer-down.
-      const longPressTimerRef = React.useRef(null);
-      // Step 05 — last tap info for double-tap detection.
+      // Step T2 — long-press handle shared by every room pointer-down. Step
+      // 05 used an inline setTimeout; T2 routes through the shared helper so
+      // touch + mouse follow identical cancellation rules (3 px move, 500 ms
+      // duration). Desktop right-click is still the primary lock trigger.
+      const longPress = useLongPress({
+        durationMs: 500,
+        moveThresholdPx: 3,
+        onLongPress: ({ payload }) => {
+          const rid = payload && payload.roomId;
+          if (!rid) return;
+          // If a drag was already in progress (fingerprint-on-room timer
+          // armed concurrently with the drag ghost), cancel the drag before
+          // popping the chip. The ghost disappears and no commit fires.
+          if (gestureRef.current && gestureRef.current.type === "dragging_room") {
+            cancelDrag();
+          }
+          openLockChip(rid);
+        }
+      });
+      // Step 05 — last tap info for double-tap detection (desktop mouse only;
+      // touch double-tap was removed in T2 — see spec Section 04).
       const lastTapRef = React.useRef(null);
       // Step 05 — lock chip state: { roomId, x, y } in container-screen coords.
       const [lockChip, setLockChip] = React.useState(null);
@@ -4238,13 +4285,6 @@
 
       // ---------- Step 05 — gesture helpers ----------
 
-      function cancelLongPress() {
-        if (longPressTimerRef.current) {
-          clearTimeout(longPressTimerRef.current);
-          longPressTimerRef.current = null;
-        }
-      }
-
       function cancelDrag() {
         dragStateRef.current = null;
         setGesture(g => (g.type === "dragging_room"
@@ -4281,17 +4321,34 @@
         const worldLeft_x  = ox + bb.u_min * cs;
         const [srX, srY] = worldToScreen(worldRight_x, worldTop_y, v, vp);
         const [slX]      = worldToScreen(worldLeft_x,  worldTop_y, v, vp);
-        // Chip is ~420 px wide at full enum. Position 8 px right of the
-        // room's top-right corner; flip to the top-left corner if that
-        // overflows the canvas.
-        const chipW = 420;
+        // Step T2 — chip footprint reflects the 2-column button grid and
+        // 36×72 min button size. Wider and taller than the single-row
+        // Step 05 chip; fits the iPhone viewport once clamped below.
+        const CHIP_W = 260;
+        const CHIP_H = 160;
+        const PAD = 16;
+        // Reserve 80 px at the bottom of the viewport so the chip never
+        // overlaps the thumb-resting zone / slider strip (Step 09 will
+        // populate this; the padding is harmless until then).
+        const BOTTOM_PAD = 80;
+
+        // Anchor at the room's top-right corner (screen coords). Flip to the
+        // top-left if placing the chip to the right would overflow.
         let x = srX + 8;
         let flipped = false;
-        if (x + chipW > vp.width - 8) {
+        if (x + CHIP_W > vp.width - PAD) {
           flipped = true;
-          x = Math.max(8, slX - chipW - 8);
+          x = slX - CHIP_W - 8;
         }
-        const y = Math.max(8, Math.min(vp.height - 44, srY - 36));
+        // Final left/right clamp so the chip is always fully visible.
+        if (x < PAD) x = PAD;
+        if (x + CHIP_W > vp.width - PAD) x = Math.max(PAD, vp.width - CHIP_W - PAD);
+
+        let y = srY;
+        if (y + CHIP_H > vp.height - BOTTOM_PAD) {
+          y = vp.height - CHIP_H - BOTTOM_PAD;
+        }
+        if (y < PAD) y = PAD;
         return { x, y, flipped };
       }
 
@@ -4299,7 +4356,7 @@
         const rooms = placedRoomsRef.current || [];
         const room = rooms.find(r => r && r.instance_id === roomId);
         if (!room) return;
-        cancelLongPress();
+        longPress.cancel();
         cancelDrag();
         if (lockChipTimerRef.current) clearTimeout(lockChipTimerRef.current);
         const pos = computeLockChipPosition(room);
@@ -4371,12 +4428,17 @@
 
       // ---------- Step 06 — reproportion gesture helpers ----------
 
-      // Compute tooltip screen position from a screen cursor. 12 px below-right,
-      // clamped to the viewport.
-      function tooltipPosFor(sx, sy) {
+      // Compute tooltip screen position from a screen cursor. Mouse: 12 px
+      // below-right. Step T2 — touch: 40 px above the finger so the
+      // finger itself doesn't cover the live area readout. Same mirror-axis
+      // rule as the T1 drag ghost. Clamped to the viewport in either case.
+      function tooltipPosFor(sx, sy, pointerType) {
         const vp = viewportRef.current || { width: 0, height: 0 };
-        const tx = Math.max(8, Math.min(vp.width - 180, sx + 12));
-        const ty = Math.max(8, Math.min(vp.height - 60, sy + 12));
+        const isTouch = pointerType === "touch";
+        const ox = isTouch ? 0 : 12;
+        const oy = isTouch ? -40 : 12;
+        const tx = Math.max(8, Math.min(vp.width - 180, sx + ox));
+        const ty = Math.max(8, Math.min(vp.height - 60, sy + oy));
         return { x: tx, y: ty };
       }
 
@@ -4385,7 +4447,8 @@
         setGesture(g => (g.type === "reproportioning"
           ? { type: "idle", roomId: null, startBounds: null,
               ghostCells: null, dropValid: false,
-              ghostRooms: null, cellOffset: 0, tooltip: null }
+              ghostRooms: null, cellOffset: 0, tooltip: null,
+              wallId: null, pointerType: null }
           : g));
       }
 
@@ -4447,11 +4510,13 @@
         }
 
         try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        const pointerType = e.pointerType || "mouse";
         dragStateRef.current = {
           mode: "reproportion",
           pointerId: e.pointerId,
           startScreenX: screenX,
-          startScreenY: screenY
+          startScreenY: screenY,
+          pointerType
         };
         reproRef.current = {
           groupId: wall.id,
@@ -4462,18 +4527,25 @@
           affectedIds,
           snapshots,
           primaryRoomId,
-          cellOffset: 0
+          cellOffset: 0,
+          // Step T2 — remembered so tickReproportion can mirror the tooltip
+          // 40 px above the finger on touch.
+          pointerType
         };
 
         // Seed the gesture state with a zero-offset ghost (matches the
-        // snapshot). That way the ghost renders immediately on click.
+        // snapshot). On touch, offset 0 is the "press-to-preview" state per
+        // the spec — the alignment highlight and the ghost are both visible
+        // immediately; the scrub only advances when the finger actually
+        // moves. A zero-motion release is a silent no-op (commitReproportion
+        // short-circuits when cellOffset === 0).
         const seed = proposeReproportion(
           snapshots, group, wall.axis, 0, affectedIds, rooms, regionsRef.current || [], grid);
 
         const primary = snapshots[primaryRoomId];
         const primaryGhost = seed.ok ? seed.ghostRooms[primaryRoomId] : null;
         const tooltip = {
-          pos: tooltipPosFor(screenX, screenY),
+          pos: tooltipPosFor(screenX, screenY, pointerType),
           name: primary ? primary.display_name : "",
           areaSf: primaryGhost ? primaryGhost.actualAreaSf : 0,
           othersMoving: Math.max(0, affectedIds.length - 1)
@@ -4482,6 +4554,11 @@
         setGesture({
           type: "reproportioning",
           roomId: primaryRoomId,
+          // Step T2 — wall id surfaced so the alignment highlight layer can
+          // keep the accent-blue wall line visible during the scrub (not
+          // just the ghost rooms). Also read by the debug readout.
+          wallId: wall.id,
+          pointerType,
           startBounds: null,
           ghostCells: null,
           dropValid: !!(seed && seed.ok),
@@ -4526,9 +4603,11 @@
         const regs = regionsRef.current || [];
 
         // Always recompute the tooltip position (it tracks the cursor even
-        // when cellOffset hasn't advanced).
+        // when cellOffset hasn't advanced). Step T2 — pass the pointerType
+        // recorded at gesture start so touch scrubs keep the tooltip above
+        // the finger.
         const currentGs = gestureRef.current;
-        const newTooltipPos = tooltipPosFor(screenX, screenY);
+        const newTooltipPos = tooltipPosFor(screenX, screenY, repro.pointerType);
 
         if (cellOffset === repro.cellOffset) {
           // Only the pointer moved; keep ghosts + dropValid but refresh tooltip.
@@ -4587,7 +4666,8 @@
         setGesture({
           type: "idle", roomId: null, startBounds: null,
           ghostCells: null, dropValid: false,
-          ghostRooms: null, cellOffset: 0, tooltip: null
+          ghostRooms: null, cellOffset: 0, tooltip: null,
+          wallId: null, pointerType: null
         });
         if (cellOffset === 0 || !ghostRooms || !setProject) return;
 
@@ -4657,18 +4737,12 @@
           pointerType: e.pointerType || "mouse",
           fingerScreen: { x: screenX, y: screenY }
         });
-        // Arm long-press. Fires in 500 ms *if* the pointer hasn't moved
-        // > 3 px, in which case we switch from drag to lock-chip intent.
-        cancelLongPress();
-        longPressTimerRef.current = setTimeout(() => {
-          const ds = dragStateRef.current;
-          if (ds && ds.mode === "room" &&
-              ds.roomId === room.instance_id && !ds.moved) {
-            cancelDrag();
-            openLockChip(room.instance_id);
-          }
-          longPressTimerRef.current = null;
-        }, 500);
+        // Step T2 — arm long-press through the shared useLongPress helper.
+        // The helper handles the 500 ms timer and 3 px move threshold; on
+        // fire, the onLongPress callback (defined at the top of this
+        // component) cancels any in-progress drag and opens the lock chip.
+        longPress.cancel();
+        longPress.start(e, { roomId: room.instance_id });
       }
 
       // ---------- Step T1 — pinch-to-zoom helpers ----------
@@ -4677,7 +4751,7 @@
       // reproportion) so pinch can take over cleanly. Called when a second
       // pointer lands during one of those gestures.
       function abortSinglePointerGesture() {
-        cancelLongPress();
+        longPress.cancel();
         const ds = dragStateRef.current;
         if (ds) {
           if (ds.mode === "reproportion") {
@@ -4824,14 +4898,20 @@
         // lives on the boundary between two room hit-target rects; without
         // this branch the click would be routed to whichever room's rect
         // happened to be on top.
+        // Step T2 — tighter radius at pointer-down than the 12 px T1
+        // fat-finger preview radius: touch pointer-down uses 8 px so a
+        // finger clearly inside a room falls through to room-drag instead
+        // of hijacking into a wall scrub. Mouse stays at 4 px, matching
+        // the existing hover preview.
         const vp = viewportRef.current;
         const view = viewRef.current;
         if (vp && view) {
           const [wx, wy] = screenToWorld(screenX, screenY, view, vp);
+          const pxRadius = e.pointerType === "touch" ? 8 : 4;
           const hit = findHoverableWall(
             wallIndexRef.current || [],
             placedRoomsRef.current || [],
-            wx, wy, view.zoom
+            wx, wy, view.zoom, pxRadius
           );
           if (hit && startReproportion(e, hit, screenX, screenY)) return;
         }
@@ -4847,12 +4927,17 @@
           if (room.locked) { startPan(e, screenX, screenY); return; }
 
           // Double-tap: two taps on the same room within 300 ms → lock chip.
-          const now = Date.now();
-          const last = lastTapRef.current;
-          if (last && last.roomId === roomId && (now - last.time) < 300) {
-            lastTapRef.current = null;
-            openLockChip(roomId);
-            return;
+          // Step T2 — desktop mouse only. iOS Safari synthesizes mouse
+          // events around taps in ways that collide with the native double-
+          // tap zoom gesture; long-press is the touch lock trigger instead.
+          if (e.pointerType !== "touch") {
+            const now = Date.now();
+            const last = lastTapRef.current;
+            if (last && last.roomId === roomId && (now - last.time) < 300) {
+              lastTapRef.current = null;
+              openLockChip(roomId);
+              return;
+            }
           }
 
           startRoomDrag(e, room, screenX, screenY);
@@ -4868,6 +4953,11 @@
         const rect = svg.getBoundingClientRect();
         const sx = e.clientX - rect.left;
         const sy = e.clientY - rect.top;
+
+        // Step T2 — feed the long-press detector every move so it can cancel
+        // the 500 ms timer as soon as the finger drifts > 3 px. Safe to call
+        // unconditionally; a no-op when no long-press is armed.
+        longPress.move(e);
 
         // Step T1 — keep the active-pointer map current so pinch can read
         // both positions each tick.
@@ -4888,6 +4978,16 @@
         if (!ds) {
           // Step 06 — idle hover: detect walls so we can change cursor +
           // preview the alignment group.
+          // Step T2 — gate on mouse. Touch has no idle hover (pointermove
+          // only fires during active drag), but Safari sometimes synthesizes
+          // stray pointermove events from touches; an explicit guard keeps
+          // the wall index quiet and avoids accidental hover previews.
+          if (e.pointerType !== "mouse") {
+            // Also clear any stale hover from a previous mouse session so
+            // the highlight doesn't linger when a touch takes over.
+            if (hoveredWallIdRef.current) setHoveredWallId(null);
+            return;
+          }
           const vp = viewportRef.current;
           const view = viewRef.current;
           if (!vp || !view) return;
@@ -4920,7 +5020,9 @@
           const dsy = sy - ds.startScreenY;
           if (!ds.moved && Math.hypot(dsx, dsy) > 3) {
             ds.moved = true;
-            cancelLongPress();
+            // Redundant with longPress.move() called at the top of this
+            // handler, but cheap and explicit — defense in depth.
+            longPress.cancel();
           }
           const v = viewRef.current;
           const g = gridRef.current;
@@ -5075,7 +5177,7 @@
         }
 
         if (ds.mode === "room") {
-          cancelLongPress();
+          longPress.cancel();
           const roomId = ds.roomId;
           const startCells = ds.startCells;
           const moved = ds.moved;
@@ -5116,8 +5218,15 @@
                        pointerType: null, fingerScreen: null, currentZoom: null });
 
           // Pure tap (no movement): record for double-tap, do nothing else.
+          // Step T2 — skip the double-tap bookkeeping for touch. Touch no
+          // longer uses double-tap as a lock trigger (long-press is the
+          // touch trigger, right-click the desktop trigger); recording a
+          // tap here would only invite false positives when a subsequent
+          // mouse click lands on the same room ID during a mixed session.
           if (!moved) {
-            lastTapRef.current = { roomId, time: Date.now() };
+            if (e.pointerType !== "touch") {
+              lastTapRef.current = { roomId, time: Date.now() };
+            }
             return;
           }
 
@@ -5177,7 +5286,7 @@
       }
 
       function handlePointerCancel(e) {
-        cancelLongPress();
+        longPress.cancel();
         // Step T1 — a cancelled pointer should leave the active map just
         // like a normal up. handlePointerUp already does this for the
         // non-reproportion paths; mirror it here for the early return.
@@ -5192,12 +5301,17 @@
       }
 
       function handleContextMenu(e) {
-        // Right-click on a room → lock chip. Right-click on background falls
-        // through to the browser menu so the canvas doesn't feel over-eager.
+        // Right-click on a room → lock chip.
+        // Step T2 — preventDefault unconditionally so iOS Safari's long-press
+        // context menu never appears inside the canvas (belt-and-suspenders
+        // with -webkit-touch-callout: none from T1 and the native
+        // preventDefault in the pointerdown listener). Desktop right-click
+        // on background loses its browser menu too, but this editor has no
+        // "save image as" etc. to preserve.
+        e.preventDefault();
         const roomEl = e.target && e.target.closest &&
                        e.target.closest('[data-room-id]');
         if (!roomEl) return;
-        e.preventDefault();
         const roomId = roomEl.getAttribute('data-room-id');
         openLockChip(roomId);
       }
@@ -5233,7 +5347,7 @@
 
       // Cleanup timers on unmount.
       React.useEffect(() => () => {
-        cancelLongPress();
+        longPress.cancel();
         if (lockChipTimerRef.current) clearTimeout(lockChipTimerRef.current);
         if (rejectTimerRef.current) clearTimeout(rejectTimerRef.current);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -5819,15 +5933,24 @@
         );
       }, [gesture, grid, placedRooms, view, viewport]);
 
-      // Step 06 — Alignment-group highlight for hover. On idle hover over a
+      // Step 06 — Alignment-group highlight. On idle mouse hover over a
       // scrubbable wall, paint the full alignment group in 3-px accent blue
       // at 0.6 opacity so the user sees which walls will translate together
-      // BEFORE they click.
+      // BEFORE they click. Step T2 — also paint during an active
+      // reproportion scrub so the wall line stays visible alongside the
+      // repro ghost. This doubles as the "press-to-preview" affordance on
+      // touch (touch has no hover state, so the highlight only appears once
+      // the finger lands on the wall).
       const alignmentHighlightLayer = React.useMemo(() => {
-        if (gesture.type !== "idle") return null;
-        if (!hoveredWallId) return null;
+        let wallIdToShow = null;
+        if (gesture.type === "idle" && hoveredWallId) {
+          wallIdToShow = hoveredWallId;
+        } else if (gesture.type === "reproportioning" && gesture.wallId) {
+          wallIdToShow = gesture.wallId;
+        }
+        if (!wallIdToShow) return null;
         const walls = wallIndex || [];
-        const wall = walls.find(w => w.id === hoveredWallId);
+        const wall = walls.find(w => w.id === wallIdToShow);
         if (!wall) return null;
         const group = computeAlignmentGroup(wall, walls);
         return (
@@ -5843,7 +5966,7 @@
             })}
           </g>
         );
-      }, [gesture.type, hoveredWallId, wallIndex, view, viewport]);
+      }, [gesture.type, gesture.wallId, hoveredWallId, wallIndex, view, viewport]);
 
       // Step 06 — Reproportion ghost layer. Renders every affected room at
       // its proposed new position as a translucent overlay on top of the
@@ -6260,11 +6383,13 @@
                 {isLocked ? (
                   <button type="button" onClick={commitUnlock}>UNLOCK</button>
                 ) : (
-                  LOCK_REASONS.map(r => (
-                    <button key={r} type="button" onClick={() => commitLock(r)}>
-                      {r.replace(/_/g, " ")}
-                    </button>
-                  ))
+                  <div className="reasons">
+                    {LOCK_REASONS.map(r => (
+                      <button key={r} type="button" onClick={() => commitLock(r)}>
+                        {r.replace(/_/g, " ")}
+                      </button>
+                    ))}
+                  </div>
                 )}
                 <button type="button" className="close"
                         onClick={closeLockChip} title="Dismiss">✕</button>
