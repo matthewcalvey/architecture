@@ -15,11 +15,25 @@ Then open `http://localhost:8000`.
 
 ## Program database
 
-This sandbox expects `./data/` to contain a copy of the CALVEY_PROGRAM database (`master_index.json` plus one JSON per building type). Copy it in manually:
+This sandbox expects the CALVEY_PROGRAM database under `./data/`. The real master index is `building_program_database_master_updated.json` (v0.2, with a top-level `databases` array of building types). `master_index.json` was a placeholder name from the original spec — the code now probes the real filenames.
 
-    cp -r ../CALVEY_PROGRAM/data ./data
+On mount, the app tries these paths in order and uses the first one that returns valid JSON:
 
-Until you do, the program database status line will read "not present."
+1. `./data/master_index.json`
+2. `./data/building_program_database_master_updated.json`
+3. `./data/building_program_database_master.json`
+4. `./data/CALVEY_PROGRAM/data/building_program_database_master_updated.json`
+5. `./data/CALVEY_PROGRAM/data/building_program_database_master.json`
+
+So either of these layouts works:
+
+    # flat layout (preferred)
+    CALVEY_PARTY_2_CLAUDE/data/building_program_database_master_updated.json
+
+    # nested layout (what `cp -r ../CALVEY_PROGRAM ./data` produces when ./data already exists)
+    CALVEY_PARTY_2_CLAUDE/data/CALVEY_PROGRAM/data/building_program_database_master_updated.json
+
+If none are found, the status line will read "not present."
 
 ## Schema version
 
