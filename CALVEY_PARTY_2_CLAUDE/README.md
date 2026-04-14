@@ -41,16 +41,16 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.3.0-step04`
+`0.4.0-step05`
 
 ## Build status
 
 - [x] **Step 01** — Schema, validators, persistence, shell UI
 - [x] **Step 02** — Read-only canvas with pan/zoom, compass, scale bar
 - [x] **Step 03** — Program DB probe + grid + Stage A zoning + Stage B room placement
-- [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse *(current)*
-- [ ] Step 05 — Drag-and-reflow + reproportion + lock gestures + session event scaffolding
-- [ ] Step 06 — Stage C adjacency repair + Stage D confidence scoring
+- [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse
+- [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B *(current)*
+- [ ] Step 06 — Reproportion gesture + Stage C adjacency repair + Stage D confidence scoring
 - [ ] Step 07 — Multi-floor generation + cross-floor drag
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
@@ -74,6 +74,25 @@ Step 04 refines the Stage B packer that Step 03 built. In particular:
   empty slack cells for 2.4 s.
 - Edit the footprint polygon, `program_inputs`, or `building_type` in the
   JSON viewer → an amber **STALE** chip appears until you regenerate.
+
+### Step 05 notes
+
+Step 05 turns the canvas from read-only into a first-pass editor. Two
+gestures, single floor only:
+
+- **Drag-and-reflow.** Click-hold a room, drag within its home department,
+  release. `localReflow` re-packs the dropped room's cells and absorbs any
+  displaced room into the vacated cells. Cascade depth is capped at 1 —
+  dropping onto two rooms at once is rejected with a transient red chip.
+- **Lock.** Right-click (or long-press / double-tap) a room to open the
+  inline chip with six reasons: `client_request`, `code_required`,
+  `site_constraint`, `daylight`, `adjacency`, `other`. One tap commits.
+  Locked rooms render a 🔒 glyph in their label, refuse drags (pointer
+  falls through to pan), and keep their cells across regenerates.
+
+Rejection reasons (shown briefly as a bottom-left red chip):
+`out_of_radius` (drop > 4 cells from origin), `locked_collision`,
+`cascade_overflow`, `displaced_cannot_fit`, `outside_department`.
 
 ## Section map inside `index.html`
 

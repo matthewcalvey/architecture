@@ -353,6 +353,74 @@
     .canvas-overlay.bottom-right .dept-row.unplaced-row.is-pulsing {
       background: rgba(224, 184, 77, 0.25);
     }
+
+    /* Step 05 — room cursor affordances. The hit-target rect owns the cursor;
+       cell rects and walls below stay pointer-events:none so they never steal
+       the hit. `.locked` rooms fall through to pan, so we show not-allowed. */
+    [data-room-id] {
+      cursor: grab;
+    }
+    [data-room-id].dragging {
+      cursor: grabbing;
+    }
+    [data-room-id].locked {
+      cursor: not-allowed;
+    }
+
+    /* Step 05 — inline lock chip. Positioned (left/top set inline) near the
+       target room's screen bbox; flips to the opposite corner if it would
+       overflow the canvas. Dismiss on any-button-press outside or 3s timeout. */
+    .lock-chip {
+      position: absolute;
+      background: white;
+      border: 1px solid var(--calvey-text);
+      padding: 6px 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      pointer-events: auto;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .lock-chip button {
+      background: white;
+      border: 1px solid var(--calvey-rule);
+      padding: 4px 8px;
+      margin: 0;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      text-transform: inherit;
+      color: var(--calvey-text);
+    }
+    .lock-chip button:hover {
+      background: var(--calvey-text);
+      color: white;
+    }
+    .lock-chip .close {
+      color: var(--calvey-muted);
+      padding: 4px 6px;
+    }
+
+    /* Step 05 — rejection chip (bottom-left, 2s auto-clear). */
+    .reject-chip {
+      position: absolute;
+      bottom: 120px;
+      left: 20px;
+      background: var(--calvey-error);
+      color: white;
+      padding: 8px 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      z-index: 11;
+    }
   </style>
 </head>
 <body>
@@ -365,7 +433,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.3.0-step04";
+    const ENGINE_VERSION = "0.4.0-step05";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -1474,11 +1542,19 @@
     //   (4) use parti.parti_area_cells as the primary target when present
     //   (5) placement_zone tiebreaks candidate rectangles by world position
     //
+    // Step 05 refinement:
+    //   lockedPrePlaced — array of already-placed locked rooms carried forward
+    //   from the previous plan. Their cells are reserved globally (pre-claimed
+    //   in every region mask) and they are emitted directly into the `placed`
+    //   output without re-packing. The `rooms` argument should NOT include
+    //   them; generatePlan's carry-over logic removes one fresh instance per
+    //   locked room so total room counts stay consistent.
+    //
     // Output: {
     //   rooms:    [ <placed-room per floors[0].rooms schema> ],
     //   unplaced: [ { type, template_id, department_id, target_area_sf, reason } ]
     // }
-    function runStageB(grid, regions, rooms) {
+    function runStageB(grid, regions, rooms, lockedPrePlaced) {
       const W = grid.width_cells, H = grid.height_cells;
       const cellArea = grid.cell_size_ft * grid.cell_size_ft;
       const placed = [];
@@ -1486,6 +1562,20 @@
 
       const roomList = Array.isArray(rooms) ? rooms.filter(isPlainObject) : [];
       const regionList = Array.isArray(regions) ? regions.filter(isPlainObject) : [];
+
+      // Step 05 — seed `placed` with carry-over locked rooms and build a set
+      // of their cells so we can exclude them from every region's mask.
+      const lockedList = Array.isArray(lockedPrePlaced)
+        ? lockedPrePlaced.filter(r =>
+            isPlainObject(r) && Array.isArray(r.cells) && r.cells.length > 0)
+        : [];
+      const lockedCellSet = new Set();
+      for (const lp of lockedList) {
+        for (const [u, v] of lp.cells) {
+          lockedCellSet.add(u + "," + v);
+        }
+        placed.push({ ...lp, locked: true });
+      }
 
       // Footprint centroid in world coords — used by foh/boh zone scoring.
       // We average over all interior cells, not the polygon vertices (the
@@ -1519,6 +1609,19 @@
       // unique within a floor. Keyed by template_id so multiple instances
       // of the same template (Step 04 refinement 1) get distinct ids.
       const counters = new Map();
+      // Step 05 — seed the counter past any locked carry-over ids so newly
+      // packed instances never collide. e.g. locked "classroom_02" → counter
+      // starts at 2; next packed classroom will be "classroom_03".
+      for (const lp of lockedList) {
+        const tpl = lp.template_id || lp.type || "";
+        const m = String(lp.instance_id || "").match(/_(\d+)$/);
+        if (tpl && m) {
+          const n = parseInt(m[1], 10);
+          if (Number.isFinite(n)) {
+            counters.set(tpl, Math.max(counters.get(tpl) || 0, n));
+          }
+        }
+      }
       function nextInstanceId(type) {
         const n = (counters.get(type) || 0) + 1;
         counters.set(type, n);
@@ -1533,12 +1636,17 @@
         const regionCentroid = Array.isArray(region.centroid) ? region.centroid : null;
 
         // Build availability mask + interior cell count for this department.
+        // Step 05 — locked carry-over cells are pre-claimed globally, so skip
+        // them here. If Stage A now assigns those cells to a different dept
+        // than the locked room originally belonged to, we still don't pack on
+        // them (and the locked room remains visible via the `placed` seed).
         const mask = new Array(H);
         for (let v = 0; v < H; v++) mask[v] = new Array(W).fill(false);
         let availableCells = 0;
         if (Array.isArray(region.cells)) {
           for (const [u, v] of region.cells) {
-            if (u >= 0 && u < W && v >= 0 && v < H) {
+            if (u >= 0 && u < W && v >= 0 && v < H &&
+                !lockedCellSet.has(u + "," + v)) {
               mask[v][u] = true;
               availableCells++;
             }
@@ -1913,6 +2021,49 @@
       const rooms = np.context.program.rooms;
       const departments = departmentsFromRooms(rooms);
 
+      // Step 05 — carry locked rooms forward across regenerates. Each locked
+      // placed room from the previous run is added to Stage B's output
+      // verbatim; its cells are pre-reserved so the packer never grows a
+      // fresh rectangle through them. To keep instance counts consistent, we
+      // remove one fresh (unlocked) instance of the same template + dept per
+      // carried-over locked room. Unmatched locked rooms (template no longer
+      // appears) still get carried — they just count as "extra" for now.
+      const prevFloor0 = (isPlainObject(project.current_plan) &&
+        Array.isArray(project.current_plan.floors) &&
+        isPlainObject(project.current_plan.floors[0]))
+          ? project.current_plan.floors[0] : null;
+      const lockedCarry = [];
+      if (prevFloor0 && Array.isArray(prevFloor0.rooms)) {
+        for (const r of prevFloor0.rooms) {
+          if (isPlainObject(r) && r.locked === true &&
+              Array.isArray(r.cells) && r.cells.length > 0) {
+            lockedCarry.push(JSON.parse(JSON.stringify(r)));
+          }
+        }
+      }
+      // Remove one matching fresh instance per carried-over locked room.
+      const locksByKey = new Map();
+      for (const lp of lockedCarry) {
+        const tpl = lp.template_id || lp.type || "";
+        const dep = lp.department_id || "";
+        const k = tpl + "|" + dep;
+        locksByKey.set(k, (locksByKey.get(k) || 0) + 1);
+      }
+      const roomsToPack = [];
+      const consumedByKey = new Map();
+      for (const inst of rooms) {
+        const tpl = inst.template_id || inst.id || "";
+        const dep = inst.department_id || inst.department || "";
+        const k = tpl + "|" + dep;
+        const cap = locksByKey.get(k) || 0;
+        const used = consumedByKey.get(k) || 0;
+        if (used < cap) {
+          consumedByKey.set(k, used + 1);
+          continue;  // locked carry-over occupies this slot
+        }
+        roomsToPack.push(inst);
+      }
+
       // Grid
       const cellSize = chooseCellSize(polygon);
       if (!__cellSizeLogged) {
@@ -1934,8 +2085,11 @@
       // Stage A
       const regions = runStageA(grid, sun, departments);
 
-      // Stage B
-      const stageB = runStageB(grid, regions, rooms);
+      // Stage B — Step 05 passes both the to-pack list and the carry-over
+      // locked rooms. Cells held by locked rooms are excluded from every
+      // region's mask and the locked rooms are emitted directly into the
+      // placed output.
+      const stageB = runStageB(grid, regions, roomsToPack, lockedCarry);
 
       // Write to floors[0].
       if (!isPlainObject(np.current_plan)) {
@@ -1978,6 +2132,297 @@
       np.engine_version = ENGINE_VERSION;
 
       return np;
+    }
+
+    // ---------- Step 05 — localReflow ----------
+
+    // Lock reason enum, shared by the lock chip UI and any future validator.
+    const LOCK_REASONS = [
+      "client_request",
+      "code_required",
+      "site_constraint",
+      "daylight",
+      "adjacency",
+      "other"
+    ];
+
+    // Move `roomId` to cover `newCells`, absorbing any single displaced room
+    // into the vacated cells. Returns { ok: true, project } on success or
+    // { ok: false, reason } on any rejection. Does NOT mutate `project`.
+    //
+    // Step 05 rules (v3 spec, Section 04):
+    //   1. Cascade depth 1 — at most one other room may be displaced.
+    //   2. Locked rooms cannot be displaced.
+    //   3. Drop centroid must be within `options.radius` Manhattan cells of
+    //      the original room's centroid (default 4).
+    //   4. All cells in `newCells` must be in the same department as the
+    //      dragged room's home department. (Stepping across depts comes later.)
+    //   5. The displaced room's new shape is the best rectangle inside
+    //      (its remaining cells ∪ the dragged room's vacated cells) that
+    //      respects its min dimensions, max aspect, and lands within
+    //      [0.75×, 1.25×] of its target area.
+    function localReflow(project, roomId, newCells, options) {
+      const opts = isPlainObject(options) ? options : {};
+      const radius = Number.isFinite(Number(opts.radius)) ? Number(opts.radius) : 4;
+      const cascadeDepth = Number.isFinite(Number(opts.cascadeDepth))
+        ? Number(opts.cascadeDepth) : 1;
+
+      if (!isPlainObject(project) || !isPlainObject(project.current_plan)) {
+        return { ok: false, reason: "no_plan" };
+      }
+      const floors = Array.isArray(project.current_plan.floors)
+        ? project.current_plan.floors : [];
+      const floor0 = floors.length > 0 && isPlainObject(floors[0]) ? floors[0] : null;
+      if (!floor0 || !isPlainObject(floor0.grid)) {
+        return { ok: false, reason: "no_plan" };
+      }
+      const grid = floor0.grid;
+      const W = grid.width_cells, H = grid.height_cells;
+      const regions = Array.isArray(floor0.department_regions)
+        ? floor0.department_regions : [];
+      const placedRooms = Array.isArray(floor0.rooms) ? floor0.rooms : [];
+
+      const roomIdx = placedRooms.findIndex(r =>
+        isPlainObject(r) && r.instance_id === roomId);
+      if (roomIdx < 0) return { ok: false, reason: "no_room" };
+      const room = placedRooms[roomIdx];
+      if (room.locked) return { ok: false, reason: "locked_self" };
+
+      const oldCells = (Array.isArray(room.cells) ? room.cells : []).map(c => c.slice());
+      if (oldCells.length === 0) return { ok: false, reason: "no_old_cells" };
+
+      // Normalize + de-dup newCells (arrays of [u, v]).
+      const seen = new Set();
+      const newCellsArr = [];
+      for (const c of (Array.isArray(newCells) ? newCells : [])) {
+        if (!Array.isArray(c) || c.length < 2) continue;
+        const u = Math.round(Number(c[0])), v = Math.round(Number(c[1]));
+        if (!Number.isFinite(u) || !Number.isFinite(v)) continue;
+        const k = u + "," + v;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        newCellsArr.push([u, v]);
+      }
+      if (newCellsArr.length === 0) return { ok: false, reason: "no_new_cells" };
+
+      // Rule 3 — radius check. Manhattan distance between (u,v) centroids.
+      const oldCentroidUV = cellsCentroidUV(oldCells);
+      const newCentroidUV = cellsCentroidUV(newCellsArr);
+      const manhattan = Math.abs(newCentroidUV[0] - oldCentroidUV[0]) +
+                       Math.abs(newCentroidUV[1] - oldCentroidUV[1]);
+      if (manhattan > radius) return { ok: false, reason: "out_of_radius" };
+
+      // Rule 4 — all newCells in grid, inside polygon, in home department.
+      const regionOwner = new Map();
+      for (const rr of regions) {
+        if (!isPlainObject(rr) || !Array.isArray(rr.cells)) continue;
+        for (const [u, v] of rr.cells) {
+          regionOwner.set(u + "," + v, rr.id);
+        }
+      }
+      const homeDept = room.department_id;
+      for (const [u, v] of newCellsArr) {
+        if (u < 0 || u >= W || v < 0 || v >= H) {
+          return { ok: false, reason: "outside_department" };
+        }
+        if (!grid.inside[v] || !grid.inside[v][u]) {
+          return { ok: false, reason: "outside_department" };
+        }
+        if (regionOwner.get(u + "," + v) !== homeDept) {
+          return { ok: false, reason: "outside_department" };
+        }
+      }
+
+      // Compute vacated + claimed sets relative to the dragged room.
+      const oldSet = new Set(oldCells.map(c => c[0] + "," + c[1]));
+      const newSet = new Set(newCellsArr.map(c => c[0] + "," + c[1]));
+      const vacatedCells = oldCells.filter(c => !newSet.has(c[0] + "," + c[1]));
+      const claimedCells = newCellsArr.filter(c => !oldSet.has(c[0] + "," + c[1]));
+      const claimedSet = new Set(claimedCells.map(c => c[0] + "," + c[1]));
+
+      // Find rooms (other than dragged) whose cells overlap claimedCells.
+      const displacedIds = new Set();
+      for (const r of placedRooms) {
+        if (!isPlainObject(r) || r.instance_id === roomId) continue;
+        if (!Array.isArray(r.cells)) continue;
+        for (const [u, v] of r.cells) {
+          if (claimedSet.has(u + "," + v)) {
+            displacedIds.add(r.instance_id);
+            break;
+          }
+        }
+      }
+
+      // Rule 1 — cascade depth cap.
+      if (displacedIds.size > cascadeDepth) {
+        return { ok: false, reason: "cascade_overflow" };
+      }
+      // Rule 2 — no displacing locked rooms.
+      for (const id of displacedIds) {
+        const r = placedRooms.find(r => r.instance_id === id);
+        if (r && r.locked) return { ok: false, reason: "locked_collision" };
+      }
+
+      // If there is a displaced room, compute its new cells from the pool
+      // (its old cells minus claimed) ∪ (dragged room's vacated cells).
+      let newDisplacedRoom = null;
+      let displacedOriginalIdx = -1;
+      if (displacedIds.size === 1) {
+        const dId = [...displacedIds][0];
+        displacedOriginalIdx = placedRooms.findIndex(r => r.instance_id === dId);
+        const disp = placedRooms[displacedOriginalIdx];
+        const dOldCells = (Array.isArray(disp.cells) ? disp.cells : [])
+          .map(c => c.slice());
+        const dRemaining = dOldCells
+          .filter(c => !claimedSet.has(c[0] + "," + c[1]));
+
+        // Pool = remaining ∪ vacated (deduped).
+        const poolSet = new Set();
+        for (const [u, v] of dRemaining) poolSet.add(u + "," + v);
+        for (const [u, v] of vacatedCells) poolSet.add(u + "," + v);
+
+        const mask = new Array(H);
+        for (let v = 0; v < H; v++) mask[v] = new Array(W).fill(false);
+        for (const key of poolSet) {
+          const parts = key.split(",");
+          const u = Number(parts[0]), v = Number(parts[1]);
+          if (u >= 0 && u < W && v >= 0 && v < H) mask[v][u] = true;
+        }
+
+        const minW = Math.max(1, Math.floor(Number(disp.min_width_cells)) || 1);
+        const minD = Math.max(1, Math.floor(Number(disp.min_depth_cells)) || 1);
+        const maxAspect = (Number.isFinite(Number(disp.max_aspect_ratio)) &&
+                           Number(disp.max_aspect_ratio) > 0)
+          ? Number(disp.max_aspect_ratio) : 2.5;
+        const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+        const targetArea = (Number.isFinite(Number(disp.target_area_sf)) &&
+                            Number(disp.target_area_sf) > 0)
+          ? Number(disp.target_area_sf)
+          : dOldCells.length * cellArea;
+        const targetCells = Math.max(1, Math.round(targetArea / cellArea));
+        const minCells = Math.floor(targetCells * 0.75);
+        const maxCells = Math.ceil(targetCells * 1.25);
+
+        // Anchor (in cell-space u,v) — remaining centroid, else old centroid.
+        const anchor = dRemaining.length > 0
+          ? cellsCentroidUV(dRemaining)
+          : cellsCentroidUV(dOldCells);
+
+        // Column-wise downward runs in mask.
+        const down = new Array(H);
+        for (let v = H - 1; v >= 0; v--) {
+          const row = new Array(W);
+          for (let u = 0; u < W; u++) {
+            row[u] = mask[v][u] ? (1 + (v + 1 < H ? down[v + 1][u] : 0)) : 0;
+          }
+          down[v] = row;
+        }
+
+        // Scan every rectangle in `mask`; keep the one that best:
+        //   1. covers the most of dRemaining,
+        //   2. centers closest to the remaining centroid,
+        //   3. matches targetCells most closely.
+        let best = null;
+        for (let av = 0; av < H; av++) {
+          for (let au = 0; au < W; au++) {
+            if (!mask[av][au]) continue;
+            let maxW = 0;
+            while (au + maxW < W && mask[av][au + maxW]) maxW++;
+            let minDown = Infinity;
+            for (let w = 1; w <= maxW; w++) {
+              const d = down[av][au + w - 1];
+              if (d < minDown) minDown = d;
+              if (minDown < 1) break;
+              for (let h = 1; h <= minDown; h++) {
+                const area = w * h;
+                if (area < minCells) continue;
+                if (area > maxCells) continue;
+                const ar = (w >= h) ? (w / h) : (h / w);
+                if (ar > maxAspect + 1e-9) continue;
+                const fitsW = (w >= minW && h >= minD);
+                const fitsR = (h >= minW && w >= minD);
+                if (!fitsW && !fitsR) continue;
+
+                let coverage = 0;
+                for (const [ru, rv] of dRemaining) {
+                  if (ru >= au && ru < au + w && rv >= av && rv < av + h) {
+                    coverage++;
+                  }
+                }
+                const ccu = au + w / 2, ccv = av + h / 2;
+                const dc = Math.hypot(ccu - anchor[0], ccv - anchor[1]);
+                const areaDiff = Math.abs(area - targetCells);
+
+                if (!best ||
+                    coverage > best.coverage ||
+                    (coverage === best.coverage && dc < best.dc) ||
+                    (coverage === best.coverage && dc === best.dc &&
+                     areaDiff < best.areaDiff)) {
+                  best = { au, av, w, h, area, coverage, dc, areaDiff };
+                }
+              }
+            }
+          }
+        }
+
+        if (!best) return { ok: false, reason: "displaced_cannot_fit" };
+
+        const dNewCells = [];
+        for (let dv = 0; dv < best.h; dv++) {
+          for (let du = 0; du < best.w; du++) {
+            dNewCells.push([best.au + du, best.av + dv]);
+          }
+        }
+        newDisplacedRoom = rebuildRoomGeometry(disp, dNewCells, grid);
+      }
+
+      // Build the new project. Deep-clone so callers can still hold the old.
+      const newProject = cloneProject(project);
+      const newRooms = newProject.current_plan.floors[0].rooms;
+      newRooms[roomIdx] = rebuildRoomGeometry(room, newCellsArr, grid);
+      if (newDisplacedRoom && displacedOriginalIdx >= 0) {
+        newRooms[displacedOriginalIdx] = newDisplacedRoom;
+      }
+      newProject.updated_at = new Date().toISOString();
+      return { ok: true, project: newProject };
+    }
+
+    // Step 05 — centroid of a cell list in (u, v) cell-space coords. Used by
+    // localReflow for the radius check and for anchoring the displaced rect.
+    function cellsCentroidUV(cells) {
+      if (!Array.isArray(cells) || cells.length === 0) return [0, 0];
+      let cu = 0, cv = 0;
+      for (const [u, v] of cells) { cu += u; cv += v; }
+      return [cu / cells.length, cv / cells.length];
+    }
+
+    // Step 05 — produce a new room object with cells/bbox/centroid/area/aspect
+    // recomputed from `newCells`. Every other field (instance_id, locked,
+    // display_name, department_id, ...) is preserved. Never mutates input.
+    function rebuildRoomGeometry(room, newCells, grid) {
+      const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+      let uMin = Infinity, uMax = -Infinity, vMin = Infinity, vMax = -Infinity;
+      let cx = 0, cy = 0;
+      for (const [u, v] of newCells) {
+        if (u < uMin) uMin = u;
+        if (u > uMax) uMax = u;
+        if (v < vMin) vMin = v;
+        if (v > vMax) vMax = v;
+        const [wx, wy] = cellCenter(grid, u, v);
+        cx += wx; cy += wy;
+      }
+      cx /= newCells.length; cy /= newCells.length;
+      const w = uMax - uMin + 1, h = vMax - vMin + 1;
+      const actualArea = newCells.length * cellArea;
+      return {
+        ...room,
+        cells: newCells.map(c => c.slice()),
+        bbox_cells: { u_min: uMin, v_min: vMin, u_max: uMax, v_max: vMax },
+        centroid: [cx, cy],
+        area_sf: actualArea,
+        actual_area_sf: actualArea,
+        aspect_ratio: (h > 0) ? w / h : 1
+      };
     }
 
     // ============================================================
@@ -2129,18 +2574,54 @@
       const containerRef = React.useRef(null);
       const svgRef = React.useRef(null);
       const backgroundRef = React.useRef(null);
-      const dragRef = React.useRef(null);
+      // Step 05 — pan & room-drag share dragStateRef (declared below);
+      // dragRef from Step 02 is removed as obsolete.
       const didInitialFitRef = React.useRef(false);
 
       const [viewport, setViewport] = React.useState({ width: 900, height: 520 });
       const [view, setView] = React.useState({ panX: 0, panY: 0, zoom: 1 });
       const [isPanning, setIsPanning] = React.useState(false);
 
-      // Mirror state into refs so the wheel listener can install once.
+      // Step 05 — gesture state machine. Type is the current mode; other
+      // fields carry mode-specific data. A ref mirror lets synchronous pointer
+      // handlers read the latest value without closure staleness.
+      const [gesture, setGesture] = React.useState({
+        type: "idle",              // idle | panning | dragging_room | showing_lock_chip
+        roomId: null,
+        startBounds: null,
+        ghostCells: null,
+        dropValid: false
+      });
+      const gestureRef = React.useRef(gesture);
+      React.useEffect(() => { gestureRef.current = gesture; }, [gesture]);
+
+      // Step 05 — the drag's pointer-origin + source room snapshot. Lives
+      // outside React state so that we can mutate it on every pointermove
+      // without causing a re-render per frame.
+      const dragStateRef = React.useRef(null);
+      // Step 05 — long-press timer (500 ms) shared by any room pointer-down.
+      const longPressTimerRef = React.useRef(null);
+      // Step 05 — last tap info for double-tap detection.
+      const lastTapRef = React.useRef(null);
+      // Step 05 — lock chip state: { roomId, x, y } in container-screen coords.
+      const [lockChip, setLockChip] = React.useState(null);
+      const lockChipTimerRef = React.useRef(null);
+      // Step 05 — transient reject reason shown at bottom-left for 2 s.
+      const [rejectReason, setRejectReason] = React.useState(null);
+      const rejectTimerRef = React.useRef(null);
+
+      // Mirror state into refs so the wheel listener and pointer handlers
+      // can read the latest values without re-installing.
       const viewRef = React.useRef(view);
       const viewportRef = React.useRef(viewport);
+      const placedRoomsRef = React.useRef(placedRooms);
+      const regionsRef = React.useRef(regions);
+      const gridRef = React.useRef(grid);
       React.useEffect(() => { viewRef.current = view; }, [view]);
       React.useEffect(() => { viewportRef.current = viewport; }, [viewport]);
+      React.useEffect(() => { placedRoomsRef.current = placedRooms; }, [placedRooms]);
+      React.useEffect(() => { regionsRef.current = regions; }, [regions]);
+      React.useEffect(() => { gridRef.current = grid; }, [grid]);
 
       // Measure container synchronously on mount + observe resizes.
       // Doing the initial fit in the layout effect (before paint) avoids a
@@ -2210,51 +2691,390 @@
         return () => svg.removeEventListener("wheel", handleWheel);
       }, []);
 
-      function handlePointerDown(e) {
-        // Only start a pan if the user pressed on empty background, not on
-        // any content layer. Future steps will hang interactions off rooms.
-        if (e.target !== backgroundRef.current) return;
-        const rect = svgRef.current.getBoundingClientRect();
-        try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
-        dragRef.current = {
-          startScreenX: e.clientX - rect.left,
-          startScreenY: e.clientY - rect.top,
+      // ---------- Step 05 — gesture helpers ----------
+
+      function cancelLongPress() {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      }
+
+      function cancelDrag() {
+        dragStateRef.current = null;
+        setGesture(g => (g.type === "dragging_room"
+          ? { type: "idle", roomId: null, startBounds: null,
+              ghostCells: null, dropValid: false }
+          : g));
+      }
+
+      function showReject(reason) {
+        if (rejectTimerRef.current) clearTimeout(rejectTimerRef.current);
+        setRejectReason(reason);
+        rejectTimerRef.current = setTimeout(() => {
+          setRejectReason(null);
+          rejectTimerRef.current = null;
+        }, 2000);
+      }
+
+      function computeLockChipPosition(room) {
+        const g = gridRef.current;
+        const vp = viewportRef.current;
+        const v = viewRef.current;
+        if (!room || !room.bbox_cells || !g) {
+          return { x: 8, y: 8, flipped: false };
+        }
+        const cs = g.cell_size_ft;
+        const ox = g.origin_x, oy = g.origin_y;
+        const bb = room.bbox_cells;
+        // Top of bbox in world == v_max+1 (since Y points up). Screen Y is
+        // flipped, so this becomes the smallest screen Y.
+        const worldRight_x = ox + (bb.u_max + 1) * cs;
+        const worldTop_y   = oy + (bb.v_max + 1) * cs;
+        const worldLeft_x  = ox + bb.u_min * cs;
+        const [srX, srY] = worldToScreen(worldRight_x, worldTop_y, v, vp);
+        const [slX]      = worldToScreen(worldLeft_x,  worldTop_y, v, vp);
+        // Chip is ~420 px wide at full enum. Position 8 px right of the
+        // room's top-right corner; flip to the top-left corner if that
+        // overflows the canvas.
+        const chipW = 420;
+        let x = srX + 8;
+        let flipped = false;
+        if (x + chipW > vp.width - 8) {
+          flipped = true;
+          x = Math.max(8, slX - chipW - 8);
+        }
+        const y = Math.max(8, Math.min(vp.height - 44, srY - 36));
+        return { x, y, flipped };
+      }
+
+      function openLockChip(roomId) {
+        const rooms = placedRoomsRef.current || [];
+        const room = rooms.find(r => r && r.instance_id === roomId);
+        if (!room) return;
+        cancelLongPress();
+        cancelDrag();
+        if (lockChipTimerRef.current) clearTimeout(lockChipTimerRef.current);
+        const pos = computeLockChipPosition(room);
+        setLockChip({ roomId, x: pos.x, y: pos.y });
+        setGesture({
+          type: "showing_lock_chip", roomId,
+          startBounds: null, ghostCells: null, dropValid: false
+        });
+        lockChipTimerRef.current = setTimeout(() => {
+          closeLockChip();
+        }, 3000);
+      }
+
+      function closeLockChip() {
+        if (lockChipTimerRef.current) {
+          clearTimeout(lockChipTimerRef.current);
+          lockChipTimerRef.current = null;
+        }
+        setLockChip(null);
+        setGesture(g => (g.type === "showing_lock_chip"
+          ? { type: "idle", roomId: null, startBounds: null,
+              ghostCells: null, dropValid: false }
+          : g));
+      }
+
+      function commitLock(reason) {
+        const chip = lockChip;
+        if (!chip || !setProject) { closeLockChip(); return; }
+        const roomId = chip.roomId;
+        closeLockChip();
+        setProject(p => {
+          const np = cloneProject(p);
+          const floors = isPlainObject(np.current_plan) &&
+            Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
+          const f0 = floors[0];
+          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
+          const idx = f0.rooms.findIndex(r => r && r.instance_id === roomId);
+          if (idx < 0) return p;
+          f0.rooms[idx] = { ...f0.rooms[idx], locked: true, lock_reason: reason };
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
+      function commitUnlock() {
+        const chip = lockChip;
+        if (!chip || !setProject) { closeLockChip(); return; }
+        const roomId = chip.roomId;
+        closeLockChip();
+        setProject(p => {
+          const np = cloneProject(p);
+          const floors = isPlainObject(np.current_plan) &&
+            Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
+          const f0 = floors[0];
+          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
+          const idx = f0.rooms.findIndex(r => r && r.instance_id === roomId);
+          if (idx < 0) return p;
+          f0.rooms[idx] = { ...f0.rooms[idx], locked: false, lock_reason: null };
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
+      // ---------- Pointer handlers (Step 05 gesture machine) ----------
+
+      function startPan(e, screenX, screenY) {
+        const svg = svgRef.current;
+        if (!svg) return;
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        dragStateRef.current = {
+          mode: "pan",
+          startScreenX: screenX,
+          startScreenY: screenY,
           startPanX: view.panX,
           startPanY: view.panY,
           pointerId: e.pointerId
         };
         setIsPanning(true);
+        setGesture(g => ({ ...g, type: "panning" }));
+      }
+
+      function startRoomDrag(e, room, screenX, screenY) {
+        const svg = svgRef.current;
+        if (!svg) return;
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        const startCells = (Array.isArray(room.cells) ? room.cells : [])
+          .map(c => c.slice());
+        dragStateRef.current = {
+          mode: "room",
+          roomId: room.instance_id,
+          startScreenX: screenX,
+          startScreenY: screenY,
+          startCells,
+          startBounds: room.bbox_cells ? { ...room.bbox_cells } : null,
+          pointerId: e.pointerId,
+          moved: false
+        };
+        setGesture({
+          type: "dragging_room",
+          roomId: room.instance_id,
+          startBounds: room.bbox_cells ? { ...room.bbox_cells } : null,
+          ghostCells: startCells,
+          dropValid: true
+        });
+        // Arm long-press. Fires in 500 ms *if* the pointer hasn't moved
+        // > 3 px, in which case we switch from drag to lock-chip intent.
+        cancelLongPress();
+        longPressTimerRef.current = setTimeout(() => {
+          const ds = dragStateRef.current;
+          if (ds && ds.mode === "room" &&
+              ds.roomId === room.instance_id && !ds.moved) {
+            cancelDrag();
+            openLockChip(room.instance_id);
+          }
+          longPressTimerRef.current = null;
+        }, 500);
+      }
+
+      function handlePointerDown(e) {
+        // Right-click is handled by onContextMenu — ignore here so we don't
+        // start a spurious pan.
+        if (e.button === 2) return;
+
+        const svg = svgRef.current;
+        if (!svg) return;
+        const rect = svg.getBoundingClientRect();
+        const screenX = e.clientX - rect.left;
+        const screenY = e.clientY - rect.top;
+
+        // Close an open lock chip on any other pointerdown.
+        if (lockChip) closeLockChip();
+
+        const roomEl = e.target && e.target.closest &&
+                       e.target.closest('[data-room-id]');
+        if (roomEl) {
+          const roomId = roomEl.getAttribute('data-room-id');
+          const rooms = placedRoomsRef.current || [];
+          const room = rooms.find(r => r && r.instance_id === roomId);
+          if (!room) { startPan(e, screenX, screenY); return; }
+          // Locked rooms are immovable → fall through to pan (spec Section 01).
+          if (room.locked) { startPan(e, screenX, screenY); return; }
+
+          // Double-tap: two taps on the same room within 300 ms → lock chip.
+          const now = Date.now();
+          const last = lastTapRef.current;
+          if (last && last.roomId === roomId && (now - last.time) < 300) {
+            lastTapRef.current = null;
+            openLockChip(roomId);
+            return;
+          }
+
+          startRoomDrag(e, room, screenX, screenY);
+          return;
+        }
+
+        startPan(e, screenX, screenY);
       }
 
       function handlePointerMove(e) {
-        if (!dragRef.current) return;
-        const rect = svgRef.current.getBoundingClientRect();
+        const ds = dragStateRef.current;
+        if (!ds) return;
+        const svg = svgRef.current;
+        if (!svg) return;
+        const rect = svg.getBoundingClientRect();
         const sx = e.clientX - rect.left;
         const sy = e.clientY - rect.top;
-        const dx = sx - dragRef.current.startScreenX;
-        const dy = sy - dragRef.current.startScreenY;
-        const startPanX = dragRef.current.startPanX;
-        const startPanY = dragRef.current.startPanY;
-        // World-delta = screen-delta / zoom, with a Y flip because +Y world
-        // points up while +Y screen points down. Pan moves opposite to the
-        // grabbed point's motion.
-        setView(v => ({
-          panX: startPanX - dx / v.zoom,
-          panY: startPanY + dy / v.zoom,
-          zoom: v.zoom
-        }));
+
+        if (ds.mode === "pan") {
+          const dx = sx - ds.startScreenX;
+          const dy = sy - ds.startScreenY;
+          setView(v => ({
+            panX: ds.startPanX - dx / v.zoom,
+            panY: ds.startPanY + dy / v.zoom,
+            zoom: v.zoom
+          }));
+          return;
+        }
+
+        if (ds.mode === "room") {
+          const dsx = sx - ds.startScreenX;
+          const dsy = sy - ds.startScreenY;
+          if (!ds.moved && Math.hypot(dsx, dsy) > 3) {
+            ds.moved = true;
+            cancelLongPress();
+          }
+          const v = viewRef.current;
+          const g = gridRef.current;
+          if (!g) return;
+          // World delta (Y flipped).
+          const dwx = dsx / v.zoom;
+          const dwy = -dsy / v.zoom;
+          const du = Math.round(dwx / g.cell_size_ft);
+          const dv = Math.round(dwy / g.cell_size_ft);
+          const ghostCells = ds.startCells.map(([u, cv]) => [u + du, cv + dv]);
+
+          // Validate the drop for ghost coloring. Mirrors localReflow's
+          // out-of-department + locked-collision checks so the user sees
+          // red before they commit.
+          const rooms = placedRoomsRef.current || [];
+          const regs = regionsRef.current || [];
+          const room = rooms.find(r => r && r.instance_id === ds.roomId);
+          const homeDept = room ? room.department_id : null;
+          const regionOwner = new Map();
+          for (const rr of regs) {
+            if (!isPlainObject(rr) || !Array.isArray(rr.cells)) continue;
+            for (const [ux, vx] of rr.cells) {
+              regionOwner.set(ux + "," + vx, rr.id);
+            }
+          }
+          const lockedKeys = new Set();
+          for (const r of rooms) {
+            if (!r || !r.locked || !Array.isArray(r.cells)) continue;
+            for (const [u, cv] of r.cells) lockedKeys.add(u + "," + cv);
+          }
+          const oldKeys = new Set(ds.startCells.map(([u, cv]) => u + "," + cv));
+
+          const W = g.width_cells, H = g.height_cells;
+          let valid = true;
+          for (const [u, cv] of ghostCells) {
+            if (u < 0 || u >= W || cv < 0 || cv >= H) { valid = false; break; }
+            if (!g.inside[cv] || !g.inside[cv][u]) { valid = false; break; }
+            if (regionOwner.get(u + "," + cv) !== homeDept) { valid = false; break; }
+            const k = u + "," + cv;
+            if (lockedKeys.has(k) && !oldKeys.has(k)) { valid = false; break; }
+          }
+
+          setGesture(G => ({
+            ...G,
+            type: "dragging_room",
+            ghostCells,
+            dropValid: valid
+          }));
+          return;
+        }
       }
 
       function handlePointerUp(e) {
-        if (!dragRef.current) return;
+        const ds = dragStateRef.current;
+        if (!ds) return;
+        const svg = svgRef.current;
         try {
-          if (svgRef.current && svgRef.current.hasPointerCapture &&
-              svgRef.current.hasPointerCapture(e.pointerId)) {
-            svgRef.current.releasePointerCapture(e.pointerId);
+          if (svg && svg.hasPointerCapture &&
+              svg.hasPointerCapture(e.pointerId)) {
+            svg.releasePointerCapture(e.pointerId);
           }
         } catch (err) {}
-        dragRef.current = null;
-        setIsPanning(false);
+
+        if (ds.mode === "pan") {
+          dragStateRef.current = null;
+          setIsPanning(false);
+          setGesture(g => (g.type === "panning"
+            ? { type: "idle", roomId: null, startBounds: null,
+                ghostCells: null, dropValid: false }
+            : g));
+          return;
+        }
+
+        if (ds.mode === "room") {
+          cancelLongPress();
+          const roomId = ds.roomId;
+          const startCells = ds.startCells;
+          const moved = ds.moved;
+
+          // Recompute ghost cells from the up event so they're final.
+          let ghostCells = startCells;
+          const rect = svg ? svg.getBoundingClientRect() : null;
+          const g = gridRef.current;
+          if (rect && g) {
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const dsx = sx - ds.startScreenX;
+            const dsy = sy - ds.startScreenY;
+            const v = viewRef.current;
+            const du = Math.round(dsx / v.zoom / g.cell_size_ft);
+            const dv = Math.round(-dsy / v.zoom / g.cell_size_ft);
+            ghostCells = startCells.map(([u, cv]) => [u + du, cv + dv]);
+          }
+
+          dragStateRef.current = null;
+          setGesture({ type: "idle", roomId: null, startBounds: null,
+                       ghostCells: null, dropValid: false });
+
+          // Pure tap (no movement): record for double-tap, do nothing else.
+          if (!moved) {
+            lastTapRef.current = { roomId, time: Date.now() };
+            return;
+          }
+
+          // No-op drop (same cells) → silent revert.
+          const same =
+            ghostCells.length === startCells.length &&
+            ghostCells.every(([u, v], i) =>
+              u === startCells[i][0] && v === startCells[i][1]);
+          if (same) return;
+
+          if (!setProject) return;
+          // Commit through localReflow; it owns all validation + reflow.
+          setProject(p => {
+            const result = localReflow(p, roomId, ghostCells,
+              { radius: 4, cascadeDepth: 1 });
+            if (result && result.ok) return result.project;
+            showReject(result && result.reason ? result.reason : "invalid_drop");
+            return p;
+          });
+          return;
+        }
+      }
+
+      function handlePointerCancel(e) {
+        cancelLongPress();
+        handlePointerUp(e);
+      }
+
+      function handleContextMenu(e) {
+        // Right-click on a room → lock chip. Right-click on background falls
+        // through to the browser menu so the canvas doesn't feel over-eager.
+        const roomEl = e.target && e.target.closest &&
+                       e.target.closest('[data-room-id]');
+        if (!roomEl) return;
+        e.preventDefault();
+        const roomId = roomEl.getAttribute('data-room-id');
+        openLockChip(roomId);
       }
 
       function handleDoubleClick(e) {
@@ -2265,6 +3085,30 @@
       function handleFitClick() {
         setView(computeInitialView(polygon, viewport.width, viewport.height));
       }
+
+      // Step 05 — Escape cancels an in-flight drag or closes the lock chip.
+      React.useEffect(() => {
+        function onKeyDown(e) {
+          if (e.key !== "Escape") return;
+          const gs = gestureRef.current;
+          if (gs && gs.type === "dragging_room") {
+            cancelDrag();
+          } else if (gs && gs.type === "showing_lock_chip") {
+            closeLockChip();
+          }
+        }
+        document.addEventListener("keydown", onKeyDown);
+        return () => document.removeEventListener("keydown", onKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      // Cleanup timers on unmount.
+      React.useEffect(() => () => {
+        cancelLongPress();
+        if (lockChipTimerRef.current) clearTimeout(lockChipTimerRef.current);
+        if (rejectTimerRef.current) clearTimeout(rejectTimerRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
 
       // ----- Step 03: Generate (Stage A) -----
 
@@ -2637,26 +3481,76 @@
           });
 
           // 3) Label at room centroid — but only if the screen bbox is
-          //    large enough to fit a readable label.
+          //    large enough to fit a readable label. Step 05 prepends a small
+          //    padlock glyph when the room is locked.
           let labelEl = null;
+          let lockGlyphEl = null;
+          let labelW = 0;
+          let labelX = 0, labelY = 0;
           if (room.bbox_cells && Array.isArray(room.centroid)) {
             const bb = room.bbox_cells;
             const wPx = (bb.u_max - bb.u_min + 1) * cs * view.zoom;
             const hPx = (bb.v_max - bb.v_min + 1) * cs * view.zoom;
             if (wPx >= 40 && hPx >= 14 && room.cells.length >= 2) {
               const [lx, ly] = worldToScreen(room.centroid[0], room.centroid[1], view, viewport);
-              const text = (room.display_name || room.type || "").toString();
+              const text = (room.display_name || room.type || "").toString().toUpperCase();
+              labelX = lx; labelY = ly;
+              // Rough width estimate for Space Mono 10 px: ~5.5 px / char.
+              labelW = text.length * 5.5;
               labelEl = (
-                <text x={lx} y={ly} className="room-label">{text.toUpperCase()}</text>
+                <text x={lx} y={ly} className="room-label">{text}</text>
               );
+              if (room.locked) {
+                // Tiny 8x9 padlock anchored to the left of the label text.
+                const gx = lx - labelW / 2 - 11;
+                const gy = ly - 4.5;
+                lockGlyphEl = (
+                  <g key="lock" transform={`translate(${gx.toFixed(2)} ${gy.toFixed(2)})`}
+                     style={{ pointerEvents: "none" }}>
+                    <rect x="0" y="4" width="8" height="5"
+                          fill="var(--calvey-text)" stroke="none" rx="0.5" />
+                    <path d="M 1.4 4 V 2.4 A 2.6 2.6 0 0 1 6.6 2.4 V 4"
+                          fill="none" stroke="var(--calvey-text)" strokeWidth="1" />
+                  </g>
+                );
+              }
             }
+          }
+
+          // 4) Step 05 — hit-target rect on top of everything else. It's
+          //    transparent but has `pointer-events: all` so hit-testing works
+          //    regardless of paint state. Clicks on the room's bbox start a
+          //    drag (or fall through to pan when locked).
+          let hitEl = null;
+          if (room.bbox_cells) {
+            const bb = room.bbox_cells;
+            const [bx0, by0] = cornerScreen(bb.u_min, bb.v_min);
+            const [bx1, by1] = cornerScreen(bb.u_max + 1, bb.v_max + 1);
+            const hx = Math.min(bx0, bx1);
+            const hy = Math.min(by0, by1);
+            const hw = Math.abs(bx1 - bx0);
+            const hh = Math.abs(by1 - by0);
+            const classes = [];
+            if (room.locked) classes.push("locked");
+            hitEl = (
+              <rect
+                key="hit"
+                data-room-id={room.instance_id}
+                x={hx} y={hy} width={hw} height={hh}
+                fill="transparent"
+                className={classes.join(" ") || undefined}
+                style={{ pointerEvents: "all" }}
+              />
+            );
           }
 
           return (
             <g key={"room-" + room.instance_id + "-" + ri}>
               {rects}
               {edges}
+              {lockGlyphEl}
               {labelEl}
+              {hitEl}
             </g>
           );
         });
@@ -2741,6 +3635,43 @@
         });
       }, [grid, regions, placedRooms, view, viewport, pulsingDeptId]);
 
+      // ----- Step 05: Ghost layer -----
+      // When a room is being dragged, render a semi-transparent rectangle at
+      // the proposed drop cells. Stroke flips between accent blue (drop
+      // would succeed) and error red (drop would fail validation).
+      const ghostLayer = React.useMemo(() => {
+        if (gesture.type !== "dragging_room") return null;
+        if (!grid || !Array.isArray(gesture.ghostCells) ||
+            gesture.ghostCells.length === 0) return null;
+        const cs = grid.cell_size_ft;
+        const ox = grid.origin_x, oy = grid.origin_y;
+        let uMin = Infinity, uMax = -Infinity, vMin = Infinity, vMax = -Infinity;
+        for (const [u, v] of gesture.ghostCells) {
+          if (u < uMin) uMin = u;
+          if (u > uMax) uMax = u;
+          if (v < vMin) vMin = v;
+          if (v > vMax) vMax = v;
+        }
+        if (!Number.isFinite(uMin)) return null;
+        const [sx0, sy0] = worldToScreen(ox + uMin * cs, oy + vMin * cs, view, viewport);
+        const [sx1, sy1] = worldToScreen(ox + (uMax + 1) * cs, oy + (vMax + 1) * cs, view, viewport);
+        const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+        const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+        const draggedRoom = placedRooms.find(r => r && r.instance_id === gesture.roomId);
+        const color = draggedRoom ? deptColor(draggedRoom.department_id) : "#CCCCCC";
+        const strokeColor = gesture.dropValid
+          ? "var(--calvey-accent)"
+          : "var(--calvey-error)";
+        return (
+          <g style={{ pointerEvents: "none" }}>
+            <rect x={x} y={y} width={w} height={h}
+                  fill={color} fillOpacity="0.5"
+                  stroke={strokeColor} strokeWidth="2"
+                  strokeDasharray="6 4" />
+          </g>
+        );
+      }, [gesture, grid, placedRooms, view, viewport]);
+
       return (
         <div className="canvas-container" ref={containerRef}>
           <svg
@@ -2749,8 +3680,9 @@
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
             onDoubleClick={handleDoubleClick}
+            onContextMenu={handleContextMenu}
           >
             {/* Background hit target (also the pan/zoom target) */}
             <rect
@@ -2764,11 +3696,17 @@
             {/* Department regions (Step 03) — drawn between background and polygon stroke */}
             {regionLayer && <g style={{ pointerEvents: "none" }}>{regionLayer}</g>}
 
-            {/* Placed rooms (Step 03 — Stage B) — fills + walls + labels above dept fills */}
-            {roomLayer && <g style={{ pointerEvents: "none" }}>{roomLayer}</g>}
+            {/* Placed rooms — Step 05 now hosts hit-target rects per room, so
+                the wrapper no longer disables pointer events. Individual
+                cell rects, edges, labels, and glyphs keep their own
+                pointerEvents: "none" styling. */}
+            {roomLayer && <g>{roomLayer}</g>}
 
             {/* Step 04 — unplaced pulse overlay; renders above rooms, below compass/scale */}
             {pulseLayer && <g style={{ pointerEvents: "none" }}>{pulseLayer}</g>}
+
+            {/* Step 05 — drag ghost; renders above everything else in the canvas. */}
+            {ghostLayer}
 
             {/* Origin crosshair at world (0,0) */}
             {showOriginMarker && (
@@ -2942,6 +3880,39 @@
               })}
             </div>
           )}
+
+          {/* Step 05 — rejection chip. Shows for 2 s then auto-clears. */}
+          {rejectReason && (
+            <div className="reject-chip">
+              REJECTED · {rejectReason.replace(/_/g, " ")}
+            </div>
+          )}
+
+          {/* Step 05 — lock chip. Opens on right-click / long-press /
+              double-tap on a non-locked room. Auto-dismisses after 3 s. */}
+          {lockChip && (() => {
+            const room = placedRooms.find(r => r && r.instance_id === lockChip.roomId);
+            if (!room) return null;
+            const isLocked = !!room.locked;
+            return (
+              <div className="lock-chip"
+                   style={{ left: lockChip.x, top: lockChip.y }}
+                   onPointerDown={(e) => e.stopPropagation()}
+                   onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                {isLocked ? (
+                  <button type="button" onClick={commitUnlock}>UNLOCK</button>
+                ) : (
+                  LOCK_REASONS.map(r => (
+                    <button key={r} type="button" onClick={() => commitLock(r)}>
+                      {r.replace(/_/g, " ")}
+                    </button>
+                  ))
+                )}
+                <button type="button" className="close"
+                        onClick={closeLockChip} title="Dismiss">✕</button>
+              </div>
+            );
+          })()}
         </div>
       );
     }
@@ -3207,7 +4178,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.3.0-STEP04 · STEP 04 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.4.0-STEP05 · STEP 05 OF 09
           </footer>
         </div>
       );
@@ -3423,7 +4394,7 @@
         <div className="app">
           <header className="section">
             <h1>CALVEY PARTY 2</h1>
-            <div className="label">SANDBOX · STEP 04 · COUNT_RULE + PARTI-DRIVEN PACKING</div>
+            <div className="label">SANDBOX · STEP 05 · DRAG-AND-REFLOW + LOCK</div>
           </header>
 
           <div className="section">
@@ -3483,7 +4454,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.3.0-STEP04 · STEP 04 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.4.0-STEP05 · STEP 05 OF 09
           </footer>
         </div>
       );
