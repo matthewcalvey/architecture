@@ -267,9 +267,47 @@
     .canvas-overlay.top-right button {
       pointer-events: auto;
       margin-top: 8px;
-      margin-right: 0;
+      margin-right: 6px;
       padding: 6px 12px;
       font-size: 10px;
+    }
+
+    .canvas-overlay.bottom-right {
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 12px;
+      border: 1px solid var(--calvey-rule);
+      line-height: 1.6;
+      max-height: 200px;
+      overflow-y: auto;
+      pointer-events: auto;
+    }
+
+    .canvas-overlay.bottom-right .dept-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      white-space: nowrap;
+    }
+
+    .canvas-overlay.bottom-right .dept-row .dept-name {
+      color: var(--calvey-text);
+    }
+
+    .canvas-overlay.bottom-right .dept-row .dept-meta {
+      color: var(--calvey-muted);
+    }
+
+    button:disabled {
+      background: var(--calvey-surface);
+      color: var(--calvey-muted);
+      border-color: var(--calvey-rule);
+      cursor: not-allowed;
+    }
+    button:disabled:hover {
+      background: var(--calvey-surface);
+      color: var(--calvey-muted);
     }
   </style>
 </head>
@@ -283,7 +321,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.1.0-step01";
+    const ENGINE_VERSION = "0.2.0-step03";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -337,7 +375,16 @@
           jurisdiction: null
         },
         current_plan: {
-          floors: [],
+          floors: [
+            {
+              level: 1,
+              grid: null,
+              department_regions: [],
+              sun_vector: null,
+              rooms: [],
+              unplaced_rooms: []
+            }
+          ],
           total_score: null,
           program_fit_report: null,
           unplaced_rooms: []
@@ -416,6 +463,70 @@
         p.context.program.building_type === null
       ) {
         warnings.push("building_type not set");
+      }
+
+      // Step 03: validate floors[0].grid and floors[0].department_regions when populated.
+      // These are warning-level — a null/empty state is legitimate (pre-generate).
+      if (isPlainObject(p.current_plan) && Array.isArray(p.current_plan.floors)) {
+        const f0 = p.current_plan.floors[0];
+        if (isPlainObject(f0)) {
+          if (isPlainObject(f0.grid)) {
+            const g = f0.grid;
+            if (!(typeof g.cell_size_ft === "number" && g.cell_size_ft > 0)) {
+              warnings.push("floors[0].grid.cell_size_ft must be > 0");
+            }
+            if (!(typeof g.origin_x === "number")) {
+              warnings.push("floors[0].grid.origin_x missing");
+            }
+            if (!(typeof g.origin_y === "number")) {
+              warnings.push("floors[0].grid.origin_y missing");
+            }
+            if (!(typeof g.width_cells === "number" && g.width_cells >= 1)) {
+              warnings.push("floors[0].grid.width_cells must be >= 1");
+            }
+            if (!(typeof g.height_cells === "number" && g.height_cells >= 1)) {
+              warnings.push("floors[0].grid.height_cells must be >= 1");
+            }
+            if (!Array.isArray(g.inside) ||
+                g.inside.length !== (g.height_cells | 0) ||
+                (g.inside[0] && g.inside[0].length !== (g.width_cells | 0))) {
+              warnings.push("floors[0].grid.inside must be a [height_cells][width_cells] 2D array");
+            }
+          }
+          if (Array.isArray(f0.department_regions)) {
+            const allowed = new Set(["high", "medium", "low"]);
+            f0.department_regions.forEach((r, i) => {
+              if (!isPlainObject(r)) {
+                warnings.push("floors[0].department_regions[" + i + "] must be an object");
+                return;
+              }
+              if (typeof r.id !== "string" || r.id.length === 0) {
+                warnings.push("floors[0].department_regions[" + i + "].id must be a non-empty string");
+              }
+              if (typeof r.name !== "string" || r.name.length === 0) {
+                warnings.push("floors[0].department_regions[" + i + "].name must be a non-empty string");
+              }
+              if (!allowed.has(r.daylight_priority)) {
+                warnings.push("floors[0].department_regions[" + i + "].daylight_priority must be high|medium|low");
+              }
+              if (!Array.isArray(r.cells)) {
+                warnings.push("floors[0].department_regions[" + i + "].cells must be an array");
+              }
+            });
+          }
+        }
+      }
+
+      // Mirror structured project.warnings into the chip row so engine-raised
+      // warnings (e.g., overflow) show up alongside validator warnings.
+      if (Array.isArray(p.warnings)) {
+        for (const w of p.warnings) {
+          if (typeof w === "string" && w.length > 0) {
+            warnings.push(w);
+          } else if (isPlainObject(w) && typeof w.message === "string") {
+            warnings.push(w.message);
+          }
+        }
       }
 
       return { ok: errors.length === 0, errors, warnings };
@@ -497,10 +608,499 @@
     // (empty — will be filled in Step 08)
 
     // ============================================================
-    // SECTION 04 — ENGINE  [Steps 03 + 06 — TODO]
+    // SECTION 04 — ENGINE
+    // Step 03: grid substrate, sun vector, Stage A department zoning.
+    // Step 06 will add Stage C/D (adjacency repair, confidence).
     // ============================================================
 
-    // (empty — will be filled in Steps 03 and 06)
+    // ---------- Grid substrate ----------
+
+    // Ray-cast point-in-polygon. Odd crossing count → inside.
+    function pointInPolygon(polygon, x, y) {
+      if (!Array.isArray(polygon) || polygon.length < 3) return false;
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const pi = polygon[i], pj = polygon[j];
+        if (!Array.isArray(pi) || !Array.isArray(pj)) continue;
+        const xi = Number(pi[0]), yi = Number(pi[1]);
+        const xj = Number(pj[0]), yj = Number(pj[1]);
+        if (!Number.isFinite(xi) || !Number.isFinite(yi)) continue;
+        if (!Number.isFinite(xj) || !Number.isFinite(yj)) continue;
+        const intersects =
+          (yi > y) !== (yj > y) &&
+          x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+        if (intersects) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Default cell size is 5 ft; bumps to 10 ft on large footprints to keep the
+    // cell count tractable. Step 08 will expose this as a slider.
+    function chooseCellSize(polygon) {
+      const area = computePolygonAreaSF(polygon);
+      return area > 50000 ? 10 : 5;
+    }
+
+    function buildGrid(polygon, cellSizeFt) {
+      const cs = cellSizeFt > 0 ? cellSizeFt : 5;
+      const { minX, minY, maxX, maxY } = computePolygonBounds(polygon);
+      const width_cells = Math.max(1, Math.ceil((maxX - minX) / cs));
+      const height_cells = Math.max(1, Math.ceil((maxY - minY) / cs));
+      const inside = new Array(height_cells);
+      for (let v = 0; v < height_cells; v++) {
+        const row = new Array(width_cells);
+        const cy = minY + (v + 0.5) * cs;
+        for (let u = 0; u < width_cells; u++) {
+          const cx = minX + (u + 0.5) * cs;
+          row[u] = pointInPolygon(polygon, cx, cy);
+        }
+        inside[v] = row;
+      }
+      return {
+        cell_size_ft: cs,
+        origin_x: minX,
+        origin_y: minY,
+        width_cells,
+        height_cells,
+        inside
+      };
+    }
+
+    function cellCenter(grid, u, v) {
+      return [
+        grid.origin_x + (u + 0.5) * grid.cell_size_ft,
+        grid.origin_y + (v + 0.5) * grid.cell_size_ft
+      ];
+    }
+
+    // ---------- Sun vector ----------
+
+    // Returns the direction of true south and true north in the project's LOCAL
+    // coordinate frame. Local +Y points north when true_north_deg === 0; nonzero
+    // values rotate the polygon clockwise relative to true north.
+    //   north_x = sin(true_north_deg), north_y = cos(true_north_deg).
+    // lat is captured for forward compatibility; Step 03 does not use it.
+    function computeSunVector(trueNorthDeg, _lat) {
+      const rad = (Number(trueNorthDeg) || 0) * Math.PI / 180;
+      const north_x = Math.sin(rad);
+      const north_y = Math.cos(rad);
+      return {
+        north_x,
+        north_y,
+        south_x: -north_x,
+        south_y: -north_y
+      };
+    }
+
+    // ---------- Daylight priority normalization ----------
+
+    const DAYLIGHT_RANK = { high: 3, medium: 2, low: 1 };
+
+    // Input data uses "High"|"Medium"|"Low"|"None"; normalize to lowercase and
+    // collapse "none" → "low" since Stage A has no weaker tier.
+    function normalizeDaylightPriority(raw) {
+      if (raw == null) return "medium";
+      const s = String(raw).toLowerCase().trim();
+      if (s === "high") return "high";
+      if (s === "medium") return "medium";
+      if (s === "low") return "low";
+      if (s === "none") return "low";
+      return "medium";
+    }
+
+    function maxDaylight(a, b) {
+      return (DAYLIGHT_RANK[a] || 0) >= (DAYLIGHT_RANK[b] || 0) ? a : b;
+    }
+
+    function toTitleCase(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/[_\/]+/g, " ")
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
+    }
+
+    function slugify(s) {
+      return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    }
+
+    // ---------- Room / department extraction ----------
+
+    // Shape B adapter: the CALVEY_PROGRAM databases have no top-level
+    // `departments` array — each space_library entry carries
+    // `parti.department_group` (preferred) or `category` (fallback).
+    function deptKeyForSpace(space) {
+      if (isPlainObject(space) && isPlainObject(space.parti) &&
+          typeof space.parti.department_group === "string" &&
+          space.parti.department_group.length > 0) {
+        return space.parti.department_group;
+      }
+      if (isPlainObject(space) && typeof space.category === "string" && space.category.length > 0) {
+        return space.category.split("/")[0];
+      }
+      return "Unassigned";
+    }
+
+    // Seed context.program.rooms from a building-type JSON's space_library.
+    // Keep the shape minimal and stable for Step 04 to extend.
+    function roomsFromBuildingType(buildingTypeJson) {
+      if (!isPlainObject(buildingTypeJson) || !Array.isArray(buildingTypeJson.space_library)) {
+        return [];
+      }
+      return buildingTypeJson.space_library
+        .filter(isPlainObject)
+        .map(space => {
+          const deptKey = deptKeyForSpace(space);
+          const targetArea = (isPlainObject(space.dimensions_ft) &&
+                              Number.isFinite(Number(space.dimensions_ft.typical_area_sf)))
+            ? Number(space.dimensions_ft.typical_area_sf)
+            : (Array.isArray(space.nsf_range) && space.nsf_range.length === 2
+                ? (Number(space.nsf_range[0]) + Number(space.nsf_range[1])) / 2
+                : 0);
+          return {
+            id: typeof space.id === "string" ? space.id : slugify(space.name || "room"),
+            name: typeof space.name === "string" ? space.name : (space.id || "Room"),
+            department: slugify(deptKey),
+            department_name: toTitleCase(deptKey),
+            daylight_priority: normalizeDaylightPriority(space.daylight_priority),
+            target_area: targetArea,
+            count: 1
+          };
+        });
+    }
+
+    // Aggregate rooms into departments with area_fraction and daylight_priority.
+    function departmentsFromRooms(rooms) {
+      if (!Array.isArray(rooms) || rooms.length === 0) return [];
+      const groups = new Map();
+      for (const r of rooms) {
+        if (!isPlainObject(r)) continue;
+        const key = typeof r.department === "string" && r.department.length > 0
+          ? r.department
+          : "unassigned";
+        const name = typeof r.department_name === "string" && r.department_name.length > 0
+          ? r.department_name
+          : toTitleCase(key);
+        const dp = normalizeDaylightPriority(r.daylight_priority);
+        const area = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
+        const count = Number.isFinite(Number(r.count)) && Number(r.count) > 0 ? Number(r.count) : 1;
+        if (!groups.has(key)) {
+          groups.set(key, { id: key, name, daylight_priority: dp, _area: 0 });
+        }
+        const g = groups.get(key);
+        g.daylight_priority = maxDaylight(g.daylight_priority, dp);
+        g._area += area * count;
+      }
+      const list = Array.from(groups.values());
+      const total = list.reduce((s, g) => s + g._area, 0);
+      if (total <= 0) {
+        const equal = 1 / list.length;
+        return list.map(g => ({
+          id: g.id, name: g.name, daylight_priority: g.daylight_priority, area_fraction: equal
+        }));
+      }
+      return list.map(g => ({
+        id: g.id,
+        name: g.name,
+        daylight_priority: g.daylight_priority,
+        area_fraction: g._area / total
+      }));
+    }
+
+    // ---------- Stage A — seeded region growing ----------
+
+    function runStageA(grid, sun, departments) {
+      const W = grid.width_cells, H = grid.height_cells, inside = grid.inside;
+
+      // Collect interior cells.
+      const interior = [];
+      for (let v = 0; v < H; v++) {
+        for (let u = 0; u < W; u++) {
+          if (inside[v][u]) interior.push([u, v]);
+        }
+      }
+      const N = interior.length;
+
+      const depts = Array.isArray(departments) ? departments : [];
+      if (depts.length === 0 || N === 0) {
+        return depts.map(d => ({
+          id: d.id, name: d.name,
+          daylight_priority: d.daylight_priority,
+          cell_count: 0, area_sf: 0, cells: [], centroid: null
+        }));
+      }
+
+      // Per-department target cell counts. Sum must equal N; adjust the
+      // largest target to absorb rounding error.
+      const targets = depts.map(d => Math.round(N * (d.area_fraction || 0)));
+      let sumT = targets.reduce((a, b) => a + b, 0);
+      if (sumT !== N) {
+        let maxIdx = 0;
+        for (let i = 1; i < targets.length; i++) {
+          if (targets[i] > targets[maxIdx]) maxIdx = i;
+        }
+        targets[maxIdx] = Math.max(0, targets[maxIdx] + (N - sumT));
+      }
+
+      // Grid centroid (over interior cells).
+      let gcx = 0, gcy = 0;
+      for (const [u, v] of interior) {
+        const [cx, cy] = cellCenter(grid, u, v);
+        gcx += cx; gcy += cy;
+      }
+      gcx /= N; gcy /= N;
+
+      // Score a cell for a given daylight priority.
+      //   high   → max (projection on sun.south)    = south-most
+      //   low    → max (projection on sun.north)    = north-most
+      //   medium → min (distance to grid centroid)  = center
+      function scoreCell(u, v, priority) {
+        const [cx, cy] = cellCenter(grid, u, v);
+        const dx = cx - gcx, dy = cy - gcy;
+        if (priority === "high") return dx * sun.south_x + dy * sun.south_y;
+        if (priority === "low")  return dx * sun.north_x + dy * sun.north_y;
+        return -(dx * dx + dy * dy);
+      }
+
+      // Seed placement: higher-daylight-priority departments pick first, then
+      // alphabetical by id to break ties deterministically.
+      const seedOrder = depts.map((_, i) => i).sort((a, b) => {
+        const ra = DAYLIGHT_RANK[depts[a].daylight_priority] || 0;
+        const rb = DAYLIGHT_RANK[depts[b].daylight_priority] || 0;
+        if (rb !== ra) return rb - ra;
+        return String(depts[a].id).localeCompare(String(depts[b].id));
+      });
+
+      const claimed = new Map();  // "u,v" -> deptIndex
+      const usedSeeds = new Set();
+      const seeds = new Array(depts.length).fill(null);
+
+      for (const di of seedOrder) {
+        const priority = depts[di].daylight_priority;
+        let bestIdx = -1, bestScore = -Infinity;
+        for (let i = 0; i < interior.length; i++) {
+          const [u, v] = interior[i];
+          const key = u + "," + v;
+          if (usedSeeds.has(key)) continue;
+          const s = scoreCell(u, v, priority);
+          if (s > bestScore) { bestScore = s; bestIdx = i; }
+        }
+        if (bestIdx < 0) continue;
+        const [u, v] = interior[bestIdx];
+        const key = u + "," + v;
+        usedSeeds.add(key);
+        claimed.set(key, di);
+        seeds[di] = [u, v];
+      }
+
+      // BFS frontiers per department (arrays used as FIFO queues).
+      const frontiers = depts.map(() => []);
+      const cellCounts = depts.map(() => 0);
+      for (let di = 0; di < depts.length; di++) {
+        if (seeds[di]) { frontiers[di].push(seeds[di]); cellCounts[di] = 1; }
+      }
+
+      const inBounds = (u, v) => u >= 0 && u < W && v >= 0 && v < H;
+      const isClaimable = (u, v) =>
+        inBounds(u, v) && inside[v][u] && !claimed.has(u + "," + v);
+
+      // Simultaneous BFS with rotating department order each round so smaller
+      // departments aren't starved.
+      let round = 0;
+      const MAX_ROUNDS = N * depts.length + 10;  // safety cap
+      while (round < MAX_ROUNDS) {
+        let claimedThisRound = false;
+        for (let k = 0; k < depts.length; k++) {
+          const di = (k + round) % depts.length;
+          if (cellCounts[di] >= targets[di]) continue;
+          const q = frontiers[di];
+          // Pop stale frontier cells (no claimable neighbors) until we find one
+          // that can claim a neighbor this tick, or the queue is empty.
+          while (q.length > 0) {
+            const [u, v] = q[0];
+            const neighbors = [[u + 1, v], [u - 1, v], [u, v + 1], [u, v - 1]];
+            let picked = null;
+            for (const n of neighbors) {
+              if (isClaimable(n[0], n[1])) { picked = n; break; }
+            }
+            if (picked) {
+              claimed.set(picked[0] + "," + picked[1], di);
+              q.push(picked);
+              cellCounts[di] += 1;
+              claimedThisRound = true;
+              break;
+            } else {
+              q.shift();
+            }
+          }
+        }
+        if (!claimedThisRound) break;
+        round++;
+      }
+
+      // Any unclaimed interior cells (pockets isolated by concave geometry or
+      // under-target departments) fall to the nearest claimed cell's department
+      // by Manhattan distance; ties broken by dept id alphabetical order.
+      const unclaimed = [];
+      for (const [u, v] of interior) {
+        if (!claimed.has(u + "," + v)) unclaimed.push([u, v]);
+      }
+      if (unclaimed.length > 0 && claimed.size > 0) {
+        const claimedList = [];
+        for (const [key, di] of claimed.entries()) {
+          const parts = key.split(",");
+          claimedList.push([Number(parts[0]), Number(parts[1]), di]);
+        }
+        for (const [u, v] of unclaimed) {
+          let bestDist = Infinity, bestDi = null, bestId = null;
+          for (const [cu, cv, di] of claimedList) {
+            const d = Math.abs(cu - u) + Math.abs(cv - v);
+            const id = depts[di].id;
+            if (d < bestDist || (d === bestDist && bestId !== null && id < bestId)) {
+              bestDist = d; bestDi = di; bestId = id;
+            }
+          }
+          if (bestDi !== null) claimed.set(u + "," + v, bestDi);
+        }
+      }
+
+      // Build region objects.
+      const cellsByDept = depts.map(() => []);
+      for (const [key, di] of claimed.entries()) {
+        const parts = key.split(",");
+        cellsByDept[di].push([Number(parts[0]), Number(parts[1])]);
+      }
+      return depts.map((d, di) => {
+        const cells = cellsByDept[di];
+        let cx = 0, cy = 0;
+        for (const [u, v] of cells) {
+          const [wx, wy] = cellCenter(grid, u, v);
+          cx += wx; cy += wy;
+        }
+        const centroid = cells.length > 0 ? [cx / cells.length, cy / cells.length] : null;
+        return {
+          id: d.id,
+          name: d.name,
+          daylight_priority: d.daylight_priority,
+          cell_count: cells.length,
+          area_sf: cells.length * grid.cell_size_ft * grid.cell_size_ft,
+          cells,
+          centroid
+        };
+      });
+    }
+
+    // ---------- Overflow warning ----------
+
+    const OVERFLOW_WARNING_ID = "overflow";
+    const GROSS_TO_NET_DEFAULT = 1.4;  // hardcoded for Step 03; Step 08 slider.
+
+    // Replace-or-remove semantics: at most one overflow warning at a time.
+    function upsertOverflowWarning(warnings, programArea, capacity) {
+      const list = Array.isArray(warnings)
+        ? warnings.filter(w => !(isPlainObject(w) && w.id === OVERFLOW_WARNING_ID))
+        : [];
+      if (programArea > capacity) {
+        list.push({
+          id: OVERFLOW_WARNING_ID,
+          severity: "warning",
+          message: "Program (" + Math.round(programArea).toLocaleString() +
+                   " SF) exceeds capacity (" + Math.round(capacity).toLocaleString() +
+                   " SF) at gross/net " + GROSS_TO_NET_DEFAULT.toFixed(1),
+          raised_at: new Date().toISOString(),
+          auto_clear_when: "programArea <= capacity"
+        });
+      }
+      return list;
+    }
+
+    // ---------- generatePlan — orchestrator ----------
+
+    // Deep clone via JSON round-trip. All our schema is JSON-safe.
+    function cloneProject(p) {
+      return JSON.parse(JSON.stringify(p));
+    }
+
+    // Runs the full Step 03 pipeline. Returns a NEW project object with
+    // current_plan.floors[0] populated. Does NOT mutate input.
+    // sunVectorLogged is a module-level flag so we log the first-run sun vector
+    // once per page load.
+    let __sunVectorLogged = false;
+    let __cellSizeLogged = false;
+    function generatePlan(project, buildingTypeJson) {
+      if (!isPlainObject(project)) throw new Error("generatePlan: project must be an object");
+      const np = cloneProject(project);
+      if (!isPlainObject(np.context) || !isPlainObject(np.context.footprint)) {
+        throw new Error("generatePlan: project.context.footprint missing");
+      }
+      const polygon = Array.isArray(np.context.footprint.polygon)
+        ? np.context.footprint.polygon : [];
+      if (polygon.length < 3) {
+        throw new Error("generatePlan: footprint polygon needs at least 3 vertices");
+      }
+
+      // Seed context.program.rooms from the building-type JSON ONLY if empty.
+      // Respecting existing entries lets the user hand-edit target_area in the
+      // JSON viewer and regenerate to see the overflow warning update.
+      if (!isPlainObject(np.context.program)) np.context.program = { building_type: null, rooms: [], adjacency_graph: {}, vertical_constraints: {} };
+      if (!Array.isArray(np.context.program.rooms) || np.context.program.rooms.length === 0) {
+        np.context.program.rooms = roomsFromBuildingType(buildingTypeJson);
+      }
+
+      const rooms = np.context.program.rooms;
+      const departments = departmentsFromRooms(rooms);
+
+      // Grid
+      const cellSize = chooseCellSize(polygon);
+      if (!__cellSizeLogged) {
+        console.debug("generatePlan: cell size chosen =", cellSize, "ft (footprint area",
+                      Math.round(computePolygonAreaSF(polygon)).toLocaleString(), "SF)");
+        __cellSizeLogged = true;
+      }
+      const grid = buildGrid(polygon, cellSize);
+
+      // Sun vector
+      const trueNorthDeg = Number(np.context.footprint.true_north_deg) || 0;
+      const lat = np.context.footprint.lat;
+      const sun = computeSunVector(trueNorthDeg, lat);
+      if (!__sunVectorLogged) {
+        console.debug("generatePlan: sun vector", sun, "true_north_deg", trueNorthDeg);
+        __sunVectorLogged = true;
+      }
+
+      // Stage A
+      const regions = runStageA(grid, sun, departments);
+
+      // Write to floors[0]; do not touch rooms/unplaced_rooms on the floor.
+      if (!isPlainObject(np.current_plan)) {
+        np.current_plan = { floors: [], total_score: null, program_fit_report: null, unplaced_rooms: [] };
+      }
+      if (!Array.isArray(np.current_plan.floors) || np.current_plan.floors.length === 0) {
+        np.current_plan.floors = [{
+          level: 1, grid: null, department_regions: [], sun_vector: null,
+          rooms: [], unplaced_rooms: []
+        }];
+      }
+      const f0 = np.current_plan.floors[0];
+      f0.grid = grid;
+      f0.department_regions = regions;
+      f0.sun_vector = sun;
+      // rooms + unplaced_rooms on the floor stay untouched (Step 04 fills rooms).
+
+      // Overflow warning
+      const footprintArea = computePolygonAreaSF(polygon);
+      const programArea = rooms.reduce((acc, r) => {
+        const a = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
+        const c = Number.isFinite(Number(r.count)) && Number(r.count) > 0 ? Number(r.count) : 1;
+        return acc + a * c;
+      }, 0);
+      const capacity = footprintArea / GROSS_TO_NET_DEFAULT;
+      np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity);
+
+      return np;
+    }
 
     // ============================================================
     // SECTION 05 — EDITOR
@@ -595,7 +1195,30 @@
       return best;
     }
 
-    function FootprintCanvas({ project }) {
+    // Stable 12-entry palette for department cell fills. Picked by
+    // sum-of-char-codes hash so a given dept id always maps to the same color.
+    const DEPT_PALETTE = [
+      "#B8D4E3",  // academic blue
+      "#E5C6A0",  // admin tan
+      "#C8D5B9",  // circulation green
+      "#E8B5C7",  // public pink
+      "#D4C4E0",  // service lavender
+      "#F0D9A7",  // dining amber
+      "#A0C4D4",  // clinical teal
+      "#E0B5A0",  // residential peach
+      "#C4D8B0",  // recreation sage
+      "#D0C0A0",  // utility khaki
+      "#BFC8D8",  // back-of-house steel
+      "#E5D5C0"   // support cream
+    ];
+    function deptColor(id) {
+      const s = String(id || "");
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h += s.charCodeAt(i);
+      return DEPT_PALETTE[h % DEPT_PALETTE.length];
+    }
+
+    function FootprintCanvas({ project, setProject, programDb }) {
       const polygon =
         (project && project.context && project.context.footprint &&
          Array.isArray(project.context.footprint.polygon))
@@ -610,6 +1233,16 @@
         (project && project.context && project.context.program)
           ? (project.context.program.building_type ?? "—")
           : "—";
+
+      // Step 03: department regions from current_plan.floors[0]
+      const floor0 =
+        project && project.current_plan && Array.isArray(project.current_plan.floors) &&
+        project.current_plan.floors.length > 0 && isPlainObject(project.current_plan.floors[0])
+          ? project.current_plan.floors[0]
+          : null;
+      const grid = floor0 && isPlainObject(floor0.grid) ? floor0.grid : null;
+      const regions = floor0 && Array.isArray(floor0.department_regions)
+        ? floor0.department_regions : [];
 
       const containerRef = React.useRef(null);
       const svgRef = React.useRef(null);
@@ -751,6 +1384,64 @@
         setView(computeInitialView(polygon, viewport.width, viewport.height));
       }
 
+      // ----- Step 03: Generate (Stage A) -----
+
+      const [isGenerating, setIsGenerating] = React.useState(false);
+      const [generateError, setGenerateError] = React.useState(null);
+      // Cache building-type JSONs keyed by filename. Cleared on remount.
+      const bTypeCacheRef = React.useRef(new Map());
+
+      const dbLoaded = !!(programDb && programDb.loaded);
+      const canGenerate =
+        !!setProject &&
+        dbLoaded &&
+        project && project.context && project.context.program &&
+        project.context.program.building_type != null &&
+        polygon.length >= 3 &&
+        !isGenerating;
+
+      async function fetchBuildingTypeJson(buildingTypeName) {
+        if (!programDb || !programDb.loaded) {
+          throw new Error("program database not loaded");
+        }
+        const databases = Array.isArray(programDb.databases) ? programDb.databases : [];
+        const entry = databases.find(e =>
+          isPlainObject(e) && e.building_type === buildingTypeName);
+        if (!entry) {
+          throw new Error("building type not in master index: " + buildingTypeName);
+        }
+        const fileName = entry.file || entry.json;
+        if (!fileName) throw new Error("master index entry has no file: " + buildingTypeName);
+        const cache = bTypeCacheRef.current;
+        if (cache.has(fileName)) return cache.get(fileName);
+        // Same directory as the master index.
+        const src = programDb.source || "./data/master_index.json";
+        const dir = src.substring(0, src.lastIndexOf("/") + 1);
+        const path = dir + fileName;
+        const res = await fetch(path);
+        if (!res.ok) throw new Error("fetch failed for " + path + " (" + res.status + ")");
+        const json = await res.json();
+        cache.set(fileName, json);
+        return json;
+      }
+
+      async function handleGenerate() {
+        if (!canGenerate) return;
+        setIsGenerating(true);
+        setGenerateError(null);
+        try {
+          const btName = project.context.program.building_type;
+          const btJson = await fetchBuildingTypeJson(btName);
+          const newProject = generatePlan(project, btJson);
+          setProject(newProject);
+        } catch (err) {
+          console.error("generate failed:", err);
+          setGenerateError(err && err.message ? err.message : String(err));
+        } finally {
+          setIsGenerating(false);
+        }
+      }
+
       // ----- Render-time projection -----
 
       const screenPoints = polygon
@@ -801,6 +1492,121 @@
 
       const showOriginMarker = viewport.width > 0 && viewport.height > 0;
 
+      // ----- Department region projection (Step 03) -----
+      // For each region: project cells to screen rects, trace the outer
+      // boundary by emitting the 4 edges that face cells outside the region,
+      // and pick a label point (centroid, or nearest in-region cell center).
+      const regionLayer = React.useMemo(() => {
+        if (!grid || !Array.isArray(regions) || regions.length === 0) return null;
+        const cs = grid.cell_size_ft;
+        const ox = grid.origin_x, oy = grid.origin_y;
+        const W = grid.width_cells, H = grid.height_cells;
+
+        // Build an ownership lookup: (u,v) → regionIndex, so boundary detection
+        // handles both "outside grid" and "other-region" correctly.
+        const owner = new Array(H);
+        for (let v = 0; v < H; v++) owner[v] = new Array(W).fill(-1);
+        regions.forEach((r, ri) => {
+          if (!Array.isArray(r.cells)) return;
+          for (const [u, v] of r.cells) {
+            if (u >= 0 && u < W && v >= 0 && v < H) owner[v][u] = ri;
+          }
+        });
+
+        function cornerScreen(u, v) {
+          return worldToScreen(ox + u * cs, oy + v * cs, view, viewport);
+        }
+
+        return regions.map((region, ri) => {
+          if (!Array.isArray(region.cells) || region.cells.length === 0) return null;
+          const color = deptColor(region.id);
+          // 1) Cell rects
+          const rects = region.cells.map(([u, v], i) => {
+            const [sx0, sy0] = cornerScreen(u, v);         // world-SW → screen (flipped Y)
+            const [sx1, sy1] = cornerScreen(u + 1, v + 1); // world-NE → screen
+            const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+            const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+            return (
+              <rect key={"c" + i} x={x} y={y} width={w} height={h}
+                    fill={color} fillOpacity="0.7"
+                    style={{ pointerEvents: "none" }} />
+            );
+          });
+
+          // 2) Outer boundary: per-cell, emit edges facing non-members.
+          const edges = [];
+          region.cells.forEach(([u, v], i) => {
+            // North edge (u,v) – (u+1,v+1 side of v+1 row) at y = (v+1)*cs
+            if (v + 1 >= H || owner[v + 1][u] !== ri) {
+              const [ax, ay] = cornerScreen(u, v + 1);
+              const [bx, by] = cornerScreen(u + 1, v + 1);
+              edges.push(<line key={"n" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-muted)" strokeOpacity="0.4" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            // South edge
+            if (v - 1 < 0 || owner[v - 1][u] !== ri) {
+              const [ax, ay] = cornerScreen(u, v);
+              const [bx, by] = cornerScreen(u + 1, v);
+              edges.push(<line key={"s" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-muted)" strokeOpacity="0.4" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            // East edge
+            if (u + 1 >= W || owner[v][u + 1] !== ri) {
+              const [ax, ay] = cornerScreen(u + 1, v);
+              const [bx, by] = cornerScreen(u + 1, v + 1);
+              edges.push(<line key={"e" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-muted)" strokeOpacity="0.4" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            // West edge
+            if (u - 1 < 0 || owner[v][u - 1] !== ri) {
+              const [ax, ay] = cornerScreen(u, v);
+              const [bx, by] = cornerScreen(u, v + 1);
+              edges.push(<line key={"w" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-muted)" strokeOpacity="0.4" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+          });
+
+          // 3) Label point: region centroid unless that cell is not in the
+          // region (concave case) — then nearest in-region cell center.
+          let labelPt = null;
+          if (region.centroid) {
+            const [rcx, rcy] = region.centroid;
+            let bestD = Infinity, bestC = region.cells[0];
+            for (const [u, v] of region.cells) {
+              const wx = ox + (u + 0.5) * cs, wy = oy + (v + 0.5) * cs;
+              const d = (wx - rcx) * (wx - rcx) + (wy - rcy) * (wy - rcy);
+              if (d < bestD) { bestD = d; bestC = [u, v]; }
+            }
+            const [u, v] = bestC;
+            labelPt = worldToScreen(ox + (u + 0.5) * cs, oy + (v + 0.5) * cs, view, viewport);
+          }
+
+          return (
+            <g key={"region-" + region.id + "-" + ri}>
+              {rects}
+              {edges}
+              {labelPt && (
+                <text
+                  x={labelPt[0]} y={labelPt[1]}
+                  fontFamily="'Space Mono', monospace"
+                  fontSize="11"
+                  fontWeight="700"
+                  letterSpacing="0.05em"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="var(--calvey-text)"
+                  style={{ pointerEvents: "none", textTransform: "uppercase" }}
+                >{(region.name || region.id).toUpperCase()}</text>
+              )}
+            </g>
+          );
+        });
+      }, [grid, regions, view, viewport]);
+
       return (
         <div className="canvas-container" ref={containerRef}>
           <svg
@@ -820,6 +1626,9 @@
               height={viewport.height}
               fill="var(--calvey-surface)"
             />
+
+            {/* Department regions (Step 03) — drawn between background and polygon stroke */}
+            {regionLayer && <g style={{ pointerEvents: "none" }}>{regionLayer}</g>}
 
             {/* Origin crosshair at world (0,0) */}
             {showOriginMarker && (
@@ -923,14 +1732,36 @@
             </g>
           </svg>
 
-          {/* Context metadata + Fit button (HTML overlay, top-right) */}
+          {/* Context metadata + Fit/Generate buttons (HTML overlay, top-right) */}
           <div className="canvas-overlay top-right">
             <div><span className="label">BUILDING TYPE:</span> {buildingType}</div>
             <div><span className="label">FOOTPRINT:</span> {polyVertexCount} vertices · {areaLabel} SF</div>
             <div><span className="label">TRUE NORTH:</span> {trueNorthDeg}°</div>
             <div><span className="label">ZOOM:</span> {view.zoom.toFixed(2)} px/ft</div>
             <button type="button" onClick={handleFitClick}>FIT</button>
+            <button type="button" onClick={handleGenerate} disabled={!canGenerate}>
+              {isGenerating ? "GENERATING…" : "GENERATE"}
+            </button>
+            {generateError && (
+              <div style={{ color: "var(--calvey-error)", marginTop: 6, maxWidth: 240, whiteSpace: "normal" }}>
+                {generateError}
+              </div>
+            )}
           </div>
+
+          {/* Department summary (HTML overlay, bottom-right) — Step 03 */}
+          {regions.length > 0 && (
+            <div className="canvas-overlay bottom-right">
+              {regions.map(r => (
+                <div key={r.id} className="dept-row">
+                  <span className="dept-name">{(r.name || r.id).toUpperCase()}</span>
+                  <span className="dept-meta">
+                    {r.cell_count} cells · {Math.round(r.area_sf).toLocaleString()} SF
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
@@ -1195,7 +2026,7 @@
     function App() {
       const [project, setProject] = React.useState(() => loadFromLocalStorage() ?? emptyProject());
       const [validation, setValidation] = React.useState(() => validateProject(project));
-      const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null, types: [] });
+      const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null, types: [], databases: [] });
       const [forceAdvanced, setForceAdvanced] = React.useState(false);
       const [textareaValue, setTextareaValue] = React.useState(() => JSON.stringify(project, null, 2));
       const [applyError, setApplyError] = React.useState(null);
@@ -1231,8 +2062,10 @@
               if (cancelled) return;
               let count = 0;
               let types = [];
+              let databases = [];
               if (Array.isArray(json)) {
                 count = json.length;
+                databases = json.filter(isPlainObject);
                 types = json
                   .map(x => (isPlainObject(x) ? (x.building_type || x.name || null) : null))
                   .filter(Boolean);
@@ -1246,6 +2079,7 @@
                       : null;
                 if (arr) {
                   count = arr.length;
+                  databases = arr.filter(isPlainObject);
                   types = arr
                     .map(x => (isPlainObject(x) ? (x.building_type || x.name || null) : (typeof x === "string" ? x : null)))
                     .filter(Boolean);
@@ -1260,14 +2094,14 @@
                 seen.add(t);
                 return true;
               });
-              setDbStatus({ loaded: true, count, error: null, source: path, types });
+              setDbStatus({ loaded: true, count, error: null, source: path, types, databases });
               return;
             } catch (e) {
               console.debug("program database probe miss:", path, e && e.message);
             }
           }
           if (cancelled) return;
-          setDbStatus({ loaded: false, count: 0, error: "no master index found", source: null, types: [] });
+          setDbStatus({ loaded: false, count: 0, error: "no master index found", source: null, types: [], databases: [] });
         })();
         return () => { cancelled = true; };
       }, []);
@@ -1384,7 +2218,7 @@
 
           <ValidationChips validation={validation} />
 
-          <FootprintCanvas project={project} />
+          <FootprintCanvas project={project} setProject={setProject} programDb={dbStatus} />
 
           <div className="hairline"></div>
 
