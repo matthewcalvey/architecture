@@ -461,6 +461,112 @@
     svg.wall-ew * { cursor: ew-resize !important; }
     svg.wall-ns,
     svg.wall-ns * { cursor: ns-resize !important; }
+
+    /* Step 07 — Floor strip. HTML overlay positioned over the canvas-container
+       (left side, below the compass). Each tile renders an inline SVG
+       thumbnail of one floor; clicking activates that floor; dropping a
+       dragged room on a tile triggers crossFloorMove. */
+    .floor-strip {
+      position: absolute;
+      top: 80px;         /* below the top-left compass */
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    .floor-tile {
+      width: 80px;
+      height: 60px;
+      background: white;
+      border: 1px solid var(--calvey-rule);
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .floor-tile.active {
+      border: 2px solid var(--calvey-accent);
+    }
+
+    .floor-tile.drop-target {
+      border: 2px solid var(--calvey-accent);
+      border-style: dashed;
+    }
+
+    .floor-tile.drop-target-invalid {
+      border: 2px solid var(--calvey-error);
+      border-style: dashed;
+    }
+
+    .floor-tile .floor-label {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      text-transform: uppercase;
+      color: var(--calvey-text);
+      pointer-events: none;
+    }
+
+    .floor-tile .room-count {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: var(--calvey-muted);
+      pointer-events: none;
+    }
+
+    .floor-tile .unplaced-badge {
+      position: absolute;
+      bottom: 3px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--calvey-error);
+      pointer-events: none;
+    }
+
+    .floor-tile svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .floor-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .floor-controls button {
+      width: 80px;
+      padding: 4px 0;
+      font-size: 9px;
+      margin: 0;
+    }
+
+    .floor-chip {
+      width: 80px;
+      margin-top: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      line-height: 1.3;
+      color: var(--calvey-warn);
+      background: white;
+      border: 1px solid var(--calvey-warn);
+      padding: 4px 6px;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -473,7 +579,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.5.0-step06";
+    const ENGINE_VERSION = "0.6.0-step07";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -513,7 +619,12 @@
             program_inputs: {},
             // Step 04 — post-resolution digest: template/instance counts,
             // count_rule breakdown, driver values used, gross/net ratio.
-            resolved_rooms_digest: null
+            resolved_rooms_digest: null,
+            // Step 07 — canonical multi-floor count. User edits via the floor
+            // strip +/- buttons or the JSON viewer. Kept in sync with
+            // program_inputs.floor_count so count_rule "one_per_floor" keeps
+            // working.
+            floor_count: 1
           },
           vertical_anchors: {
             cores: [],
@@ -544,6 +655,9 @@
               unplaced_rooms: []
             }
           ],
+          // Step 07 — which floor the canvas is showing. Clamped to
+          // [0, floors.length - 1] after any add/remove.
+          active_floor_index: 0,
           total_score: null,
           program_fit_report: null,
           unplaced_rooms: [],
@@ -628,80 +742,77 @@
         warnings.push("building_type not set");
       }
 
-      // Step 03: validate floors[0].grid and floors[0].department_regions when populated.
-      // These are warning-level — a null/empty state is legitimate (pre-generate).
+      // Step 07 — validate every floor (Step 03 only validated floors[0]).
+      // Errors are still warning-level (pre-generate state is legitimate).
       if (isPlainObject(p.current_plan) && Array.isArray(p.current_plan.floors)) {
-        const f0 = p.current_plan.floors[0];
-        if (isPlainObject(f0)) {
-          if (isPlainObject(f0.grid)) {
-            const g = f0.grid;
+        p.current_plan.floors.forEach((fl, fi) => {
+          if (!isPlainObject(fl)) return;
+          const tag = "floors[" + fi + "]";
+          if (isPlainObject(fl.grid)) {
+            const g = fl.grid;
             if (!(typeof g.cell_size_ft === "number" && g.cell_size_ft > 0)) {
-              warnings.push("floors[0].grid.cell_size_ft must be > 0");
+              warnings.push(tag + ".grid.cell_size_ft must be > 0");
             }
             if (!(typeof g.origin_x === "number")) {
-              warnings.push("floors[0].grid.origin_x missing");
+              warnings.push(tag + ".grid.origin_x missing");
             }
             if (!(typeof g.origin_y === "number")) {
-              warnings.push("floors[0].grid.origin_y missing");
+              warnings.push(tag + ".grid.origin_y missing");
             }
             if (!(typeof g.width_cells === "number" && g.width_cells >= 1)) {
-              warnings.push("floors[0].grid.width_cells must be >= 1");
+              warnings.push(tag + ".grid.width_cells must be >= 1");
             }
             if (!(typeof g.height_cells === "number" && g.height_cells >= 1)) {
-              warnings.push("floors[0].grid.height_cells must be >= 1");
+              warnings.push(tag + ".grid.height_cells must be >= 1");
             }
             if (!Array.isArray(g.inside) ||
                 g.inside.length !== (g.height_cells | 0) ||
                 (g.inside[0] && g.inside[0].length !== (g.width_cells | 0))) {
-              warnings.push("floors[0].grid.inside must be a [height_cells][width_cells] 2D array");
+              warnings.push(tag + ".grid.inside must be a [height_cells][width_cells] 2D array");
             }
           }
-          if (Array.isArray(f0.department_regions)) {
+          if (Array.isArray(fl.department_regions)) {
             const allowed = new Set(["high", "medium", "low"]);
-            f0.department_regions.forEach((r, i) => {
+            fl.department_regions.forEach((r, i) => {
               if (!isPlainObject(r)) {
-                warnings.push("floors[0].department_regions[" + i + "] must be an object");
+                warnings.push(tag + ".department_regions[" + i + "] must be an object");
                 return;
               }
               if (typeof r.id !== "string" || r.id.length === 0) {
-                warnings.push("floors[0].department_regions[" + i + "].id must be a non-empty string");
+                warnings.push(tag + ".department_regions[" + i + "].id must be a non-empty string");
               }
               if (typeof r.name !== "string" || r.name.length === 0) {
-                warnings.push("floors[0].department_regions[" + i + "].name must be a non-empty string");
+                warnings.push(tag + ".department_regions[" + i + "].name must be a non-empty string");
               }
               if (!allowed.has(r.daylight_priority)) {
-                warnings.push("floors[0].department_regions[" + i + "].daylight_priority must be high|medium|low");
+                warnings.push(tag + ".department_regions[" + i + "].daylight_priority must be high|medium|low");
               }
               if (!Array.isArray(r.cells)) {
-                warnings.push("floors[0].department_regions[" + i + "].cells must be an array");
+                warnings.push(tag + ".department_regions[" + i + "].cells must be an array");
               }
             });
           }
-          // Step 03: validate floors[0].rooms when populated.
-          if (Array.isArray(f0.rooms) && f0.rooms.length > 0) {
-            f0.rooms.forEach((r, i) => {
+          if (Array.isArray(fl.rooms) && fl.rooms.length > 0) {
+            fl.rooms.forEach((r, i) => {
               if (!isPlainObject(r)) {
-                warnings.push("floors[0].rooms[" + i + "] must be an object");
+                warnings.push(tag + ".rooms[" + i + "] must be an object");
                 return;
               }
               if (typeof r.instance_id !== "string" || r.instance_id.length === 0) {
-                warnings.push("floors[0].rooms[" + i + "].instance_id must be a non-empty string");
+                warnings.push(tag + ".rooms[" + i + "].instance_id must be a non-empty string");
               }
               if (typeof r.type !== "string" || r.type.length === 0) {
-                warnings.push("floors[0].rooms[" + i + "].type must be a non-empty string");
+                warnings.push(tag + ".rooms[" + i + "].type must be a non-empty string");
               }
               if (typeof r.department_id !== "string" || r.department_id.length === 0) {
-                warnings.push("floors[0].rooms[" + i + "].department_id must be a non-empty string");
+                warnings.push(tag + ".rooms[" + i + "].department_id must be a non-empty string");
               }
               if (!Array.isArray(r.cells)) {
-                warnings.push("floors[0].rooms[" + i + "].cells must be an array");
+                warnings.push(tag + ".rooms[" + i + "].cells must be an array");
               }
               if (!Number.isFinite(Number(r.area_sf))) {
-                warnings.push("floors[0].rooms[" + i + "].area_sf must be a number");
+                warnings.push(tag + ".rooms[" + i + "].area_sf must be a number");
               }
-              // Step 04: hard-ceiling check — actual aspect ratio should not
-              // exceed max_aspect_ratio. If it does, the packer let a bad
-              // rectangle through.
               if (Number.isFinite(Number(r.max_aspect_ratio)) &&
                   Number(r.max_aspect_ratio) > 0 &&
                   r.bbox_cells && typeof r.bbox_cells === "object") {
@@ -709,15 +820,21 @@
                 const h = (Number(r.bbox_cells.v_max) - Number(r.bbox_cells.v_min) + 1);
                 if (w >= 1 && h >= 1) {
                   const ar = Math.max(w, h) / Math.min(w, h);
-                  // allow a tiny epsilon for floating-point noise
                   if (ar > Number(r.max_aspect_ratio) + 0.001) {
-                    warnings.push("floors[0].rooms[" + i + "] aspect " +
+                    warnings.push(tag + ".rooms[" + i + "] aspect " +
                       ar.toFixed(2) + " exceeds max_aspect_ratio " +
                       Number(r.max_aspect_ratio).toFixed(2));
                   }
                 }
               }
             });
+          }
+        });
+        // Step 07 — active_floor_index sanity check.
+        if (p.current_plan.active_floor_index !== undefined) {
+          const idx = Number(p.current_plan.active_floor_index);
+          if (!Number.isInteger(idx) || idx < 0 || idx >= p.current_plan.floors.length) {
+            warnings.push("active_floor_index out of range");
           }
         }
       }
@@ -1283,6 +1400,17 @@
           (typeof parti.placement_zone === "string" && parti.placement_zone.length > 0)
             ? parti.placement_zone.toLowerCase() : null;
 
+        // Step 07 — stacking hints used by distributeInstancesToFloors.
+        // stacking_preference is DB-free-form; normalized inside the
+        // distributor. floor_priority + stack_group pass through verbatim.
+        const stackingPreference =
+          (typeof space.stacking_preference === "string" && space.stacking_preference.length > 0)
+            ? space.stacking_preference : "Any";
+        const floorPriority = Number.isFinite(Number(space.floor_priority))
+          ? Number(space.floor_priority) : null;
+        const stackGroup = (typeof space.stack_group === "string" && space.stack_group.length > 0)
+          ? space.stack_group : null;
+
         const templateId = typeof space.id === "string"
           ? space.id : slugify(space.name || "room");
         const nameStr = typeof space.name === "string"
@@ -1306,6 +1434,11 @@
             min_width_cells: minWidthCells,
             min_depth_cells: minDepthCells,
             max_aspect_ratio: maxAspect,
+
+            // Step 07 — stacking hints. Read in distributeInstancesToFloors.
+            stacking_preference: stackingPreference,
+            floor_priority: floorPriority,
+            stack_group: stackGroup,
 
             // Legacy (pre-Step 04) field mirrors — keep populated so
             // downstream Step 02/03 code (summary panel, departmentsFromRooms,
@@ -1963,17 +2096,22 @@
     const GROSS_TO_NET_DEFAULT = 1.4;  // hardcoded for Step 03; Step 08 slider.
 
     // Replace-or-remove semantics: at most one overflow warning at a time.
-    function upsertOverflowWarning(warnings, programArea, capacity) {
+    // Step 07 — floorCount is folded into the message so users see that e.g.
+    // "2 floors" is the reason the capacity just doubled.
+    function upsertOverflowWarning(warnings, programArea, capacity, floorCount) {
       const list = Array.isArray(warnings)
         ? warnings.filter(w => !(isPlainObject(w) && w.id === OVERFLOW_WARNING_ID))
         : [];
       if (programArea > capacity) {
+        const fc = Math.max(1, Math.floor(Number(floorCount) || 1));
+        const floorTxt = fc === 1 ? "1 floor" : (fc + " floors");
         list.push({
           id: OVERFLOW_WARNING_ID,
           severity: "warning",
           message: "Program (" + Math.round(programArea).toLocaleString() +
                    " SF) exceeds capacity (" + Math.round(capacity).toLocaleString() +
-                   " SF) at gross/net " + GROSS_TO_NET_DEFAULT.toFixed(1),
+                   " SF across " + floorTxt + ") at gross/net " +
+                   GROSS_TO_NET_DEFAULT.toFixed(1),
           raised_at: new Date().toISOString(),
           auto_clear_when: "programArea <= capacity"
         });
@@ -2007,6 +2145,166 @@
         });
       }
       return list;
+    }
+
+    // ---------- Step 07 — multi-floor distribution ----------
+
+    // Normalize the DB's free-form stacking_preference strings into one of
+    //   "Ground" | "Top" | "Any"
+    // The DB uses values like "Ground", "Ground/Roof", "Upper", "Roof/Penthouse",
+    // "Basement/Ground", "All". Rules (applied top-to-bottom):
+    //   * empty / missing / "any" / "all" / "same"    → "Any"
+    //   * contains "ground" or "basement" (but not "roof"/"upper"/"top") → "Ground"
+    //   * contains "roof"/"top"/"penthouse"/"upper"   → "Top"
+    //   * anything else                               → "Any"
+    function normalizeStackingPreference(raw) {
+      if (raw == null) return "Any";
+      const s = String(raw).toLowerCase().trim();
+      if (s === "" || s === "any" || s === "all" || s === "same") return "Any";
+      const hasGround = /ground|basement/.test(s);
+      const hasTop = /roof|penthouse|\btop\b|upper/.test(s);
+      if (hasGround && !hasTop) return "Ground";
+      if (hasTop && !hasGround) return "Top";
+      if (hasGround && hasTop) {
+        // e.g. "Ground/Roof", "Upper/Ground" — prefer whichever the string
+        // names FIRST, since the DB tends to list the primary preference first.
+        const gi = s.search(/ground|basement/);
+        const ti = s.search(/roof|penthouse|\btop\b|upper/);
+        return ti >= 0 && gi >= 0 && ti < gi ? "Top" : "Ground";
+      }
+      return "Any";
+    }
+
+    // Distribute a flat list of room instances across floorCount floors.
+    // Returns { byFloor, unplaced } where byFloor is an array of N instance
+    // arrays and unplaced is a list of makeUnplacedEntry-shaped objects for
+    // instances that found no floor with room.
+    //
+    // Algorithm (spec Section 03):
+    //   1. Per-floor capacity = footprint / GROSS_TO_NET_DEFAULT.
+    //   2. Sort Ground-first, Top-last, "Any" in the middle; within each
+    //      class, higher floor_priority first.
+    //   3. Fill floor 1 with "Ground" instances until capacity, spill to 2..N.
+    //   4. Fill top floor with "Top" instances until capacity, spill downward.
+    //   5. Any-stacked instances go to the floor with the most free capacity.
+    //   6. stack_group members are kept together; once a group is placed on a
+    //      floor, subsequent members prefer the same floor.
+    //
+    // lockedByFloor (optional) is an array of arrays: locked[fi] lists the
+    // locked rooms on floor fi carried over from a previous plan. Their areas
+    // pre-consume per-floor capacity so we don't over-assign.
+    function distributeInstancesToFloors(instances, floorCount, footprintArea, lockedByFloor) {
+      const fc = Math.max(1, Math.floor(Number(floorCount) || 1));
+      const instList = Array.isArray(instances) ? instances.filter(isPlainObject) : [];
+      const byFloor = [];
+      for (let i = 0; i < fc; i++) byFloor.push([]);
+      if (fc === 1) {
+        return { byFloor: [instList.slice()], unplaced: [] };
+      }
+      const cap = Math.max(0, Number(footprintArea) || 0) / GROSS_TO_NET_DEFAULT;
+
+      function areaOf(inst) {
+        const a = Number(inst.target_area_sf);
+        if (Number.isFinite(a) && a > 0) return a;
+        const a2 = Number(inst.target_area);
+        if (Number.isFinite(a2) && a2 > 0) return a2;
+        // Locked carry-over rooms may only have area_sf.
+        const a3 = Number(inst.area_sf);
+        return Number.isFinite(a3) && a3 > 0 ? a3 : 0;
+      }
+
+      // Pre-consume capacity for locked carry-over rooms (their floor
+      // assignment is preserved — the distributor may not re-home them).
+      const usedByFloor = new Array(fc).fill(0);
+      if (Array.isArray(lockedByFloor)) {
+        for (let fi = 0; fi < fc; fi++) {
+          const arr = lockedByFloor[fi];
+          if (!Array.isArray(arr)) continue;
+          for (const lp of arr) usedByFloor[fi] += areaOf(lp);
+        }
+      }
+
+      // Classify each instance. Memoize so the sort below doesn't thrash.
+      const classOf = new Map();
+      for (const inst of instList) {
+        classOf.set(inst, normalizeStackingPreference(inst.stacking_preference));
+      }
+
+      // Stable sort: Ground first, Any middle, Top last. Within each class,
+      // higher floor_priority before lower. stack_group members sorted
+      // together so the greedy fill naturally co-locates them.
+      const classRank = { "Ground": 0, "Any": 1, "Top": 2 };
+      const sorted = instList.slice().sort((a, b) => {
+        const ca = classRank[classOf.get(a)];
+        const cb = classRank[classOf.get(b)];
+        if (ca !== cb) return ca - cb;
+        const ga = a.stack_group || "";
+        const gb = b.stack_group || "";
+        if (ga !== gb) return ga < gb ? -1 : 1;
+        const fpa = Number(a.floor_priority);
+        const fpb = Number(b.floor_priority);
+        const pa = Number.isFinite(fpa) ? fpa : 0;
+        const pb = Number.isFinite(fpb) ? fpb : 0;
+        return pb - pa;
+      });
+
+      const groupFloor = new Map();  // stack_group id → floor index
+      const unplaced = [];
+      const topIdx = fc - 1;
+
+      function tryPut(fi, inst, area) {
+        // Allow a small slack (5%) so a single oversized room doesn't skip a
+        // floor it could tolerably fit on.
+        if (usedByFloor[fi] + area > cap * 1.05 && cap > 0) return false;
+        byFloor[fi].push(inst);
+        usedByFloor[fi] += area;
+        if (inst.stack_group) groupFloor.set(inst.stack_group, fi);
+        return true;
+      }
+
+      for (const inst of sorted) {
+        const area = areaOf(inst);
+        const cls = classOf.get(inst);
+
+        // stack_group co-location takes precedence over class preference —
+        // once one wet-stack classroom lands on floor 2, the rest follow.
+        if (inst.stack_group && groupFloor.has(inst.stack_group)) {
+          const fi = groupFloor.get(inst.stack_group);
+          if (tryPut(fi, inst, area)) continue;
+          // Group floor is full — drop through to normal placement.
+        }
+
+        if (cls === "Ground") {
+          if (tryPut(0, inst, area)) continue;
+          let done = false;
+          for (let fi = 1; fi < fc && !done; fi++) {
+            done = tryPut(fi, inst, area);
+          }
+          if (!done) unplaced.push(makeUnplacedEntry(inst, "no_floor_space"));
+        } else if (cls === "Top") {
+          if (tryPut(topIdx, inst, area)) continue;
+          let done = false;
+          for (let fi = topIdx - 1; fi >= 0 && !done; fi--) {
+            done = tryPut(fi, inst, area);
+          }
+          if (!done) unplaced.push(makeUnplacedEntry(inst, "no_floor_space"));
+        } else {
+          // Any — place on the floor with the most free capacity (ties → lowest index).
+          let bestFi = -1, bestFree = -Infinity;
+          for (let fi = 0; fi < fc; fi++) {
+            const free = cap - usedByFloor[fi];
+            if (free > bestFree && (usedByFloor[fi] + area <= cap * 1.05 || cap === 0)) {
+              bestFi = fi;
+              bestFree = free;
+            }
+          }
+          if (bestFi < 0 || !tryPut(bestFi, inst, area)) {
+            unplaced.push(makeUnplacedEntry(inst, "no_floor_space"));
+          }
+        }
+      }
+
+      return { byFloor, unplaced };
     }
 
     // ---------- generatePlan — orchestrator ----------
@@ -2048,63 +2346,76 @@
       // Step 04 — seed absent program_inputs from subtypes[0].
       seedProgramInputs(np.context.program.program_inputs, buildingTypeJson);
 
+      // Step 07 — floor_count is now a canonical context.program field. If the
+      // project predates Step 07 it might only have program_inputs.floor_count;
+      // treat that as the source for the first migration, then keep both in sync.
+      let floorCount = Number(np.context.program.floor_count);
+      if (!Number.isFinite(floorCount) || floorCount < 1) {
+        floorCount = Number.isFinite(Number(np.context.program.program_inputs.floor_count))
+          ? Math.max(1, Math.floor(Number(np.context.program.program_inputs.floor_count)))
+          : 1;
+      }
+      floorCount = Math.max(1, Math.floor(floorCount));
+      np.context.program.floor_count = floorCount;
+      np.context.program.program_inputs.floor_count = floorCount;
+
       // Step 04 — always re-resolve rooms from the current program_inputs so
-      // count_rule edits take effect. This replaces Step 03's "seed once if
-      // empty" behavior; the digest makes it obvious where counts came from.
-      const floorCount = Number.isFinite(Number(np.context.program.program_inputs.floor_count))
-        ? Math.max(1, Math.floor(Number(np.context.program.program_inputs.floor_count)))
-        : 1;
+      // count_rule edits take effect.
       const resolved = roomsFromBuildingType(buildingTypeJson, np.context.program.program_inputs, floorCount);
       np.context.program.rooms = resolved.instances;
       np.context.program.resolved_rooms_digest = resolved.digest;
 
       const rooms = np.context.program.rooms;
-      const departments = departmentsFromRooms(rooms);
 
-      // Step 05 — carry locked rooms forward across regenerates. Each locked
-      // placed room from the previous run is added to Stage B's output
-      // verbatim; its cells are pre-reserved so the packer never grows a
-      // fresh rectangle through them. To keep instance counts consistent, we
-      // remove one fresh (unlocked) instance of the same template + dept per
-      // carried-over locked room. Unmatched locked rooms (template no longer
-      // appears) still get carried — they just count as "extra" for now.
-      const prevFloor0 = (isPlainObject(project.current_plan) &&
-        Array.isArray(project.current_plan.floors) &&
-        isPlainObject(project.current_plan.floors[0]))
-          ? project.current_plan.floors[0] : null;
-      const lockedCarry = [];
-      if (prevFloor0 && Array.isArray(prevFloor0.rooms)) {
-        for (const r of prevFloor0.rooms) {
+      // Step 07 — carry locked rooms forward PER floor. The locked room's
+      // floor assignment is preserved; the distributor may not re-home it.
+      const prevFloors = (isPlainObject(project.current_plan) &&
+        Array.isArray(project.current_plan.floors))
+          ? project.current_plan.floors : [];
+      const lockedByFloor = [];
+      for (let fi = 0; fi < floorCount; fi++) lockedByFloor.push([]);
+      // Gather locked rooms from existing floors, clamping source indices to
+      // the new floor count (a locked room on a floor that no longer exists
+      // migrates down to the new top floor rather than disappearing).
+      for (let fi = 0; fi < prevFloors.length; fi++) {
+        const pf = prevFloors[fi];
+        if (!isPlainObject(pf) || !Array.isArray(pf.rooms)) continue;
+        const target = Math.min(fi, floorCount - 1);
+        for (const r of pf.rooms) {
           if (isPlainObject(r) && r.locked === true &&
               Array.isArray(r.cells) && r.cells.length > 0) {
-            lockedCarry.push(JSON.parse(JSON.stringify(r)));
+            lockedByFloor[target].push(JSON.parse(JSON.stringify(r)));
           }
         }
       }
+
       // Remove one matching fresh instance per carried-over locked room.
       const locksByKey = new Map();
-      for (const lp of lockedCarry) {
-        const tpl = lp.template_id || lp.type || "";
-        const dep = lp.department_id || "";
-        const k = tpl + "|" + dep;
-        locksByKey.set(k, (locksByKey.get(k) || 0) + 1);
+      for (const arr of lockedByFloor) {
+        for (const lp of arr) {
+          const tpl = lp.template_id || lp.type || "";
+          const dep = lp.department_id || "";
+          const k = tpl + "|" + dep;
+          locksByKey.set(k, (locksByKey.get(k) || 0) + 1);
+        }
       }
-      const roomsToPack = [];
+      const freshPool = [];
       const consumedByKey = new Map();
       for (const inst of rooms) {
         const tpl = inst.template_id || inst.id || "";
         const dep = inst.department_id || inst.department || "";
         const k = tpl + "|" + dep;
-        const cap = locksByKey.get(k) || 0;
+        const lockedCap = locksByKey.get(k) || 0;
         const used = consumedByKey.get(k) || 0;
-        if (used < cap) {
+        if (used < lockedCap) {
           consumedByKey.set(k, used + 1);
           continue;  // locked carry-over occupies this slot
         }
-        roomsToPack.push(inst);
+        freshPool.push(inst);
       }
 
-      // Grid
+      // Grid + sun vector — shared across all floors (spec Section 01:
+      // all floors share footprint, true north, and cell grid).
       const cellSize = chooseCellSize(polygon);
       if (!__cellSizeLogged) {
         console.debug("generatePlan: cell size chosen =", cellSize, "ft (footprint area",
@@ -2113,7 +2424,6 @@
       }
       const grid = buildGrid(polygon, cellSize);
 
-      // Sun vector
       const trueNorthDeg = Number(np.context.footprint.true_north_deg) || 0;
       const lat = np.context.footprint.lat;
       const sun = computeSunVector(trueNorthDeg, lat);
@@ -2122,45 +2432,74 @@
         __sunVectorLogged = true;
       }
 
-      // Stage A
-      const regions = runStageA(grid, sun, departments);
+      // Step 07 — distribute fresh pool across floors using stacking hints.
+      const footprintArea = computePolygonAreaSF(polygon);
+      const distribution = distributeInstancesToFloors(
+        freshPool, floorCount, footprintArea, lockedByFloor);
 
-      // Stage B — Step 05 passes both the to-pack list and the carry-over
-      // locked rooms. Cells held by locked rooms are excluded from every
-      // region's mask and the locked rooms are emitted directly into the
-      // placed output.
-      const stageB = runStageB(grid, regions, roomsToPack, lockedCarry);
+      // Per-floor Stage A + Stage B. Stage A input is a synthetic "all rooms
+      // on this floor" list (fresh + locked carry-over) so the zoning picks
+      // up every department that has a room on that floor; Stage B packs the
+      // fresh instances with the locked carry-over pre-reserved.
+      const allUnplaced = distribution.unplaced.slice();
+      const newFloors = [];
+      for (let i = 0; i < floorCount; i++) {
+        const floorFresh = distribution.byFloor[i] || [];
+        const floorLocks = lockedByFloor[i] || [];
+        // Shim each locked carry-over into the department-bucket input. Only
+        // fields departmentsFromRooms reads are populated; other fields are
+        // irrelevant for zoning.
+        const floorAllForDept = floorFresh.concat(floorLocks.map(lp => ({
+          department: lp.department_id,
+          department_id: lp.department_id,
+          department_name: lp.department_name || null,
+          daylight_priority: lp.daylight_priority || "medium",
+          target_area: Number(lp.target_area_sf) || Number(lp.area_sf) || 0,
+          target_area_sf: Number(lp.target_area_sf) || Number(lp.area_sf) || 0,
+          count: 1
+        })));
+        const floorDepts = departmentsFromRooms(floorAllForDept);
+        const regions = runStageA(grid, sun, floorDepts);
+        const stageB = runStageB(grid, regions, floorFresh, floorLocks);
+        newFloors.push({
+          level: i + 1,
+          grid,           // shared reference; floors never mutate the grid
+          sun_vector: sun,
+          department_regions: regions,
+          rooms: stageB.rooms,
+          unplaced_rooms: stageB.unplaced
+        });
+        for (const u of stageB.unplaced) allUnplaced.push(u);
+      }
 
-      // Write to floors[0].
+      // Write floors back. Clamp active_floor_index to the new length.
       if (!isPlainObject(np.current_plan)) {
         np.current_plan = {
-          floors: [], total_score: null, program_fit_report: null,
-          unplaced_rooms: [], stale: false
+          floors: [], active_floor_index: 0, total_score: null,
+          program_fit_report: null, unplaced_rooms: [], stale: false
         };
       }
-      if (!Array.isArray(np.current_plan.floors) || np.current_plan.floors.length === 0) {
-        np.current_plan.floors = [{
-          level: 1, grid: null, department_regions: [], sun_vector: null,
-          rooms: [], unplaced_rooms: []
-        }];
-      }
-      const f0 = np.current_plan.floors[0];
-      f0.grid = grid;
-      f0.department_regions = regions;
-      f0.sun_vector = sun;
-      f0.rooms = stageB.rooms;
-      f0.unplaced_rooms = stageB.unplaced;
+      np.current_plan.floors = newFloors;
+      const prevActive = Number.isFinite(Number(np.current_plan.active_floor_index))
+        ? Math.floor(Number(np.current_plan.active_floor_index)) : 0;
+      np.current_plan.active_floor_index = Math.max(0,
+        Math.min(prevActive, floorCount - 1));
+      // Top-level unplaced_rooms is the union of distribution-level overflow
+      // (no_floor_space) and per-floor packing failures.
+      np.current_plan.unplaced_rooms = allUnplaced;
 
       // Overflow warning — sum target_area_sf across instances (count=1 each).
-      const footprintArea = computePolygonAreaSF(polygon);
       const programArea = rooms.reduce((acc, r) => {
         const a = Number.isFinite(Number(r.target_area_sf)) ? Number(r.target_area_sf)
                : (Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0);
         return acc + a;
       }, 0);
-      const capacity = footprintArea / GROSS_TO_NET_DEFAULT;
-      np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity);
-      np.warnings = upsertUnplacedWarning(np.warnings, stageB.unplaced);
+      // Step 07 — capacity is per-floor × floor_count (we stack programs
+      // vertically). The warning text mentions the floor count so users can
+      // see why adding a floor cleared the overflow.
+      const capacity = (footprintArea / GROSS_TO_NET_DEFAULT) * floorCount;
+      np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity, floorCount);
+      np.warnings = upsertUnplacedWarning(np.warnings, allUnplaced);
 
       // Step 04 — clear stale flag; we've just regenerated.
       np.current_plan.stale = false;
@@ -2212,15 +2551,22 @@
       }
       const floors = Array.isArray(project.current_plan.floors)
         ? project.current_plan.floors : [];
-      const floor0 = floors.length > 0 && isPlainObject(floors[0]) ? floors[0] : null;
-      if (!floor0 || !isPlainObject(floor0.grid)) {
+      // Step 07 — operate on the active floor (Step 06 hardcoded floors[0]).
+      // opts.floorIndex overrides if the caller wants to target a specific one.
+      const fIdx = Number.isInteger(opts.floorIndex)
+        ? opts.floorIndex
+        : (Number.isFinite(Number(project.current_plan.active_floor_index))
+            ? Math.floor(Number(project.current_plan.active_floor_index)) : 0);
+      const floor = (fIdx >= 0 && fIdx < floors.length && isPlainObject(floors[fIdx]))
+        ? floors[fIdx] : null;
+      if (!floor || !isPlainObject(floor.grid)) {
         return { ok: false, reason: "no_plan" };
       }
-      const grid = floor0.grid;
+      const grid = floor.grid;
       const W = grid.width_cells, H = grid.height_cells;
-      const regions = Array.isArray(floor0.department_regions)
-        ? floor0.department_regions : [];
-      const placedRooms = Array.isArray(floor0.rooms) ? floor0.rooms : [];
+      const regions = Array.isArray(floor.department_regions)
+        ? floor.department_regions : [];
+      const placedRooms = Array.isArray(floor.rooms) ? floor.rooms : [];
 
       const roomIdx = placedRooms.findIndex(r =>
         isPlainObject(r) && r.instance_id === roomId);
@@ -2418,7 +2764,7 @@
 
       // Build the new project. Deep-clone so callers can still hold the old.
       const newProject = cloneProject(project);
-      const newRooms = newProject.current_plan.floors[0].rooms;
+      const newRooms = newProject.current_plan.floors[fIdx].rooms;
       newRooms[roomIdx] = rebuildRoomGeometry(room, newCellsArr, grid);
       if (newDisplacedRoom && displacedOriginalIdx >= 0) {
         newRooms[displacedOriginalIdx] = newDisplacedRoom;
@@ -2463,6 +2809,311 @@
         actual_area_sf: actualArea,
         aspect_ratio: (h > 0) ? w / h : 1
       };
+    }
+
+    // ---------- Step 07 — crossFloorMove ----------
+
+    // Pure rectangle-search helper used by both Stage B and crossFloorMove.
+    // Scans every (au, av, w, h) rectangle inside `mask` looking for the best
+    // match to (cellsNeeded, minW, minD, maxAspect). Returns the placement or
+    // null. `targetAspect` controls the tie-break preference; defaults to 1.
+    function findBestRectInMask(mask, H, W, cellsNeeded, minW, minD, maxAspect, targetAspect) {
+      const ta = Number.isFinite(targetAspect) && targetAspect > 0 ? targetAspect : 1;
+      // Column-wise downward runs.
+      const down = new Array(H);
+      for (let v = H - 1; v >= 0; v--) {
+        const row = new Array(W);
+        for (let u = 0; u < W; u++) {
+          row[u] = mask[v][u] ? (1 + (v + 1 < H ? down[v + 1][u] : 0)) : 0;
+        }
+        down[v] = row;
+      }
+      let best = null;
+      for (let av = 0; av < H; av++) {
+        for (let au = 0; au < W; au++) {
+          if (!mask[av][au]) continue;
+          let maxRun = 0;
+          while (au + maxRun < W && mask[av][au + maxRun]) maxRun++;
+          let minDown = Infinity;
+          for (let w = 1; w <= maxRun; w++) {
+            const d = down[av][au + w - 1];
+            if (d < minDown) minDown = d;
+            if (minDown < 1) break;
+            const hNeed = Math.max(1, Math.ceil(cellsNeeded / w));
+            if (hNeed > minDown) continue;
+            const h = hNeed;
+            const ar = (w >= h) ? (w / h) : (h / w);
+            if (ar > maxAspect + 1e-9) continue;
+            const fitsA = (w >= minW && h >= minD);
+            const fitsB = (h >= minW && w >= minD);
+            if (!fitsA && !fitsB) continue;
+            const aspectDiff = Math.abs(ar - ta);
+            const area = w * h;
+            const fit = Math.abs(area - cellsNeeded);
+            if (!best ||
+                aspectDiff < best.aspectDiff ||
+                (aspectDiff === best.aspectDiff && fit < best.fit) ||
+                (aspectDiff === best.aspectDiff && fit === best.fit && area < best.area)) {
+              best = { au, av, w, h, area, aspectDiff, fit };
+            }
+          }
+        }
+      }
+      return best;
+    }
+
+    // Move `roomId` from its source floor to floor `targetIdx`. Mirrors
+    // localReflow's contract: returns { ok: true, project } on success or
+    // { ok: false, reason } on rejection. Never mutates input.
+    //
+    // Step 07 cross-floor rules (spec Section 05):
+    //   * Locked rooms cannot be moved.
+    //   * Target floor must contain a region for the room's department, else
+    //     reject with "no_matching_department".
+    //   * Cascade depth 1: at most ONE room on the target floor may be
+    //     displaced; locked rooms can never be displaced. The displaced room
+    //     must be re-packable into the remaining free cells of its OWN home
+    //     department on the target floor, otherwise reject.
+    //   * Same-floor drops fall through (handled by localReflow).
+    function crossFloorMove(project, roomId, targetIdx) {
+      if (!isPlainObject(project) || !isPlainObject(project.current_plan)) {
+        return { ok: false, reason: "no_plan" };
+      }
+      const floors = Array.isArray(project.current_plan.floors)
+        ? project.current_plan.floors : [];
+      if (!Number.isInteger(targetIdx) || targetIdx < 0 || targetIdx >= floors.length) {
+        return { ok: false, reason: "invalid_floor" };
+      }
+
+      // Locate the room across floors.
+      let sourceIdx = -1, sourceRoomIdx = -1, room = null;
+      for (let fi = 0; fi < floors.length; fi++) {
+        const f = floors[fi];
+        if (!isPlainObject(f) || !Array.isArray(f.rooms)) continue;
+        const ri = f.rooms.findIndex(r => isPlainObject(r) && r.instance_id === roomId);
+        if (ri >= 0) {
+          sourceIdx = fi;
+          sourceRoomIdx = ri;
+          room = f.rooms[ri];
+          break;
+        }
+      }
+      if (!room) return { ok: false, reason: "no_room" };
+      if (sourceIdx === targetIdx) return { ok: false, reason: "same_floor" };
+      if (room.locked) return { ok: false, reason: "locked_self" };
+
+      const targetFloor = floors[targetIdx];
+      if (!isPlainObject(targetFloor) || !isPlainObject(targetFloor.grid)) {
+        return { ok: false, reason: "no_target_grid" };
+      }
+      const grid = targetFloor.grid;
+      const W = grid.width_cells, H = grid.height_cells;
+      const targetRegions = Array.isArray(targetFloor.department_regions)
+        ? targetFloor.department_regions : [];
+      const targetRooms = Array.isArray(targetFloor.rooms) ? targetFloor.rooms : [];
+
+      const matchingRegion = targetRegions.find(r =>
+        isPlainObject(r) && r.id === room.department_id);
+      if (!matchingRegion || !Array.isArray(matchingRegion.cells) ||
+          matchingRegion.cells.length === 0) {
+        return { ok: false, reason: "no_matching_department" };
+      }
+
+      // Cell ownership maps for the target floor.
+      const ownerByCell = new Map();   // "u,v" → instance_id
+      const lockedKeys = new Set();
+      for (const r of targetRooms) {
+        if (!isPlainObject(r) || !Array.isArray(r.cells)) continue;
+        for (const [u, v] of r.cells) {
+          ownerByCell.set(u + "," + v, r.instance_id);
+          if (r.locked) lockedKeys.add(u + "," + v);
+        }
+      }
+
+      const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+      const cellsNeeded = Array.isArray(room.cells) && room.cells.length > 0
+        ? room.cells.length
+        : (Number.isFinite(Number(room.parti_area_cells)) && Number(room.parti_area_cells) > 0
+            ? Math.floor(Number(room.parti_area_cells))
+            : Math.max(1, Math.round(Number(room.target_area_sf || 0) / cellArea)));
+      const minW = Math.max(1, Math.floor(Number(room.min_width_cells)) || 1);
+      const minD = Math.max(1, Math.floor(Number(room.min_depth_cells)) || 1);
+      const maxAspect = Number.isFinite(Number(room.max_aspect_ratio)) &&
+                        Number(room.max_aspect_ratio) > 0
+        ? Number(room.max_aspect_ratio) : 2.5;
+      const targetAspect = (minW >= 1 && minD >= 1)
+        ? (Math.max(minW, minD) / Math.min(minW, minD)) : 1;
+
+      // Pass 1: try to fit into the matching region's UNCLAIMED cells (no
+      // displacement). This is the common path when the target floor has slack.
+      const freeMask = new Array(H);
+      for (let v = 0; v < H; v++) freeMask[v] = new Array(W).fill(false);
+      for (const [u, v] of matchingRegion.cells) {
+        if (u >= 0 && u < W && v >= 0 && v < H && !ownerByCell.has(u + "," + v)) {
+          freeMask[v][u] = true;
+        }
+      }
+      let placement = findBestRectInMask(
+        freeMask, H, W, cellsNeeded, minW, minD, maxAspect, targetAspect);
+      let displacedRoom = null;
+      let displacedTargetIdx = -1;
+
+      if (!placement) {
+        // Pass 2: cascade depth 1. Allow rectangles inside the region (sans
+        // locked cells) that overlap at most ONE non-locked target room.
+        const regionMask = new Array(H);
+        for (let v = 0; v < H; v++) regionMask[v] = new Array(W).fill(false);
+        for (const [u, v] of matchingRegion.cells) {
+          if (u >= 0 && u < W && v >= 0 && v < H && !lockedKeys.has(u + "," + v)) {
+            regionMask[v][u] = true;
+          }
+        }
+        // Build down[][] for the region mask.
+        const down = new Array(H);
+        for (let v = H - 1; v >= 0; v--) {
+          const row = new Array(W);
+          for (let u = 0; u < W; u++) {
+            row[u] = regionMask[v][u] ? (1 + (v + 1 < H ? down[v + 1][u] : 0)) : 0;
+          }
+          down[v] = row;
+        }
+
+        let best = null;
+        for (let av = 0; av < H; av++) {
+          for (let au = 0; au < W; au++) {
+            if (!regionMask[av][au]) continue;
+            let maxRun = 0;
+            while (au + maxRun < W && regionMask[av][au + maxRun]) maxRun++;
+            let minDown = Infinity;
+            for (let w = 1; w <= maxRun; w++) {
+              const d = down[av][au + w - 1];
+              if (d < minDown) minDown = d;
+              if (minDown < 1) break;
+              const hNeed = Math.max(1, Math.ceil(cellsNeeded / w));
+              if (hNeed > minDown) continue;
+              const h = hNeed;
+              const ar = (w >= h) ? (w / h) : (h / w);
+              if (ar > maxAspect + 1e-9) continue;
+              const fitsA = (w >= minW && h >= minD);
+              const fitsB = (h >= minW && w >= minD);
+              if (!fitsA && !fitsB) continue;
+
+              // Count overlapping non-self rooms in the rectangle.
+              const overlapIds = new Set();
+              let bail = false;
+              for (let dv = 0; dv < h && !bail; dv++) {
+                for (let du = 0; du < w; du++) {
+                  const owner = ownerByCell.get((au + du) + "," + (av + dv));
+                  if (owner && owner !== room.instance_id) {
+                    overlapIds.add(owner);
+                    if (overlapIds.size > 1) { bail = true; break; }
+                  }
+                }
+              }
+              if (overlapIds.size > 1) continue;
+              const aspectDiff = Math.abs(ar - targetAspect);
+              const area = w * h;
+              const fit = Math.abs(area - cellsNeeded);
+              const overlapPenalty = overlapIds.size;  // prefer 0 overlaps
+              if (!best ||
+                  overlapPenalty < best.overlapPenalty ||
+                  (overlapPenalty === best.overlapPenalty && aspectDiff < best.aspectDiff) ||
+                  (overlapPenalty === best.overlapPenalty && aspectDiff === best.aspectDiff && fit < best.fit)) {
+                best = { au, av, w, h, area, aspectDiff, fit,
+                         overlapPenalty, overlapIds: [...overlapIds] };
+              }
+            }
+          }
+        }
+
+        if (!best) return { ok: false, reason: "target_full" };
+
+        if (best.overlapPenalty === 1) {
+          // Try to absorb the displaced room into its own home department's
+          // free slack on the target floor.
+          const dispId = best.overlapIds[0];
+          displacedTargetIdx = targetRooms.findIndex(r =>
+            isPlainObject(r) && r.instance_id === dispId);
+          if (displacedTargetIdx < 0) return { ok: false, reason: "target_full" };
+          const disp = targetRooms[displacedTargetIdx];
+          if (disp.locked) return { ok: false, reason: "locked_collision" };
+
+          const dispRegion = targetRegions.find(r =>
+            isPlainObject(r) && r.id === disp.department_id);
+          if (!dispRegion || !Array.isArray(dispRegion.cells)) {
+            return { ok: false, reason: "displaced_cannot_fit" };
+          }
+
+          // Build claimed-by-incoming set so the displaced room's pool excludes it.
+          const claimedNew = new Set();
+          for (let dv = 0; dv < best.h; dv++) {
+            for (let du = 0; du < best.w; du++) {
+              claimedNew.add((best.au + du) + "," + (best.av + dv));
+            }
+          }
+          // Pool: the displaced room's existing cells minus claimed, plus any
+          // unclaimed cells in its home department region.
+          const dispMask = new Array(H);
+          for (let v = 0; v < H; v++) dispMask[v] = new Array(W).fill(false);
+          for (const [u, v] of disp.cells) {
+            if (u >= 0 && u < W && v >= 0 && v < H && !claimedNew.has(u + "," + v)) {
+              dispMask[v][u] = true;
+            }
+          }
+          for (const [u, v] of dispRegion.cells) {
+            if (u >= 0 && u < W && v >= 0 && v < H &&
+                !ownerByCell.has(u + "," + v) && !claimedNew.has(u + "," + v)) {
+              dispMask[v][u] = true;
+            }
+          }
+          const dispCellsNeeded = Array.isArray(disp.cells) ? disp.cells.length
+            : Math.max(1, Math.round(Number(disp.target_area_sf || 0) / cellArea));
+          const dMinW = Math.max(1, Math.floor(Number(disp.min_width_cells)) || 1);
+          const dMinD = Math.max(1, Math.floor(Number(disp.min_depth_cells)) || 1);
+          const dMaxA = Number.isFinite(Number(disp.max_aspect_ratio)) &&
+                        Number(disp.max_aspect_ratio) > 0
+            ? Number(disp.max_aspect_ratio) : 2.5;
+          const dTargetA = (dMinW >= 1 && dMinD >= 1)
+            ? (Math.max(dMinW, dMinD) / Math.min(dMinW, dMinD)) : 1;
+          const dispPlacement = findBestRectInMask(
+            dispMask, H, W, dispCellsNeeded, dMinW, dMinD, dMaxA, dTargetA);
+          if (!dispPlacement) return { ok: false, reason: "displaced_cannot_fit" };
+
+          const dispNewCells = [];
+          for (let dv = 0; dv < dispPlacement.h; dv++) {
+            for (let du = 0; du < dispPlacement.w; du++) {
+              dispNewCells.push([dispPlacement.au + du, dispPlacement.av + dv]);
+            }
+          }
+          displacedRoom = rebuildRoomGeometry(disp, dispNewCells, grid);
+        }
+
+        placement = best;
+      }
+
+      // Build new cell list for the moved room.
+      const newCells = [];
+      for (let dv = 0; dv < placement.h; dv++) {
+        for (let du = 0; du < placement.w; du++) {
+          newCells.push([placement.au + du, placement.av + dv]);
+        }
+      }
+
+      const np = cloneProject(project);
+      const npFloors = np.current_plan.floors;
+      // Splice the room out of source.
+      npFloors[sourceIdx].rooms.splice(sourceRoomIdx, 1);
+      // Rebuild geometry on target.
+      const movedRoom = rebuildRoomGeometry(room, newCells, grid);
+      if (displacedRoom && displacedTargetIdx >= 0) {
+        npFloors[targetIdx].rooms[displacedTargetIdx] = displacedRoom;
+      }
+      npFloors[targetIdx].rooms.push(movedRoom);
+      // UX decision (spec Section 05): auto-switch active floor on success so
+      // the user sees the result immediately.
+      np.current_plan.active_floor_index = targetIdx;
+      np.updated_at = new Date().toISOString();
+      return { ok: true, project: np };
     }
 
     // ============================================================
@@ -2930,6 +3581,160 @@
       return { ok: true, ghostRooms };
     }
 
+    // ---------- Step 07 — FloorStrip ----------
+
+    // Render a single floor as a tiny SVG thumbnail (no labels, no overlay,
+    // no gestures). Uses the same world→screen math as the main canvas, but
+    // a synthetic view scaled to fit the polygon bounds inside (widthPx ×
+    // heightPx) with a small margin. Cells are filled with the dept palette;
+    // room rectangles are drawn as 0.5-px outlines so the user can see the
+    // overall plan at a glance.
+    function renderFloorThumbnail(floor, polygon, widthPx, heightPx) {
+      if (!isPlainObject(floor) || !isPlainObject(floor.grid) ||
+          !Array.isArray(polygon) || polygon.length < 3) {
+        return null;
+      }
+      const grid = floor.grid;
+      const cs = grid.cell_size_ft;
+      const ox = grid.origin_x, oy = grid.origin_y;
+      const { minX, maxX, minY, maxY } = computePolygonBounds(polygon);
+      const worldW = Math.max(1e-6, maxX - minX);
+      const worldH = Math.max(1e-6, maxY - minY);
+      const margin = 4;  // px
+      const innerW = Math.max(8, widthPx - margin * 2);
+      const innerH = Math.max(8, heightPx - margin * 2);
+      const scale = Math.min(innerW / worldW, innerH / worldH);
+      // Center the projected drawing in the tile.
+      const offX = margin + (innerW - worldW * scale) / 2;
+      const offY = margin + (innerH - worldH * scale) / 2;
+      function w2s(wx, wy) {
+        return [
+          offX + (wx - minX) * scale,
+          offY + (maxY - wy) * scale  // flip Y so screen +Y is south
+        ];
+      }
+      const polyPts = polygon
+        .filter(p => Array.isArray(p) && p.length >= 2)
+        .map(([x, y]) => {
+          const [sx, sy] = w2s(Number(x), Number(y));
+          return sx.toFixed(1) + "," + sy.toFixed(1);
+        }).join(" ");
+
+      // Department region cells (translucent fills).
+      const regions = Array.isArray(floor.department_regions) ? floor.department_regions : [];
+      const regionEls = [];
+      regions.forEach((region, ri) => {
+        if (!Array.isArray(region.cells)) return;
+        const fill = deptColor(region.id);
+        // Combine cells into a single <path> for cheap rendering. Each cell
+        // is one rect; they all share the same fill so a path is fine.
+        let d = "";
+        for (const [u, v] of region.cells) {
+          const [x0, y0] = w2s(ox + u * cs, oy + (v + 1) * cs);
+          const [x1, y1] = w2s(ox + (u + 1) * cs, oy + v * cs);
+          const x = Math.min(x0, x1), y = Math.min(y0, y1);
+          const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+          d += "M" + x.toFixed(2) + " " + y.toFixed(2) +
+               "h" + w.toFixed(2) + "v" + h.toFixed(2) +
+               "h" + (-w).toFixed(2) + "Z";
+        }
+        if (d) regionEls.push(
+          <path key={"r" + ri} d={d} fill={fill} fillOpacity="0.5" stroke="none" />
+        );
+      });
+
+      // Room outlines (1-px text-color stroke, no fill).
+      const rooms = Array.isArray(floor.rooms) ? floor.rooms : [];
+      const roomEls = [];
+      rooms.forEach((room, ri) => {
+        if (!isPlainObject(room) || !room.bbox_cells) return;
+        const bb = room.bbox_cells;
+        const [x0, y0] = w2s(ox + bb.u_min * cs, oy + (bb.v_max + 1) * cs);
+        const [x1, y1] = w2s(ox + (bb.u_max + 1) * cs, oy + bb.v_min * cs);
+        const x = Math.min(x0, x1), y = Math.min(y0, y1);
+        const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+        roomEls.push(
+          <rect key={"rm" + ri} x={x} y={y} width={w} height={h}
+                fill="none" stroke="var(--calvey-text)" strokeWidth="0.5" />
+        );
+      });
+
+      return (
+        <svg viewBox={"0 0 " + widthPx + " " + heightPx}
+             preserveAspectRatio="xMidYMid meet">
+          {regionEls}
+          {polyPts && (
+            <polygon points={polyPts}
+                     fill="none" stroke="var(--calvey-text)" strokeWidth="0.6" />
+          )}
+          {roomEls}
+        </svg>
+      );
+    }
+
+    // Vertical floor strip with one tile per floor + add/remove buttons.
+    // Numbered top-to-bottom by physical level: the TOP tile is the top floor,
+    // the BOTTOM tile is the ground floor. Click activates; drop targets for
+    // cross-floor drag are wired by data-floor-index attributes (the canvas's
+    // pointer handlers detect via document.elementFromPoint).
+    function FloorStrip({ project, polygon, activeIdx, dropTargetIdx,
+                          dropTargetValid, onActivate, onAddFloor,
+                          onRemoveFloor, showRegenChip }) {
+      const floors = (project && project.current_plan &&
+        Array.isArray(project.current_plan.floors))
+          ? project.current_plan.floors : [];
+      const fc = floors.length;
+      // Top-to-bottom display order: highest level first (e.g. floor 3, 2, 1).
+      const order = [];
+      for (let i = fc - 1; i >= 0; i--) order.push(i);
+      return (
+        <div className="floor-strip">
+          {order.map(i => {
+            const f = floors[i];
+            if (!isPlainObject(f)) return null;
+            const isActive = i === activeIdx;
+            const isDrop = i === dropTargetIdx;
+            const cls = ["floor-tile"];
+            if (isActive) cls.push("active");
+            if (isDrop) cls.push(dropTargetValid ? "drop-target" : "drop-target-invalid");
+            const roomCount = Array.isArray(f.rooms) ? f.rooms.length : 0;
+            const unplacedCount = Array.isArray(f.unplaced_rooms) ? f.unplaced_rooms.length : 0;
+            const level = Number.isFinite(Number(f.level)) ? Number(f.level) : (i + 1);
+            return (
+              <div key={"floor-tile-" + i}
+                   className={cls.join(" ")}
+                   data-floor-index={i}
+                   onClick={() => onActivate && onActivate(i)}
+                   title={"Activate floor " + level}>
+                {renderFloorThumbnail(f, polygon, 80, 60)}
+                <div className="floor-label" data-floor-index={i}>FLOOR {level}</div>
+                <div className="room-count" data-floor-index={i}>{roomCount}</div>
+                {unplacedCount > 0 && (
+                  <div className="unplaced-badge" data-floor-index={i}
+                       title={unplacedCount + " unplaced"} />
+                )}
+              </div>
+            );
+          })}
+          <div className="floor-controls">
+            <button type="button" onClick={onAddFloor} title="Add a floor on top">
+              + ADD FLOOR
+            </button>
+            <button type="button" onClick={onRemoveFloor}
+                    disabled={fc <= 1}
+                    title={fc <= 1 ? "At least one floor required" : "Remove top floor"}>
+              − REMOVE TOP
+            </button>
+          </div>
+          {showRegenChip && (
+            <div className="floor-chip">
+              Click GENERATE to distribute rooms across the new floor count.
+            </div>
+          )}
+        </div>
+      );
+    }
+
     function FootprintCanvas({ project, setProject, programDb }) {
       const polygon =
         (project && project.context && project.context.footprint &&
@@ -2946,19 +3751,23 @@
           ? (project.context.program.building_type ?? "—")
           : "—";
 
-      // Step 03: department regions from current_plan.floors[0]
-      const floor0 =
-        project && project.current_plan && Array.isArray(project.current_plan.floors) &&
-        project.current_plan.floors.length > 0 && isPlainObject(project.current_plan.floors[0])
-          ? project.current_plan.floors[0]
-          : null;
-      const grid = floor0 && isPlainObject(floor0.grid) ? floor0.grid : null;
-      const regions = floor0 && Array.isArray(floor0.department_regions)
-        ? floor0.department_regions : [];
-      // Step 03: room instances + unplaced rooms from current_plan.floors[0]
-      const placedRooms = floor0 && Array.isArray(floor0.rooms) ? floor0.rooms : [];
-      const unplacedRooms = floor0 && Array.isArray(floor0.unplaced_rooms)
-        ? floor0.unplaced_rooms : [];
+      // Step 07 — pick the active floor (Step 06 read floors[0] hardcoded).
+      const floorsArr = (project && project.current_plan &&
+        Array.isArray(project.current_plan.floors))
+          ? project.current_plan.floors : [];
+      const activeIdxRaw = (project && project.current_plan &&
+        Number.isFinite(Number(project.current_plan.active_floor_index)))
+          ? Math.floor(Number(project.current_plan.active_floor_index)) : 0;
+      const activeIdx = Math.max(0, Math.min(activeIdxRaw, floorsArr.length - 1));
+      const activeFloor = (floorsArr.length > 0 && isPlainObject(floorsArr[activeIdx]))
+        ? floorsArr[activeIdx] : null;
+      const grid = activeFloor && isPlainObject(activeFloor.grid) ? activeFloor.grid : null;
+      const regions = activeFloor && Array.isArray(activeFloor.department_regions)
+        ? activeFloor.department_regions : [];
+      const placedRooms = activeFloor && Array.isArray(activeFloor.rooms)
+        ? activeFloor.rooms : [];
+      const unplacedRooms = activeFloor && Array.isArray(activeFloor.unplaced_rooms)
+        ? activeFloor.unplaced_rooms : [];
 
       const containerRef = React.useRef(null);
       const svgRef = React.useRef(null);
@@ -2985,7 +3794,13 @@
         // coords + primary-room area text for the live area chip.
         ghostRooms: null,
         cellOffset: 0,
-        tooltip: null
+        tooltip: null,
+        // Step 07 — cross-floor drop preview while type === "dragging_room".
+        // crossFloorTarget is the floor index the cursor is hovering (HTML
+        // tile, not SVG); null when the cursor is over the canvas. valid
+        // gates whether the target tile glows accent vs. red.
+        crossFloorTarget: null,
+        crossFloorValid: false
       });
       const gestureRef = React.useRef(gesture);
       React.useEffect(() => { gestureRef.current = gesture; }, [gesture]);
@@ -3023,11 +3838,15 @@
       const placedRoomsRef = React.useRef(placedRooms);
       const regionsRef = React.useRef(regions);
       const gridRef = React.useRef(grid);
+      // Step 07 — cross-floor lookups need access to all floors. The pointer
+      // handlers consult this to validate cross-floor drop targets.
+      const projectRef = React.useRef(project);
       React.useEffect(() => { viewRef.current = view; }, [view]);
       React.useEffect(() => { viewportRef.current = viewport; }, [viewport]);
       React.useEffect(() => { placedRoomsRef.current = placedRooms; }, [placedRooms]);
       React.useEffect(() => { regionsRef.current = regions; }, [regions]);
       React.useEffect(() => { gridRef.current = grid; }, [grid]);
+      React.useEffect(() => { projectRef.current = project; }, [project]);
 
       // Step 06 — wall index. Rebuilt whenever rooms/grid change and mirrored
       // to a ref so the pointer handlers (which run outside the React render
@@ -3120,7 +3939,8 @@
         dragStateRef.current = null;
         setGesture(g => (g.type === "dragging_room"
           ? { type: "idle", roomId: null, startBounds: null,
-              ghostCells: null, dropValid: false }
+              ghostCells: null, dropValid: false,
+              crossFloorTarget: null, crossFloorValid: false }
           : g));
       }
 
@@ -3203,13 +4023,17 @@
           const np = cloneProject(p);
           const floors = isPlainObject(np.current_plan) &&
             Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
-          const f0 = floors[0];
-          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
-          const idx = f0.rooms.findIndex(r => r && r.instance_id === roomId);
-          if (idx < 0) return p;
-          f0.rooms[idx] = { ...f0.rooms[idx], locked: true, lock_reason: reason };
-          np.updated_at = new Date().toISOString();
-          return np;
+          // Step 07 — search every floor for the room (chip target may be on
+          // any visible floor; the active floor is just where the chip opened).
+          for (const fl of floors) {
+            if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) continue;
+            const idx = fl.rooms.findIndex(r => r && r.instance_id === roomId);
+            if (idx < 0) continue;
+            fl.rooms[idx] = { ...fl.rooms[idx], locked: true, lock_reason: reason };
+            np.updated_at = new Date().toISOString();
+            return np;
+          }
+          return p;
         });
       }
 
@@ -3222,13 +4046,15 @@
           const np = cloneProject(p);
           const floors = isPlainObject(np.current_plan) &&
             Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
-          const f0 = floors[0];
-          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
-          const idx = f0.rooms.findIndex(r => r && r.instance_id === roomId);
-          if (idx < 0) return p;
-          f0.rooms[idx] = { ...f0.rooms[idx], locked: false, lock_reason: null };
-          np.updated_at = new Date().toISOString();
-          return np;
+          for (const fl of floors) {
+            if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) continue;
+            const idx = fl.rooms.findIndex(r => r && r.instance_id === roomId);
+            if (idx < 0) continue;
+            fl.rooms[idx] = { ...fl.rooms[idx], locked: false, lock_reason: null };
+            np.updated_at = new Date().toISOString();
+            return np;
+          }
+          return p;
         });
       }
 
@@ -3458,14 +4284,17 @@
           const np = cloneProject(p);
           const floors = isPlainObject(np.current_plan) &&
             Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
-          const f0 = floors[0];
-          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
-          const grid = f0.grid;
+          // Step 07 — apply to the active floor (Step 06 hardcoded floors[0]).
+          const fIdx = Number.isFinite(Number(np.current_plan.active_floor_index))
+            ? Math.floor(Number(np.current_plan.active_floor_index)) : 0;
+          const fl = (fIdx >= 0 && fIdx < floors.length) ? floors[fIdx] : null;
+          if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) return p;
+          const grid = fl.grid;
           if (!isPlainObject(grid)) return p;
-          for (let i = 0; i < f0.rooms.length; i++) {
-            const r = f0.rooms[i];
+          for (let i = 0; i < fl.rooms.length; i++) {
+            const r = fl.rooms[i];
             if (!r || !ghostRooms[r.instance_id]) continue;
-            f0.rooms[i] = rebuildRoomGeometry(r, ghostRooms[r.instance_id].cells, grid);
+            fl.rooms[i] = rebuildRoomGeometry(r, ghostRooms[r.instance_id].cells, grid);
           }
           np.updated_at = new Date().toISOString();
           return np;
@@ -3631,6 +4460,60 @@
           const v = viewRef.current;
           const g = gridRef.current;
           if (!g) return;
+
+          // Step 07 — check whether the cursor is over a floor-strip tile
+          // BEFORE running the in-canvas reflow ghost. elementFromPoint reads
+          // the actual DOM node under the cursor (the floor strip is HTML, not
+          // SVG). When over a tile, freeze the in-canvas ghost and preview
+          // the cross-floor drop instead.
+          let crossFloorTarget = null;
+          let crossFloorValid = false;
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          if (overEl) {
+            const tile = overEl.closest && overEl.closest('[data-floor-index]');
+            if (tile) {
+              const idxAttr = tile.getAttribute('data-floor-index');
+              const idx = parseInt(idxAttr, 10);
+              if (Number.isInteger(idx)) {
+                const proj = projectRef.current;
+                const activeIdxNow = (proj && proj.current_plan &&
+                  Number.isFinite(Number(proj.current_plan.active_floor_index)))
+                    ? Math.floor(Number(proj.current_plan.active_floor_index)) : 0;
+                if (idx !== activeIdxNow) {
+                  crossFloorTarget = idx;
+                  // Lightweight validity check: target floor must have a
+                  // matching department region. Detailed packing happens at
+                  // commit time in crossFloorMove; we only need a hint here.
+                  const floors = (proj && proj.current_plan &&
+                    Array.isArray(proj.current_plan.floors))
+                      ? proj.current_plan.floors : [];
+                  const tf = floors[idx];
+                  const draggedRoom = (placedRoomsRef.current || []).find(
+                    r => r && r.instance_id === ds.roomId);
+                  if (tf && draggedRoom && Array.isArray(tf.department_regions)) {
+                    crossFloorValid = tf.department_regions.some(rr =>
+                      rr && rr.id === draggedRoom.department_id);
+                  }
+                }
+              }
+            }
+          }
+
+          if (Number.isInteger(crossFloorTarget)) {
+            // Cursor is over a target tile — freeze the in-canvas ghost at
+            // the source room's original cells (matches what crossFloorMove
+            // would do) and surface the drop preview on the strip.
+            setGesture(G => ({
+              ...G,
+              type: "dragging_room",
+              ghostCells: ds.startCells,
+              dropValid: false,
+              crossFloorTarget,
+              crossFloorValid
+            }));
+            return;
+          }
+
           // World delta (Y flipped).
           const dwx = dsx / v.zoom;
           const dwy = -dsy / v.zoom;
@@ -3673,7 +4556,9 @@
             ...G,
             type: "dragging_room",
             ghostCells,
-            dropValid: valid
+            dropValid: valid,
+            crossFloorTarget: null,
+            crossFloorValid: false
           }));
           return;
         }
@@ -3700,7 +4585,8 @@
           setIsPanning(false);
           setGesture(g => (g.type === "panning"
             ? { type: "idle", roomId: null, startBounds: null,
-                ghostCells: null, dropValid: false }
+                ghostCells: null, dropValid: false,
+                crossFloorTarget: null, crossFloorValid: false }
             : g));
           return;
         }
@@ -3710,6 +4596,20 @@
           const roomId = ds.roomId;
           const startCells = ds.startCells;
           const moved = ds.moved;
+
+          // Step 07 — capture the final pointer location so we can detect a
+          // cross-floor drop on a strip tile (the gesture state's
+          // crossFloorTarget may be one tick stale).
+          let dropTileIdx = null;
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          if (overEl) {
+            const tile = overEl.closest && overEl.closest('[data-floor-index]');
+            if (tile) {
+              const idxAttr = tile.getAttribute('data-floor-index');
+              const idx = parseInt(idxAttr, 10);
+              if (Number.isInteger(idx)) dropTileIdx = idx;
+            }
+          }
 
           // Recompute ghost cells from the up event so they're final.
           let ghostCells = startCells;
@@ -3728,11 +4628,35 @@
 
           dragStateRef.current = null;
           setGesture({ type: "idle", roomId: null, startBounds: null,
-                       ghostCells: null, dropValid: false });
+                       ghostCells: null, dropValid: false,
+                       crossFloorTarget: null, crossFloorValid: false });
 
           // Pure tap (no movement): record for double-tap, do nothing else.
           if (!moved) {
             lastTapRef.current = { roomId, time: Date.now() };
+            return;
+          }
+
+          // Step 07 — cross-floor drop. If the cursor is over a tile other
+          // than the active floor, route through crossFloorMove. Same-floor
+          // tile drops fall through to the normal localReflow path so the
+          // user can drop on the source floor's tile to "cancel" without an
+          // accidental in-canvas reflow.
+          if (Number.isInteger(dropTileIdx) && setProject) {
+            const projNow = projectRef.current;
+            const activeIdxNow = (projNow && projNow.current_plan &&
+              Number.isFinite(Number(projNow.current_plan.active_floor_index)))
+                ? Math.floor(Number(projNow.current_plan.active_floor_index)) : 0;
+            if (dropTileIdx !== activeIdxNow) {
+              setProject(p => {
+                const result = crossFloorMove(p, roomId, dropTileIdx);
+                if (result && result.ok) return result.project;
+                showReject(result && result.reason ? result.reason : "cross_floor_failed");
+                return p;
+              });
+              return;
+            }
+            // dropTileIdx === activeIdxNow → silent no-op; user cancelled.
             return;
           }
 
@@ -4458,6 +5382,93 @@
         return wall.axis === "vertical" ? "wall-ew" : "wall-ns";
       }, [isPanning, gesture.type, hoveredWallId, wallIndex]);
 
+      // ---------- Step 07 — Floor strip handlers ----------
+
+      // Activate a different floor: just write current_plan.active_floor_index.
+      function handleActivateFloor(idx) {
+        if (!setProject) return;
+        if (!Number.isInteger(idx) || idx < 0) return;
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.current_plan)) return p;
+          const floorsLen = Array.isArray(np.current_plan.floors)
+            ? np.current_plan.floors.length : 0;
+          if (idx >= floorsLen) return p;
+          if (Number(np.current_plan.active_floor_index) === idx) return p;
+          np.current_plan.active_floor_index = idx;
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
+      // Add an empty floor on top. Bumps floor_count and pushes a stub floor
+      // entry. Does NOT regenerate — that's the user's call (per spec, to
+      // preserve locked-room positions).
+      function handleAddFloor() {
+        if (!setProject) return;
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.context)) np.context = {};
+          if (!isPlainObject(np.context.program)) np.context.program = {};
+          if (!isPlainObject(np.current_plan)) {
+            np.current_plan = {
+              floors: [], active_floor_index: 0, total_score: null,
+              program_fit_report: null, unplaced_rooms: [], stale: false
+            };
+          }
+          if (!Array.isArray(np.current_plan.floors)) np.current_plan.floors = [];
+          const oldFc = np.current_plan.floors.length;
+          const newLevel = oldFc + 1;
+          np.current_plan.floors.push({
+            level: newLevel, grid: null, sun_vector: null,
+            department_regions: [], rooms: [], unplaced_rooms: []
+          });
+          np.context.program.floor_count = np.current_plan.floors.length;
+          if (!isPlainObject(np.context.program.program_inputs)) {
+            np.context.program.program_inputs = {};
+          }
+          np.context.program.program_inputs.floor_count = np.current_plan.floors.length;
+          // Stale until the user regenerates — the new floor is empty.
+          np.current_plan.stale = true;
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
+      // Remove the top floor. No-op if floor_count is already 1. Clamps
+      // active_floor_index to the new top.
+      function handleRemoveFloor() {
+        if (!setProject) return;
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.current_plan) ||
+              !Array.isArray(np.current_plan.floors)) return p;
+          const oldFc = np.current_plan.floors.length;
+          if (oldFc <= 1) return p;
+          np.current_plan.floors.pop();
+          const newFc = np.current_plan.floors.length;
+          if (Number(np.current_plan.active_floor_index) >= newFc) {
+            np.current_plan.active_floor_index = newFc - 1;
+          }
+          if (!isPlainObject(np.context)) np.context = {};
+          if (!isPlainObject(np.context.program)) np.context.program = {};
+          np.context.program.floor_count = newFc;
+          if (!isPlainObject(np.context.program.program_inputs)) {
+            np.context.program.program_inputs = {};
+          }
+          np.context.program.program_inputs.floor_count = newFc;
+          np.current_plan.stale = true;
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
+      // Regen-prompt chip below the floor strip — shown whenever the plan
+      // is stale (e.g. after add/remove floor). Cleared on next successful
+      // generate. Same signal the top-bar STALE chip uses.
+      const regenChipShown = !!(project && project.current_plan &&
+        project.current_plan.stale);
+
       return (
         <div className="canvas-container" ref={containerRef}>
           <svg
@@ -4732,6 +5743,23 @@
               )}
             </div>
           )}
+
+          {/* Step 07 — Floor strip (HTML overlay, left side). One tile per
+              floor + add/remove floor buttons. Cross-floor drag drop targets
+              are detected by the canvas's pointer handlers via the
+              data-floor-index attribute on each tile. */}
+          <FloorStrip
+            project={project}
+            polygon={polygon}
+            activeIdx={activeIdx}
+            dropTargetIdx={Number.isInteger(gesture.crossFloorTarget)
+              ? gesture.crossFloorTarget : -1}
+            dropTargetValid={!!gesture.crossFloorValid}
+            onActivate={handleActivateFloor}
+            onAddFloor={handleAddFloor}
+            onRemoveFloor={handleRemoveFloor}
+            showRegenChip={regenChipShown}
+          />
         </div>
       );
     }
@@ -4997,7 +6025,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.4.0-STEP05 · STEP 05 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.6.0-STEP07 · STEP 07 OF 09
           </footer>
         </div>
       );
@@ -5170,8 +6198,14 @@
           ? project.context.program.building_type : null;
         const btNew = (parsed && parsed.context && parsed.context.program)
           ? parsed.context.program.building_type : null;
+        // Step 07 — floor_count changes also stale the plan.
+        const fcOld = (project && project.context && project.context.program)
+          ? Number(project.context.program.floor_count) || 1 : 1;
+        const fcNew = (parsed && parsed.context && parsed.context.program)
+          ? Number(parsed.context.program.floor_count) || 1 : 1;
 
-        const changed = (polyOld !== polyNew) || (piOld !== piNew) || (btOld !== btNew);
+        const changed = (polyOld !== polyNew) || (piOld !== piNew) ||
+                        (btOld !== btNew) || (fcOld !== fcNew);
         if (changed) {
           if (!isPlainObject(parsed.current_plan)) {
             parsed.current_plan = {
@@ -5213,7 +6247,7 @@
         <div className="app">
           <header className="section">
             <h1>CALVEY PARTY 2</h1>
-            <div className="label">SANDBOX · STEP 05 · DRAG-AND-REFLOW + LOCK</div>
+            <div className="label">SANDBOX · STEP 07 · MULTI-FLOOR + CROSS-FLOOR DRAG</div>
           </header>
 
           <div className="section">
@@ -5273,7 +6307,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.4.0-STEP05 · STEP 05 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.6.0-STEP07 · STEP 07 OF 09
           </footer>
         </div>
       );
