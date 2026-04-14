@@ -421,6 +421,46 @@
       pointer-events: none;
       z-index: 11;
     }
+
+    /* Step 06 — alignment-group highlight on wall hover. One SVG <line> per
+       wall in the group; renders above rooms so the preview is visible even
+       over filled room cells. */
+    .alignment-highlight {
+      pointer-events: none;
+      stroke: var(--calvey-accent);
+      stroke-width: 3;
+      stroke-opacity: 0.6;
+      fill: none;
+    }
+
+    /* Step 06 — scrub area tooltip. Absolute positioning inside the canvas
+       container so it floats near the cursor. pointer-events: none so the
+       chip itself never intercepts a pointer during the scrub. */
+    .scrub-area-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: white;
+      border: 1px solid var(--calvey-text);
+      padding: 6px 10px;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      z-index: 30;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .scrub-area-tooltip .room-name { font-size: 9px; color: var(--calvey-text); }
+    .scrub-area-tooltip .room-area { font-size: 12px; color: var(--calvey-text); margin-top: 2px; }
+    .scrub-area-tooltip .others    { font-size: 8px; color: var(--calvey-muted); margin-top: 2px; }
+
+    /* Step 06 — wall hover cursors. The descendant selector is required
+       because per-room hit-target rects (`[data-room-id]`) already set
+       `cursor: grab`, which would otherwise win for the user's actual
+       hover target. !important forces the resize cursor while a wall is
+       hovered even though the cursor physically lands on a room rect. */
+    svg.wall-ew,
+    svg.wall-ew * { cursor: ew-resize !important; }
+    svg.wall-ns,
+    svg.wall-ns * { cursor: ns-resize !important; }
   </style>
 </head>
 <body>
@@ -433,7 +473,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.4.0-step05";
+    const ENGINE_VERSION = "0.5.0-step06";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -2541,6 +2581,355 @@
       return DEPT_PALETTE[h % DEPT_PALETTE.length];
     }
 
+    // ---------- Step 06 — wall index + alignment groups ----------
+
+    // Build the index of scrubbable walls from placed rooms. A wall exists
+    // between adjacent cells belonging to DIFFERENT rooms in the SAME
+    // department. Facade walls (room ↔ exterior) and cross-department walls
+    // are excluded — they're not scrubbable in Step 06.
+    //
+    // Wall object shape:
+    //   { id, axis, perp_coord, segment: {start, end}, roomA_id, roomB_id,
+    //     department, worldLine: {x1, y1, x2, y2}, length_ft }
+    //
+    // Terminology: a vertical wall runs parallel to the v-axis; its perp_coord
+    // is a u-value (the cell boundary between cells at u-1 and u). Its
+    // `segment` is a half-open v-range [start, end). Horizontal walls are
+    // symmetric. `perp_coord` and segment values are in cell units.
+    //
+    // Contiguous cell-pair adjacencies with the same (axis, perp_coord,
+    // roomA, roomB) are merged into a single wall. Walls < 2 cells long are
+    // dropped (too small to make sense as scrub targets).
+    function buildWallIndex(rooms, grid) {
+      if (!grid || !Array.isArray(rooms) || rooms.length === 0) return [];
+      const W = grid.width_cells, H = grid.height_cells;
+      const cs = grid.cell_size_ft;
+      const ox = grid.origin_x, oy = grid.origin_y;
+
+      // Ownership lookup: cell (u, v) → roomIdx, or -1 if unowned.
+      const owner = new Array(H);
+      for (let v = 0; v < H; v++) owner[v] = new Array(W).fill(-1);
+      rooms.forEach((r, ri) => {
+        if (!r || !Array.isArray(r.cells)) return;
+        for (const [u, v] of r.cells) {
+          if (u >= 0 && u < W && v >= 0 && v < H) owner[v][u] = ri;
+        }
+      });
+
+      // Bucket candidate segments by (axis, perp_coord, roomA, roomB) so
+      // contiguous runs collapse into one wall per room-pair.
+      const buckets = new Map();
+      function addSegment(axis, perp, pCell, lowerId, upperId, dept) {
+        const key = axis + "|" + perp + "|" + lowerId + "|" + upperId;
+        let b = buckets.get(key);
+        if (!b) {
+          b = { axis, perp, roomA: lowerId, roomB: upperId, department: dept, cells: [] };
+          buckets.set(key, b);
+        }
+        b.cells.push(pCell);
+      }
+
+      // Scan east + north neighbors only — avoids double-counting.
+      for (let v = 0; v < H; v++) {
+        for (let u = 0; u < W; u++) {
+          const a = owner[v][u];
+          if (a < 0) continue;
+          const roomA = rooms[a];
+          if (!roomA) continue;
+          // East: vertical wall at u+1, parallel cell = v.
+          if (u + 1 < W) {
+            const b = owner[v][u + 1];
+            if (b >= 0 && b !== a) {
+              const roomB = rooms[b];
+              if (roomB && roomA.department_id === roomB.department_id) {
+                addSegment("vertical", u + 1, v,
+                  roomA.instance_id, roomB.instance_id, roomA.department_id);
+              }
+            }
+          }
+          // North: horizontal wall at v+1, parallel cell = u.
+          if (v + 1 < H) {
+            const b = owner[v + 1][u];
+            if (b >= 0 && b !== a) {
+              const roomB = rooms[b];
+              if (roomB && roomA.department_id === roomB.department_id) {
+                addSegment("horizontal", v + 1, u,
+                  roomA.instance_id, roomB.instance_id, roomA.department_id);
+              }
+            }
+          }
+        }
+      }
+
+      // Split each bucket into contiguous runs → wall objects.
+      const walls = [];
+      for (const b of buckets.values()) {
+        const sorted = b.cells.slice().sort((x, y) => x - y);
+        let start = sorted[0];
+        let prev = sorted[0];
+        for (let i = 1; i <= sorted.length; i++) {
+          const c = sorted[i];
+          if (c === undefined || c !== prev + 1) {
+            const end = prev + 1;
+            if (end - start >= 2) {
+              let worldLine;
+              if (b.axis === "vertical") {
+                const wx = ox + b.perp * cs;
+                worldLine = { x1: wx, y1: oy + start * cs,
+                              x2: wx, y2: oy + end * cs };
+              } else {
+                const wy = oy + b.perp * cs;
+                worldLine = { x1: ox + start * cs, y1: wy,
+                              x2: ox + end * cs, y2: wy };
+              }
+              walls.push({
+                id: "wall_" + b.roomA + "_" + b.roomB + "_" + b.axis + "_" + b.perp + "_" + start,
+                axis: b.axis,
+                perp_coord: b.perp,
+                segment: { start, end },
+                roomA_id: b.roomA,
+                roomB_id: b.roomB,
+                department: b.department,
+                worldLine,
+                length_ft: (end - start) * cs
+              });
+            }
+            start = c;
+          }
+          prev = c;
+        }
+      }
+
+      return walls;
+    }
+
+    // Return walls in the same alignment group as `grabbedWall`.
+    // Collinearity rule: same axis + same perp_coord (within half a cell) +
+    // same department. `grabbedWall` is always in its own group.
+    //
+    // Spec note: the half-cell tolerance is expressed in cell units because
+    // walls are cell-aligned (perp_coord is an integer cell boundary). Two
+    // walls at the same integer perp_coord always group; two walls one cell
+    // apart never do. (Gate test 6: 12.0/12.4 → same, 12.0/13.0 → not.)
+    function computeAlignmentGroup(grabbedWall, allWalls) {
+      if (!grabbedWall) return [];
+      if (!Array.isArray(allWalls)) return [grabbedWall];
+      const tol = 0.5;
+      return allWalls.filter(w =>
+        w.axis === grabbedWall.axis &&
+        w.department === grabbedWall.department &&
+        Math.abs(w.perp_coord - grabbedWall.perp_coord) < tol
+      );
+    }
+
+    // True if any wall in `group` has a locked adjacent room. Spec Section 04:
+    // locked-adjacent → whole group is non-scrubbable.
+    function alignmentGroupIsLocked(group, rooms) {
+      if (!Array.isArray(group) || !Array.isArray(rooms)) return false;
+      const byId = new Map();
+      for (const r of rooms) {
+        if (r && r.instance_id) byId.set(r.instance_id, r);
+      }
+      for (const wall of group) {
+        const a = byId.get(wall.roomA_id);
+        if (a && a.locked) return true;
+        const b = byId.get(wall.roomB_id);
+        if (b && b.locked) return true;
+      }
+      return false;
+    }
+
+    // Perpendicular distance (in world feet) from (worldX, worldY) to a wall's
+    // line segment, or null if the projection is outside the segment bounds
+    // (i.e., the cursor is past the wall's ends).
+    function distanceToWallWorld(wall, worldX, worldY) {
+      const { x1, y1, x2, y2 } = wall.worldLine;
+      const dx = x2 - x1, dy = y2 - y1;
+      const len2 = dx * dx + dy * dy;
+      if (len2 <= 0) return null;
+      const t = ((worldX - x1) * dx + (worldY - y1) * dy) / len2;
+      if (t < 0 || t > 1) return null;
+      const px = x1 + t * dx, py = y1 + t * dy;
+      const ex = worldX - px, ey = worldY - py;
+      return Math.sqrt(ex * ex + ey * ey);
+    }
+
+    // Pick the closest hoverable wall within 4 screen pixels of the cursor.
+    // Skip walls whose alignment group contains a locked-room-adjacent wall.
+    function findHoverableWall(walls, rooms, worldX, worldY, zoom) {
+      if (!Array.isArray(walls) || walls.length === 0) return null;
+      const maxDistFt = 4 / Math.max(zoom, 0.0001);
+      let best = null, bestDist = Infinity;
+      for (const w of walls) {
+        const d = distanceToWallWorld(w, worldX, worldY);
+        if (d === null || d > maxDistFt) continue;
+        if (d < bestDist) { bestDist = d; best = w; }
+      }
+      if (!best) return null;
+      const group = computeAlignmentGroup(best, walls);
+      if (alignmentGroupIsLocked(group, rooms)) return null;
+      return best;
+    }
+
+    // Compute proposed bounds + cells for a single affected room when the
+    // alignment group shifts by `cellOffset`. Returns { ok, bounds, cells }
+    // or { ok: false, reason }. Enforces: min dims, rectangular invariant
+    // (via union-coverage), stays in home department, no overlap with
+    // locked rooms.
+    function proposeReproportionRoom(snap, groupWalls, axis, cellOffset, deptKeys, lockedKeys) {
+      const b = snap.bounds;
+      const sides = { east: [], west: [], north: [], south: [] };
+      for (const wall of groupWalls) {
+        if (wall.axis !== axis) continue;
+        if (axis === "vertical") {
+          const onEast = Math.abs(wall.perp_coord - (b.u_max + 1)) < 0.5;
+          const onWest = Math.abs(wall.perp_coord - b.u_min) < 0.5;
+          if (!onEast && !onWest) continue;
+          if (wall.segment.end <= b.v_min) continue;
+          if (wall.segment.start > b.v_max) continue;
+          sides[onEast ? "east" : "west"].push(wall.segment);
+        } else {
+          const onNorth = Math.abs(wall.perp_coord - (b.v_max + 1)) < 0.5;
+          const onSouth = Math.abs(wall.perp_coord - b.v_min) < 0.5;
+          if (!onNorth && !onSouth) continue;
+          if (wall.segment.end <= b.u_min) continue;
+          if (wall.segment.start > b.u_max) continue;
+          sides[onNorth ? "north" : "south"].push(wall.segment);
+        }
+      }
+
+      // Union-coverage: the union of segments on a given side must cover the
+      // room's full parallel extent. Otherwise the scrub would carve an L
+      // out of a previously-rectangular room — rejected per Section 05.
+      function unionCovers(segments, pMin, pMax) {
+        if (segments.length === 0) return false;
+        const sorted = segments.slice().sort((a, z) => a.start - z.start);
+        let covered = pMin;
+        for (const s of sorted) {
+          if (s.start > covered) return false;
+          if (s.end > covered) covered = s.end;
+          if (covered >= pMax + 1) return true;
+        }
+        return covered >= pMax + 1;
+      }
+
+      const nb = { ...b };
+      if (sides.east.length > 0) {
+        if (!unionCovers(sides.east, b.v_min, b.v_max)) return { ok: false, reason: "l_shape" };
+        nb.u_max = b.u_max + cellOffset;
+      }
+      if (sides.west.length > 0) {
+        if (!unionCovers(sides.west, b.v_min, b.v_max)) return { ok: false, reason: "l_shape" };
+        nb.u_min = b.u_min + cellOffset;
+      }
+      if (sides.north.length > 0) {
+        if (!unionCovers(sides.north, b.u_min, b.u_max)) return { ok: false, reason: "l_shape" };
+        nb.v_max = b.v_max + cellOffset;
+      }
+      if (sides.south.length > 0) {
+        if (!unionCovers(sides.south, b.u_min, b.u_max)) return { ok: false, reason: "l_shape" };
+        nb.v_min = b.v_min + cellOffset;
+      }
+
+      if (nb.u_max < nb.u_min || nb.v_max < nb.v_min) {
+        return { ok: false, reason: "degenerate" };
+      }
+      const w = nb.u_max - nb.u_min + 1;
+      const h = nb.v_max - nb.v_min + 1;
+      const minW = Math.max(1, Number(snap.min_width_cells) || 1);
+      const minD = Math.max(1, Number(snap.min_depth_cells) || 1);
+      // min-cells product floor (spec section 05): preserves step 04 per-room
+      // min dim. Also enforce each dim in at least one rotation.
+      if (w * h < minW * minD) return { ok: false, reason: "below_min" };
+      const fitsA = (w >= minW && h >= minD);
+      const fitsB = (h >= minW && w >= minD);
+      if (!fitsA && !fitsB) return { ok: false, reason: "below_min" };
+
+      const cells = [];
+      for (let vv = nb.v_min; vv <= nb.v_max; vv++) {
+        for (let uu = nb.u_min; uu <= nb.u_max; uu++) {
+          const key = uu + "," + vv;
+          if (!deptKeys.has(key)) return { ok: false, reason: "outside_department" };
+          if (lockedKeys.has(key)) return { ok: false, reason: "locked_overlap" };
+          cells.push([uu, vv]);
+        }
+      }
+      return { ok: true, bounds: nb, cells };
+    }
+
+    // Compute proposed ghost geometry for every affected room at a given
+    // alignment-group shift. Returns { ok, ghostRooms } or { ok: false }.
+    function proposeReproportion(snapshots, groupWalls, axis, cellOffset,
+                                 affectedIds, rooms, regions, grid) {
+      if (cellOffset === 0) {
+        // Zero-offset: ghost is the snapshot itself.
+        const ghostRooms = {};
+        const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+        for (const rid of affectedIds) {
+          const snap = snapshots[rid];
+          ghostRooms[rid] = {
+            cells: snap.cells.map(c => c.slice()),
+            bounds: { ...snap.bounds },
+            actualAreaSf: snap.cells.length * cellArea
+          };
+        }
+        return { ok: true, ghostRooms };
+      }
+
+      const deptKeyByDept = new Map();
+      for (const r of regions) {
+        if (!r || !Array.isArray(r.cells)) continue;
+        const set = new Set();
+        for (const [u, v] of r.cells) set.add(u + "," + v);
+        deptKeyByDept.set(r.id, set);
+      }
+      // Cells belonging to locked rooms — forbidden territory for any ghost.
+      // (Spec pre-check makes this defensive, but keep it in case.)
+      const lockedKeys = new Set();
+      for (const r of rooms) {
+        if (!r || !r.locked || !Array.isArray(r.cells)) continue;
+        for (const [u, v] of r.cells) lockedKeys.add(u + "," + v);
+      }
+
+      const affectedSet = new Set(affectedIds);
+      const ghostRooms = {};
+      const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+
+      for (const rid of affectedIds) {
+        const snap = snapshots[rid];
+        if (!snap) return { ok: false, reason: "no_snapshot" };
+        const deptKeys = deptKeyByDept.get(snap.department_id);
+        if (!deptKeys) return { ok: false, reason: "no_dept" };
+        const r = proposeReproportionRoom(snap, groupWalls, axis, cellOffset,
+                                          deptKeys, lockedKeys);
+        if (!r.ok) return r;
+        ghostRooms[rid] = {
+          cells: r.cells,
+          bounds: r.bounds,
+          actualAreaSf: r.cells.length * cellArea
+        };
+      }
+
+      // Affected-vs-affected and affected-vs-unaffected overlap check.
+      const claimed = new Map();
+      for (const rid of affectedIds) {
+        for (const [u, v] of ghostRooms[rid].cells) {
+          const key = u + "," + v;
+          if (claimed.has(key)) return { ok: false, reason: "affected_overlap" };
+          claimed.set(key, rid);
+        }
+      }
+      for (const r of rooms) {
+        if (!r || affectedSet.has(r.instance_id)) continue;
+        if (!Array.isArray(r.cells)) continue;
+        for (const [u, v] of r.cells) {
+          if (claimed.has(u + "," + v)) return { ok: false, reason: "unaffected_overlap" };
+        }
+      }
+
+      return { ok: true, ghostRooms };
+    }
+
     function FootprintCanvas({ project, setProject, programDb }) {
       const polygon =
         (project && project.context && project.context.footprint &&
@@ -2582,18 +2971,35 @@
       const [view, setView] = React.useState({ panX: 0, panY: 0, zoom: 1 });
       const [isPanning, setIsPanning] = React.useState(false);
 
-      // Step 05 — gesture state machine. Type is the current mode; other
+      // Step 05/06 — gesture state machine. Type is the current mode; other
       // fields carry mode-specific data. A ref mirror lets synchronous pointer
       // handlers read the latest value without closure staleness.
       const [gesture, setGesture] = React.useState({
-        type: "idle",              // idle | panning | dragging_room | showing_lock_chip
+        type: "idle",              // idle | panning | dragging_room | showing_lock_chip | reproportioning
         roomId: null,
         startBounds: null,
         ghostCells: null,
-        dropValid: false
+        dropValid: false,
+        // Step 06 — set while type === "reproportioning". ghostRooms is keyed
+        // by roomId: { cells, bounds, actualAreaSf }. tooltip holds screen
+        // coords + primary-room area text for the live area chip.
+        ghostRooms: null,
+        cellOffset: 0,
+        tooltip: null
       });
       const gestureRef = React.useRef(gesture);
       React.useEffect(() => { gestureRef.current = gesture; }, [gesture]);
+
+      // Step 06 — wall that the cursor is currently hovering (idle only).
+      // Drives the cursor change (ew/ns resize) and the alignment highlight.
+      const [hoveredWallId, setHoveredWallId] = React.useState(null);
+      const hoveredWallIdRef = React.useRef(null);
+      React.useEffect(() => { hoveredWallIdRef.current = hoveredWallId; },
+        [hoveredWallId]);
+
+      // Step 06 — heavy reproportion state (group walls, snapshots, start
+      // pointer coords). Lives in a ref so per-tick updates don't re-render.
+      const reproRef = React.useRef(null);
 
       // Step 05 — the drag's pointer-origin + source room snapshot. Lives
       // outside React state so that we can mutate it on every pointermove
@@ -2622,6 +3028,16 @@
       React.useEffect(() => { placedRoomsRef.current = placedRooms; }, [placedRooms]);
       React.useEffect(() => { regionsRef.current = regions; }, [regions]);
       React.useEffect(() => { gridRef.current = grid; }, [grid]);
+
+      // Step 06 — wall index. Rebuilt whenever rooms/grid change and mirrored
+      // to a ref so the pointer handlers (which run outside the React render
+      // cycle) read the latest without closure staleness.
+      const wallIndex = React.useMemo(
+        () => buildWallIndex(placedRooms, grid),
+        [placedRooms, grid]
+      );
+      const wallIndexRef = React.useRef(wallIndex);
+      React.useEffect(() => { wallIndexRef.current = wallIndex; }, [wallIndex]);
 
       // Measure container synchronously on mount + observe resizes.
       // Doing the initial fit in the layout effect (before paint) avoids a
@@ -2816,6 +3232,246 @@
         });
       }
 
+      // ---------- Step 06 — reproportion gesture helpers ----------
+
+      // Compute tooltip screen position from a screen cursor. 12 px below-right,
+      // clamped to the viewport.
+      function tooltipPosFor(sx, sy) {
+        const vp = viewportRef.current || { width: 0, height: 0 };
+        const tx = Math.max(8, Math.min(vp.width - 180, sx + 12));
+        const ty = Math.max(8, Math.min(vp.height - 60, sy + 12));
+        return { x: tx, y: ty };
+      }
+
+      function cancelReproportion() {
+        reproRef.current = null;
+        setGesture(g => (g.type === "reproportioning"
+          ? { type: "idle", roomId: null, startBounds: null,
+              ghostCells: null, dropValid: false,
+              ghostRooms: null, cellOffset: 0, tooltip: null }
+          : g));
+      }
+
+      // Given a screen cursor on a hovered wall, kick off a reproportion
+      // gesture. Collects the alignment group, snapshots every affected room,
+      // and sets gesture state to "reproportioning". Returns true on start.
+      function startReproportion(e, wall, screenX, screenY) {
+        const svg = svgRef.current;
+        if (!svg || !wall) return false;
+        const walls = wallIndexRef.current || [];
+        const rooms = placedRoomsRef.current || [];
+        const grid = gridRef.current;
+        if (!grid) return false;
+
+        const group = computeAlignmentGroup(wall, walls);
+        // Defense in depth: re-check the lock status (hover suppresses the
+        // cursor when the group is locked, but pointer events could race).
+        if (alignmentGroupIsLocked(group, rooms)) return false;
+
+        // Collect every room touched by any wall in the group.
+        const affectedSet = new Set();
+        for (const w of group) {
+          affectedSet.add(w.roomA_id);
+          affectedSet.add(w.roomB_id);
+        }
+        const affectedIds = Array.from(affectedSet);
+
+        // Snapshot each affected room — this is the source of truth during
+        // the scrub. The project itself stays frozen until pointerup commits.
+        const snapshots = {};
+        for (const rid of affectedIds) {
+          const r = rooms.find(rr => rr && rr.instance_id === rid);
+          if (!r || !r.bbox_cells || !Array.isArray(r.cells)) return false;
+          snapshots[rid] = {
+            cells: r.cells.map(c => c.slice()),
+            bounds: { ...r.bbox_cells },
+            department_id: r.department_id,
+            min_width_cells: r.min_width_cells,
+            min_depth_cells: r.min_depth_cells,
+            display_name: r.display_name || r.type || rid,
+            locked: !!r.locked
+          };
+        }
+
+        // Determine the cursor-side room on the grabbed wall. That's the
+        // "primary" room whose area we show in the tooltip.
+        const vp = viewportRef.current;
+        const view = viewRef.current;
+        const [worldX, worldY] = screenToWorld(screenX, screenY, view, vp);
+        let primaryRoomId;
+        if (wall.axis === "vertical") {
+          // roomA is on the lower-u (west) side, roomB on the upper-u (east).
+          const perpWorld = grid.origin_x + wall.perp_coord * grid.cell_size_ft;
+          primaryRoomId = (worldX < perpWorld) ? wall.roomA_id : wall.roomB_id;
+        } else {
+          // roomA is on the lower-v (south) side, roomB on the upper-v (north).
+          const perpWorld = grid.origin_y + wall.perp_coord * grid.cell_size_ft;
+          primaryRoomId = (worldY < perpWorld) ? wall.roomA_id : wall.roomB_id;
+        }
+
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        dragStateRef.current = {
+          mode: "reproportion",
+          pointerId: e.pointerId,
+          startScreenX: screenX,
+          startScreenY: screenY
+        };
+        reproRef.current = {
+          groupId: wall.id,
+          wall,
+          groupWalls: group,
+          axis: wall.axis,
+          startPerpCoord: wall.perp_coord,
+          affectedIds,
+          snapshots,
+          primaryRoomId,
+          cellOffset: 0
+        };
+
+        // Seed the gesture state with a zero-offset ghost (matches the
+        // snapshot). That way the ghost renders immediately on click.
+        const seed = proposeReproportion(
+          snapshots, group, wall.axis, 0, affectedIds, rooms, regionsRef.current || [], grid);
+
+        const primary = snapshots[primaryRoomId];
+        const primaryGhost = seed.ok ? seed.ghostRooms[primaryRoomId] : null;
+        const tooltip = {
+          pos: tooltipPosFor(screenX, screenY),
+          name: primary ? primary.display_name : "",
+          areaSf: primaryGhost ? primaryGhost.actualAreaSf : 0,
+          othersMoving: Math.max(0, affectedIds.length - 1)
+        };
+
+        setGesture({
+          type: "reproportioning",
+          roomId: primaryRoomId,
+          startBounds: null,
+          ghostCells: null,
+          dropValid: !!(seed && seed.ok),
+          ghostRooms: seed.ok ? seed.ghostRooms : null,
+          cellOffset: 0,
+          tooltip
+        });
+        // Clear any residual wall-hover state (the scrub owns the cursor).
+        setHoveredWallId(null);
+        return true;
+      }
+
+      // Per-tick reproportion update: recompute cellOffset from the cursor,
+      // attempt to propose new ghost geometry. If valid, advance; if not,
+      // keep the last valid state and mark dropValid = false (the scrub
+      // "hits a wall" visually).
+      function tickReproportion(e, screenX, screenY) {
+        const repro = reproRef.current;
+        if (!repro) return;
+        const grid = gridRef.current;
+        const view = viewRef.current;
+        if (!grid || !view) return;
+        const ds = dragStateRef.current;
+        if (!ds) return;
+
+        const dsx = screenX - ds.startScreenX;
+        const dsy = screenY - ds.startScreenY;
+        let cellOffset;
+        if (repro.axis === "vertical") {
+          // Cursor X delta → world delta → cell delta. Positive = east
+          // (higher perp_coord).
+          const dwx = dsx / view.zoom;
+          cellOffset = Math.round(dwx / grid.cell_size_ft);
+        } else {
+          // Cursor Y delta → world Y delta (screen Y is flipped) → cell delta.
+          // Positive = north (higher perp_coord, higher v).
+          const dwy = -dsy / view.zoom;
+          cellOffset = Math.round(dwy / grid.cell_size_ft);
+        }
+
+        const rooms = placedRoomsRef.current || [];
+        const regs = regionsRef.current || [];
+
+        // Always recompute the tooltip position (it tracks the cursor even
+        // when cellOffset hasn't advanced).
+        const currentGs = gestureRef.current;
+        const newTooltipPos = tooltipPosFor(screenX, screenY);
+
+        if (cellOffset === repro.cellOffset) {
+          // Only the pointer moved; keep ghosts + dropValid but refresh tooltip.
+          if (currentGs.tooltip && currentGs.tooltip.pos &&
+              currentGs.tooltip.pos.x === newTooltipPos.x &&
+              currentGs.tooltip.pos.y === newTooltipPos.y) return;
+          setGesture(g => ({
+            ...g,
+            tooltip: g.tooltip ? { ...g.tooltip, pos: newTooltipPos } : g.tooltip
+          }));
+          return;
+        }
+
+        const proposal = proposeReproportion(
+          repro.snapshots, repro.groupWalls, repro.axis, cellOffset,
+          repro.affectedIds, rooms, regs, grid);
+
+        if (proposal.ok) {
+          repro.cellOffset = cellOffset;
+          const primary = repro.snapshots[repro.primaryRoomId];
+          const pg = proposal.ghostRooms[repro.primaryRoomId];
+          setGesture(g => ({
+            ...g,
+            type: "reproportioning",
+            ghostRooms: proposal.ghostRooms,
+            cellOffset,
+            dropValid: true,
+            tooltip: {
+              pos: newTooltipPos,
+              name: primary ? primary.display_name : "",
+              areaSf: pg ? pg.actualAreaSf : 0,
+              othersMoving: Math.max(0, repro.affectedIds.length - 1)
+            }
+          }));
+        } else {
+          // Invalid: freeze the ghost at the last valid offset (already in
+          // gesture state); flag dropValid = false.
+          setGesture(g => ({
+            ...g,
+            dropValid: false,
+            tooltip: g.tooltip ? { ...g.tooltip, pos: newTooltipPos } : g.tooltip
+          }));
+        }
+      }
+
+      // Commit the current ghost geometry to the project on release. No-ops
+      // if cellOffset === 0 or no valid ghost was produced.
+      function commitReproportion() {
+        const repro = reproRef.current;
+        const gs = gestureRef.current;
+        if (!repro) return;
+        const ghostRooms = gs && gs.ghostRooms ? gs.ghostRooms : null;
+        const cellOffset = repro.cellOffset;
+        reproRef.current = null;
+        dragStateRef.current = null;
+        setGesture({
+          type: "idle", roomId: null, startBounds: null,
+          ghostCells: null, dropValid: false,
+          ghostRooms: null, cellOffset: 0, tooltip: null
+        });
+        if (cellOffset === 0 || !ghostRooms || !setProject) return;
+
+        setProject(p => {
+          const np = cloneProject(p);
+          const floors = isPlainObject(np.current_plan) &&
+            Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
+          const f0 = floors[0];
+          if (!isPlainObject(f0) || !Array.isArray(f0.rooms)) return p;
+          const grid = f0.grid;
+          if (!isPlainObject(grid)) return p;
+          for (let i = 0; i < f0.rooms.length; i++) {
+            const r = f0.rooms[i];
+            if (!r || !ghostRooms[r.instance_id]) continue;
+            f0.rooms[i] = rebuildRoomGeometry(r, ghostRooms[r.instance_id].cells, grid);
+          }
+          np.updated_at = new Date().toISOString();
+          return np;
+        });
+      }
+
       // ---------- Pointer handlers (Step 05 gesture machine) ----------
 
       function startPan(e, screenX, screenY) {
@@ -2885,6 +3541,22 @@
         // Close an open lock chip on any other pointerdown.
         if (lockChip) closeLockChip();
 
+        // Step 06 — wall hit-test has priority over room hit-tests. A wall
+        // lives on the boundary between two room hit-target rects; without
+        // this branch the click would be routed to whichever room's rect
+        // happened to be on top.
+        const vp = viewportRef.current;
+        const view = viewRef.current;
+        if (vp && view) {
+          const [wx, wy] = screenToWorld(screenX, screenY, view, vp);
+          const hit = findHoverableWall(
+            wallIndexRef.current || [],
+            placedRoomsRef.current || [],
+            wx, wy, view.zoom
+          );
+          if (hit && startReproportion(e, hit, screenX, screenY)) return;
+        }
+
         const roomEl = e.target && e.target.closest &&
                        e.target.closest('[data-room-id]');
         if (roomEl) {
@@ -2912,13 +3584,31 @@
       }
 
       function handlePointerMove(e) {
-        const ds = dragStateRef.current;
-        if (!ds) return;
         const svg = svgRef.current;
         if (!svg) return;
         const rect = svg.getBoundingClientRect();
         const sx = e.clientX - rect.left;
         const sy = e.clientY - rect.top;
+
+        const ds = dragStateRef.current;
+        if (!ds) {
+          // Step 06 — idle hover: detect walls so we can change cursor +
+          // preview the alignment group.
+          const vp = viewportRef.current;
+          const view = viewRef.current;
+          if (!vp || !view) return;
+          const [wx, wy] = screenToWorld(sx, sy, view, vp);
+          const hit = findHoverableWall(
+            wallIndexRef.current || [],
+            placedRoomsRef.current || [],
+            wx, wy, view.zoom
+          );
+          const hitId = hit ? hit.id : null;
+          if (hitId !== hoveredWallIdRef.current) {
+            setHoveredWallId(hitId);
+          }
+          return;
+        }
 
         if (ds.mode === "pan") {
           const dx = sx - ds.startScreenX;
@@ -2985,6 +3675,11 @@
             ghostCells,
             dropValid: valid
           }));
+          return;
+        }
+
+        if (ds.mode === "reproportion") {
+          tickReproportion(e, sx, sy);
           return;
         }
       }
@@ -3059,10 +3754,28 @@
           });
           return;
         }
+
+        if (ds.mode === "reproportion") {
+          // Let tickReproportion run once more with the final screen coords
+          // so a fast release still commits whatever position the cursor
+          // landed on.
+          const rect2 = svg ? svg.getBoundingClientRect() : null;
+          if (rect2) {
+            tickReproportion(e, e.clientX - rect2.left, e.clientY - rect2.top);
+          }
+          commitReproportion();
+          return;
+        }
       }
 
       function handlePointerCancel(e) {
         cancelLongPress();
+        // Step 06 — treat a cancel during reproportion as an ESC: drop the
+        // gesture without committing the ghost.
+        if (dragStateRef.current && dragStateRef.current.mode === "reproportion") {
+          cancelReproportion();
+          return;
+        }
         handlePointerUp(e);
       }
 
@@ -3086,7 +3799,9 @@
         setView(computeInitialView(polygon, viewport.width, viewport.height));
       }
 
-      // Step 05 — Escape cancels an in-flight drag or closes the lock chip.
+      // Step 05/06 — Escape cancels an in-flight gesture or closes the lock
+      // chip without committing. During reproportion: drop the ghost,
+      // project stays as it was before the scrub started.
       React.useEffect(() => {
         function onKeyDown(e) {
           if (e.key !== "Escape") return;
@@ -3095,6 +3810,8 @@
             cancelDrag();
           } else if (gs && gs.type === "showing_lock_chip") {
             closeLockChip();
+          } else if (gs && gs.type === "reproportioning") {
+            cancelReproportion();
           }
         }
         document.addEventListener("keydown", onKeyDown);
@@ -3672,11 +4389,80 @@
         );
       }, [gesture, grid, placedRooms, view, viewport]);
 
+      // Step 06 — Alignment-group highlight for hover. On idle hover over a
+      // scrubbable wall, paint the full alignment group in 3-px accent blue
+      // at 0.6 opacity so the user sees which walls will translate together
+      // BEFORE they click.
+      const alignmentHighlightLayer = React.useMemo(() => {
+        if (gesture.type !== "idle") return null;
+        if (!hoveredWallId) return null;
+        const walls = wallIndex || [];
+        const wall = walls.find(w => w.id === hoveredWallId);
+        if (!wall) return null;
+        const group = computeAlignmentGroup(wall, walls);
+        return (
+          <g style={{ pointerEvents: "none" }}>
+            {group.map((w, i) => {
+              const [ax, ay] = worldToScreen(w.worldLine.x1, w.worldLine.y1, view, viewport);
+              const [bx, by] = worldToScreen(w.worldLine.x2, w.worldLine.y2, view, viewport);
+              return (
+                <line key={"align-" + w.id + "-" + i}
+                      x1={ax} y1={ay} x2={bx} y2={by}
+                      className="alignment-highlight" />
+              );
+            })}
+          </g>
+        );
+      }, [gesture.type, hoveredWallId, wallIndex, view, viewport]);
+
+      // Step 06 — Reproportion ghost layer. Renders every affected room at
+      // its proposed new position as a translucent overlay on top of the
+      // frozen underlying plan. Stroke colour flips red when the current
+      // cursor position is invalid (scrub "hits a wall").
+      const reproGhostLayer = React.useMemo(() => {
+        if (gesture.type !== "reproportioning") return null;
+        if (!grid || !gesture.ghostRooms) return null;
+        const cs = grid.cell_size_ft;
+        const ox = grid.origin_x, oy = grid.origin_y;
+        const strokeColor = gesture.dropValid
+          ? "var(--calvey-accent)"
+          : "var(--calvey-error)";
+        const els = [];
+        for (const [rid, g] of Object.entries(gesture.ghostRooms)) {
+          const room = placedRooms.find(r => r && r.instance_id === rid);
+          const color = room ? deptColor(room.department_id) : "#CCCCCC";
+          const b = g.bounds;
+          const [sx0, sy0] = worldToScreen(ox + b.u_min * cs, oy + b.v_min * cs, view, viewport);
+          const [sx1, sy1] = worldToScreen(ox + (b.u_max + 1) * cs,
+            oy + (b.v_max + 1) * cs, view, viewport);
+          const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+          const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+          els.push(
+            <rect key={"repro-" + rid}
+                  x={x} y={y} width={w} height={h}
+                  fill={color} fillOpacity="0.55"
+                  stroke={strokeColor} strokeWidth="2"
+                  strokeDasharray="6 4" />
+          );
+        }
+        return <g style={{ pointerEvents: "none" }}>{els}</g>;
+      }, [gesture.type, gesture.ghostRooms, gesture.dropValid, grid, placedRooms, view, viewport]);
+
+      // Step 06 — cursor class for the svg element. `ew-resize` for vertical
+      // walls (the user scrubs left/right), `ns-resize` for horizontal walls.
+      const svgCursorClass = React.useMemo(() => {
+        if (isPanning) return "panning";
+        if (gesture.type !== "idle" || !hoveredWallId) return "";
+        const wall = (wallIndex || []).find(w => w.id === hoveredWallId);
+        if (!wall) return "";
+        return wall.axis === "vertical" ? "wall-ew" : "wall-ns";
+      }, [isPanning, gesture.type, hoveredWallId, wallIndex]);
+
       return (
         <div className="canvas-container" ref={containerRef}>
           <svg
             ref={svgRef}
-            className={isPanning ? "panning" : ""}
+            className={svgCursorClass}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -3707,6 +4493,13 @@
 
             {/* Step 05 — drag ghost; renders above everything else in the canvas. */}
             {ghostLayer}
+
+            {/* Step 06 — alignment-group highlight (hover preview). */}
+            {alignmentHighlightLayer}
+
+            {/* Step 06 — reproportion ghost; one translucent rect per
+                affected room at its proposed bounds. */}
+            {reproGhostLayer}
 
             {/* Origin crosshair at world (0,0) */}
             {showOriginMarker && (
@@ -3913,6 +4706,32 @@
               </div>
             );
           })()}
+
+          {/* Step 06 — live area tooltip during reproportion. Shows the
+              primary (cursor-side) room's name + actual_area_sf as the ghost
+              advances. Omits the "+N rooms moving" line when only one room
+              is affected (e.g. an isolated wall). pointer-events: none so
+              it never blocks input. */}
+          {gesture.type === "reproportioning" && gesture.tooltip &&
+            gesture.tooltip.pos && (
+            <div className="scrub-area-tooltip"
+                 style={{
+                   left: gesture.tooltip.pos.x,
+                   top: gesture.tooltip.pos.y
+                 }}>
+              <div className="room-name">
+                {(gesture.tooltip.name || "").toUpperCase()}
+              </div>
+              <div className="room-area">
+                {Math.round(gesture.tooltip.areaSf).toLocaleString()} SF
+              </div>
+              {gesture.tooltip.othersMoving > 0 && (
+                <div className="others">
+                  + {gesture.tooltip.othersMoving} rooms moving
+                </div>
+              )}
+            </div>
+          )}
         </div>
       );
     }
