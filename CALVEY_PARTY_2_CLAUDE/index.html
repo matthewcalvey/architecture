@@ -454,29 +454,44 @@
         setTextareaValue(JSON.stringify(project, null, 2));
       }, [project]);
 
-      // Probe program database on mount
+      // Probe program database on mount.
+      // CALVEY_PROGRAM ships its master index as building_program_database_master[_updated].json
+      // with a top-level `databases` array. Depending on how Matt copies the folder in,
+      // the file may land at the canonical ./data/ path, or nested one level deeper.
+      // Try each candidate in order and use the first one that parses.
       React.useEffect(() => {
+        const candidates = [
+          "./data/master_index.json",
+          "./data/building_program_database_master_updated.json",
+          "./data/building_program_database_master.json",
+          "./data/CALVEY_PROGRAM/data/building_program_database_master_updated.json",
+          "./data/CALVEY_PROGRAM/data/building_program_database_master.json"
+        ];
         let cancelled = false;
         (async () => {
-          try {
-            const res = await fetch("./data/master_index.json");
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            const json = await res.json();
-            if (cancelled) return;
-            let count = 0;
-            if (Array.isArray(json)) {
-              count = json.length;
-            } else if (isPlainObject(json)) {
-              if (Array.isArray(json.building_types)) count = json.building_types.length;
-              else if (Array.isArray(json.types)) count = json.types.length;
-              else count = Object.keys(json).length;
+          for (const path of candidates) {
+            try {
+              const res = await fetch(path);
+              if (!res.ok) continue;
+              const json = await res.json();
+              if (cancelled) return;
+              let count = 0;
+              if (Array.isArray(json)) {
+                count = json.length;
+              } else if (isPlainObject(json)) {
+                if (Array.isArray(json.databases)) count = json.databases.length;
+                else if (Array.isArray(json.building_types)) count = json.building_types.length;
+                else if (Array.isArray(json.types)) count = json.types.length;
+                else count = Object.keys(json).length;
+              }
+              setDbStatus({ loaded: true, count, error: null, source: path });
+              return;
+            } catch (e) {
+              console.debug("program database probe miss:", path, e && e.message);
             }
-            setDbStatus({ loaded: true, count, error: null });
-          } catch (e) {
-            if (cancelled) return;
-            console.debug("program database probe failed:", e && e.message);
-            setDbStatus({ loaded: false, count: 0, error: e && e.message });
           }
+          if (cancelled) return;
+          setDbStatus({ loaded: false, count: 0, error: "no master index found", source: null });
         })();
         return () => { cancelled = true; };
       }, []);
@@ -529,7 +544,7 @@
       }
 
       const dbMessage = dbStatus.loaded
-        ? ("PROGRAM DATABASE LOADED · " + dbStatus.count + " building types")
+        ? ("PROGRAM DATABASE LOADED · " + dbStatus.count + " building types · " + (dbStatus.source || ""))
         : "PROGRAM DATABASE NOT PRESENT — copy CALVEY_PROGRAM/data into ./data/ and reload";
 
       return (
