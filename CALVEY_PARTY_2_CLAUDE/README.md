@@ -42,14 +42,15 @@ If none are found, the status line will read "not present."
 ## Build status
 
 - [x] **Step 01** — Schema, validators, persistence, shell UI
-- [ ] Step 02 — Read-only canvas + footprint rendering
-- [ ] Step 03 — Stage A zoning + Stage B placement
-- [ ] Step 04 — Drag-and-reflow gesture
-- [ ] Step 05 — Reproportion / cross-floor / lock gestures
-- [ ] Step 06 — Stage C repair + Stage D confidence
-- [ ] Step 07 — Sliders + regenerate
-- [ ] Step 08 — Sessions + end-of-session chips
-- [ ] Step 09 — Exporters (JSON / SVG / PDF)
+- [x] **Step 02** — Read-only canvas + footprint rendering
+- [ ] **Step 03** — Program DB schema probe + grid substrate + Stage A department zoning *(in progress)*
+- [ ] Step 04 — Stage B room placement
+- [ ] Step 05 — Drag-and-reflow gesture
+- [ ] Step 06 — Reproportion / cross-floor / lock gestures
+- [ ] Step 07 — Stage C adjacency repair + Stage D confidence scoring
+- [ ] Step 08 — Sliders + regenerate
+- [ ] Step 09 — Sessions + end-of-session chips
+- [ ] Step 10 — Exporters (JSON / SVG / PDF)
 
 ## Section map inside `index.html`
 
