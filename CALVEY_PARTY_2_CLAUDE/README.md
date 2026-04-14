@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.5.0-step06`
+`0.6.0-step07`
 
 ## Build status
 
@@ -50,8 +50,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 03** — Program DB probe + grid + Stage A zoning + Stage B room placement
 - [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse
 - [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B
-- [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview. *(current)*
-- [ ] Step 07 — Multi-floor generation + cross-floor drag
+- [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview.
+- [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1. *(current)*
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
 
@@ -125,6 +125,52 @@ Gates / clamps:
 
 Escape mid-scrub drops the ghost without committing; a zero-offset release
 is a silent no-op.
+
+### Step 07 notes
+
+Step 07 makes the engine multi-floor. Three coupled additions:
+
+- **Schema.** `context.program.floor_count` (default 1) is the canonical
+  floor count, kept in sync with `program_inputs.floor_count` so
+  `count_rule: one_per_floor` keeps working. `current_plan.active_floor_index`
+  (default 0) tracks which floor the canvas is showing.
+- **Engine.** `distributeInstancesToFloors(instances, floorCount, footprintArea, lockedByFloor)`
+  reads each template's `stacking_preference`, `floor_priority`, and
+  `stack_group` and distributes the fresh-pool instances across floors.
+  `generatePlan` then runs Stage A + Stage B per floor, sharing the same
+  grid and sun vector across floors. Locked rooms preserve both their cells
+  AND their floor assignment across regenerates.
+- **UI.** A vertical `<FloorStrip>` overlay sits on the left side of the
+  canvas (top-to-bottom = top floor → ground floor). Each tile is an inline
+  SVG mini-render of one floor with a room count badge, an unplaced badge,
+  and a 2-px accent border when active. Two buttons below add or remove
+  the top floor; both leave a regenerate-prompt chip behind because they
+  intentionally do NOT auto-regenerate (would erase locked-room positions).
+
+Cross-floor drag works by extending the Step 05 room drag: while dragging,
+`document.elementFromPoint` checks for a `data-floor-index` ancestor each
+pointer move. When the cursor is over a tile other than the active floor,
+the in-canvas ghost freezes and the tile glows accent blue (or red if the
+target lacks a matching department region). On release, `crossFloorMove`
+attempts to pack the room into the target floor's matching department,
+with cascade depth 1 (at most one room may be displaced and absorbed into
+its own department's free slack).
+
+After a successful cross-floor drop, `active_floor_index` auto-switches
+to the target so the user immediately sees the result.
+
+Stacking preference normalization (the DB ships free-form values like
+"Ground", "Ground/Roof", "Roof/Penthouse", "Upper", "Basement", "All"):
+
+- contains "ground"/"basement" → **Ground** (floor 1)
+- contains "roof"/"top"/"penthouse"/"upper" → **Top** (top floor)
+- "any" / "all" / "same" / empty → **Any** (greedy by free capacity)
+- mixed (e.g. "Ground/Roof", "Upper/Ground") → whichever class is named
+  first in the string
+
+`stack_group` co-location takes precedence over class preference: once
+one member of `WET_STACK_A` lands on a floor, subsequent members prefer
+the same floor.
 
 ## Section map inside `index.html`
 
