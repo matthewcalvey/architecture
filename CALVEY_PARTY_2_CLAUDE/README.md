@@ -39,16 +39,41 @@ If none are found, the status line will read "not present."
 
 `2.1-party`
 
+## Engine version
+
+`0.3.0-step04`
+
 ## Build status
 
 - [x] **Step 01** — Schema, validators, persistence, shell UI
 - [x] **Step 02** — Read-only canvas with pan/zoom, compass, scale bar
-- [ ] **Step 03** — Program DB probe + grid + Stage A zoning + Stage B room placement *(in progress)*
-- [ ] Step 04 — Drag-and-reflow + reproportion + lock gestures + session event scaffolding
-- [ ] Step 05 — Stage C adjacency repair + Stage D confidence scoring
-- [ ] Step 06 — Multi-floor generation + cross-floor drag
-- [ ] Step 07 — Sliders + regenerate + session completion / end-chips
-- [ ] Step 08 — Exporters (JSON / SVG / PDF)
+- [x] **Step 03** — Program DB probe + grid + Stage A zoning + Stage B room placement
+- [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse *(current)*
+- [ ] Step 05 — Drag-and-reflow + reproportion + lock gestures + session event scaffolding
+- [ ] Step 06 — Stage C adjacency repair + Stage D confidence scoring
+- [ ] Step 07 — Multi-floor generation + cross-floor drag
+- [ ] Step 08 — Sliders + regenerate + session completion / end-chips
+- [ ] Step 09 — Exporters (JSON / SVG / PDF)
+
+### Step 04 notes
+
+Step 04 refines the Stage B packer that Step 03 built. In particular:
+
+- `context.program.program_inputs` is a new field seeded from
+  `buildingType.subtypes[0]` (e.g. K-12 seeds `students` from
+  `student_count_typical`). Only absent keys are filled on generate, so user
+  edits persist. Click **RE-SEED FROM DB** to discard edits and reseed.
+- Room instances are resolved from each template's `count_rule`
+  (`one_per_building`, `one_per_floor`, `per_driver`, `per_occupant`, …) and
+  `scaling.step_thresholds`. K-12 now produces multiple Science Lab / Art /
+  Music instances instead of one of each.
+- Stage B honors `parti.max_aspect_ratio` as a *hard ceiling* — no more 6×1
+  corridor slivers. Unfittable rectangles are rejected and the room ends up
+  in the unplaced panel instead.
+- Click any row in the unplaced panel to pulse the corresponding department's
+  empty slack cells for 2.4 s.
+- Edit the footprint polygon, `program_inputs`, or `building_type` in the
+  JSON viewer → an amber **STALE** chip appears until you regenerate.
 
 ## Section map inside `index.html`
 
