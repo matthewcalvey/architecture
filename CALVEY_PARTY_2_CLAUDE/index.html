@@ -326,6 +326,33 @@
       pointer-events: none;
       user-select: none;
     }
+
+    /* Step 04 — click-to-pulse on unplaced rows. 0.8s × 3 cycles = 2.4s total. */
+    @keyframes soft-pulse {
+      0%, 100% { stroke-opacity: 0.25; }
+      50%      { stroke-opacity: 1.0; }
+    }
+    .pulse-cell {
+      animation: soft-pulse 0.8s ease-in-out 3;
+      fill: none;
+      stroke: #E0B84D;
+      stroke-width: 2;
+      pointer-events: none;
+    }
+
+    /* Step 04 — clickable unplaced rows in the bottom-right summary. */
+    .canvas-overlay.bottom-right .dept-row.unplaced-row {
+      cursor: pointer;
+      padding: 2px 4px;
+      margin: 0 -4px;
+      border-radius: 2px;
+    }
+    .canvas-overlay.bottom-right .dept-row.unplaced-row:hover {
+      background: rgba(224, 184, 77, 0.15);
+    }
+    .canvas-overlay.bottom-right .dept-row.unplaced-row.is-pulsing {
+      background: rgba(224, 184, 77, 0.25);
+    }
   </style>
 </head>
 <body>
@@ -338,7 +365,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.2.0-step03";
+    const ENGINE_VERSION = "0.3.0-step04";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -371,7 +398,14 @@
             building_type: null,
             rooms: [],
             adjacency_graph: {},
-            vertical_constraints: {}
+            vertical_constraints: {},
+            // Step 04 — program drivers seeded from subtypes[0] (lazy, first
+            // generate only). Empty by default. User edits preserved across
+            // generates.
+            program_inputs: {},
+            // Step 04 — post-resolution digest: template/instance counts,
+            // count_rule breakdown, driver values used, gross/net ratio.
+            resolved_rooms_digest: null
           },
           vertical_anchors: {
             cores: [],
@@ -404,7 +438,11 @@
           ],
           total_score: null,
           program_fit_report: null,
-          unplaced_rooms: []
+          unplaced_rooms: [],
+          // Step 04 — set true when user edits footprint/program_inputs/
+          // building_type out from under a plan. Cleared on next successful
+          // generate. Non-blocking warning chip.
+          stale: false
         },
         warnings: [],
         sessions: []
@@ -553,7 +591,36 @@
               if (!Number.isFinite(Number(r.area_sf))) {
                 warnings.push("floors[0].rooms[" + i + "].area_sf must be a number");
               }
+              // Step 04: hard-ceiling check — actual aspect ratio should not
+              // exceed max_aspect_ratio. If it does, the packer let a bad
+              // rectangle through.
+              if (Number.isFinite(Number(r.max_aspect_ratio)) &&
+                  Number(r.max_aspect_ratio) > 0 &&
+                  r.bbox_cells && typeof r.bbox_cells === "object") {
+                const w = (Number(r.bbox_cells.u_max) - Number(r.bbox_cells.u_min) + 1);
+                const h = (Number(r.bbox_cells.v_max) - Number(r.bbox_cells.v_min) + 1);
+                if (w >= 1 && h >= 1) {
+                  const ar = Math.max(w, h) / Math.min(w, h);
+                  // allow a tiny epsilon for floating-point noise
+                  if (ar > Number(r.max_aspect_ratio) + 0.001) {
+                    warnings.push("floors[0].rooms[" + i + "] aspect " +
+                      ar.toFixed(2) + " exceeds max_aspect_ratio " +
+                      Number(r.max_aspect_ratio).toFixed(2));
+                  }
+                }
+              }
             });
+          }
+        }
+      }
+
+      // Step 04: program_inputs must be numeric where present.
+      if (isPlainObject(p.context) && isPlainObject(p.context.program) &&
+          isPlainObject(p.context.program.program_inputs)) {
+        for (const [k, v] of Object.entries(p.context.program.program_inputs)) {
+          if (v !== null && v !== undefined && !Number.isFinite(Number(v))) {
+            warnings.push("program_inputs." + k + " must be numeric (got " +
+              (typeof v) + ")");
           }
         }
       }
@@ -784,42 +851,393 @@
       return "Unassigned";
     }
 
-    // Seed context.program.rooms from a building-type JSON's space_library.
-    // Keep the shape minimal and stable for Step 04 to extend.
-    function roomsFromBuildingType(buildingTypeJson) {
-      if (!isPlainObject(buildingTypeJson) || !Array.isArray(buildingTypeJson.space_library)) {
-        return [];
+    // ---------- Step 04 — program_inputs seeding ----------
+
+    // Accept either a number or [min, max] range; return midpoint when a range.
+    function midpoint(v) {
+      if (Array.isArray(v) && v.length === 2 &&
+          Number.isFinite(Number(v[0])) && Number.isFinite(Number(v[1]))) {
+        return (Number(v[0]) + Number(v[1])) / 2;
       }
-      return buildingTypeJson.space_library
-        .filter(isPlainObject)
-        .map(space => {
-          const deptKey = deptKeyForSpace(space);
-          const dims = isPlainObject(space.dimensions_ft) ? space.dimensions_ft : {};
-          const targetArea = Number.isFinite(Number(dims.typical_area_sf))
-            ? Number(dims.typical_area_sf)
-            : (Array.isArray(space.nsf_range) && space.nsf_range.length === 2
-                ? (Number(space.nsf_range[0]) + Number(space.nsf_range[1])) / 2
-                : 0);
-          // Min-width / min-length feed Stage B's target aspect ratio.
-          // Prefer top-level *_ft fields; fall back to dimensions_ft.* if absent.
-          const minWidth = Number.isFinite(Number(space.min_width_ft))
-            ? Number(space.min_width_ft)
-            : (Number.isFinite(Number(dims.min_width)) ? Number(dims.min_width) : null);
-          const minLength = Number.isFinite(Number(space.min_depth_ft))
-            ? Number(space.min_depth_ft)
-            : (Number.isFinite(Number(dims.min_depth)) ? Number(dims.min_depth) : null);
-          return {
-            id: typeof space.id === "string" ? space.id : slugify(space.name || "room"),
-            name: typeof space.name === "string" ? space.name : (space.id || "Room"),
-            department: slugify(deptKey),
-            department_name: toTitleCase(deptKey),
-            daylight_priority: normalizeDaylightPriority(space.daylight_priority),
+      if (Number.isFinite(Number(v))) return Number(v);
+      return null;
+    }
+
+    // Seed program_inputs (in place) from buildingTypeJson.subtypes[0].
+    // Only fills *absent* keys — user edits survive subsequent generates.
+    // Also scans the space_library to discover driver_keys so program_inputs
+    // has a slot for every field the packer might read.
+    function seedProgramInputs(programInputs, buildingTypeJson) {
+      if (!isPlainObject(programInputs)) programInputs = {};
+      const bt = isPlainObject(buildingTypeJson) ? buildingTypeJson : {};
+      const subtypes = Array.isArray(bt.subtypes) ? bt.subtypes : [];
+      const s0 = subtypes.length > 0 && isPlainObject(subtypes[0]) ? subtypes[0] : null;
+
+      if (!s0) {
+        console.debug("seedProgramInputs: no subtypes[0] found, seeding 0s");
+      }
+
+      // Core demographic keys. student_count / staff_count come straight from
+      // subtypes; occupant_count falls out of student+staff unless explicit.
+      const student = s0 ? midpoint(s0.student_count_typical) : null;
+      const staff = s0 ? midpoint(s0.staff_count_typical) : null;
+      if (!("student_count" in programInputs)) {
+        programInputs.student_count = (student != null) ? Math.round(student) : 0;
+      }
+      if (!("staff_count" in programInputs)) {
+        programInputs.staff_count = (staff != null) ? Math.round(staff) : 0;
+      }
+      if (!("students" in programInputs)) {
+        // The DB uses "students" as the driver_key verbatim; mirror that.
+        programInputs.students = Number(programInputs.student_count) || 0;
+      }
+      if (!("occupant_count" in programInputs)) {
+        const s = Number(programInputs.student_count) || 0;
+        const st = Number(programInputs.staff_count) || 0;
+        programInputs.occupant_count = s + st;
+      }
+      if (!("floor_count" in programInputs)) {
+        programInputs.floor_count = 1;  // Step 04 is single-floor; Step 07 owns multi.
+      }
+      if (!("unit_count" in programInputs)) {
+        // residential-style; 0 signals "not applicable" for non-residential.
+        programInputs.unit_count = 0;
+      }
+
+      // Discover other driver_keys referenced in space_library.scaling so the
+      // user sees them in program_inputs and can edit them in the JSON viewer.
+      if (Array.isArray(bt.space_library)) {
+        for (const sp of bt.space_library) {
+          if (!isPlainObject(sp)) continue;
+          const sc = isPlainObject(sp.scaling) ? sp.scaling : {};
+          const dk = sc.driver_key;
+          if (typeof dk === "string" && dk.length > 0 && !(dk in programInputs)) {
+            programInputs[dk] = 0;
+          }
+        }
+      }
+
+      return programInputs;
+    }
+
+    // ---------- Step 04 — count_rule resolution ----------
+
+    // Pick the numeric value of the driver for a given template. Falls back
+    // across common aliases so a template with driver_key="students" still
+    // resolves when user entered "student_count" in program_inputs, and v.v.
+    function readDriverValue(programInputs, driverKey, fallbackDefaultKey) {
+      if (!isPlainObject(programInputs)) return 0;
+      const tryKey = (k) => (k && Number.isFinite(Number(programInputs[k])))
+        ? Number(programInputs[k]) : null;
+      let v = tryKey(driverKey);
+      if (v != null) return v;
+      // Common aliases.
+      if (driverKey === "students") {
+        v = tryKey("student_count"); if (v != null) return v;
+      }
+      if (driverKey === "student_count") {
+        v = tryKey("students"); if (v != null) return v;
+      }
+      if (driverKey === "occupants") {
+        v = tryKey("occupant_count"); if (v != null) return v;
+      }
+      if (fallbackDefaultKey) {
+        v = tryKey(fallbackDefaultKey); if (v != null) return v;
+      }
+      return 0;
+    }
+
+    // Look up a count from step_thresholds given a driver value.
+    // Supports both {driver_min, driver_max, count} (actual K-12 format) and
+    // {threshold, count} (spec's simpler format).
+    function countFromStepThresholds(thresholds, driverValue) {
+      if (!Array.isArray(thresholds) || thresholds.length === 0) return null;
+      const dv = Number(driverValue) || 0;
+      // Range format: find the bucket whose [driver_min, driver_max] contains dv.
+      if (thresholds.every(t => isPlainObject(t) &&
+          Number.isFinite(Number(t.driver_min)) &&
+          Number.isFinite(Number(t.driver_max)))) {
+        for (const t of thresholds) {
+          if (dv >= Number(t.driver_min) && dv <= Number(t.driver_max)) {
+            return Math.max(0, Math.round(Number(t.count) || 0));
+          }
+        }
+        // dv past the last bucket → use the largest bucket's count.
+        const last = thresholds[thresholds.length - 1];
+        return Math.max(0, Math.round(Number(last.count) || 0));
+      }
+      // Simple threshold format: largest threshold <= dv wins.
+      let chosen = null;
+      for (const t of thresholds) {
+        if (!isPlainObject(t)) continue;
+        const th = Number(t.threshold);
+        if (Number.isFinite(th) && th <= dv) {
+          if (!chosen || Number(chosen.threshold) < th) chosen = t;
+        }
+      }
+      if (chosen) return Math.max(0, Math.round(Number(chosen.count) || 0));
+      return null;
+    }
+
+    // Resolve a template's count_rule into a concrete instance count.
+    // Clamps to [0, 500] to guard against typo'd coefficients. Returns the
+    // integer count plus a `ruleApplied` string for digest bookkeeping.
+    function resolveCountForTemplate(space, programInputs, floorCount) {
+      const cr = typeof space.count_rule === "string" ? space.count_rule : null;
+      const scaling = isPlainObject(space.scaling) ? space.scaling : {};
+      const fc = Math.max(1, Math.floor(Number(floorCount) || 1));
+
+      let count = 1;
+      let rule = cr || "unknown";
+
+      switch (cr) {
+        case "one_per_building":
+          count = 1;
+          break;
+
+        case "one_per_floor":
+          count = fc;
+          break;
+
+        case "per_driver": {
+          const dv = readDriverValue(programInputs, scaling.driver_key, null);
+          const st = countFromStepThresholds(scaling.step_thresholds, dv);
+          if (st != null) {
+            count = st;
+          } else if (Number.isFinite(Number(scaling.coefficient)) &&
+                     Number(scaling.coefficient) > 0 &&
+                     Number(scaling.coefficient) < 1) {
+            // count-ish coefficient (e.g. "rooms per student" = 0.03)
+            count = Math.max(1, Math.ceil(dv * Number(scaling.coefficient)));
+          } else if (!scaling.driver_key) {
+            count = 1;
+            rule = "per_driver_no_key";
+          } else if (!Number.isFinite(Number(programInputs[scaling.driver_key]))) {
+            count = 1;
+            rule = "unknown_driver";
+          } else {
+            // No step_thresholds, no count-like coefficient → fall back to
+            // one-per-25 driver units as a rough sizing. Clamp at 1.
+            count = Math.max(1, Math.ceil(dv / 25));
+          }
+          break;
+        }
+
+        case "per_occupant": {
+          const dv = readDriverValue(programInputs,
+            scaling.driver_key || "occupant_count", "occupant_count");
+          const st = countFromStepThresholds(scaling.step_thresholds, dv);
+          if (st != null) {
+            count = st;
+          } else if (Number.isFinite(Number(scaling.coefficient)) &&
+                     Number(scaling.coefficient) > 0 &&
+                     Number(scaling.coefficient) < 1) {
+            count = Math.max(1, Math.ceil(dv * Number(scaling.coefficient)));
+          } else {
+            // K-12 toilets has coef=37.4 (SF/occupant, not count multiplier).
+            // Rather than spam the plan with 500 toilets, treat as 1 cluster.
+            count = 1;
+            rule = "per_occupant_area_scale";
+          }
+          break;
+        }
+
+        case "unit_count": {
+          const uc = Number(programInputs && programInputs.unit_count);
+          count = Number.isFinite(uc) && uc > 0 ? Math.floor(uc) : 1;
+          break;
+        }
+
+        case "fixed": {
+          const fx = Number(scaling.fixed_count);
+          count = Number.isFinite(fx) && fx > 0 ? Math.floor(fx) : 1;
+          break;
+        }
+
+        case "step_thresholds": {
+          const dv = readDriverValue(programInputs, scaling.driver_key, "students");
+          const st = countFromStepThresholds(scaling.step_thresholds, dv);
+          count = (st != null) ? st : 1;
+          break;
+        }
+
+        default: {
+          // Unknown or missing count_rule — default to 1, let the user notice.
+          count = 1;
+          rule = cr ? ("unknown:" + cr) : "unknown";
+          console.debug("resolveRoomCounts: unknown count_rule for",
+            space.id || "(unnamed)", "→", cr);
+        }
+      }
+
+      // Clamp: a typo'd coefficient shouldn't be able to crash the packer.
+      if (!Number.isFinite(count) || count < 0) count = 0;
+      if (count > 500) count = 500;
+      return { count: Math.floor(count), ruleApplied: rule };
+    }
+
+    // Build a flat array of room instances from a space_library, applying
+    // count_rule to each template. Returns { instances, digest }.
+    function resolveRoomCounts(spaceLibrary, programInputs, _subtypes, floorCount) {
+      const digest = {
+        total_templates: 0,
+        total_instances: 0,
+        rules_applied: {
+          one_per_building: 0, one_per_floor: 0,
+          per_driver: 0, per_occupant: 0,
+          unit_count: 0, fixed: 0, step_thresholds: 0,
+          unknown_driver: 0, unknown: 0
+        },
+        program_inputs_used: isPlainObject(programInputs) ? { ...programInputs } : {},
+        gross_over_net_used: GROSS_TO_NET_DEFAULT
+      };
+      const instances = [];
+      if (!Array.isArray(spaceLibrary)) return { instances, digest };
+
+      let partiPathCount = 0;
+      let areaPathCount = 0;
+
+      for (const space of spaceLibrary) {
+        if (!isPlainObject(space)) continue;
+        digest.total_templates += 1;
+        const resolved = resolveCountForTemplate(space, programInputs, floorCount);
+        const n = resolved.count;
+
+        // Digest bookkeeping: bucketize into the known cells; stash unknowns.
+        if (digest.rules_applied[resolved.ruleApplied] !== undefined) {
+          digest.rules_applied[resolved.ruleApplied] += 1;
+        } else if (resolved.ruleApplied &&
+                   resolved.ruleApplied.startsWith("unknown")) {
+          digest.rules_applied.unknown += 1;
+        } else {
+          // rule-variant buckets (e.g. per_occupant_area_scale) fold into
+          // their base count_rule bucket for the digest.
+          const base = resolved.ruleApplied.split("_")[0] + "_" +
+                       resolved.ruleApplied.split("_")[1];
+          if (digest.rules_applied[base] !== undefined) {
+            digest.rules_applied[base] += 1;
+          }
+        }
+
+        // Build N identical instances for this template.
+        const deptKey = deptKeyForSpace(space);
+        const dims = isPlainObject(space.dimensions_ft) ? space.dimensions_ft : {};
+        const parti = isPlainObject(space.parti) ? space.parti : {};
+
+        const targetArea = Number.isFinite(Number(dims.typical_area_sf))
+          ? Number(dims.typical_area_sf)
+          : (Array.isArray(space.nsf_range) && space.nsf_range.length === 2
+              ? (Number(space.nsf_range[0]) + Number(space.nsf_range[1])) / 2
+              : 0);
+
+        // Refinement 4 — prefer parti.parti_area_cells when present/positive.
+        const partiCells = Number.isFinite(Number(parti.parti_area_cells)) &&
+                           Number(parti.parti_area_cells) > 0
+          ? Math.floor(Number(parti.parti_area_cells)) : null;
+        if (partiCells !== null) partiPathCount++; else areaPathCount++;
+
+        // Refinement 2 — prefer parti.min_*_cells when present; else convert
+        // ft to cells at runtime (Stage B knows cell_size).
+        const minWidthCells = Number.isFinite(Number(parti.min_width_cells))
+          ? Math.max(1, Math.floor(Number(parti.min_width_cells)))
+          : null;
+        const minDepthCells = Number.isFinite(Number(parti.min_depth_cells))
+          ? Math.max(1, Math.floor(Number(parti.min_depth_cells)))
+          : null;
+
+        // Legacy ft-based min_width/length, still plumbed for Stage B fallback.
+        const minWidthFt = Number.isFinite(Number(space.min_width_ft))
+          ? Number(space.min_width_ft)
+          : (Number.isFinite(Number(dims.min_width)) ? Number(dims.min_width) : null);
+        const minLengthFt = Number.isFinite(Number(space.min_depth_ft))
+          ? Number(space.min_depth_ft)
+          : (Number.isFinite(Number(dims.min_depth)) ? Number(dims.min_depth) : null);
+
+        // Refinement 3 — max_aspect_ratio as hard ceiling. Take from parti
+        // first, then the top-level field, then a conservative default. Core
+        // and corridor-named templates get a loose default (they are linear).
+        let maxAspect = null;
+        if (Number.isFinite(Number(parti.max_aspect_ratio)) &&
+            Number(parti.max_aspect_ratio) > 0) {
+          maxAspect = Number(parti.max_aspect_ratio);
+        } else if (Number.isFinite(Number(space.max_aspect_ratio)) &&
+                   Number(space.max_aspect_ratio) > 0) {
+          maxAspect = Number(space.max_aspect_ratio);
+        } else {
+          const isCore = (typeof parti.department_group === "string" &&
+                          parti.department_group.toLowerCase() === "core") ||
+                         /corridor/i.test(String(space.name || space.id || ""));
+          maxAspect = isCore ? 8.0 : 2.5;
+        }
+
+        // Refinement 5 — placement_zone: foh | boh | primary | support | core
+        const placementZone =
+          (typeof parti.placement_zone === "string" && parti.placement_zone.length > 0)
+            ? parti.placement_zone.toLowerCase() : null;
+
+        const templateId = typeof space.id === "string"
+          ? space.id : slugify(space.name || "room");
+        const nameStr = typeof space.name === "string"
+          ? space.name : (space.id || "Room");
+        const deptSlug = slugify(deptKey);
+        const deptName = toTitleCase(deptKey);
+        const daylight = normalizeDaylightPriority(space.daylight_priority);
+
+        for (let k = 0; k < n; k++) {
+          instances.push({
+            // New (Step 04) canonical fields:
+            template_id: templateId,
+            instance_id: "r_" + deptSlug + "_" + templateId + "_" +
+                         String(instances.length).padStart(4, "0"),
+            department_id: deptSlug,
+            department_name: deptName,
+            placement_zone: placementZone,
+            daylight_priority: daylight,
+            target_area_sf: targetArea,
+            parti_area_cells: partiCells,
+            min_width_cells: minWidthCells,
+            min_depth_cells: minDepthCells,
+            max_aspect_ratio: maxAspect,
+
+            // Legacy (pre-Step 04) field mirrors — keep populated so
+            // downstream Step 02/03 code (summary panel, departmentsFromRooms,
+            // overflow warning, JSON viewer readers) continues working.
+            id: templateId,
+            name: nameStr,
+            department: deptSlug,
             target_area: targetArea,
-            min_width: minWidth,
-            min_length: minLength,
-            count: 1
-          };
-        });
+            min_width: minWidthFt,
+            min_length: minLengthFt,
+            count: 1,
+
+            // Reserved for Stage B to populate during packing:
+            cells: [],
+            actual_area_sf: 0,
+            bounds: null,
+            locked: false,
+            lock_reason: null
+          });
+        }
+        digest.total_instances += n;
+      }
+      console.debug("resolveRoomCounts: partiCells path used for",
+        partiPathCount, "templates;", areaPathCount, "fell back to target_area");
+      return { instances, digest };
+    }
+
+    // Seed context.program.rooms from a building-type JSON's space_library.
+    // Step 04 — wraps resolveRoomCounts so multi-instance templates expand
+    // into one element per instance.
+    function roomsFromBuildingType(buildingTypeJson, programInputs, floorCount) {
+      if (!isPlainObject(buildingTypeJson) || !Array.isArray(buildingTypeJson.space_library)) {
+        return { instances: [], digest: null };
+      }
+      return resolveRoomCounts(
+        buildingTypeJson.space_library,
+        programInputs || {},
+        buildingTypeJson.subtypes,
+        floorCount || 1
+      );
     }
 
     // Aggregate rooms into departments with area_fraction and daylight_priority.
@@ -1050,9 +1468,15 @@
     // that best matches the room's target aspect ratio while still containing
     // at least cells_needed cells. Claim the rectangle and continue.
     //
+    // Step 04 refinements:
+    //   (2) use parti.min_{width,depth}_cells directly when present
+    //   (3) reject candidates whose aspect > room.max_aspect_ratio (HARD)
+    //   (4) use parti.parti_area_cells as the primary target when present
+    //   (5) placement_zone tiebreaks candidate rectangles by world position
+    //
     // Output: {
-    //   rooms:    [ <room instance per Section 05> ],
-    //   unplaced: [ { type, target_area_sf, reason } ]
+    //   rooms:    [ <placed-room per floors[0].rooms schema> ],
+    //   unplaced: [ { type, template_id, department_id, target_area_sf, reason } ]
     // }
     function runStageB(grid, regions, rooms) {
       const W = grid.width_cells, H = grid.height_cells;
@@ -1063,16 +1487,37 @@
       const roomList = Array.isArray(rooms) ? rooms.filter(isPlainObject) : [];
       const regionList = Array.isArray(regions) ? regions.filter(isPlainObject) : [];
 
-      // Group rooms by department id.
+      // Footprint centroid in world coords — used by foh/boh zone scoring.
+      // We average over all interior cells, not the polygon vertices (the
+      // grid already approximates the inside).
+      let fpCx = 0, fpCy = 0, fpN = 0;
+      for (let v = 0; v < H; v++) {
+        for (let u = 0; u < W; u++) {
+          if (grid.inside[v][u]) {
+            const [wx, wy] = cellCenter(grid, u, v);
+            fpCx += wx; fpCy += wy; fpN++;
+          }
+        }
+      }
+      const footprintCentroid = fpN > 0 ? [fpCx / fpN, fpCy / fpN] : null;
+
+      // Group rooms by department id. Step 04 — read either legacy `department`
+      // field or the new `department_id` field (resolveRoomCounts writes both).
       const byDept = new Map();
       for (const r of roomList) {
-        const key = (typeof r.department === "string" && r.department.length > 0)
-          ? r.department : "unassigned";
+        const key =
+          (typeof r.department_id === "string" && r.department_id.length > 0)
+            ? r.department_id
+          : (typeof r.department === "string" && r.department.length > 0)
+            ? r.department
+            : "unassigned";
         if (!byDept.has(key)) byDept.set(key, []);
         byDept.get(key).push(r);
       }
 
-      // Per-type instance counter so instance_ids are unique on this floor.
+      // Per-template instance counter so instance_ids on the OUTPUT are
+      // unique within a floor. Keyed by template_id so multiple instances
+      // of the same template (Step 04 refinement 1) get distinct ids.
       const counters = new Map();
       function nextInstanceId(type) {
         const n = (counters.get(type) || 0) + 1;
@@ -1083,6 +1528,9 @@
       for (const region of regionList) {
         const deptRooms = byDept.get(region.id) || [];
         if (deptRooms.length === 0) continue;
+
+        // Region centroid in world coords — used by primary/support zone scoring.
+        const regionCentroid = Array.isArray(region.centroid) ? region.centroid : null;
 
         // Build availability mask + interior cell count for this department.
         const mask = new Array(H);
@@ -1097,33 +1545,98 @@
           }
         }
 
-        // Build instances for this department.
+        // Grid centroid for `core` zone preference (independent of department).
+        const gridCentroid = footprintCentroid;
+
+        // Build instances for this department. Each `r` is already a single
+        // room instance (count=1); no expansion needed here — resolveRoomCounts
+        // did that.
+        //
+        // For each instance we derive:
+        //   cellsNeeded     — parti.parti_area_cells when present (refinement 4),
+        //                     else round(target_area / cell²).
+        //   minWCells/minDCells — parti.min_{width,depth}_cells when present
+        //                         (refinement 2), else ceil(ft / cell_size).
+        //   maxAspect       — room.max_aspect_ratio (refinement 3). HARD ceiling.
+        //   zonePrefPoint   — anchor target for placement_zone tiebreaker (5).
+        //   zoneSignedDir   — +1 pulls TOWARD, -1 pushes AWAY.
         const instances = [];
         for (const r of deptRooms) {
-          const count = (Number.isFinite(Number(r.count)) && Number(r.count) > 0)
-            ? Math.floor(Number(r.count)) : 1;
-          const targetArea = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
-          const cellsNeeded = Math.max(1, Math.round(targetArea / cellArea));
-          const minW = Number.isFinite(Number(r.min_width)) ? Number(r.min_width) : null;
-          const minL = Number.isFinite(Number(r.min_length)) ? Number(r.min_length) : null;
-          // Target aspect ratio is min_length / min_width when both are present.
-          // We compare against rectangle's max-side / min-side (always >= 1) so
-          // orientation doesn't matter.
-          const targetAspect = (minW && minL && minW > 0 && minL > 0)
-            ? (Math.max(minW, minL) / Math.min(minW, minL))
-            : 1.0;
-          for (let i = 0; i < count; i++) {
-            instances.push({ room: r, cellsNeeded, targetAspect });
+          const targetArea = Number.isFinite(Number(r.target_area_sf))
+            ? Number(r.target_area_sf)
+            : (Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0);
+
+          // (4) parti cells take precedence over area-derived count.
+          let cellsNeeded;
+          if (Number.isFinite(Number(r.parti_area_cells)) &&
+              Number(r.parti_area_cells) > 0) {
+            cellsNeeded = Math.max(1, Math.floor(Number(r.parti_area_cells)));
+          } else {
+            cellsNeeded = Math.max(1, Math.round(targetArea / cellArea));
           }
+
+          // (2) min width/depth in cells: parti first, then ft→cells.
+          let minWCells, minDCells;
+          if (Number.isFinite(Number(r.min_width_cells)) &&
+              Number(r.min_width_cells) > 0) {
+            minWCells = Math.max(1, Math.floor(Number(r.min_width_cells)));
+          } else if (Number.isFinite(Number(r.min_width)) && Number(r.min_width) > 0) {
+            minWCells = Math.max(1, Math.ceil(Number(r.min_width) / grid.cell_size_ft));
+          } else {
+            minWCells = 1;
+          }
+          if (Number.isFinite(Number(r.min_depth_cells)) &&
+              Number(r.min_depth_cells) > 0) {
+            minDCells = Math.max(1, Math.floor(Number(r.min_depth_cells)));
+          } else if (Number.isFinite(Number(r.min_length)) && Number(r.min_length) > 0) {
+            minDCells = Math.max(1, Math.ceil(Number(r.min_length) / grid.cell_size_ft));
+          } else {
+            minDCells = 1;
+          }
+
+          // Legacy target aspect (min_length / min_width ratio) — used as a
+          // *preference*, not a ceiling. Ceiling is max_aspect_ratio.
+          const targetAspect = (minWCells >= 1 && minDCells >= 1)
+            ? (Math.max(minWCells, minDCells) / Math.min(minWCells, minDCells))
+            : 1.0;
+
+          // (3) Hard ceiling. resolveRoomCounts always writes a value; guard
+          // for direct-JSON-edit cases where the user might strip it.
+          const maxAspect = (Number.isFinite(Number(r.max_aspect_ratio)) &&
+                             Number(r.max_aspect_ratio) > 0)
+            ? Number(r.max_aspect_ratio) : 2.5;
+
+          // (5) placement_zone tiebreaker anchor and direction.
+          const zone = (typeof r.placement_zone === "string")
+            ? r.placement_zone.toLowerCase() : null;
+          let zonePrefPoint = null, zoneSignedDir = 0;
+          if (zone === "foh" && footprintCentroid) {
+            zonePrefPoint = footprintCentroid; zoneSignedDir = +1;
+          } else if (zone === "boh" && footprintCentroid) {
+            zonePrefPoint = footprintCentroid; zoneSignedDir = -1;
+          } else if (zone === "primary" && regionCentroid) {
+            zonePrefPoint = regionCentroid; zoneSignedDir = +1;
+          } else if (zone === "support" && regionCentroid) {
+            zonePrefPoint = regionCentroid; zoneSignedDir = -1;
+          } else if (zone === "core" && gridCentroid) {
+            zonePrefPoint = gridCentroid; zoneSignedDir = +1;
+          }
+
+          instances.push({
+            room: r,
+            cellsNeeded,
+            minWCells,
+            minDCells,
+            targetAspect,
+            maxAspect,
+            zonePrefPoint,
+            zoneSignedDir
+          });
         }
 
         if (availableCells === 0) {
           for (const inst of instances) {
-            unplaced.push({
-              type: inst.room.id,
-              target_area_sf: inst.room.target_area,
-              reason: "department_empty"
-            });
+            unplaced.push(makeUnplacedEntry(inst.room, "department_empty"));
           }
           continue;
         }
@@ -1134,11 +1647,7 @@
 
         for (const inst of instances) {
           if (inst.cellsNeeded > availableCells) {
-            unplaced.push({
-              type: inst.room.id,
-              target_area_sf: inst.room.target_area,
-              reason: "target_too_large"
-            });
+            unplaced.push(makeUnplacedEntry(inst.room, "target_too_large"));
             continue;
           }
 
@@ -1153,8 +1662,12 @@
             down[v] = row;
           }
 
-          // Scan all anchors row-major; track best placement by aspect-distance
-          // (primary), then by area (secondary, smaller = less waste).
+          // Scan all anchors row-major; track best placement by:
+          //   1) aspect-distance from targetAspect (smaller is better)
+          //   2) zone-preference score (smaller is better)
+          //   3) area (smaller = less waste)
+          // Rectangles that violate max_aspect_ratio (refinement 3) are rejected.
+          // Rectangles smaller than (minWCells × minDCells) are rejected.
           let best = null;
           for (let av = 0; av < H; av++) {
             for (let au = 0; au < W; au++) {
@@ -1170,24 +1683,46 @@
                 const hNeeded = Math.max(1, Math.ceil(inst.cellsNeeded / w));
                 if (hNeeded > minDown) continue;
                 const h = hNeeded;
+
+                // (3) HARD max-aspect check. Reject and keep scanning.
+                const ar = (w >= h) ? (w / h) : (h / w);
+                if (ar > inst.maxAspect + 1e-9) continue;
+
+                // Min-dimension check (either orientation).
+                const fitsW = (w >= inst.minWCells && h >= inst.minDCells);
+                const fitsR = (h >= inst.minWCells && w >= inst.minDCells);
+                if (!fitsW && !fitsR) continue;
+
                 const area = w * h;
-                const aspectRect = (w >= h) ? (w / h) : (h / w);
-                const aspectDiff = Math.abs(aspectRect - inst.targetAspect);
+                const aspectDiff = Math.abs(ar - inst.targetAspect);
+
+                // (5) Zone preference — signed distance from zone target point.
+                // Centroid of this candidate rectangle in world coords:
+                let zoneScore = 0;
+                if (inst.zonePrefPoint) {
+                  const [px, py] = inst.zonePrefPoint;
+                  const [rx0, ry0] = cellCenter(grid, au, av);
+                  const [rx1, ry1] = cellCenter(grid, au + w - 1, av + h - 1);
+                  const cxCand = (rx0 + rx1) / 2;
+                  const cyCand = (ry0 + ry1) / 2;
+                  const dist = Math.hypot(cxCand - px, cyCand - py);
+                  // signedDir +1 → closer is better → score = +dist
+                  // signedDir -1 → farther is better → score = -dist
+                  zoneScore = -inst.zoneSignedDir * dist;
+                }
+
                 if (!best ||
                     aspectDiff < best.aspectDiff ||
-                    (aspectDiff === best.aspectDiff && area < best.area)) {
-                  best = { au, av, w, h, area, aspectDiff };
+                    (aspectDiff === best.aspectDiff && zoneScore < best.zoneScore) ||
+                    (aspectDiff === best.aspectDiff && zoneScore === best.zoneScore && area < best.area)) {
+                  best = { au, av, w, h, area, aspectDiff, zoneScore };
                 }
               }
             }
           }
 
           if (!best) {
-            unplaced.push({
-              type: inst.room.id,
-              target_area_sf: inst.room.target_area,
-              reason: "no_rectangle_fits"
-            });
+            unplaced.push(makeUnplacedEntry(inst.room, "no_rectangle_fits"));
             continue;
           }
 
@@ -1206,28 +1741,72 @@
           availableCells -= cells.length;
           cx /= cells.length; cy /= cells.length;
 
-          const type = inst.room.id;
+          const type = (typeof inst.room.template_id === "string" && inst.room.template_id.length > 0)
+            ? inst.room.template_id
+            : (typeof inst.room.id === "string" && inst.room.id.length > 0
+                ? inst.room.id : "room");
           const displayName = (typeof inst.room.name === "string" && inst.room.name.length > 0)
             ? inst.room.name : toTitleCase(type);
+          const actualArea = cells.length * cellArea;
+          const targetArea = Number.isFinite(Number(inst.room.target_area_sf))
+            ? Number(inst.room.target_area_sf)
+            : (Number.isFinite(Number(inst.room.target_area)) ? Number(inst.room.target_area) : 0);
           placed.push({
             instance_id: nextInstanceId(type),
             type,
+            template_id: type,
             display_name: displayName,
             department_id: region.id,
+            // Step 04 — propagate template metadata into placed rooms so
+            // the validator, JSON viewer, and future Stage C/D can read them.
+            placement_zone: (typeof inst.room.placement_zone === "string")
+              ? inst.room.placement_zone : null,
+            daylight_priority: inst.room.daylight_priority || null,
+            max_aspect_ratio: inst.maxAspect,
+            parti_area_cells: Number.isFinite(Number(inst.room.parti_area_cells))
+              ? Number(inst.room.parti_area_cells) : null,
+            min_width_cells: inst.minWCells,
+            min_depth_cells: inst.minDCells,
             cells,
             bbox_cells: {
               u_min: best.au, v_min: best.av,
               u_max: best.au + best.w - 1, v_max: best.av + best.h - 1
             },
-            area_sf: cells.length * cellArea,
-            target_area_sf: inst.room.target_area,
+            area_sf: actualArea,
+            actual_area_sf: actualArea,
+            target_area_sf: targetArea,
             centroid: [cx, cy],
-            aspect_ratio: best.w / best.h
+            aspect_ratio: best.w / best.h,
+            locked: false,
+            lock_reason: null
           });
         }
       }
 
       return { rooms: placed, unplaced };
+    }
+
+    // Step 04 — shared helper so all three unplaced code paths emit the
+    // same shape (spec Section 03 and the click-to-pulse panel read this).
+    function makeUnplacedEntry(room, reason) {
+      if (!isPlainObject(room)) return { reason };
+      const tpl = (typeof room.template_id === "string" && room.template_id.length > 0)
+        ? room.template_id
+        : (typeof room.id === "string" ? room.id : "room");
+      const dep = (typeof room.department_id === "string" && room.department_id.length > 0)
+        ? room.department_id
+        : (typeof room.department === "string" ? room.department : "unassigned");
+      const area = Number.isFinite(Number(room.target_area_sf))
+        ? Number(room.target_area_sf)
+        : (Number.isFinite(Number(room.target_area)) ? Number(room.target_area) : 0);
+      return {
+        type: tpl,
+        template_id: tpl,
+        department_id: dep,
+        name: (typeof room.name === "string") ? room.name : tpl,
+        target_area_sf: area,
+        reason
+      };
     }
 
     // ---------- Overflow warning ----------
@@ -1307,13 +1886,29 @@
         throw new Error("generatePlan: footprint polygon needs at least 3 vertices");
       }
 
-      // Seed context.program.rooms from the building-type JSON ONLY if empty.
-      // Respecting existing entries lets the user hand-edit target_area in the
-      // JSON viewer and regenerate to see the overflow warning update.
-      if (!isPlainObject(np.context.program)) np.context.program = { building_type: null, rooms: [], adjacency_graph: {}, vertical_constraints: {} };
-      if (!Array.isArray(np.context.program.rooms) || np.context.program.rooms.length === 0) {
-        np.context.program.rooms = roomsFromBuildingType(buildingTypeJson);
+      // Ensure program substructure exists.
+      if (!isPlainObject(np.context.program)) {
+        np.context.program = {
+          building_type: null, rooms: [], adjacency_graph: {},
+          vertical_constraints: {}, program_inputs: {}, resolved_rooms_digest: null
+        };
       }
+      if (!isPlainObject(np.context.program.program_inputs)) {
+        np.context.program.program_inputs = {};
+      }
+
+      // Step 04 — seed absent program_inputs from subtypes[0].
+      seedProgramInputs(np.context.program.program_inputs, buildingTypeJson);
+
+      // Step 04 — always re-resolve rooms from the current program_inputs so
+      // count_rule edits take effect. This replaces Step 03's "seed once if
+      // empty" behavior; the digest makes it obvious where counts came from.
+      const floorCount = Number.isFinite(Number(np.context.program.program_inputs.floor_count))
+        ? Math.max(1, Math.floor(Number(np.context.program.program_inputs.floor_count)))
+        : 1;
+      const resolved = roomsFromBuildingType(buildingTypeJson, np.context.program.program_inputs, floorCount);
+      np.context.program.rooms = resolved.instances;
+      np.context.program.resolved_rooms_digest = resolved.digest;
 
       const rooms = np.context.program.rooms;
       const departments = departmentsFromRooms(rooms);
@@ -1344,7 +1939,10 @@
 
       // Write to floors[0].
       if (!isPlainObject(np.current_plan)) {
-        np.current_plan = { floors: [], total_score: null, program_fit_report: null, unplaced_rooms: [] };
+        np.current_plan = {
+          floors: [], total_score: null, program_fit_report: null,
+          unplaced_rooms: [], stale: false
+        };
       }
       if (!Array.isArray(np.current_plan.floors) || np.current_plan.floors.length === 0) {
         np.current_plan.floors = [{
@@ -1359,16 +1957,25 @@
       f0.rooms = stageB.rooms;
       f0.unplaced_rooms = stageB.unplaced;
 
-      // Overflow warning
+      // Overflow warning — sum target_area_sf across instances (count=1 each).
       const footprintArea = computePolygonAreaSF(polygon);
       const programArea = rooms.reduce((acc, r) => {
-        const a = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
-        const c = Number.isFinite(Number(r.count)) && Number(r.count) > 0 ? Number(r.count) : 1;
-        return acc + a * c;
+        const a = Number.isFinite(Number(r.target_area_sf)) ? Number(r.target_area_sf)
+               : (Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0);
+        return acc + a;
       }, 0);
       const capacity = footprintArea / GROSS_TO_NET_DEFAULT;
       np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity);
       np.warnings = upsertUnplacedWarning(np.warnings, stageB.unplaced);
+
+      // Step 04 — clear stale flag; we've just regenerated.
+      np.current_plan.stale = false;
+
+      // updated_at is displayed in metadata and used by autosave timestamps.
+      np.updated_at = new Date().toISOString();
+      // Make sure the engine_version reflects the code path that produced
+      // this plan. (Old files loaded from disk keep their field otherwise.)
+      np.engine_version = ENGINE_VERSION;
 
       return np;
     }
@@ -1717,6 +2324,74 @@
         }
       }
 
+      // ----- Step 04: RE-SEED FROM DB -----
+      // Clears program_inputs then regenerates. First click shows an inline
+      // confirm; subsequent clicks in the same session go straight through.
+      const [reseedConfirm, setReseedConfirm] = React.useState(false);
+      const reseedConfirmedOnceRef = React.useRef(false);
+
+      async function runReseed() {
+        if (!canGenerate) return;
+        setIsGenerating(true);
+        setGenerateError(null);
+        try {
+          const btName = project.context.program.building_type;
+          const btJson = await fetchBuildingTypeJson(btName);
+          const cleared = cloneProject(project);
+          if (!isPlainObject(cleared.context.program)) cleared.context.program = {};
+          cleared.context.program.program_inputs = {};
+          const newProject = generatePlan(cleared, btJson);
+          setProject(newProject);
+        } catch (err) {
+          console.error("re-seed failed:", err);
+          setGenerateError(err && err.message ? err.message : String(err));
+        } finally {
+          setIsGenerating(false);
+        }
+      }
+
+      function handleReseedClick() {
+        if (!canGenerate) return;
+        if (reseedConfirmedOnceRef.current) {
+          runReseed();
+        } else {
+          setReseedConfirm(true);
+        }
+      }
+
+      function handleReseedConfirm() {
+        reseedConfirmedOnceRef.current = true;
+        setReseedConfirm(false);
+        runReseed();
+      }
+
+      function handleReseedCancel() {
+        setReseedConfirm(false);
+      }
+
+      // ----- Step 04: click-to-pulse on unplaced rows -----
+      // Tracks which department (if any) is currently pulsing. We render a
+      // yellow outlined rect over each *unclaimed* cell of that department's
+      // region for 2.4 seconds (3 × 0.8s animation cycles).
+      const [pulsingDeptId, setPulsingDeptId] = React.useState(null);
+      const pulseTimerRef = React.useRef(null);
+      React.useEffect(() => () => {
+        if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+      }, []);
+
+      function pulseUnplacedForDept(deptId) {
+        if (!deptId) return;
+        if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+        // Restart animation by clearing then setting. React re-mounts keyed
+        // rects so the CSS animation replays.
+        setPulsingDeptId(null);
+        setTimeout(() => setPulsingDeptId(deptId), 20);
+        pulseTimerRef.current = setTimeout(() => {
+          setPulsingDeptId(null);
+          pulseTimerRef.current = null;
+        }, 2400);
+      }
+
       // ----- Render-time projection -----
 
       const screenPoints = polygon
@@ -1989,6 +2664,7 @@
 
       // ----- Summary panel data (Step 03) -----
       // Per department: how many rooms placed, actual SF, target SF.
+      // Step 04: switched to target_area_sf (instances now have count=1 each).
       const summaryRows = React.useMemo(() => {
         if (!Array.isArray(regions) || regions.length === 0) return [];
         const programRooms = (project && project.context && project.context.program &&
@@ -1997,11 +2673,10 @@
         const targetByDept = new Map();
         for (const r of programRooms) {
           if (!isPlainObject(r)) continue;
-          const dep = r.department || "unassigned";
-          const count = (Number.isFinite(Number(r.count)) && Number(r.count) > 0)
-            ? Number(r.count) : 1;
-          const ta = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
-          targetByDept.set(dep, (targetByDept.get(dep) || 0) + ta * count);
+          const dep = r.department_id || r.department || "unassigned";
+          const ta = Number.isFinite(Number(r.target_area_sf)) ? Number(r.target_area_sf)
+                  : (Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0);
+          targetByDept.set(dep, (targetByDept.get(dep) || 0) + ta);
         }
         const placedByDept = new Map();
         for (const room of placedRooms) {
@@ -2023,6 +2698,48 @@
           };
         });
       }, [regions, placedRooms, project]);
+
+      // ----- Step 04: Pulse layer -----
+      // When the user clicks an unplaced row, pulse the *empty* cells of that
+      // department's region. Empty = inside the region AND not claimed by a
+      // placed room. Re-keyed by pulsingDeptId so the CSS animation replays
+      // on every click.
+      const pulseLayer = React.useMemo(() => {
+        if (!grid || !pulsingDeptId) return null;
+        const cs = grid.cell_size_ft;
+        const ox = grid.origin_x, oy = grid.origin_y;
+        const W = grid.width_cells, H = grid.height_cells;
+        const region = regions.find(r => r && r.id === pulsingDeptId);
+        if (!region || !Array.isArray(region.cells) || region.cells.length === 0) return null;
+
+        // Build a lookup of cells claimed by placed rooms (any department) so
+        // "empty" means "still available slack in this region".
+        const claimed = new Set();
+        for (const rm of placedRooms) {
+          if (!rm || !Array.isArray(rm.cells)) continue;
+          for (const [u, v] of rm.cells) claimed.add(u + "," + v);
+        }
+
+        function cornerScreen(u, v) {
+          return worldToScreen(ox + u * cs, oy + v * cs, view, viewport);
+        }
+
+        const empties = region.cells.filter(([u, v]) => !claimed.has(u + "," + v));
+        return empties.map(([u, v], i) => {
+          const [sx0, sy0] = cornerScreen(u, v);
+          const [sx1, sy1] = cornerScreen(u + 1, v + 1);
+          const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+          const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+          return (
+            <rect
+              key={pulsingDeptId + "-" + i}
+              className="pulse-cell"
+              x={x + 1} y={y + 1}
+              width={Math.max(0, w - 2)} height={Math.max(0, h - 2)}
+            />
+          );
+        });
+      }, [grid, regions, placedRooms, view, viewport, pulsingDeptId]);
 
       return (
         <div className="canvas-container" ref={containerRef}>
@@ -2049,6 +2766,9 @@
 
             {/* Placed rooms (Step 03 — Stage B) — fills + walls + labels above dept fills */}
             {roomLayer && <g style={{ pointerEvents: "none" }}>{roomLayer}</g>}
+
+            {/* Step 04 — unplaced pulse overlay; renders above rooms, below compass/scale */}
+            {pulseLayer && <g style={{ pointerEvents: "none" }}>{pulseLayer}</g>}
 
             {/* Origin crosshair at world (0,0) */}
             {showOriginMarker && (
@@ -2152,16 +2872,31 @@
             </g>
           </svg>
 
-          {/* Context metadata + Fit/Generate buttons (HTML overlay, top-right) */}
+          {/* Context metadata + Generate / Re-seed / Fit buttons (top-right) */}
           <div className="canvas-overlay top-right">
             <div><span className="label">BUILDING TYPE:</span> {buildingType}</div>
             <div><span className="label">FOOTPRINT:</span> {polyVertexCount} vertices · {areaLabel} SF</div>
             <div><span className="label">TRUE NORTH:</span> {trueNorthDeg}°</div>
             <div><span className="label">ZOOM:</span> {view.zoom.toFixed(2)} px/ft</div>
-            <button type="button" onClick={handleFitClick}>FIT</button>
-            <button type="button" onClick={handleGenerate} disabled={!canGenerate}>
-              {isGenerating ? "GENERATING…" : "GENERATE"}
-            </button>
+            <div style={{ marginTop: 8 }}>
+              <button type="button" onClick={handleGenerate} disabled={!canGenerate}>
+                {isGenerating ? "GENERATING…" : "GENERATE"}
+              </button>
+              <button type="button" onClick={handleReseedClick} disabled={!canGenerate}
+                      title="Clear program_inputs and regenerate from subtypes[0]">
+                RE-SEED FROM DB
+              </button>
+              <button type="button" onClick={handleFitClick}>FIT</button>
+            </div>
+            {reseedConfirm && (
+              <div style={{ marginTop: 8, maxWidth: 240, whiteSpace: "normal" }}>
+                <div style={{ color: "var(--calvey-warn)", marginBottom: 6 }}>
+                  Clear program inputs and regenerate?
+                </div>
+                <button type="button" onClick={handleReseedConfirm}>YES</button>
+                <button type="button" onClick={handleReseedCancel}>NO</button>
+              </div>
+            )}
             {generateError && (
               <div style={{ color: "var(--calvey-error)", marginTop: 6, maxWidth: 240, whiteSpace: "normal" }}>
                 {generateError}
@@ -2169,7 +2904,8 @@
             )}
           </div>
 
-          {/* Department summary (HTML overlay, bottom-right) — Step 03 */}
+          {/* Department summary (HTML overlay, bottom-right) — Step 03
+              + Step 04 individual unplaced rows (click → pulse empty cells). */}
           {regions.length > 0 && (
             <div className="canvas-overlay bottom-right">
               {summaryRows.map(row => (
@@ -2181,11 +2917,29 @@
                 </div>
               ))}
               {unplacedRooms.length > 0 && (
-                <div className="dept-row unplaced">
+                <div className="dept-row unplaced" style={{ marginTop: 4, borderTop: "1px solid var(--calvey-rule)", paddingTop: 4 }}>
                   <span className="dept-name">UNPLACED</span>
                   <span className="dept-meta">{unplacedRooms.length} rooms</span>
                 </div>
               )}
+              {unplacedRooms.map((u, i) => {
+                const tpl = (u && typeof u.type === "string") ? u.type
+                  : (u && typeof u.template_id === "string") ? u.template_id : "?";
+                const reason = (u && typeof u.reason === "string") ? u.reason : "?";
+                const dep = (u && typeof u.department_id === "string") ? u.department_id : null;
+                const isPulsing = dep && pulsingDeptId === dep;
+                return (
+                  <div
+                    key={"u" + i}
+                    className={"dept-row unplaced unplaced-row" + (isPulsing ? " is-pulsing" : "")}
+                    onClick={() => pulseUnplacedForDept(dep)}
+                    title={dep ? ("Pulse empty cells in " + dep) : "No department"}
+                  >
+                    <span className="dept-name">{tpl}</span>
+                    <span className="dept-meta">· {reason}</span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -2212,7 +2966,7 @@
         .join(" · ");
     }
 
-    function ValidationChips({ validation }) {
+    function ValidationChips({ validation, stale }) {
       // NOTE: Spec section 07 says "VALID chip if ok && warnings.length === 0",
       // but gate test 2 expects "green VALID plus two yellow warnings" on a new
       // project. Going with the gate test interpretation: VALID shows whenever
@@ -2221,6 +2975,15 @@
       const chips = [];
       if (ok) {
         chips.push(<span key="ok" className="chip chip-ok">VALID</span>);
+      }
+      // Step 04 — STALE chip appears immediately after VALID (if any) so the
+      // user notices it before scrolling through other warnings.
+      if (stale) {
+        chips.push(
+          <span key="stale" className="chip chip-warn" title="Plan no longer reflects the current inputs">
+            STALE — regenerate to see updated plan
+          </span>
+        );
       }
       errors.forEach((e, i) => {
         chips.push(<span key={"e" + i} className="chip chip-error">{e}</span>);
@@ -2413,8 +3176,9 @@
             <div className="preset-row">
               <button type="button" onClick={() => applyPreset(80, 60)}>Small · 80×60</button>
               <button type="button" onClick={() => applyPreset(150, 100)}>Medium · 150×100</button>
-              <button type="button" onClick={() => applyPreset(220, 160)}>Large · 220×160</button>
-              <button type="button" onClick={() => applyPreset(300, 200)}>XL · 300×200</button>
+              <button type="button" onClick={() => applyPreset(220, 160)}>220×160 ft</button>
+              {/* Step 04 — 300×200 ft (Large) preset ensures K-12 has a non-overflowing footprint option. */}
+              <button type="button" onClick={() => applyPreset(300, 200)}>300×200 ft (Large)</button>
             </div>
             <div className="hint" style={{ marginTop: 12 }}>
               FOOTPRINT AREA · {area.toLocaleString()} SF
@@ -2443,7 +3207,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.1.0-STEP01 · STEP 01 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.3.0-STEP04 · STEP 04 OF 09
           </footer>
         </div>
       );
@@ -2592,6 +3356,42 @@
           return;
         }
         setApplyError(null);
+
+        // Step 04 — STALE chip: if the parsed edit changes anything the
+        // packer depends on (footprint polygon, program_inputs, building_type),
+        // mark the plan stale so the user knows to regenerate.
+        const polyOld = JSON.stringify(
+          (project && project.context && project.context.footprint &&
+           Array.isArray(project.context.footprint.polygon))
+            ? project.context.footprint.polygon : []);
+        const polyNew = JSON.stringify(
+          (parsed && parsed.context && parsed.context.footprint &&
+           Array.isArray(parsed.context.footprint.polygon))
+            ? parsed.context.footprint.polygon : []);
+        const piOld = JSON.stringify(
+          (project && project.context && project.context.program &&
+           isPlainObject(project.context.program.program_inputs))
+            ? project.context.program.program_inputs : {});
+        const piNew = JSON.stringify(
+          (parsed && parsed.context && parsed.context.program &&
+           isPlainObject(parsed.context.program.program_inputs))
+            ? parsed.context.program.program_inputs : {});
+        const btOld = (project && project.context && project.context.program)
+          ? project.context.program.building_type : null;
+        const btNew = (parsed && parsed.context && parsed.context.program)
+          ? parsed.context.program.building_type : null;
+
+        const changed = (polyOld !== polyNew) || (piOld !== piNew) || (btOld !== btNew);
+        if (changed) {
+          if (!isPlainObject(parsed.current_plan)) {
+            parsed.current_plan = {
+              floors: [], total_score: null, program_fit_report: null,
+              unplaced_rooms: [], stale: true
+            };
+          } else {
+            parsed.current_plan.stale = true;
+          }
+        }
         setProject(parsed);
       }
 
@@ -2623,7 +3423,7 @@
         <div className="app">
           <header className="section">
             <h1>CALVEY PARTY 2</h1>
-            <div className="label">SANDBOX · STEP 01 · SCHEMA + PERSISTENCE SHELL</div>
+            <div className="label">SANDBOX · STEP 04 · COUNT_RULE + PARTI-DRIVEN PACKING</div>
           </header>
 
           <div className="section">
@@ -2642,7 +3442,10 @@
             </div>
           )}
 
-          <ValidationChips validation={validation} />
+          <ValidationChips
+            validation={validation}
+            stale={!!(project && project.current_plan && project.current_plan.stale)}
+          />
 
           <FootprintCanvas project={project} setProject={setProject} programDb={dbStatus} />
 
@@ -2680,7 +3483,7 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.1.0-STEP01 · STEP 01 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 0.3.0-STEP04 · STEP 04 OF 09
           </footer>
         </div>
       );
