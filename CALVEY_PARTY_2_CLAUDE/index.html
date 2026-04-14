@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>CALVEY PARTY 2 — Sandbox</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,6 +22,15 @@
 
     * { box-sizing: border-box; }
 
+    /* Step T1 — touch framework foundation. Default tap behavior is
+       "manipulation" (disables double-tap-to-zoom + click delay);
+       -webkit-text-size-adjust keeps iOS from auto-inflating type on
+       orientation change. Canvas-specific overrides live below. */
+    html, body {
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       font-family: 'Cormorant Garamond', Georgia, serif;
       color: var(--calvey-text);
@@ -30,6 +39,12 @@
       padding: 0;
       font-size: 16px;
       line-height: 1.5;
+    }
+
+    /* Step T1 — buttons are tappable without triggering selection/highlight. */
+    button {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .app {
@@ -227,6 +242,13 @@
       position: relative;
       overflow: hidden;
       background: var(--calvey-surface);
+      /* Step T1 — the canvas owns its touch events. Disabling the browser's
+         default pan/zoom is what lets our custom pinch-to-zoom work without
+         Safari hijacking two-finger gestures to zoom the page. */
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .canvas-container svg {
@@ -235,10 +257,52 @@
       display: block;
       cursor: grab;
       user-select: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .canvas-container svg.panning {
       cursor: grabbing;
+    }
+
+    /* Step T1 — rooms and walls suppress iOS long-press selection menu
+       and the tap highlight halo so the gestures feel direct. */
+    [data-room-id] {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Step T1 — debug gesture readout (bottom-center, transient scaffolding
+       for iPhone test sessions). Hidden by URL query param ?debug=0. */
+    .debug-gesture-readout {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    /* Step T1 — thin dashed line connecting finger position to offset ghost
+       during touch drag so the user sees the relationship. */
+    .ghost-finger-connector {
+      stroke: var(--calvey-accent);
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+      stroke-opacity: 0.5;
+      fill: none;
+      pointer-events: none;
     }
 
     .canvas-overlay {
@@ -636,7 +700,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.6.1-step07.1";
+    const ENGINE_VERSION = "0.6.2-stepT1";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -3183,6 +3247,113 @@
     // view = { panX, panY, zoom } — pan is the world coord at the viewport
     // center; zoom is pixels-per-foot.
 
+    // ---------- Step T1 — touch framework foundation ----------
+    //
+    // These helpers are the shared primitives every touch gesture consumes.
+    // T1 uses them for the readout + ghost offset; T2 (lock + wall scrub)
+    // will consume useLongPress and fatFingerRadius. Pure browser APIs.
+
+    // Fat-finger hit radius in screen pixels. Touch gets a 3x bubble around
+    // hit targets that were sized for a mouse cursor. Multiply by 1/zoom to
+    // get a world-space radius (callers do this themselves).
+    function fatFingerRadius(pointerType) {
+      return pointerType === "touch" ? 12 : 4;
+    }
+
+    // Reusable long-press detector. Starts a timer on pointerdown; if the
+    // pointer moves > moveThresholdPx or lifts before durationMs, the timer
+    // is cancelled. Otherwise onLongPress fires with the original payload.
+    // T1 doesn't consume this directly (FootprintCanvas still has its own
+    // inline long-press timer for the lock gesture, to be replaced in T2);
+    // shipped here so T2 can adopt it without re-architecting.
+    function useLongPress({ durationMs = 500, moveThresholdPx = 3, onLongPress }) {
+      const stateRef = React.useRef({
+        timerId: null,
+        startX: 0,
+        startY: 0,
+        pointerId: null,
+        payload: null
+      });
+
+      const start = React.useCallback((e, payload) => {
+        if (stateRef.current.timerId) return;
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const pointerId = e.pointerId;
+        const timerId = setTimeout(() => {
+          if (typeof onLongPress === "function") {
+            onLongPress({ payload, x: startX, y: startY });
+          }
+          stateRef.current.timerId = null;
+        }, durationMs);
+        stateRef.current = { timerId, startX, startY, pointerId, payload };
+      }, [durationMs, onLongPress]);
+
+      const move = React.useCallback((e) => {
+        const s = stateRef.current;
+        if (!s.timerId || e.pointerId !== s.pointerId) return;
+        const dx = e.clientX - s.startX;
+        const dy = e.clientY - s.startY;
+        if (Math.sqrt(dx * dx + dy * dy) > moveThresholdPx) {
+          clearTimeout(s.timerId);
+          s.timerId = null;
+        }
+      }, [moveThresholdPx]);
+
+      const cancel = React.useCallback(() => {
+        if (stateRef.current.timerId) {
+          clearTimeout(stateRef.current.timerId);
+          stateRef.current.timerId = null;
+        }
+      }, []);
+
+      return { start, move, cancel };
+    }
+
+    // Debug gesture readout formatter. Returns a short one-line string
+    // describing the current gesture state for the bottom-center overlay.
+    function gestureDebugLine(gesture, activePointerCount) {
+      const n = activePointerCount | 0;
+      const suffix = n === 1 ? "1 pointer" : n + " pointers";
+      if (!gesture || !gesture.type || gesture.type === "idle") {
+        return "idle · " + suffix;
+      }
+      if (gesture.type === "panning") {
+        return "panning · " + suffix;
+      }
+      if (gesture.type === "pinching") {
+        const z = Number.isFinite(gesture.currentZoom)
+          ? gesture.currentZoom.toFixed(2) : "?";
+        return "pinching · " + suffix + " · zoom " + z;
+      }
+      if (gesture.type === "dragging_room") {
+        const rid = gesture.roomId || "?";
+        let at = "";
+        if (Array.isArray(gesture.ghostCells) && gesture.ghostCells.length > 0) {
+          const [u, v] = gesture.ghostCells[0];
+          at = " · at (" + u + ", " + v + ")";
+        }
+        return "dragging_room " + rid + at;
+      }
+      if (gesture.type === "reproportioning") {
+        return "reproportioning · " + suffix;
+      }
+      if (gesture.type === "showing_lock_chip") {
+        return "showing_lock_chip";
+      }
+      return gesture.type + " · " + suffix;
+    }
+
+    // Debug readout on by default; ?debug=0 disables it. Computed once at
+    // module load so the value is stable across re-renders.
+    const DEBUG_ENABLED = (() => {
+      try {
+        return new URLSearchParams(window.location.search).get("debug") !== "0";
+      } catch (e) {
+        return true;
+      }
+    })();
+
     function computePolygonBounds(polygon) {
       if (!Array.isArray(polygon) || polygon.length === 0) {
         return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
@@ -3874,7 +4045,7 @@
       // fields carry mode-specific data. A ref mirror lets synchronous pointer
       // handlers read the latest value without closure staleness.
       const [gesture, setGesture] = React.useState({
-        type: "idle",              // idle | panning | dragging_room | showing_lock_chip | reproportioning
+        type: "idle",              // idle | panning | dragging_room | showing_lock_chip | reproportioning | pinching
         roomId: null,
         startBounds: null,
         ghostCells: null,
@@ -3890,10 +4061,41 @@
         // tile, not SVG); null when the cursor is over the canvas. valid
         // gates whether the target tile glows accent vs. red.
         crossFloorTarget: null,
-        crossFloorValid: false
+        crossFloorValid: false,
+        // Step T1 — current pointer type ("mouse" | "touch" | "pen").
+        // Used to offset the drag ghost 40 px above the finger on touch so
+        // the user can see the ghost around their finger.
+        pointerType: null,
+        // Step T1 — live zoom during pinching, for the debug readout.
+        currentZoom: null,
+        // Step T1 — last finger position during touch drag (container-screen
+        // coords). Used to draw the finger→ghost dashed connector.
+        fingerScreen: null
       });
       const gestureRef = React.useRef(gesture);
       React.useEffect(() => { gestureRef.current = gesture; }, [gesture]);
+
+      // Step T1 — multi-pointer tracking. Every pointerdown registers an
+      // entry; pointermove updates it; pointerup/cancel deletes it. The
+      // size of this Map drives pinch-start detection and the debug readout.
+      const activePointersRef = React.useRef(new Map());
+      // Step T1 — reactive mirror of the ref's size, for the debug readout
+      // (refs don't trigger re-renders). Kept in sync by syncPointerCount().
+      const [activePointerCount, setActivePointerCount] = React.useState(0);
+      function syncPointerCount() {
+        const n = activePointersRef.current.size;
+        setActivePointerCount(prev => (prev === n ? prev : n));
+      }
+      // Step T1 — pointers that should be ignored for gesture starts. When
+      // a pinch ends while fingers are still down, we mark the remaining
+      // fingers ignored so they don't start a surprise pan. Cleared on
+      // pointerup (any lift), so a re-press after the pinch is normal.
+      const ignoredPointersRef = React.useRef(new Set());
+      // Step T1 — pinch state (kept in a ref so the per-tick math doesn't
+      // need to round-trip through React state). Mirror of the gesture
+      // object's pinch fields, but written synchronously inside the
+      // pointermove handler.
+      const pinchRef = React.useRef(null);
 
       // Step 06 — wall that the cursor is currently hovering (idle only).
       // Drives the cursor change (ew/ns resize) and the alignment highlight.
@@ -4016,6 +4218,24 @@
         return () => svg.removeEventListener("wheel", handleWheel);
       }, []);
 
+      // Step T1 — native non-passive pointerdown listener. React 18
+      // registers pointerdown as non-passive by default, but Safari on iOS
+      // still occasionally triggers selection/magnify on long-press unless
+      // the root handler explicitly preventDefaults the touch event. This
+      // listener runs before React's delegated handler and covers the case
+      // where the synthetic handler can't cancel the default.
+      React.useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return;
+        function onPointerDownNative(e) {
+          if (e.pointerType === "touch" && e.cancelable) {
+            e.preventDefault();
+          }
+        }
+        svg.addEventListener("pointerdown", onPointerDownNative, { passive: false });
+        return () => svg.removeEventListener("pointerdown", onPointerDownNative);
+      }, []);
+
       // ---------- Step 05 — gesture helpers ----------
 
       function cancelLongPress() {
@@ -4030,7 +4250,8 @@
         setGesture(g => (g.type === "dragging_room"
           ? { type: "idle", roomId: null, startBounds: null,
               ghostCells: null, dropValid: false,
-              crossFloorTarget: null, crossFloorValid: false }
+              crossFloorTarget: null, crossFloorValid: false,
+              pointerType: null, fingerScreen: null, currentZoom: null }
           : g));
       }
 
@@ -4403,10 +4624,11 @@
           startScreenY: screenY,
           startPanX: view.panX,
           startPanY: view.panY,
-          pointerId: e.pointerId
+          pointerId: e.pointerId,
+          pointerType: e.pointerType || "mouse"
         };
         setIsPanning(true);
-        setGesture(g => ({ ...g, type: "panning" }));
+        setGesture(g => ({ ...g, type: "panning", pointerType: e.pointerType || "mouse" }));
       }
 
       function startRoomDrag(e, room, screenX, screenY) {
@@ -4423,6 +4645,7 @@
           startCells,
           startBounds: room.bbox_cells ? { ...room.bbox_cells } : null,
           pointerId: e.pointerId,
+          pointerType: e.pointerType || "mouse",
           moved: false
         };
         setGesture({
@@ -4430,7 +4653,9 @@
           roomId: room.instance_id,
           startBounds: room.bbox_cells ? { ...room.bbox_cells } : null,
           ghostCells: startCells,
-          dropValid: true
+          dropValid: true,
+          pointerType: e.pointerType || "mouse",
+          fingerScreen: { x: screenX, y: screenY }
         });
         // Arm long-press. Fires in 500 ms *if* the pointer hasn't moved
         // > 3 px, in which case we switch from drag to lock-chip intent.
@@ -4446,10 +4671,145 @@
         }, 500);
       }
 
+      // ---------- Step T1 — pinch-to-zoom helpers ----------
+
+      // Abort any in-progress single-pointer gesture (pan / drag /
+      // reproportion) so pinch can take over cleanly. Called when a second
+      // pointer lands during one of those gestures.
+      function abortSinglePointerGesture() {
+        cancelLongPress();
+        const ds = dragStateRef.current;
+        if (ds) {
+          if (ds.mode === "reproportion") {
+            cancelReproportion();
+          } else if (ds.mode === "room") {
+            cancelDrag();
+          } else {
+            dragStateRef.current = null;
+            setIsPanning(false);
+            setGesture(g => (g.type === "panning"
+              ? { type: "idle", roomId: null, startBounds: null,
+                  ghostCells: null, dropValid: false,
+                  crossFloorTarget: null, crossFloorValid: false,
+                  pointerType: null, fingerScreen: null, currentZoom: null }
+              : g));
+          }
+        }
+      }
+
+      function startPinch() {
+        const svg = svgRef.current;
+        const vp = viewportRef.current;
+        const view = viewRef.current;
+        if (!svg || !vp) return;
+        const iter = activePointersRef.current.values();
+        const p1 = iter.next().value;
+        const p2 = iter.next().value;
+        if (!p1 || !p2) return;
+        const rect = svg.getBoundingClientRect();
+        const s1x = p1.clientX - rect.left, s1y = p1.clientY - rect.top;
+        const s2x = p2.clientX - rect.left, s2y = p2.clientY - rect.top;
+        const startDistPx = Math.hypot(s2x - s1x, s2y - s1y);
+        if (startDistPx < 1) return; // degenerate; ignore
+        const mx = (s1x + s2x) / 2;
+        const my = (s1y + s2y) / 2;
+        const [mwx, mwy] = screenToWorld(mx, my, view, vp);
+        pinchRef.current = {
+          startDistPx,
+          startZoom: view.zoom,
+          startPanX: view.panX,
+          startPanY: view.panY,
+          startMidScreen: [mx, my],
+          startMidWorld: [mwx, mwy]
+        };
+        setGesture(g => ({
+          ...g,
+          type: "pinching",
+          roomId: null,
+          startBounds: null,
+          ghostCells: null,
+          dropValid: false,
+          crossFloorTarget: null,
+          crossFloorValid: false,
+          currentZoom: view.zoom
+        }));
+      }
+
+      function tickPinch() {
+        const pinch = pinchRef.current;
+        const svg = svgRef.current;
+        const vp = viewportRef.current;
+        if (!pinch || !svg || !vp) return;
+        if (activePointersRef.current.size !== 2) return;
+        const rect = svg.getBoundingClientRect();
+        const iter = activePointersRef.current.values();
+        const p1 = iter.next().value;
+        const p2 = iter.next().value;
+        const s1x = p1.clientX - rect.left, s1y = p1.clientY - rect.top;
+        const s2x = p2.clientX - rect.left, s2y = p2.clientY - rect.top;
+        const currDistPx = Math.hypot(s2x - s1x, s2y - s1y);
+        if (currDistPx < 1) return;
+        const zoomRatio = currDistPx / pinch.startDistPx;
+        const newZoom = Math.max(0.05, Math.min(50, pinch.startZoom * zoomRatio));
+        // Keep the starting midpoint under the starting screen midpoint.
+        // Matches the worldToScreen invariant the mouse-wheel zoom already uses.
+        const [sx0, sy0] = pinch.startMidScreen;
+        const [mwx, mwy] = pinch.startMidWorld;
+        const newPanX = mwx - (sx0 - vp.width / 2) / newZoom;
+        const newPanY = mwy + (sy0 - vp.height / 2) / newZoom;
+        setView({ zoom: newZoom, panX: newPanX, panY: newPanY });
+        setGesture(g => (g.type === "pinching"
+          ? { ...g, currentZoom: newZoom }
+          : g));
+      }
+
+      function endPinch() {
+        pinchRef.current = null;
+        // If fingers are still down when pinch ends, mark them ignored so
+        // they don't start a stray pan. They're cleared the next time each
+        // one actually lifts.
+        for (const id of activePointersRef.current.keys()) {
+          ignoredPointersRef.current.add(id);
+        }
+        setGesture(g => (g.type === "pinching"
+          ? { type: "idle", roomId: null, startBounds: null,
+              ghostCells: null, dropValid: false,
+              crossFloorTarget: null, crossFloorValid: false,
+              pointerType: null, fingerScreen: null, currentZoom: null }
+          : g));
+      }
+
       function handlePointerDown(e) {
         // Right-click is handled by onContextMenu — ignore here so we don't
         // start a spurious pan.
         if (e.button === 2) return;
+
+        // Step T1 — register this pointer in the active map before any
+        // gesture-routing decisions. preventDefault on touch suppresses
+        // Safari's long-press selection menu and double-tap zoom.
+        activePointersRef.current.set(e.pointerId, {
+          clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType
+        });
+        syncPointerCount();
+        if (e.pointerType === "touch" && e.cancelable) {
+          e.preventDefault();
+        }
+
+        // Step T1 — if a second pointer lands during a single-pointer
+        // gesture, abort that gesture and start pinch. The second pointer
+        // itself does not propagate further in this handler.
+        if (activePointersRef.current.size === 2) {
+          abortSinglePointerGesture();
+          startPinch();
+          return;
+        }
+
+        // Step T1 — pointers remaining after a pinch-end are "ignored" so
+        // the user has to fully lift + re-press before a new gesture
+        // starts. Avoids the jarring "pinch ended, remaining finger jumps
+        // into a pan" surprise.
+        if (ignoredPointersRef.current.has(e.pointerId)) return;
+        if (activePointersRef.current.size > 2) return;
 
         const svg = svgRef.current;
         if (!svg) return;
@@ -4508,6 +4868,21 @@
         const rect = svg.getBoundingClientRect();
         const sx = e.clientX - rect.left;
         const sy = e.clientY - rect.top;
+
+        // Step T1 — keep the active-pointer map current so pinch can read
+        // both positions each tick.
+        if (activePointersRef.current.has(e.pointerId)) {
+          activePointersRef.current.set(e.pointerId, {
+            clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType
+          });
+        }
+
+        // Step T1 — pinching takes over completely while two pointers are
+        // down. Don't run pan/drag/reproportion motion in that case.
+        if (pinchRef.current && activePointersRef.current.size === 2) {
+          tickPinch();
+          return;
+        }
 
         const ds = dragStateRef.current;
         if (!ds) {
@@ -4599,7 +4974,8 @@
               ghostCells: ds.startCells,
               dropValid: false,
               crossFloorTarget,
-              crossFloorValid
+              crossFloorValid,
+              fingerScreen: { x: sx, y: sy }
             }));
             return;
           }
@@ -4648,7 +5024,8 @@
             ghostCells,
             dropValid: valid,
             crossFloorTarget: null,
-            crossFloorValid: false
+            crossFloorValid: false,
+            fingerScreen: { x: sx, y: sy }
           }));
           return;
         }
@@ -4660,6 +5037,21 @@
       }
 
       function handlePointerUp(e) {
+        // Step T1 — retire the pointer from the active map and clear its
+        // ignored flag (so a re-press after a pinch works normally).
+        activePointersRef.current.delete(e.pointerId);
+        ignoredPointersRef.current.delete(e.pointerId);
+        syncPointerCount();
+
+        // Step T1 — pinch end when the second finger lifts. If a finger
+        // remains down it's marked ignored until it also lifts.
+        if (pinchRef.current) {
+          if (activePointersRef.current.size < 2) {
+            endPinch();
+          }
+          return;
+        }
+
         const ds = dragStateRef.current;
         if (!ds) return;
         const svg = svgRef.current;
@@ -4676,7 +5068,8 @@
           setGesture(g => (g.type === "panning"
             ? { type: "idle", roomId: null, startBounds: null,
                 ghostCells: null, dropValid: false,
-                crossFloorTarget: null, crossFloorValid: false }
+                crossFloorTarget: null, crossFloorValid: false,
+                pointerType: null, fingerScreen: null, currentZoom: null }
             : g));
           return;
         }
@@ -4719,7 +5112,8 @@
           dragStateRef.current = null;
           setGesture({ type: "idle", roomId: null, startBounds: null,
                        ghostCells: null, dropValid: false,
-                       crossFloorTarget: null, crossFloorValid: false });
+                       crossFloorTarget: null, crossFloorValid: false,
+                       pointerType: null, fingerScreen: null, currentZoom: null });
 
           // Pure tap (no movement): record for double-tap, do nothing else.
           if (!moved) {
@@ -4784,9 +5178,13 @@
 
       function handlePointerCancel(e) {
         cancelLongPress();
-        // Step 06 — treat a cancel during reproportion as an ESC: drop the
-        // gesture without committing the ghost.
+        // Step T1 — a cancelled pointer should leave the active map just
+        // like a normal up. handlePointerUp already does this for the
+        // non-reproportion paths; mirror it here for the early return.
         if (dragStateRef.current && dragStateRef.current.mode === "reproportion") {
+          activePointersRef.current.delete(e.pointerId);
+          ignoredPointersRef.current.delete(e.pointerId);
+          syncPointerCount();
           cancelReproportion();
           return;
         }
@@ -5393,12 +5791,30 @@
         const strokeColor = gesture.dropValid
           ? "var(--calvey-accent)"
           : "var(--calvey-error)";
+        // Step T1 — on touch, nudge the ghost 40 screen-px up so the user's
+        // finger doesn't cover it. The proposed cells (and the drop target)
+        // are still determined by the real finger position — this offset is
+        // visual only. A dashed connector line links the finger to the ghost
+        // so the relationship is obvious.
+        const ghostOffsetPx = gesture.pointerType === "touch" ? 40 : 0;
+        const gy = y - ghostOffsetPx;
+        const finger = gesture.fingerScreen;
+        const showConnector = ghostOffsetPx > 0 && finger &&
+          Number.isFinite(finger.x) && Number.isFinite(finger.y);
+        // Connect to the ghost's bottom-center as the most readable anchor.
+        const connectorX = x + w / 2;
+        const connectorY = gy + h;
         return (
           <g style={{ pointerEvents: "none" }}>
-            <rect x={x} y={y} width={w} height={h}
+            <rect x={x} y={gy} width={w} height={h}
                   fill={color} fillOpacity="0.5"
                   stroke={strokeColor} strokeWidth="2"
                   strokeDasharray="6 4" />
+            {showConnector && (
+              <line className="ghost-finger-connector"
+                    x1={finger.x} y1={finger.y}
+                    x2={connectorX} y2={connectorY} />
+            )}
           </g>
         );
       }, [gesture, grid, placedRooms, view, viewport]);
@@ -5901,6 +6317,15 @@
             onCancelFloorRemoval={handleCancelFloorRemoval}
             onConfirmFloorRemoval={handleConfirmFloorRemoval}
           />
+
+          {/* Step T1 — debug gesture readout. Scaffolding for the iPhone
+              touch test session; suppressed by ?debug=0. Slated to come out
+              with T3 unless the user opts to keep it. */}
+          {DEBUG_ENABLED && (
+            <div className="debug-gesture-readout">
+              {gestureDebugLine(gesture, activePointerCount)}
+            </div>
+          )}
         </div>
       );
     }

@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.6.1-step07.1`
+`0.6.2-stepT1`
 
 ## Build status
 
@@ -52,7 +52,10 @@ If none are found, the status line will read "not present."
 - [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B
 - [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview.
 - [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1.
-- [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only. *(current)*
+- [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only.
+- [x] **Step T1** — Touch input framework foundation + pan/pinch-zoom/drag retrofit. Viewport + CSS setup, `useLongPress` / `fatFingerRadius` helpers, multi-pointer tracking, pinch-to-zoom (midpoint-stable), ghost offset + finger connector on touch drag, debug gesture readout. Lock gesture (right-click/long-press) and wall scrub unchanged — those ship in T2. *(current)*
+- [ ] Step T2 — Touch lock gesture + touch wall scrub
+- [ ] Step T3 — Cross-floor drag visual feedback for touch
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
 
@@ -172,6 +175,72 @@ Stacking preference normalization (the DB ships free-form values like
 `stack_group` co-location takes precedence over class preference: once
 one member of `WET_STACK_A` lands on a floor, subsequent members prefer
 the same floor.
+
+### Step T1 notes
+
+Step T1 is the first of three touch retrofits (T1, T2, T3) to make the
+sandbox usable on iPhone through the GitHub Pages deploy. It lays the
+shared touch-input primitives every future gesture will consume and
+retrofits the three existing gestures that don't require new visual
+vocabulary (pan, pinch-zoom, drag-and-reflow). Lock gesture and wall
+scrub stay desktop-only until T2; cross-floor drag visual feedback for
+touch ships with T3.
+
+Scope boundary: T1 is an **additive** pass. Desktop behavior is
+unchanged — every mouse interaction works identically, every pointer
+handler still fires the same code path. Touch-specific branches are
+gated on `pointerType === "touch"`.
+
+What T1 adds:
+
+- **Viewport + CSS.** The viewport meta tag now includes
+  `user-scalable=no, maximum-scale=1.0`; the canvas container and its
+  SVG use `touch-action: none` so two-finger gestures aren't hijacked
+  by Safari's browser-level pinch. Rooms, buttons, and the canvas all
+  set `-webkit-user-select: none`, `-webkit-touch-callout: none`, and
+  `-webkit-tap-highlight-color: transparent`.
+- **Shared helpers.** `useLongPress({ durationMs, moveThresholdPx,
+  onLongPress })` for T2's lock gesture; `fatFingerRadius(pointerType)`
+  returning 12 px on touch, 4 px on mouse, for T2's wall hit test;
+  `gestureDebugLine(gesture, activePointerCount)` for the readout.
+- **Multi-pointer tracking.** `FootprintCanvas` maintains an
+  `activePointersRef` map keyed by `pointerId`; size drives pinch
+  detection. An `ignoredPointersRef` set suppresses stray gestures from
+  pointers still down after a pinch end (they're cleared on each
+  pointer's next up event).
+- **Pinch-to-zoom.** Two-finger pinch on the canvas zooms the view,
+  keeping the starting midpoint under the starting screen midpoint —
+  matches the mouse-wheel zoom's "keep the point under the cursor"
+  invariant. Works on Mac trackpad too (any two-pointer event).
+- **Gesture upgrade rule.** When a second pointer lands during pan or
+  drag, the single-pointer gesture is aborted and pinch takes over.
+  Ghost disappears, room returns to origin, pinch starts.
+- **Ghost offset for touch drag.** On touch, the drag ghost renders
+  40 screen px above the finger with a thin dashed connector line, so
+  the user can see the ghost around their finger. Mouse drag is
+  unchanged (offset = 0).
+- **Safari selection suppression.** Native non-passive `pointerdown`
+  listener on the SVG calls `preventDefault()` for touch events. The
+  React synthetic handler also calls `preventDefault()` — belt and
+  suspenders.
+- **Debug gesture readout.** Bottom-center status line shows the
+  current gesture state (`idle · 0 pointers`, `panning · 1 pointer`,
+  `pinching · 2 pointers · zoom 1.42`, `dragging_room <id> · at
+  (u, v)`). On by default; disable with `?debug=0`. Scaffolding for
+  the iPhone test session; slated to come out with T3.
+
+What T1 deliberately does NOT do:
+
+- Lock gesture stays as-is (right-click / 500 ms long-press /
+  double-tap). T2 replaces the long-press timing with the shared
+  `useLongPress` helper and adds touch-specific disambiguation.
+- Wall scrub stays hover-based. On touch there's no hover, so walls
+  can't currently be picked up. T2 replaces the hover-preview with a
+  tap-to-arm + drag-to-scrub flow and uses `fatFingerRadius()` to
+  widen the hit target.
+- Cross-floor drag still uses the in-canvas ghost; on touch the ghost
+  is hidden under the finger when hovering a floor tile. T3 adds a
+  ring-around-finger overlay.
 
 ### Step 07.1 notes
 
