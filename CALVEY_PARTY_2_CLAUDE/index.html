@@ -299,6 +299,11 @@
       color: var(--calvey-muted);
     }
 
+    .canvas-overlay.bottom-right .dept-row.unplaced .dept-name,
+    .canvas-overlay.bottom-right .dept-row.unplaced .dept-meta {
+      color: var(--calvey-warn);
+    }
+
     button:disabled {
       background: var(--calvey-surface);
       color: var(--calvey-muted);
@@ -308,6 +313,18 @@
     button:disabled:hover {
       background: var(--calvey-surface);
       color: var(--calvey-muted);
+    }
+
+    .room-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      fill: var(--calvey-text);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      user-select: none;
     }
   </style>
 </head>
@@ -511,6 +528,30 @@
               }
               if (!Array.isArray(r.cells)) {
                 warnings.push("floors[0].department_regions[" + i + "].cells must be an array");
+              }
+            });
+          }
+          // Step 03: validate floors[0].rooms when populated.
+          if (Array.isArray(f0.rooms) && f0.rooms.length > 0) {
+            f0.rooms.forEach((r, i) => {
+              if (!isPlainObject(r)) {
+                warnings.push("floors[0].rooms[" + i + "] must be an object");
+                return;
+              }
+              if (typeof r.instance_id !== "string" || r.instance_id.length === 0) {
+                warnings.push("floors[0].rooms[" + i + "].instance_id must be a non-empty string");
+              }
+              if (typeof r.type !== "string" || r.type.length === 0) {
+                warnings.push("floors[0].rooms[" + i + "].type must be a non-empty string");
+              }
+              if (typeof r.department_id !== "string" || r.department_id.length === 0) {
+                warnings.push("floors[0].rooms[" + i + "].department_id must be a non-empty string");
+              }
+              if (!Array.isArray(r.cells)) {
+                warnings.push("floors[0].rooms[" + i + "].cells must be an array");
+              }
+              if (!Number.isFinite(Number(r.area_sf))) {
+                warnings.push("floors[0].rooms[" + i + "].area_sf must be a number");
               }
             });
           }
@@ -753,12 +794,20 @@
         .filter(isPlainObject)
         .map(space => {
           const deptKey = deptKeyForSpace(space);
-          const targetArea = (isPlainObject(space.dimensions_ft) &&
-                              Number.isFinite(Number(space.dimensions_ft.typical_area_sf)))
-            ? Number(space.dimensions_ft.typical_area_sf)
+          const dims = isPlainObject(space.dimensions_ft) ? space.dimensions_ft : {};
+          const targetArea = Number.isFinite(Number(dims.typical_area_sf))
+            ? Number(dims.typical_area_sf)
             : (Array.isArray(space.nsf_range) && space.nsf_range.length === 2
                 ? (Number(space.nsf_range[0]) + Number(space.nsf_range[1])) / 2
                 : 0);
+          // Min-width / min-length feed Stage B's target aspect ratio.
+          // Prefer top-level *_ft fields; fall back to dimensions_ft.* if absent.
+          const minWidth = Number.isFinite(Number(space.min_width_ft))
+            ? Number(space.min_width_ft)
+            : (Number.isFinite(Number(dims.min_width)) ? Number(dims.min_width) : null);
+          const minLength = Number.isFinite(Number(space.min_depth_ft))
+            ? Number(space.min_depth_ft)
+            : (Number.isFinite(Number(dims.min_depth)) ? Number(dims.min_depth) : null);
           return {
             id: typeof space.id === "string" ? space.id : slugify(space.name || "room"),
             name: typeof space.name === "string" ? space.name : (space.id || "Room"),
@@ -766,6 +815,8 @@
             department_name: toTitleCase(deptKey),
             daylight_priority: normalizeDaylightPriority(space.daylight_priority),
             target_area: targetArea,
+            min_width: minWidth,
+            min_length: minLength,
             count: 1
           };
         });
@@ -992,6 +1043,193 @@
       });
     }
 
+    // ---------- Stage B — greedy rectangular room packing ----------
+
+    // For each department region, build an availability mask, then for each
+    // room instance (sorted big-to-small) scan all anchors for the rectangle
+    // that best matches the room's target aspect ratio while still containing
+    // at least cells_needed cells. Claim the rectangle and continue.
+    //
+    // Output: {
+    //   rooms:    [ <room instance per Section 05> ],
+    //   unplaced: [ { type, target_area_sf, reason } ]
+    // }
+    function runStageB(grid, regions, rooms) {
+      const W = grid.width_cells, H = grid.height_cells;
+      const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+      const placed = [];
+      const unplaced = [];
+
+      const roomList = Array.isArray(rooms) ? rooms.filter(isPlainObject) : [];
+      const regionList = Array.isArray(regions) ? regions.filter(isPlainObject) : [];
+
+      // Group rooms by department id.
+      const byDept = new Map();
+      for (const r of roomList) {
+        const key = (typeof r.department === "string" && r.department.length > 0)
+          ? r.department : "unassigned";
+        if (!byDept.has(key)) byDept.set(key, []);
+        byDept.get(key).push(r);
+      }
+
+      // Per-type instance counter so instance_ids are unique on this floor.
+      const counters = new Map();
+      function nextInstanceId(type) {
+        const n = (counters.get(type) || 0) + 1;
+        counters.set(type, n);
+        return type + "_" + String(n).padStart(2, "0");
+      }
+
+      for (const region of regionList) {
+        const deptRooms = byDept.get(region.id) || [];
+        if (deptRooms.length === 0) continue;
+
+        // Build availability mask + interior cell count for this department.
+        const mask = new Array(H);
+        for (let v = 0; v < H; v++) mask[v] = new Array(W).fill(false);
+        let availableCells = 0;
+        if (Array.isArray(region.cells)) {
+          for (const [u, v] of region.cells) {
+            if (u >= 0 && u < W && v >= 0 && v < H) {
+              mask[v][u] = true;
+              availableCells++;
+            }
+          }
+        }
+
+        // Build instances for this department.
+        const instances = [];
+        for (const r of deptRooms) {
+          const count = (Number.isFinite(Number(r.count)) && Number(r.count) > 0)
+            ? Math.floor(Number(r.count)) : 1;
+          const targetArea = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
+          const cellsNeeded = Math.max(1, Math.round(targetArea / cellArea));
+          const minW = Number.isFinite(Number(r.min_width)) ? Number(r.min_width) : null;
+          const minL = Number.isFinite(Number(r.min_length)) ? Number(r.min_length) : null;
+          // Target aspect ratio is min_length / min_width when both are present.
+          // We compare against rectangle's max-side / min-side (always >= 1) so
+          // orientation doesn't matter.
+          const targetAspect = (minW && minL && minW > 0 && minL > 0)
+            ? (Math.max(minW, minL) / Math.min(minW, minL))
+            : 1.0;
+          for (let i = 0; i < count; i++) {
+            instances.push({ room: r, cellsNeeded, targetAspect });
+          }
+        }
+
+        if (availableCells === 0) {
+          for (const inst of instances) {
+            unplaced.push({
+              type: inst.room.id,
+              target_area_sf: inst.room.target_area,
+              reason: "department_empty"
+            });
+          }
+          continue;
+        }
+
+        // Sort instances big-first so larger rooms grab space before
+        // small rooms scatter the mask.
+        instances.sort((a, b) => b.cellsNeeded - a.cellsNeeded);
+
+        for (const inst of instances) {
+          if (inst.cellsNeeded > availableCells) {
+            unplaced.push({
+              type: inst.room.id,
+              target_area_sf: inst.room.target_area,
+              reason: "target_too_large"
+            });
+            continue;
+          }
+
+          // Precompute down_runs[v][u] = consecutive trues going from (u,v)
+          // toward larger v. Lets us find max_h for any (anchor, w) in O(w).
+          const down = new Array(H);
+          for (let v = H - 1; v >= 0; v--) {
+            const row = new Array(W);
+            for (let u = 0; u < W; u++) {
+              row[u] = mask[v][u] ? (1 + (v + 1 < H ? down[v + 1][u] : 0)) : 0;
+            }
+            down[v] = row;
+          }
+
+          // Scan all anchors row-major; track best placement by aspect-distance
+          // (primary), then by area (secondary, smaller = less waste).
+          let best = null;
+          for (let av = 0; av < H; av++) {
+            for (let au = 0; au < W; au++) {
+              if (!mask[av][au]) continue;
+              // max width of trues to the right on this row, starting at (au, av).
+              let maxW = 0;
+              while (au + maxW < W && mask[av][au + maxW]) maxW++;
+              let minDown = Infinity;
+              for (let w = 1; w <= maxW; w++) {
+                const d = down[av][au + w - 1];
+                if (d < minDown) minDown = d;
+                if (minDown < 1) break;
+                const hNeeded = Math.max(1, Math.ceil(inst.cellsNeeded / w));
+                if (hNeeded > minDown) continue;
+                const h = hNeeded;
+                const area = w * h;
+                const aspectRect = (w >= h) ? (w / h) : (h / w);
+                const aspectDiff = Math.abs(aspectRect - inst.targetAspect);
+                if (!best ||
+                    aspectDiff < best.aspectDiff ||
+                    (aspectDiff === best.aspectDiff && area < best.area)) {
+                  best = { au, av, w, h, area, aspectDiff };
+                }
+              }
+            }
+          }
+
+          if (!best) {
+            unplaced.push({
+              type: inst.room.id,
+              target_area_sf: inst.room.target_area,
+              reason: "no_rectangle_fits"
+            });
+            continue;
+          }
+
+          // Claim cells, update mask + bookkeeping.
+          const cells = [];
+          let cx = 0, cy = 0;
+          for (let dv = 0; dv < best.h; dv++) {
+            for (let du = 0; du < best.w; du++) {
+              const u = best.au + du, v = best.av + dv;
+              cells.push([u, v]);
+              mask[v][u] = false;
+              const [wx, wy] = cellCenter(grid, u, v);
+              cx += wx; cy += wy;
+            }
+          }
+          availableCells -= cells.length;
+          cx /= cells.length; cy /= cells.length;
+
+          const type = inst.room.id;
+          const displayName = (typeof inst.room.name === "string" && inst.room.name.length > 0)
+            ? inst.room.name : toTitleCase(type);
+          placed.push({
+            instance_id: nextInstanceId(type),
+            type,
+            display_name: displayName,
+            department_id: region.id,
+            cells,
+            bbox_cells: {
+              u_min: best.au, v_min: best.av,
+              u_max: best.au + best.w - 1, v_max: best.av + best.h - 1
+            },
+            area_sf: cells.length * cellArea,
+            target_area_sf: inst.room.target_area,
+            centroid: [cx, cy],
+            aspect_ratio: best.w / best.h
+          });
+        }
+      }
+
+      return { rooms: placed, unplaced };
+    }
+
     // ---------- Overflow warning ----------
 
     const OVERFLOW_WARNING_ID = "overflow";
@@ -1011,6 +1249,34 @@
                    " SF) at gross/net " + GROSS_TO_NET_DEFAULT.toFixed(1),
           raised_at: new Date().toISOString(),
           auto_clear_when: "programArea <= capacity"
+        });
+      }
+      return list;
+    }
+
+    // ---------- Unplaced-rooms warning ----------
+
+    const UNPLACED_WARNING_ID = "unplaced";
+
+    // Replace-or-remove semantics: at most one unplaced warning at a time.
+    function upsertUnplacedWarning(warnings, unplacedList) {
+      const list = Array.isArray(warnings)
+        ? warnings.filter(w => !(isPlainObject(w) && w.id === UNPLACED_WARNING_ID))
+        : [];
+      if (Array.isArray(unplacedList) && unplacedList.length > 0) {
+        const types = [];
+        for (const u of unplacedList) {
+          const t = (isPlainObject(u) && typeof u.type === "string") ? u.type : "?";
+          if (!types.includes(t)) types.push(t);
+        }
+        const head = types.slice(0, 3).join(", ");
+        const tail = types.length > 3 ? ", ..." : "";
+        list.push({
+          id: UNPLACED_WARNING_ID,
+          severity: "warning",
+          message: unplacedList.length + " room(s) could not be placed: " + head + tail,
+          raised_at: new Date().toISOString(),
+          auto_clear_when: "all rooms placed"
         });
       }
       return list;
@@ -1073,7 +1339,10 @@
       // Stage A
       const regions = runStageA(grid, sun, departments);
 
-      // Write to floors[0]; do not touch rooms/unplaced_rooms on the floor.
+      // Stage B
+      const stageB = runStageB(grid, regions, rooms);
+
+      // Write to floors[0].
       if (!isPlainObject(np.current_plan)) {
         np.current_plan = { floors: [], total_score: null, program_fit_report: null, unplaced_rooms: [] };
       }
@@ -1087,7 +1356,8 @@
       f0.grid = grid;
       f0.department_regions = regions;
       f0.sun_vector = sun;
-      // rooms + unplaced_rooms on the floor stay untouched (Step 04 fills rooms).
+      f0.rooms = stageB.rooms;
+      f0.unplaced_rooms = stageB.unplaced;
 
       // Overflow warning
       const footprintArea = computePolygonAreaSF(polygon);
@@ -1098,6 +1368,7 @@
       }, 0);
       const capacity = footprintArea / GROSS_TO_NET_DEFAULT;
       np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity);
+      np.warnings = upsertUnplacedWarning(np.warnings, stageB.unplaced);
 
       return np;
     }
@@ -1243,6 +1514,10 @@
       const grid = floor0 && isPlainObject(floor0.grid) ? floor0.grid : null;
       const regions = floor0 && Array.isArray(floor0.department_regions)
         ? floor0.department_regions : [];
+      // Step 03: room instances + unplaced rooms from current_plan.floors[0]
+      const placedRooms = floor0 && Array.isArray(floor0.rooms) ? floor0.rooms : [];
+      const unplacedRooms = floor0 && Array.isArray(floor0.unplaced_rooms)
+        ? floor0.unplaced_rooms : [];
 
       const containerRef = React.useRef(null);
       const svgRef = React.useRef(null);
@@ -1607,6 +1882,148 @@
         });
       }, [grid, regions, view, viewport]);
 
+      // ----- Room projection (Step 03 — Stage B output) -----
+      // For each placed room: fill cells with the department's palette color
+      // (darker than the dept background), trace the room's outer boundary as
+      // 1px walls in calvey-text, and draw the room's display name at its
+      // centroid in Space Mono 10px. Skip labels for rooms whose screen bbox
+      // is too small to be legible (< 40×14 px).
+      const roomLayer = React.useMemo(() => {
+        if (!grid || !Array.isArray(placedRooms) || placedRooms.length === 0) return null;
+        const cs = grid.cell_size_ft;
+        const ox = grid.origin_x, oy = grid.origin_y;
+        const W = grid.width_cells, H = grid.height_cells;
+
+        // Per-cell ownership lookup: (u,v) → roomIndex. Used so a wall is
+        // only drawn between this room and a NON-member cell (other room or
+        // empty department slack).
+        const owner = new Array(H);
+        for (let v = 0; v < H; v++) owner[v] = new Array(W).fill(-1);
+        placedRooms.forEach((room, ri) => {
+          if (!Array.isArray(room.cells)) return;
+          for (const [u, v] of room.cells) {
+            if (u >= 0 && u < W && v >= 0 && v < H) owner[v][u] = ri;
+          }
+        });
+
+        function cornerScreen(u, v) {
+          return worldToScreen(ox + u * cs, oy + v * cs, view, viewport);
+        }
+
+        return placedRooms.map((room, ri) => {
+          if (!Array.isArray(room.cells) || room.cells.length === 0) return null;
+          const color = deptColor(room.department_id);
+
+          // 1) Cell rects, darker than the department background.
+          const rects = room.cells.map(([u, v], i) => {
+            const [sx0, sy0] = cornerScreen(u, v);
+            const [sx1, sy1] = cornerScreen(u + 1, v + 1);
+            const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+            const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+            return (
+              <rect key={"c" + i} x={x} y={y} width={w} height={h}
+                    fill={color} fillOpacity="0.9"
+                    style={{ pointerEvents: "none" }} />
+            );
+          });
+
+          // 2) Wall edges: emit each shared edge between this room and a
+          //    non-member cell (different room or empty/unowned).
+          const edges = [];
+          room.cells.forEach(([u, v], i) => {
+            if (v + 1 >= H || owner[v + 1][u] !== ri) {
+              const [ax, ay] = cornerScreen(u, v + 1);
+              const [bx, by] = cornerScreen(u + 1, v + 1);
+              edges.push(<line key={"n" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-text)" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            if (v - 1 < 0 || owner[v - 1][u] !== ri) {
+              const [ax, ay] = cornerScreen(u, v);
+              const [bx, by] = cornerScreen(u + 1, v);
+              edges.push(<line key={"s" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-text)" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            if (u + 1 >= W || owner[v][u + 1] !== ri) {
+              const [ax, ay] = cornerScreen(u + 1, v);
+              const [bx, by] = cornerScreen(u + 1, v + 1);
+              edges.push(<line key={"e" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-text)" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+            if (u - 1 < 0 || owner[v][u - 1] !== ri) {
+              const [ax, ay] = cornerScreen(u, v);
+              const [bx, by] = cornerScreen(u, v + 1);
+              edges.push(<line key={"w" + i} x1={ax} y1={ay} x2={bx} y2={by}
+                stroke="var(--calvey-text)" strokeWidth="1"
+                style={{ pointerEvents: "none" }} />);
+            }
+          });
+
+          // 3) Label at room centroid — but only if the screen bbox is
+          //    large enough to fit a readable label.
+          let labelEl = null;
+          if (room.bbox_cells && Array.isArray(room.centroid)) {
+            const bb = room.bbox_cells;
+            const wPx = (bb.u_max - bb.u_min + 1) * cs * view.zoom;
+            const hPx = (bb.v_max - bb.v_min + 1) * cs * view.zoom;
+            if (wPx >= 40 && hPx >= 14 && room.cells.length >= 2) {
+              const [lx, ly] = worldToScreen(room.centroid[0], room.centroid[1], view, viewport);
+              const text = (room.display_name || room.type || "").toString();
+              labelEl = (
+                <text x={lx} y={ly} className="room-label">{text.toUpperCase()}</text>
+              );
+            }
+          }
+
+          return (
+            <g key={"room-" + room.instance_id + "-" + ri}>
+              {rects}
+              {edges}
+              {labelEl}
+            </g>
+          );
+        });
+      }, [grid, placedRooms, view, viewport]);
+
+      // ----- Summary panel data (Step 03) -----
+      // Per department: how many rooms placed, actual SF, target SF.
+      const summaryRows = React.useMemo(() => {
+        if (!Array.isArray(regions) || regions.length === 0) return [];
+        const programRooms = (project && project.context && project.context.program &&
+                              Array.isArray(project.context.program.rooms))
+          ? project.context.program.rooms : [];
+        const targetByDept = new Map();
+        for (const r of programRooms) {
+          if (!isPlainObject(r)) continue;
+          const dep = r.department || "unassigned";
+          const count = (Number.isFinite(Number(r.count)) && Number(r.count) > 0)
+            ? Number(r.count) : 1;
+          const ta = Number.isFinite(Number(r.target_area)) ? Number(r.target_area) : 0;
+          targetByDept.set(dep, (targetByDept.get(dep) || 0) + ta * count);
+        }
+        const placedByDept = new Map();
+        for (const room of placedRooms) {
+          if (!isPlainObject(room)) continue;
+          const dep = room.department_id || "unassigned";
+          if (!placedByDept.has(dep)) placedByDept.set(dep, { count: 0, area: 0 });
+          const slot = placedByDept.get(dep);
+          slot.count += 1;
+          slot.area += Number.isFinite(Number(room.area_sf)) ? Number(room.area_sf) : 0;
+        }
+        return regions.map(r => {
+          const slot = placedByDept.get(r.id) || { count: 0, area: 0 };
+          return {
+            id: r.id,
+            name: (r.name || r.id).toUpperCase(),
+            count: slot.count,
+            actualSf: Math.round(slot.area),
+            targetSf: Math.round(targetByDept.get(r.id) || 0)
+          };
+        });
+      }, [regions, placedRooms, project]);
+
       return (
         <div className="canvas-container" ref={containerRef}>
           <svg
@@ -1629,6 +2046,9 @@
 
             {/* Department regions (Step 03) — drawn between background and polygon stroke */}
             {regionLayer && <g style={{ pointerEvents: "none" }}>{regionLayer}</g>}
+
+            {/* Placed rooms (Step 03 — Stage B) — fills + walls + labels above dept fills */}
+            {roomLayer && <g style={{ pointerEvents: "none" }}>{roomLayer}</g>}
 
             {/* Origin crosshair at world (0,0) */}
             {showOriginMarker && (
@@ -1752,14 +2172,20 @@
           {/* Department summary (HTML overlay, bottom-right) — Step 03 */}
           {regions.length > 0 && (
             <div className="canvas-overlay bottom-right">
-              {regions.map(r => (
-                <div key={r.id} className="dept-row">
-                  <span className="dept-name">{(r.name || r.id).toUpperCase()}</span>
+              {summaryRows.map(row => (
+                <div key={row.id} className="dept-row">
+                  <span className="dept-name">{row.name}</span>
                   <span className="dept-meta">
-                    {r.cell_count} cells · {Math.round(r.area_sf).toLocaleString()} SF
+                    {row.count} rooms · {row.actualSf.toLocaleString()} SF / {row.targetSf.toLocaleString()} SF
                   </span>
                 </div>
               ))}
+              {unplacedRooms.length > 0 && (
+                <div className="dept-row unplaced">
+                  <span className="dept-name">UNPLACED</span>
+                  <span className="dept-meta">{unplacedRooms.length} rooms</span>
+                </div>
+              )}
             </div>
           )}
         </div>
