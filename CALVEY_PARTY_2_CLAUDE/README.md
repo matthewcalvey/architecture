@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.6.0-step07`
+`0.6.1-step07.1`
 
 ## Build status
 
@@ -51,7 +51,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse
 - [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B
 - [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview.
-- [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1. *(current)*
+- [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1.
+- [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only. *(current)*
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
 
@@ -171,6 +172,30 @@ Stacking preference normalization (the DB ships free-form values like
 `stack_group` co-location takes precedence over class preference: once
 one member of `WET_STACK_A` lands on a floor, subsequent members prefer
 the same floor.
+
+### Step 07.1 notes
+
+Scoped regression fix for Step 07. Clicking `− REMOVE TOP` on a floor that
+contains locked rooms silently dropped those rooms from the plan (and the
+next regenerate's locked-carry-over logic could migrate them down, push
+them to `unplaced_rooms`, or simply lose them). That violates the lock
+contract — a lock is supposed to represent a durable user intention.
+
+The fix is consent-only:
+
+- If the top floor has ≥ 1 locked room, `− REMOVE TOP` is replaced inline
+  by a red-bordered confirmation chip: “REMOVE FLOOR *N* WITH *K* LOCKED
+  ROOMS?” with a bullet list of up to 3 locked-room names (plus “+N more”
+  when there are more) and two buttons — `CANCEL` (neutral) and `PROCEED`
+  (white-on-red).
+- CANCEL dismisses the chip and leaves the plan untouched.
+- PROCEED re-enters the remove handler with a `confirmed=true` flag and
+  runs the existing removal logic unchanged. Post-removal migration
+  behavior is the same as Step 07.
+- Each floor removal requires its own confirmation — no session-scoped
+  “already confirmed once” shortcut.
+- The pending state is ephemeral: it lives in React state only, not in
+  the persisted project.
 
 ## Section map inside `index.html`
 
