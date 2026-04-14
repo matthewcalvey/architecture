@@ -218,6 +218,59 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
+
+    .canvas-container {
+      width: 100%;
+      height: 520px;
+      border: 1px solid var(--calvey-rule);
+      margin: 32px 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--calvey-surface);
+    }
+
+    .canvas-container svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .canvas-container svg.panning {
+      cursor: grabbing;
+    }
+
+    .canvas-overlay {
+      position: absolute;
+      pointer-events: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--calvey-text);
+    }
+
+    .canvas-overlay.top-right {
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 12px;
+      border: 1px solid var(--calvey-rule);
+      line-height: 1.6;
+    }
+
+    .canvas-overlay.top-right .label {
+      color: var(--calvey-muted);
+    }
+
+    .canvas-overlay.top-right button {
+      pointer-events: auto;
+      margin-top: 8px;
+      margin-right: 0;
+      padding: 6px 12px;
+      font-size: 10px;
+    }
   </style>
 </head>
 <body>
@@ -450,10 +503,437 @@
     // (empty — will be filled in Steps 03 and 06)
 
     // ============================================================
-    // SECTION 05 — EDITOR  [Steps 02, 04, 05, 07 — TODO]
+    // SECTION 05 — EDITOR
+    // Step 02: read-only footprint canvas with pan/zoom/fit
     // ============================================================
 
-    // (empty — will be filled in Steps 02, 04, 05, 07)
+    // World coords: feet, +X east, +Y north (Y is up).
+    // Screen coords: SVG pixels, +X right, +Y down.
+    // view = { panX, panY, zoom } — pan is the world coord at the viewport
+    // center; zoom is pixels-per-foot.
+
+    function computePolygonBounds(polygon) {
+      if (!Array.isArray(polygon) || polygon.length === 0) {
+        return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+      }
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      for (const pt of polygon) {
+        if (!Array.isArray(pt) || pt.length < 2) continue;
+        const x = Number(pt[0]);
+        const y = Number(pt[1]);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+      if (!Number.isFinite(minX)) {
+        return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+      }
+      return { minX, maxX, minY, maxY };
+    }
+
+    function computePolygonAreaSF(polygon) {
+      if (!Array.isArray(polygon) || polygon.length < 3) return 0;
+      let sum = 0;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i];
+        const b = polygon[(i + 1) % polygon.length];
+        if (!Array.isArray(a) || !Array.isArray(b)) continue;
+        const ax = Number(a[0]), ay = Number(a[1]);
+        const bx = Number(b[0]), by = Number(b[1]);
+        if (!Number.isFinite(ax) || !Number.isFinite(ay)) continue;
+        if (!Number.isFinite(bx) || !Number.isFinite(by)) continue;
+        sum += ax * by - bx * ay;
+      }
+      return Math.abs(sum) / 2;
+    }
+
+    function computeInitialView(polygon, viewportWidth, viewportHeight) {
+      if (!Array.isArray(polygon) || polygon.length < 3) {
+        return { panX: 0, panY: 0, zoom: 1 };
+      }
+      const { minX, maxX, minY, maxY } = computePolygonBounds(polygon);
+      const worldWidth = maxX - minX;
+      const worldHeight = maxY - minY;
+      if (worldWidth <= 0 || worldHeight <= 0 || viewportWidth <= 0 || viewportHeight <= 0) {
+        return { panX: (minX + maxX) / 2, panY: (minY + maxY) / 2, zoom: 1 };
+      }
+      const margin = 0.15;
+      const zoomX = viewportWidth / (worldWidth * (1 + 2 * margin));
+      const zoomY = viewportHeight / (worldHeight * (1 + 2 * margin));
+      const zoom = Math.min(zoomX, zoomY);
+      const panX = (minX + maxX) / 2;
+      const panY = (minY + maxY) / 2;
+      return { panX, panY, zoom };
+    }
+
+    function worldToScreen(wx, wy, view, viewport) {
+      const sx = (wx - view.panX) * view.zoom + viewport.width / 2;
+      const sy = -(wy - view.panY) * view.zoom + viewport.height / 2;
+      return [sx, sy];
+    }
+
+    function screenToWorld(sx, sy, view, viewport) {
+      const wx = (sx - viewport.width / 2) / view.zoom + view.panX;
+      const wy = -(sy - viewport.height / 2) / view.zoom + view.panY;
+      return [wx, wy];
+    }
+
+    function niceScaleBarLength(zoomPixelsPerFoot) {
+      const ladder = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+      const maxPixels = 150;
+      let best = ladder[0];
+      for (const L of ladder) {
+        if (L * zoomPixelsPerFoot <= maxPixels) {
+          best = L;
+        } else {
+          break;
+        }
+      }
+      return best;
+    }
+
+    function FootprintCanvas({ project }) {
+      const polygon =
+        (project && project.context && project.context.footprint &&
+         Array.isArray(project.context.footprint.polygon))
+          ? project.context.footprint.polygon
+          : [];
+      const trueNorthDeg =
+        (project && project.context && project.context.footprint &&
+         typeof project.context.footprint.true_north_deg === "number")
+          ? project.context.footprint.true_north_deg
+          : 0;
+      const buildingType =
+        (project && project.context && project.context.program)
+          ? (project.context.program.building_type ?? "—")
+          : "—";
+
+      const containerRef = React.useRef(null);
+      const svgRef = React.useRef(null);
+      const backgroundRef = React.useRef(null);
+      const dragRef = React.useRef(null);
+      const didInitialFitRef = React.useRef(false);
+
+      const [viewport, setViewport] = React.useState({ width: 900, height: 520 });
+      const [view, setView] = React.useState({ panX: 0, panY: 0, zoom: 1 });
+      const [isPanning, setIsPanning] = React.useState(false);
+
+      // Mirror state into refs so the wheel listener can install once.
+      const viewRef = React.useRef(view);
+      const viewportRef = React.useRef(viewport);
+      React.useEffect(() => { viewRef.current = view; }, [view]);
+      React.useEffect(() => { viewportRef.current = viewport; }, [viewport]);
+
+      // Measure container synchronously on mount + observe resizes.
+      // Doing the initial fit in the layout effect (before paint) avoids a
+      // visible jump from default-viewport fit → measured-viewport fit.
+      React.useLayoutEffect(() => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const w0 = rect.width > 0 ? rect.width : 900;
+        const h0 = rect.height > 0 ? rect.height : 520;
+        setViewport({ width: w0, height: h0 });
+        viewportRef.current = { width: w0, height: h0 };
+        if (!didInitialFitRef.current && polygon.length >= 3) {
+          didInitialFitRef.current = true;
+          setView(computeInitialView(polygon, w0, h0));
+        }
+        const observer = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const w = entry.contentRect.width;
+            const h = entry.contentRect.height;
+            if (w > 0 && h > 0) {
+              setViewport({ width: w, height: h });
+            }
+          }
+        });
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+      }, []);
+
+      // Re-fit whenever the polygon changes (e.g. JSON edit, file upload,
+      // start over → onboarding → create).
+      const polygonKey = React.useMemo(() => JSON.stringify(polygon), [polygon]);
+      React.useEffect(() => {
+        const vp = viewportRef.current;
+        if (vp.width <= 0 || vp.height <= 0) return;
+        if (polygon.length < 3) return;
+        // Skip the very first run if the layout effect already fit it, to
+        // avoid a redundant setView. The layout effect bumps didInitialFitRef
+        // when it does the initial fit.
+        if (!didInitialFitRef.current) {
+          didInitialFitRef.current = true;
+        }
+        setView(computeInitialView(polygon, vp.width, vp.height));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [polygonKey]);
+
+      // Non-passive wheel listener so we can preventDefault and stop the
+      // page from scrolling while the user zooms the canvas.
+      React.useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return;
+        function handleWheel(e) {
+          e.preventDefault();
+          const v = viewRef.current;
+          const vp = viewportRef.current;
+          if (vp.width <= 0 || vp.height <= 0) return;
+          const rect = svg.getBoundingClientRect();
+          const cursorX = e.clientX - rect.left;
+          const cursorY = e.clientY - rect.top;
+          const [wx, wy] = screenToWorld(cursorX, cursorY, v, vp);
+          const factor = Math.exp(-e.deltaY * 0.001);
+          const newZoom = Math.max(0.05, Math.min(50, v.zoom * factor));
+          const newPanX = wx - (cursorX - vp.width / 2) / newZoom;
+          const newPanY = wy + (cursorY - vp.height / 2) / newZoom;
+          setView({ panX: newPanX, panY: newPanY, zoom: newZoom });
+        }
+        svg.addEventListener("wheel", handleWheel, { passive: false });
+        return () => svg.removeEventListener("wheel", handleWheel);
+      }, []);
+
+      function handlePointerDown(e) {
+        // Only start a pan if the user pressed on empty background, not on
+        // any content layer. Future steps will hang interactions off rooms.
+        if (e.target !== backgroundRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+        dragRef.current = {
+          startScreenX: e.clientX - rect.left,
+          startScreenY: e.clientY - rect.top,
+          startPanX: view.panX,
+          startPanY: view.panY,
+          pointerId: e.pointerId
+        };
+        setIsPanning(true);
+      }
+
+      function handlePointerMove(e) {
+        if (!dragRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        const dx = sx - dragRef.current.startScreenX;
+        const dy = sy - dragRef.current.startScreenY;
+        const startPanX = dragRef.current.startPanX;
+        const startPanY = dragRef.current.startPanY;
+        // World-delta = screen-delta / zoom, with a Y flip because +Y world
+        // points up while +Y screen points down. Pan moves opposite to the
+        // grabbed point's motion.
+        setView(v => ({
+          panX: startPanX - dx / v.zoom,
+          panY: startPanY + dy / v.zoom,
+          zoom: v.zoom
+        }));
+      }
+
+      function handlePointerUp(e) {
+        if (!dragRef.current) return;
+        try {
+          if (svgRef.current && svgRef.current.hasPointerCapture &&
+              svgRef.current.hasPointerCapture(e.pointerId)) {
+            svgRef.current.releasePointerCapture(e.pointerId);
+          }
+        } catch (err) {}
+        dragRef.current = null;
+        setIsPanning(false);
+      }
+
+      function handleDoubleClick(e) {
+        if (e.target !== backgroundRef.current) return;
+        setView(computeInitialView(polygon, viewport.width, viewport.height));
+      }
+
+      function handleFitClick() {
+        setView(computeInitialView(polygon, viewport.width, viewport.height));
+      }
+
+      // ----- Render-time projection -----
+
+      const screenPoints = polygon
+        .filter(pt => Array.isArray(pt) && pt.length >= 2 &&
+          Number.isFinite(Number(pt[0])) && Number.isFinite(Number(pt[1])))
+        .map(([x, y]) => worldToScreen(Number(x), Number(y), view, viewport));
+      const polygonPointsAttr = screenPoints
+        .map(([x, y]) => x.toFixed(2) + "," + y.toFixed(2))
+        .join(" ");
+      const validPolygon = screenPoints.length >= 3;
+
+      const [originSX, originSY] = worldToScreen(0, 0, view, viewport);
+
+      // Compass overlay (screen-space, top-left, 20px inset, 48px square)
+      const compassCx = 20 + 24;
+      const compassCy = 20 + 24;
+      const needleRad = (trueNorthDeg * Math.PI) / 180;
+      // 0° = north (up on screen, -Y), 90° = east (+X), so the screen-space
+      // needle direction is (sin, -cos).
+      const needleDX = Math.sin(needleRad);
+      const needleDY = -Math.cos(needleRad);
+      const needleTipX = compassCx + 18 * needleDX;
+      const needleTipY = compassCy + 18 * needleDY;
+      const labelOffsetX = compassCx + 26 * needleDX;
+      const labelOffsetY = compassCy + 26 * needleDY;
+      // Triangle arrowhead: base perpendicular to needle, tip at needle end.
+      const perpX = -needleDY;
+      const perpY = needleDX;
+      const arrowBaseX = compassCx + 12 * needleDX;
+      const arrowBaseY = compassCy + 12 * needleDY;
+      const arrowPts =
+        (arrowBaseX + 3.5 * perpX).toFixed(2) + "," + (arrowBaseY + 3.5 * perpY).toFixed(2) + " " +
+        (arrowBaseX - 3.5 * perpX).toFixed(2) + "," + (arrowBaseY - 3.5 * perpY).toFixed(2) + " " +
+        needleTipX.toFixed(2) + "," + needleTipY.toFixed(2);
+
+      // Scale bar (screen-space, bottom-left, 20px inset)
+      const scaleBarFt = niceScaleBarLength(view.zoom);
+      const scaleBarPx = scaleBarFt * view.zoom;
+      const scaleBarX = 20;
+      const scaleBarY = Math.max(40, viewport.height - 32);
+
+      // Metadata overlay text
+      const polyVertexCount = polygon.length;
+      const areaSF = computePolygonAreaSF(polygon);
+      const areaLabel = areaSF >= 100
+        ? Math.round(areaSF).toLocaleString()
+        : areaSF.toFixed(1);
+
+      const showOriginMarker = viewport.width > 0 && viewport.height > 0;
+
+      return (
+        <div className="canvas-container" ref={containerRef}>
+          <svg
+            ref={svgRef}
+            className={isPanning ? "panning" : ""}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onDoubleClick={handleDoubleClick}
+          >
+            {/* Background hit target (also the pan/zoom target) */}
+            <rect
+              ref={backgroundRef}
+              x="0" y="0"
+              width={viewport.width}
+              height={viewport.height}
+              fill="var(--calvey-surface)"
+            />
+
+            {/* Origin crosshair at world (0,0) */}
+            {showOriginMarker && (
+              <g style={{ pointerEvents: "none" }}>
+                <line
+                  x1={originSX - 6} y1={originSY}
+                  x2={originSX + 6} y2={originSY}
+                  stroke="var(--calvey-muted)"
+                  strokeWidth="1"
+                  strokeDasharray="2 2"
+                />
+                <line
+                  x1={originSX} y1={originSY - 6}
+                  x2={originSX} y2={originSY + 6}
+                  stroke="var(--calvey-muted)"
+                  strokeWidth="1"
+                  strokeDasharray="2 2"
+                />
+                <text
+                  x={originSX + 8}
+                  y={originSY - 4}
+                  fontFamily="'Space Mono', monospace"
+                  fontSize="9"
+                  fill="var(--calvey-muted)"
+                >0,0</text>
+              </g>
+            )}
+
+            {/* Footprint polygon */}
+            {validPolygon && (
+              <polygon
+                points={polygonPointsAttr}
+                fill="white"
+                fillOpacity="1"
+                stroke="var(--calvey-text)"
+                strokeWidth="1.5"
+                style={{ pointerEvents: "none" }}
+              />
+            )}
+
+            {/* Polygon vertices */}
+            {validPolygon && screenPoints.map(([x, y], i) => (
+              <circle
+                key={i}
+                cx={x}
+                cy={y}
+                r="3"
+                fill="var(--calvey-accent)"
+                style={{ pointerEvents: "none" }}
+              />
+            ))}
+
+            {/* True-north compass (top-left overlay, 20px inset) */}
+            <g style={{ pointerEvents: "none" }}>
+              <circle
+                cx={compassCx} cy={compassCy} r="22"
+                stroke="var(--calvey-text)" strokeWidth="1" fill="white"
+              />
+              <line
+                x1={compassCx} y1={compassCy}
+                x2={needleTipX} y2={needleTipY}
+                stroke="var(--calvey-accent)" strokeWidth="2"
+              />
+              <polygon
+                points={arrowPts}
+                fill="var(--calvey-accent)"
+              />
+              <text
+                x={labelOffsetX} y={labelOffsetY}
+                fontFamily="'Space Mono', monospace"
+                fontSize="10"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="var(--calvey-text)"
+              >N</text>
+            </g>
+
+            {/* Scale bar (bottom-left overlay, 20px inset) */}
+            <g style={{ pointerEvents: "none" }}>
+              <line
+                x1={scaleBarX} y1={scaleBarY}
+                x2={scaleBarX + scaleBarPx} y2={scaleBarY}
+                stroke="var(--calvey-text)" strokeWidth="1"
+              />
+              <line
+                x1={scaleBarX} y1={scaleBarY - 3}
+                x2={scaleBarX} y2={scaleBarY + 3}
+                stroke="var(--calvey-text)" strokeWidth="1"
+              />
+              <line
+                x1={scaleBarX + scaleBarPx} y1={scaleBarY - 3}
+                x2={scaleBarX + scaleBarPx} y2={scaleBarY + 3}
+                stroke="var(--calvey-text)" strokeWidth="1"
+              />
+              <text
+                x={scaleBarX} y={scaleBarY + 14}
+                fontFamily="'Space Mono', monospace"
+                fontSize="10"
+                fill="var(--calvey-text)"
+              >{scaleBarFt} ft</text>
+            </g>
+          </svg>
+
+          {/* Context metadata + Fit button (HTML overlay, top-right) */}
+          <div className="canvas-overlay top-right">
+            <div><span className="label">BUILDING TYPE:</span> {buildingType}</div>
+            <div><span className="label">FOOTPRINT:</span> {polyVertexCount} vertices · {areaLabel} SF</div>
+            <div><span className="label">TRUE NORTH:</span> {trueNorthDeg}°</div>
+            <div><span className="label">ZOOM:</span> {view.zoom.toFixed(2)} px/ft</div>
+            <button type="button" onClick={handleFitClick}>FIT</button>
+          </div>
+        </div>
+      );
+    }
 
     // ============================================================
     // SECTION 06 — EXPORTERS  [Step 09 — TODO]
@@ -903,6 +1383,8 @@
           )}
 
           <ValidationChips validation={validation} />
+
+          <FootprintCanvas project={project} />
 
           <div className="hairline"></div>
 
