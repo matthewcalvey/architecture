@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.4.0-step05`
+`0.5.0-step06`
 
 ## Build status
 
@@ -49,8 +49,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 02** — Read-only canvas with pan/zoom, compass, scale bar
 - [x] **Step 03** — Program DB probe + grid + Stage A zoning + Stage B room placement
 - [x] **Step 04** — Stage B refinements: `count_rule`, `parti.*_cells`, `max_aspect_ratio`, `placement_zone`, STALE chip, RE-SEED FROM DB, unplaced pulse
-- [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B *(current)*
-- [ ] Step 06 — Reproportion gesture + Stage C adjacency repair + Stage D confidence scoring
+- [x] **Step 05** — Drag-and-reflow (cascade depth 1) + lock gesture (6-reason chip) + locked-room pre-reservation in Stage B
+- [x] **Step 06** — Reproportion gesture with alignment-group splitter: scrub a wall and every collinear wall in the group translates as a rigid line, with adjacent rooms shrinking/growing. Live area tooltip + ghost preview. *(current)*
 - [ ] Step 07 — Multi-floor generation + cross-floor drag
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
@@ -93,6 +93,38 @@ gestures, single floor only:
 Rejection reasons (shown briefly as a bottom-left red chip):
 `out_of_radius` (drop > 4 cells from origin), `locked_collision`,
 `cascade_overflow`, `displaced_cannot_fit`, `outside_department`.
+
+### Step 06 notes
+
+Step 06 adds the third editor gesture: **reproportion with alignment-group
+splitter**. Hover over any wall between two rooms in the same department and
+the cursor becomes a resize indicator. The entire alignment group of
+collinear walls highlights in accent blue. Click-drag and every wall in the
+group translates together as a rigid line; every adjacent room shrinks or
+grows accordingly. A small floating chip near the cursor shows the
+cursor-side room's live `actual_area_sf` as the scrub progresses, plus a
+"+N rooms moving" line when more than one room is affected.
+
+Alignment-group membership is computed from geometry at scrub start — it is
+never stored. Two walls are in the same group iff they share an axis, are
+within half a cell on the perpendicular axis, and live in the same
+department. A wall that drifts off-alignment in one scrub will re-join its
+original group automatically when it's scrubbed back into line.
+
+Gates / clamps:
+
+- Every affected room must stay ≥ `min_width_cells × min_depth_cells`.
+- Every affected room must remain rectangular — scrubs that would create
+  L-shapes clamp at the last rectangular state.
+- All new cells must remain in the affected room's home department.
+- No affected room may overlap a locked room. If any wall in the group is
+  adjacent to a locked room, the whole group is non-scrubbable: the cursor
+  doesn't change on hover and the highlight never appears.
+- Cross-department walls and facade walls are excluded from the wall index
+  entirely — they don't participate in Step 06.
+
+Escape mid-scrub drops the ghost without committing; a zero-offset release
+is a silent no-op.
 
 ## Section map inside `index.html`
 
