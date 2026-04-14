@@ -567,6 +567,63 @@
       padding: 4px 6px;
       pointer-events: none;
     }
+
+    /* Step 07.1 — inline confirmation chip shown in place of − REMOVE TOP
+       when the top floor contains locked rooms. Replaces the button so the
+       user's eye stays on the same spot. */
+    .floor-removal-confirm {
+      width: 80px;
+      background: white;
+      border: 1px solid var(--calvey-error);
+      padding: 8px;
+      margin-top: 8px;
+      font-family: 'Space Mono', monospace;
+      pointer-events: auto;
+      box-sizing: border-box;
+    }
+
+    .floor-removal-confirm .title {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--calvey-text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .floor-removal-confirm .room-list {
+      font-size: 9px;
+      color: var(--calvey-muted);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .floor-removal-confirm .actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .floor-removal-confirm .actions button {
+      flex: 1;
+      padding: 4px 0;
+      font-size: 9px;
+      font-family: inherit;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid var(--calvey-rule);
+      background: var(--calvey-surface);
+      color: var(--calvey-text);
+    }
+
+    .floor-removal-confirm .actions button.proceed {
+      background: var(--calvey-error);
+      color: white;
+      border-color: var(--calvey-error);
+    }
+
+    .floor-removal-confirm .actions button.proceed:hover {
+      filter: brightness(1.1);
+    }
   </style>
 </head>
 <body>
@@ -579,7 +636,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.6.0-step07";
+    const ENGINE_VERSION = "0.6.1-step07.1";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -3679,7 +3736,9 @@
     // pointer handlers detect via document.elementFromPoint).
     function FloorStrip({ project, polygon, activeIdx, dropTargetIdx,
                           dropTargetValid, onActivate, onAddFloor,
-                          onRemoveFloor, showRegenChip }) {
+                          onRemoveFloor, showRegenChip,
+                          floorRemovalPending, onCancelFloorRemoval,
+                          onConfirmFloorRemoval }) {
       const floors = (project && project.current_plan &&
         Array.isArray(project.current_plan.floors))
           ? project.current_plan.floors : [];
@@ -3720,11 +3779,42 @@
             <button type="button" onClick={onAddFloor} title="Add a floor on top">
               + ADD FLOOR
             </button>
-            <button type="button" onClick={onRemoveFloor}
-                    disabled={fc <= 1}
-                    title={fc <= 1 ? "At least one floor required" : "Remove top floor"}>
-              − REMOVE TOP
-            </button>
+            {floorRemovalPending ? (
+              (() => {
+                const names = Array.isArray(floorRemovalPending.lockedRoomNames)
+                  ? floorRemovalPending.lockedRoomNames : [];
+                const total = Number.isFinite(Number(floorRemovalPending.lockedCount))
+                  ? Number(floorRemovalPending.lockedCount) : names.length;
+                const shown = names.slice(0, 3);
+                const extra = total > shown.length ? (total - shown.length) : 0;
+                const bullets = shown.map(n => "• " + (n || "").toUpperCase()).join(" ");
+                const listText = bullets + (extra > 0 ? " · +" + extra + " more" : "");
+                const plural = total === 1 ? "LOCKED ROOM" : "LOCKED ROOMS";
+                return (
+                  <div className="floor-removal-confirm">
+                    <div className="title">
+                      REMOVE FLOOR {floorRemovalPending.floorLevel} WITH {total} {plural}?
+                    </div>
+                    <div className="room-list">{listText}</div>
+                    <div className="actions">
+                      <button type="button" onClick={onCancelFloorRemoval}>
+                        CANCEL
+                      </button>
+                      <button type="button" className="proceed"
+                              onClick={onConfirmFloorRemoval}>
+                        PROCEED
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()
+            ) : (
+              <button type="button" onClick={onRemoveFloor}
+                      disabled={fc <= 1}
+                      title={fc <= 1 ? "At least one floor required" : "Remove top floor"}>
+                − REMOVE TOP
+              </button>
+            )}
           </div>
           {showRegenChip && (
             <div className="floor-chip">
@@ -5435,10 +5525,49 @@
         });
       }
 
+      // Step 07.1 — confirmation chip state. When non-null, the
+      // − REMOVE TOP button is replaced by an inline confirmation chip
+      // because the top floor contains locked rooms. Ephemeral: not
+      // persisted to the project or localStorage.
+      const [floorRemovalPending, setFloorRemovalPending] =
+        React.useState(null);
+
       // Remove the top floor. No-op if floor_count is already 1. Clamps
       // active_floor_index to the new top.
-      function handleRemoveFloor() {
+      //
+      // Step 07.1 — when the top floor contains locked rooms, require an
+      // explicit PROCEED click before removing. Option A from the patch:
+      // the handler takes a `confirmed` flag that the chip's PROCEED
+      // button sets to true. Without the flag, a locked-rooms top floor
+      // short-circuits into showing the chip instead of removing.
+      function handleRemoveFloor(confirmed) {
         if (!setProject) return;
+        if (!project || !project.current_plan ||
+            !Array.isArray(project.current_plan.floors)) return;
+        const floors = project.current_plan.floors;
+        if (floors.length <= 1) return;
+        const topFloor = floors[floors.length - 1];
+        const topRooms = (isPlainObject(topFloor) && Array.isArray(topFloor.rooms))
+          ? topFloor.rooms : [];
+        const lockedOnTop = topRooms.filter(r => isPlainObject(r) && r.locked === true);
+        if (lockedOnTop.length > 0 && confirmed !== true) {
+          const level = Number.isFinite(Number(topFloor && topFloor.level))
+            ? Number(topFloor.level) : floors.length;
+          setFloorRemovalPending({
+            floorLevel: level,
+            lockedCount: lockedOnTop.length,
+            lockedRoomNames: lockedOnTop
+              .slice(0, 3)
+              .map(r => (typeof r.name === "string" && r.name) ? r.name
+                : (typeof r.template_id === "string" ? r.template_id : "room"))
+          });
+          return;
+        }
+        executeFloorRemoval();
+        setFloorRemovalPending(null);
+      }
+
+      function executeFloorRemoval() {
         setProject(p => {
           const np = cloneProject(p);
           if (!isPlainObject(np.current_plan) ||
@@ -5461,6 +5590,15 @@
           np.updated_at = new Date().toISOString();
           return np;
         });
+      }
+
+      function handleCancelFloorRemoval() {
+        setFloorRemovalPending(null);
+      }
+
+      function handleConfirmFloorRemoval() {
+        // Re-enter the guarded handler with confirmation given.
+        handleRemoveFloor(true);
       }
 
       // Regen-prompt chip below the floor strip — shown whenever the plan
@@ -5757,8 +5895,11 @@
             dropTargetValid={!!gesture.crossFloorValid}
             onActivate={handleActivateFloor}
             onAddFloor={handleAddFloor}
-            onRemoveFloor={handleRemoveFloor}
+            onRemoveFloor={() => handleRemoveFloor(false)}
             showRegenChip={regenChipShown}
+            floorRemovalPending={floorRemovalPending}
+            onCancelFloorRemoval={handleCancelFloorRemoval}
+            onConfirmFloorRemoval={handleConfirmFloorRemoval}
           />
         </div>
       );
