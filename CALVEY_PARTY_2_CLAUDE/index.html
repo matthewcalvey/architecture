@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CALVEY PARTY 2 — Sandbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+    :root {
+      --calvey-accent: #6A9CC4;
+      --calvey-text: #1A1A1A;
+      --calvey-muted: #888888;
+      --calvey-surface: #F5F5F5;
+      --calvey-rule: #E0E0E0;
+      --calvey-error: #B33A3A;
+      --calvey-warn: #C68A2E;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: var(--calvey-text);
+      background: white;
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 32px 96px;
+    }
+
+    h1, h2, h3 {
+      font-weight: 500;
+      margin: 0 0 16px;
+    }
+
+    h1 { font-size: 32px; letter-spacing: -0.01em; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 14px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--calvey-muted); }
+
+    .label, .meta, button, .chip, .mono {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hairline { border-top: 1px solid var(--calvey-rule); margin: 32px 0; }
+
+    .section { margin-bottom: 32px; }
+
+    table.kv { width: 100%; border-collapse: collapse; }
+    table.kv td {
+      border-bottom: 1px solid var(--calvey-rule);
+      padding: 10px 14px;
+      vertical-align: top;
+    }
+    table.kv td.label { width: 35%; color: var(--calvey-muted); font-family: 'Space Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    table.kv td.value { background: var(--calvey-surface); font-family: 'Space Mono', monospace; font-size: 12px; word-break: break-all; }
+
+    button {
+      background: white;
+      border: 1px solid var(--calvey-text);
+      padding: 10px 16px;
+      cursor: pointer;
+      margin-right: 8px;
+      color: var(--calvey-text);
+    }
+    button:hover { background: var(--calvey-text); color: white; }
+
+    input[type="file"] { display: none; }
+
+    label.upload {
+      display: inline-block;
+      background: white;
+      border: 1px solid var(--calvey-text);
+      padding: 10px 16px;
+      cursor: pointer;
+      margin-right: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    label.upload:hover { background: var(--calvey-text); color: white; }
+
+    textarea.json-viewer {
+      width: 100%;
+      min-height: 480px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 16px;
+      border: 1px solid var(--calvey-rule);
+      background: var(--calvey-surface);
+      color: var(--calvey-text);
+      resize: vertical;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid currentColor;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .chip-ok    { color: var(--calvey-accent); }
+    .chip-warn  { color: var(--calvey-warn); }
+    .chip-error { color: var(--calvey-error); }
+
+    .block-note {
+      border-left: 3px solid var(--calvey-accent);
+      padding: 8px 16px;
+      background: var(--calvey-surface);
+      font-size: 14px;
+      margin: 16px 0;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 16px;
+      border-top: 1px solid var(--calvey-rule);
+      color: var(--calvey-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+    // ============================================================
+    // SECTION 01 — SCHEMA
+    // v2.1-party schema, validators, migrateFromV13 stub
+    // ============================================================
+
+    const SCHEMA_VERSION = "2.1-party";
+    const ENGINE_VERSION = "0.1.0-step01";
+
+    function emptyProject() {
+      const now = new Date().toISOString();
+      const id =
+        (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
+          ? crypto.randomUUID()
+          : ("p-" + Math.random().toString(36).slice(2, 10) + "-" + Date.now().toString(36));
+      return {
+        schema_version: SCHEMA_VERSION,
+        project_id: id,
+        engine_version: ENGINE_VERSION,
+        created_at: now,
+        updated_at: now,
+        context: {
+          footprint: {
+            polygon: [],
+            polygon_units: "feet",
+            source: null,
+            true_north_deg: 0,
+            lat: null,
+            lon: null
+          },
+          site: {
+            climate_zone: null,
+            setbacks: [],
+            adjacent_buildings: [],
+            obstructions: []
+          },
+          program: {
+            building_type: null,
+            rooms: [],
+            adjacency_graph: {},
+            vertical_constraints: {}
+          },
+          vertical_anchors: {
+            cores: [],
+            structural_lines: [],
+            shafts: []
+          }
+        },
+        weights: {
+          daylight: 0.25,
+          adjacency: 0.25,
+          compactness: 0.15,
+          circulation: 0.20,
+          facade: 0.15
+        },
+        code_limits: {
+          max_stories: null,
+          max_height_ft: null,
+          jurisdiction: null
+        },
+        current_plan: {
+          floors: [],
+          total_score: null,
+          program_fit_report: null,
+          unplaced_rooms: []
+        },
+        warnings: [],
+        sessions: []
+      };
+    }
+
+    function isPlainObject(x) {
+      return x !== null && typeof x === "object" && !Array.isArray(x);
+    }
+
+    function validateProject(p) {
+      const errors = [];
+      const warnings = [];
+
+      if (!isPlainObject(p)) {
+        return { ok: false, errors: ["project must be an object"], warnings: [] };
+      }
+
+      if (p.schema_version !== "2.1-party") {
+        errors.push("schema_version must be 2.1-party");
+      }
+      if (typeof p.project_id !== "string" || p.project_id.length === 0) {
+        errors.push("project_id must be a non-empty string");
+      }
+
+      if (!isPlainObject(p.context)) {
+        errors.push("context must be an object");
+      }
+      if (!isPlainObject(p.weights)) {
+        errors.push("weights must be an object");
+      }
+      if (!isPlainObject(p.code_limits)) {
+        errors.push("code_limits must be an object");
+      }
+      if (!isPlainObject(p.current_plan)) {
+        errors.push("current_plan must be an object");
+      }
+      if (!Array.isArray(p.warnings)) {
+        errors.push("warnings must be an array");
+      }
+      if (!Array.isArray(p.sessions)) {
+        errors.push("sessions must be an array");
+      }
+
+      const weightKeys = ["daylight", "adjacency", "compactness", "circulation", "facade"];
+      if (isPlainObject(p.weights)) {
+        for (const k of weightKeys) {
+          if (!(k in p.weights)) {
+            errors.push("weights missing key: " + k);
+          }
+        }
+        const allPresent = weightKeys.every(k => typeof p.weights[k] === "number");
+        if (allPresent) {
+          const sum = weightKeys.reduce((acc, k) => acc + p.weights[k], 0);
+          if (Math.abs(sum - 1.0) > 0.01) {
+            warnings.push("weights do not sum to 1.0 ± 0.01 (got " + sum.toFixed(3) + ")");
+          }
+        }
+      }
+
+      if (
+        isPlainObject(p.context) &&
+        isPlainObject(p.context.footprint) &&
+        Array.isArray(p.context.footprint.polygon) &&
+        p.context.footprint.polygon.length === 0
+      ) {
+        warnings.push("footprint polygon is empty");
+      }
+
+      if (
+        isPlainObject(p.context) &&
+        isPlainObject(p.context.program) &&
+        p.context.program.building_type === null
+      ) {
+        warnings.push("building_type not set");
+      }
+
+      return { ok: errors.length === 0, errors, warnings };
+    }
+
+    function migrateFromV13(legacy) {
+      // TODO Step 01.5 — real v13 migration once we decide whether v13 files
+      // need to round-trip into this sandbox at all. For now: log and return null.
+      console.warn("migrateFromV13: not implemented in Step 01");
+      return null;
+    }
+
+    // ============================================================
+    // SECTION 02 — PERSISTENCE
+    // localStorage autosave + .calvey-party.json import/export
+    // ============================================================
+
+    const LS_KEY = "calvey_party_2_project";
+
+    function loadFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) {
+        console.debug("loadFromLocalStorage: parse error", e);
+        return null;
+      }
+    }
+
+    function saveToLocalStorage(project) {
+      try {
+        project.updated_at = new Date().toISOString();
+        localStorage.setItem(LS_KEY, JSON.stringify(project));
+      } catch (e) {
+        console.debug("saveToLocalStorage: write error (likely quota)", e);
+      }
+    }
+
+    function downloadProjectFile(project) {
+      const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = project.project_id + ".calvey-party.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function uploadProjectFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("Could not read file"));
+        reader.onload = () => {
+          let parsed;
+          try {
+            parsed = JSON.parse(reader.result);
+          } catch (e) {
+            reject(new Error("Could not parse JSON: " + e.message));
+            return;
+          }
+          const v = validateProject(parsed);
+          if (!v.ok) {
+            reject(new Error("Invalid project file: " + v.errors.join("; ")));
+            return;
+          }
+          resolve(parsed);
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // ============================================================
+    // SECTION 03 — SESSIONS  [Step 08 — TODO]
+    // ============================================================
+
+    // (empty — will be filled in Step 08)
+
+    // ============================================================
+    // SECTION 04 — ENGINE  [Steps 03 + 06 — TODO]
+    // ============================================================
+
+    // (empty — will be filled in Steps 03 and 06)
+
+    // ============================================================
+    // SECTION 05 — EDITOR  [Steps 02, 04, 05, 07 — TODO]
+    // ============================================================
+
+    // (empty — will be filled in Steps 02, 04, 05, 07)
+
+    // ============================================================
+    // SECTION 06 — EXPORTERS  [Step 09 — TODO]
+    // ============================================================
+
+    // (empty — will be filled in Step 09)
+
+    // ============================================================
+    // SECTION 07 — APP
+    // Step 01 shell UI: metadata panel + JSON viewer + buttons
+    // ============================================================
+
+    function formatWeights(w) {
+      if (!w || typeof w !== "object") return "—";
+      const keys = ["daylight", "adjacency", "compactness", "circulation", "facade"];
+      return keys
+        .filter(k => typeof w[k] === "number")
+        .map(k => k + " " + w[k].toFixed(2))
+        .join(" · ");
+    }
+
+    function ValidationChips({ validation }) {
+      // NOTE: Spec section 07 says "VALID chip if ok && warnings.length === 0",
+      // but gate test 2 expects "green VALID plus two yellow warnings" on a new
+      // project. Going with the gate test interpretation: VALID shows whenever
+      // there are no errors; warnings are displayed alongside.
+      const { ok, errors, warnings } = validation;
+      const chips = [];
+      if (ok) {
+        chips.push(<span key="ok" className="chip chip-ok">VALID</span>);
+      }
+      errors.forEach((e, i) => {
+        chips.push(<span key={"e" + i} className="chip chip-error">{e}</span>);
+      });
+      warnings.forEach((w, i) => {
+        chips.push(<span key={"w" + i} className="chip chip-warn">{w}</span>);
+      });
+      return <div className="section">{chips}</div>;
+    }
+
+    function MetadataPanel({ project }) {
+      const vertexCount =
+        project &&
+        project.context &&
+        project.context.footprint &&
+        Array.isArray(project.context.footprint.polygon)
+          ? project.context.footprint.polygon.length
+          : 0;
+      const buildingType =
+        project && project.context && project.context.program
+          ? (project.context.program.building_type ?? "—")
+          : "—";
+      return (
+        <table className="kv">
+          <tbody>
+            <tr><td className="label">SCHEMA VERSION</td><td className="value">{project.schema_version}</td></tr>
+            <tr><td className="label">PROJECT ID</td><td className="value">{project.project_id}</td></tr>
+            <tr><td className="label">ENGINE VERSION</td><td className="value">{project.engine_version}</td></tr>
+            <tr><td className="label">CREATED</td><td className="value">{project.created_at}</td></tr>
+            <tr><td className="label">UPDATED</td><td className="value">{project.updated_at}</td></tr>
+            <tr><td className="label">BUILDING TYPE</td><td className="value">{buildingType}</td></tr>
+            <tr><td className="label">FOOTPRINT</td><td className="value">{vertexCount} vertices</td></tr>
+            <tr><td className="label">WEIGHTS</td><td className="value">{formatWeights(project.weights)}</td></tr>
+          </tbody>
+        </table>
+      );
+    }
+
+    function App() {
+      const [project, setProject] = React.useState(() => loadFromLocalStorage() ?? emptyProject());
+      const [validation, setValidation] = React.useState(() => validateProject(project));
+      const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null });
+      const [textareaValue, setTextareaValue] = React.useState(() => JSON.stringify(project, null, 2));
+      const [applyError, setApplyError] = React.useState(null);
+      const [uploadError, setUploadError] = React.useState(null);
+
+      // Autosave + revalidate on every project change
+      React.useEffect(() => {
+        saveToLocalStorage(project);
+        setValidation(validateProject(project));
+        setTextareaValue(JSON.stringify(project, null, 2));
+      }, [project]);
+
+      // Probe program database on mount
+      React.useEffect(() => {
+        let cancelled = false;
+        (async () => {
+          try {
+            const res = await fetch("./data/master_index.json");
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const json = await res.json();
+            if (cancelled) return;
+            let count = 0;
+            if (Array.isArray(json)) {
+              count = json.length;
+            } else if (isPlainObject(json)) {
+              if (Array.isArray(json.building_types)) count = json.building_types.length;
+              else if (Array.isArray(json.types)) count = json.types.length;
+              else count = Object.keys(json).length;
+            }
+            setDbStatus({ loaded: true, count, error: null });
+          } catch (e) {
+            if (cancelled) return;
+            console.debug("program database probe failed:", e && e.message);
+            setDbStatus({ loaded: false, count: 0, error: e && e.message });
+          }
+        })();
+        return () => { cancelled = true; };
+      }, []);
+
+      function handleNewProject() {
+        const p = emptyProject();
+        setProject(p);
+        setApplyError(null);
+        setUploadError(null);
+      }
+
+      function handleUpload(ev) {
+        const file = ev.target.files && ev.target.files[0];
+        // reset input so the same file can be re-selected later
+        ev.target.value = "";
+        if (!file) return;
+        uploadProjectFile(file)
+          .then(p => {
+            setProject(p);
+            setUploadError(null);
+          })
+          .catch(err => {
+            setUploadError(err && err.message ? err.message : String(err));
+          });
+      }
+
+      function handleDownload() {
+        downloadProjectFile(project);
+      }
+
+      function handleValidate() {
+        setValidation(validateProject(project));
+      }
+
+      function handleApplyEdits() {
+        let parsed;
+        try {
+          parsed = JSON.parse(textareaValue);
+        } catch (e) {
+          setApplyError("Could not parse JSON: " + e.message);
+          return;
+        }
+        setApplyError(null);
+        setProject(parsed);
+      }
+
+      function handleRevert() {
+        setTextareaValue(JSON.stringify(project, null, 2));
+        setApplyError(null);
+      }
+
+      const dbMessage = dbStatus.loaded
+        ? ("PROGRAM DATABASE LOADED · " + dbStatus.count + " building types")
+        : "PROGRAM DATABASE NOT PRESENT — copy CALVEY_PROGRAM/data into ./data/ and reload";
+
+      return (
+        <div className="app">
+          <header className="section">
+            <h1>CALVEY PARTY 2</h1>
+            <div className="label">SANDBOX · STEP 01 · SCHEMA + PERSISTENCE SHELL</div>
+          </header>
+
+          <div className="section">
+            <button onClick={handleNewProject}>New Project</button>
+            <label className="upload">
+              Load .calvey-party.json
+              <input type="file" accept=".json,application/json" onChange={handleUpload} />
+            </label>
+            <button onClick={handleDownload}>Download .calvey-party.json</button>
+            <button onClick={handleValidate}>Validate</button>
+          </div>
+
+          {uploadError && (
+            <div className="section">
+              <span className="chip chip-error">UPLOAD FAILED: {uploadError}</span>
+            </div>
+          )}
+
+          <ValidationChips validation={validation} />
+
+          <div className="hairline"></div>
+
+          <div className="section">
+            <h3>METADATA</h3>
+            <MetadataPanel project={project} />
+          </div>
+
+          <div className="section">
+            <h3>PROGRAM DATABASE</h3>
+            <div className="block-note">{dbMessage}</div>
+          </div>
+
+          <div className="hairline"></div>
+
+          <div className="section">
+            <h3>PROJECT JSON</h3>
+            {applyError && (
+              <div className="section">
+                <span className="chip chip-error">{applyError}</span>
+              </div>
+            )}
+            <textarea
+              className="json-viewer"
+              value={textareaValue}
+              onChange={(e) => setTextareaValue(e.target.value)}
+              spellCheck={false}
+            />
+            <div style={{ marginTop: 12 }}>
+              <button onClick={handleApplyEdits}>Apply edits</button>
+              <button onClick={handleRevert}>Revert</button>
+            </div>
+          </div>
+
+          <footer>
+            SCHEMA 2.1-PARTY · ENGINE 0.1.0-STEP01 · STEP 01 OF 09
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
