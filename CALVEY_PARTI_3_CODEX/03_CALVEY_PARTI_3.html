@@ -1858,7 +1858,7 @@ function stepAnimation(now){
 }
 
 function applyTransform(){
-  els.world.setAttribute("transform", `translate(${roundTo(state.transform.x, 3)} ${roundTo(state.transform.y, 3)}) scale(${roundTo(state.transform.k, 5)})`);
+  els.world.setAttribute("transform", `translate(${roundTo(state.transform.x, 0.1)} ${roundTo(state.transform.y, 0.1)}) scale(${roundTo(state.transform.k, 0.0001)})`);
 }
 
 function onPointerDown(event){
@@ -2543,8 +2543,8 @@ function formatNumber(value){
 }
 
 function formatCompact(value){
-  if(value >= 1000000) return `${roundTo(value / 1000000, 2)}M`;
-  if(value >= 1000) return `${roundTo(value / 1000, 1)}k`;
+  if(value >= 1000000) return `${roundTo(value / 1000000, 0.01)}M`;
+  if(value >= 1000) return `${roundTo(value / 1000, 0.1)}k`;
   return formatNumber(value);
 }
 
