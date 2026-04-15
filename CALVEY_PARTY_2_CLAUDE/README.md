@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.6.3-stepT2`
+`0.6.4-stepT3`
 
 ## Build status
 
@@ -54,8 +54,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 07** — Multi-floor generation + cross-floor drag: floor strip with thumbnails, add/remove floor buttons, room distribution by `stacking_preference` / `floor_priority` / `stack_group`, drag-onto-tile cross-floor move with cascade depth 1.
 - [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only.
 - [x] **Step T1** — Touch input framework foundation + pan/pinch-zoom/drag retrofit. Viewport + CSS setup, `useLongPress` / `fatFingerRadius` helpers, multi-pointer tracking, pinch-to-zoom (midpoint-stable), ghost offset + finger connector on touch drag, debug gesture readout. Lock gesture (right-click/long-press) and wall scrub unchanged — those ship in T2.
-- [x] **Step T2** — Touch lock gesture + touch wall scrub. `useLongPress` now owns the 500 ms room-hold timer (mouse + touch); double-tap-to-lock retired on touch. Wall scrub flips from hover-to-preview to press-to-preview on touch, with the alignment-group highlight painted during the scrub and the live area tooltip mirrored 40 px above the finger. Fat-finger pointer-down radius is 8 px on touch / 4 px on mouse (separate from the 12 px T1 hover radius). Lock chip lays out as a 2-column button grid with 36×72-min tap targets and clamps to the viewport with an 80 px thumb-zone gap at the bottom. `onContextMenu` always preventDefaults. *(current)*
-- [ ] Step T3 — Cross-floor drag visual feedback for touch
+- [x] **Step T2** — Touch lock gesture + touch wall scrub. `useLongPress` now owns the 500 ms room-hold timer (mouse + touch); double-tap-to-lock retired on touch. Wall scrub flips from hover-to-preview to press-to-preview on touch, with the alignment-group highlight painted during the scrub and the live area tooltip mirrored 40 px above the finger. Fat-finger pointer-down radius is 8 px on touch / 4 px on mouse (separate from the 12 px T1 hover radius). Lock chip lays out as a 2-column button grid with 36×72-min tap targets and clamps to the viewport with an 80 px thumb-zone gap at the bottom. `onContextMenu` always preventDefaults.
+- [x] **Step T3** — Cross-floor drag visual feedback for touch. Drop-target ring rendered as a 4-px ring 12 px outside the tile bounds (visible around a fingertip), pulsing accent-blue on valid, static red on invalid. Dragged-room name float rendered 60 px above the finger as a `position: fixed` label so the user can confirm which room they're carrying. Floor tile activation switched from `onClick` to `onPointerDown`/`onPointerUp` with a gesture guard (`dragging_room` releases yield to the canvas's cross-floor-drop handler; everything else is a tap that switches `active_floor_index` and triggers a 250 ms tile `tap-flash`). Debug readout now reports `over floor tile N` / `INVALID` during a drag. *(current)*
 - [ ] Step 08 — Sliders + regenerate + session completion / end-chips
 - [ ] Step 09 — Exporters (JSON / SVG / PDF)
 
@@ -301,6 +301,66 @@ background is now a no-op (no browser menu, no lock chip).
 room count during reproportion, and the room id during the lock-chip
 state, so the iPhone test session can verify gesture transitions
 without console logging.
+
+### Step T3 notes
+
+Step T3 is the third and last touch retrofit. Cross-floor drag worked
+mechanically on touch from T1 (Step 07's `document.elementFromPoint` +
+`data-floor-index` attribute fires from pointer events regardless of
+pointer type), but the user couldn't *see* the feedback — the finger
+covers the target tile and any valid/invalid state on it. T3 adds three
+visual layers plus a floor-tile tap retrofit.
+
+**Drop-target ring.** The old 2-px dashed tile border is retired.
+Instead, when the cursor/finger is over a floor tile during a room drag,
+a separate ring element is rendered 12 px outside the tile on all sides
+(so it spills past a fingertip). Valid targets pulse accent-blue with a
+1 s ease-in-out box-shadow; invalid targets stay static red. The ring
+has `pointer-events: none` so hit-testing still falls through to the
+tile underneath — `document.elementFromPoint` continues to report the
+right tile. Only one tile shows the ring at a time (whichever one
+elementFromPoint reports), so adjacent-tile ring overlap isn't an issue.
+The `.floor-strip` column keeps `overflow: visible` by default so the
+outward ring isn't clipped.
+
+**Dragged-room name float.** During `dragging_room` a small
+`position: fixed` label renders 60 px above the finger with the room
+name (10 px Space Mono uppercase) and department name (8 px muted).
+Clamped to 8 px from the viewport edges. Rendered regardless of
+pointerType — on touch it's the only way to identify the room
+underneath the finger; on desktop it's still useful confirmation. Sits
+above the T1 ghost (which is already offset 40 px up on touch) so both
+are visible together. `pointer-events: none` so it never blocks a drop.
+
+**Floor-tile tap disambiguation.** Floor tiles were using `onClick` for
+activation. iOS Safari's 300 ms synthesized click was racing with the
+canvas's pointer handlers and, in mixed drag/tap scenarios, occasionally
+double-firing or missing. T3 retires `onClick` and routes activation
+through `onPointerDown` + `onPointerUp`:
+
+- `onPointerDown` on the tile calls `stopPropagation()` so a tile press
+  never starts a canvas pan.
+- `onPointerUp` checks the current gesture. If the gesture is
+  `dragging_room`, the handler returns early — the canvas's pointer-up
+  (which has pointer capture on the SVG during drag) will fire the
+  cross-floor-drop logic. Otherwise it's a tap: `active_floor_index` is
+  updated and a 250 ms `tap-flash` animation runs on the tile.
+
+The tile gets `touch-action: manipulation` so iOS Safari doesn't add
+its 300 ms delay. The pointer-capture on the SVG during drag means the
+tile's `onPointerUp` normally won't fire mid-drag at all — the gesture
+check is a belt-and-suspenders guard in case capture fails (e.g. after
+a pinch-upgrade cancels the drag).
+
+**Debug readout** now appends `· over floor tile N` or
+`· over floor tile N · INVALID` during `dragging_room` when the finger
+is over a tile, so the iPhone tester can verify the `elementFromPoint`
+hit path without needing to see the ring.
+
+**Finger position in viewport coords.** The drag gesture state now
+carries both `fingerScreen` (container-relative, used by the T1 SVG
+connector line) and `fingerClient` (viewport-relative, used by the
+`position: fixed` room-name float).
 
 ### Step 07.1 notes
 
