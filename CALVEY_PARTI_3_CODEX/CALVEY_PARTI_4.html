@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#6a9cc4;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALVEY PARTI 4 — Plan Shuffle</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c0c;
+  --surface:#131313;
+  --surface-2:#171717;
+  --border:#232323;
+  --text:#ddd8d0;
+  --text-dim:#8b857e;
+  --text-muted:#56514a;
+  --accent:#6a9cc4;
+  --accent-soft:rgba(106,156,196,0.12);
+  --gold:#c9a959;
+  --warn:#b46f58;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(106,156,196,0.06), transparent 45%),
+    radial-gradient(ellipse at 70% 100%, rgba(201,169,89,0.04), transparent 36%),
+    var(--bg);
+  color:var(--text);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(106,156,196,0.24);color:#fff}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#2a2a2a}
+
+.hero{
+  padding:34px 18px 18px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.nav{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.nav .active{color:var(--accent)}
+.eyebrow{
+  margin-top:16px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.hero-line{
+  width:38px;
+  height:1px;
+  margin:12px auto 14px;
+  background:var(--accent);
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(40px,5.8vw,86px);
+  line-height:0.93;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  font-weight:300;
+}
+.hero p{
+  max-width:940px;
+  margin:12px auto 0;
+  font-size:clamp(16px,1.7vw,20px);
+  color:var(--text-dim);
+  font-style:italic;
+}
+.hero .meta{
+  margin-top:10px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+.wrap{
+  max-width:1460px;
+  margin:0 auto;
+  padding:16px 16px 24px;
+}
+.panel{
+  border:1px solid var(--border);
+  background:var(--surface);
+  box-shadow:0 20px 44px rgba(0,0,0,0.24);
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:minmax(240px, 1fr) minmax(180px, 220px) minmax(220px, 280px) auto;
+  gap:12px;
+  align-items:end;
+  padding:14px;
+  border-bottom:1px solid var(--border);
+}
+.field{
+  display:grid;
+  gap:7px;
+}
+.field label{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.field select,
+.field input[type="number"]{
+  width:100%;
+  background:#0c0c0c;
+  border:1px solid var(--border);
+  color:var(--text);
+  height:44px;
+  padding:0 12px;
+  font-size:18px;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  outline:none;
+  transition:border-color .18s, box-shadow .18s;
+}
+.field select:focus,
+.field input[type="number"]:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(106,156,196,0.08);
+}
+.field .sub{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  color:var(--text-muted);
+}
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  height:44px;
+  padding:0 14px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  transition:all .2s ease;
+}
+.btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:translateY(-1px);
+}
+.btn.primary{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:#081017;
+}
+.btn.primary:hover{color:#081017}
+.btn.soft{
+  background:rgba(255,255,255,0.04);
+}
+.btn.warn{
+  border-color:#4b2f28;
+  color:#d59a86;
+}
+
+.note-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:12px 14px 0;
+}
+.chip-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:6px 9px;
+  border:1px solid var(--border);
+  background:#101010;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.chip strong{
+  color:var(--text);
+  font-weight:400;
+  margin-left:6px;
+}
+.status{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  color:var(--text-muted);
+}
+.status.warn{color:#d59a86}
+
+.slider-panel{
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.slider-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+.slider-head .ttl{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.slider-head .val{
+  font-family:"Space Mono",monospace;
+  font-size:11px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+input[type="range"]{
+  width:100%;
+  height:28px;
+  margin:6px 0 2px;
+  appearance:none;
+  background:transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--border), var(--accent), var(--border));
+}
+input[type="range"]::-moz-range-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--border), var(--accent), var(--border));
+}
+input[type="range"]::-webkit-slider-thumb{
+  appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  margin-top:-8px;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(106,156,196,0.12);
+}
+input[type="range"]::-moz-range-thumb{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(106,156,196,0.12);
+}
+.slider-ext{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  color:var(--text-muted);
+}
+
+.stage-shell{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 296px;
+  gap:12px;
+  padding:14px;
+}
+.stage{
+  border:1px solid var(--border);
+  background:#080808;
+  position:relative;
+  min-height:680px;
+  overflow:hidden;
+}
+.stage svg{
+  width:100%;
+  height:100%;
+  display:block;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(106,156,196,0.05), transparent 32%),
+    radial-gradient(circle at 82% 92%, rgba(201,169,89,0.04), transparent 26%),
+    #070707;
+}
+.stage-label{
+  position:absolute;
+  top:10px;
+  left:12px;
+  z-index:2;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.stage-hint{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  z-index:2;
+  padding:7px 9px;
+  border:1px solid var(--border);
+  background:rgba(7,7,7,0.86);
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.sidecar{
+  display:grid;
+  gap:12px;
+}
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.metric{
+  border:1px solid var(--border);
+  background:#0d0d0d;
+  padding:10px 11px;
+}
+.metric .k{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.metric .v{
+  margin-top:3px;
+  font-size:22px;
+  line-height:1.05;
+}
+.metric .s{
+  margin-top:4px;
+  font-family:"Space Mono",monospace;
+  font-size:8px;
+  letter-spacing:0.05em;
+  color:var(--text-muted);
+}
+.card{
+  border:1px solid var(--border);
+  background:#0d0d0d;
+}
+.card .hd{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+}
+.card .hd .t{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.sketch-tools{
+  display:grid;
+  gap:8px;
+  padding:12px;
+}
+.sketch-tools[hidden]{display:none}
+.sketch-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.mini{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.06em;
+  color:var(--text-muted);
+  line-height:1.6;
+}
+.list{
+  max-height:280px;
+  overflow:auto;
+}
+.list-row{
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  padding:9px 12px;
+  border-top:1px solid #161616;
+}
+.list-row:first-child{border-top:none}
+.sw{
+  width:12px;
+  height:12px;
+  border:1px solid #2a2a2a;
+  margin-top:4px;
+}
+.list-row .n{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.list-row .m{
+  margin-top:3px;
+  font-family:"Space Mono",monospace;
+  font-size:8px;
+  letter-spacing:0.06em;
+  color:var(--text-muted);
+}
+.list-row .a{
+  font-size:16px;
+  white-space:nowrap;
+}
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px;
+}
+.legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px;
+  min-height:28px;
+  border:1px solid var(--border);
+  background:#101010;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+.footer{
+  text-align:center;
+  padding:20px 18px 28px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.1em;
+  color:var(--text-muted);
+  text-transform:uppercase;
+}
+
+svg text{pointer-events:none}
+.outline{
+  fill:rgba(106,156,196,0.03);
+  stroke:#5d7e98;
+  stroke-width:2.2;
+}
+.void{
+  fill:#060606;
+  stroke:#30404d;
+  stroke-width:1.2;
+  stroke-dasharray:7 7;
+}
+.room{
+  stroke:#060606;
+  stroke-width:1.05;
+  shape-rendering:crispEdges;
+}
+.room-label{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  fill:#0b1115;
+}
+.room-area{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:14px;
+  fill:#081116;
+}
+.plan-title{
+  font-family:"Space Mono",monospace;
+  font-size:16px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  fill:var(--text-muted);
+}
+.plan-sub{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  fill:var(--text-muted);
+}
+.entry{
+  fill:none;
+  stroke:var(--gold);
+  stroke-width:2;
+}
+.minor-grid{stroke:rgba(255,255,255,0.04);stroke-width:1}
+.major-grid{stroke:rgba(255,255,255,0.08);stroke-width:1}
+.ghost-outline{
+  fill:rgba(106,156,196,0.05);
+  stroke:rgba(106,156,196,0.7);
+  stroke-width:2;
+  stroke-dasharray:7 7;
+}
+.ghost-line{
+  fill:none;
+  stroke:rgba(201,169,89,0.85);
+  stroke-width:2;
+}
+.ghost-point{
+  fill:var(--gold);
+  stroke:#111;
+  stroke-width:1;
+}
+.overlay-note{
+  font-family:"Space Mono",monospace;
+  font-size:11px;
+  letter-spacing:0.08em;
+  fill:var(--text-dim);
+  text-transform:uppercase;
+}
+
+@media (max-width:1180px){
+  .stage-shell{grid-template-columns:1fr}
+}
+@media (max-width:980px){
+  .controls{grid-template-columns:1fr 1fr}
+  .actions{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .hero{padding:28px 14px 16px}
+  .wrap{padding:12px}
+  .controls{grid-template-columns:1fr}
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .stage{min-height:520px}
+}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="nav">
+      <span>CALVEY FORM</span>
+      <span>/</span>
+      <span>02 PROGRAM MASSING LOGIC</span>
+      <span>/</span>
+      <span class="active">CALVEY PARTI 4</span>
+    </div>
+    <div class="eyebrow">Single-Plan Program Shuffle</div>
+    <div class="hero-line"></div>
+    <h1>CALVEY<br>PARTI 4</h1>
+    <p>One footprint, one plan, one slider. The program becomes a field of small schematic blocks that shuffle around inside the outline until a promising arrangement appears.</p>
+    <div class="meta">Matthew Calvey · 2026</div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="controls">
+        <div class="field">
+          <label for="programType">Program</label>
+          <select id="programType"></select>
+          <div id="profileSub" class="sub">Profile auto-selects from the target size.</div>
+        </div>
+        <div class="field">
+          <label for="targetSize">Size (GSF)</label>
+          <input id="targetSize" type="number" min="2000" step="1000" value="60000">
+          <div id="sizeSub" class="sub">Gross area scales both the block pack and the footprint.</div>
+        </div>
+        <div class="field">
+          <label for="footprintMode">Footprint</label>
+          <select id="footprintMode">
+            <option value="rectangle">Rectangle</option>
+            <option value="bar">Bar</option>
+            <option value="courtyard">Courtyard</option>
+            <option value="lshape">L-Shape</option>
+            <option value="corner">Corner</option>
+            <option value="narrowdeep">Narrow / Deep</option>
+            <option value="sketch">Sketch</option>
+          </select>
+          <div id="footprintSub" class="sub">Choose a preset or sketch a custom outline directly in the viewport.</div>
+        </div>
+        <div class="actions">
+          <button id="shuffleBtn" class="btn primary">Next Option</button>
+          <button id="fitBtn" class="btn">Fit Plan</button>
+        </div>
+      </div>
+
+      <div class="note-row">
+        <div class="chip-row">
+          <div class="chip">Program<strong id="programChip">Loading</strong></div>
+          <div class="chip">Profile<strong id="profileChip">Auto</strong></div>
+          <div class="chip">Footprint<strong id="footprintChip">Rectangle</strong></div>
+          <div class="chip">Option DNA<strong id="dnaChip">Queued</strong></div>
+        </div>
+        <div id="statusLine" class="status">Loading local CALVEY program data…</div>
+      </div>
+
+      <div class="slider-panel">
+        <div class="slider-head">
+          <div class="ttl">Option Slider</div>
+          <div id="optionValue" class="val">Option 001 / 120</div>
+        </div>
+        <input id="optionSlider" type="range" min="1" max="120" step="1" value="1">
+        <div class="slider-ext">
+          <span>Earlier solutions</span>
+          <span>Later solutions</span>
+        </div>
+      </div>
+
+      <div class="stage-shell">
+        <div class="stage">
+          <div class="stage-label">Plan View · Single floor focus</div>
+          <svg id="viewport" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" aria-label="Plan shuffle workspace">
+            <defs>
+              <pattern id="minorGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path class="minor-grid" d="M28 0 L0 0 0 28" fill="none"></path>
+              </pattern>
+              <pattern id="majorGrid" width="112" height="112" patternUnits="userSpaceOnUse">
+                <rect width="112" height="112" fill="url(#minorGrid)"></rect>
+                <path class="major-grid" d="M112 0 L0 0 0 112" fill="none"></path>
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="1200" height="760" fill="url(#majorGrid)"></rect>
+            <g id="planLayer"></g>
+            <g id="overlayLayer"></g>
+          </svg>
+          <div class="stage-hint">Sketch mode: click points, close shape, then scrub options</div>
+        </div>
+
+        <div class="sidecar">
+          <div class="card">
+            <div class="hd">
+              <div class="t">Sketch Footprint</div>
+            </div>
+            <div id="sketchTools" class="sketch-tools" hidden>
+              <div class="mini" id="sketchStatus">Choose sketch mode, then click points in the viewport to draw an outline.</div>
+              <div class="sketch-actions">
+                <button id="startSketchBtn" class="btn soft">Start New</button>
+                <button id="closeSketchBtn" class="btn">Close Shape</button>
+                <button id="undoSketchBtn" class="btn">Undo Point</button>
+                <button id="clearSketchBtn" class="btn warn">Clear Sketch</button>
+              </div>
+              <div class="mini">Tip: three to eight points is plenty. Double-click also closes the shape.</div>
+            </div>
+            <div id="sketchIdle" class="sketch-tools">
+              <div class="mini">Choose <strong style="color:var(--text)">Sketch</strong> in the footprint menu to draw directly in the plan viewport.</div>
+            </div>
+          </div>
+
+          <div class="metric-grid" id="metrics"></div>
+
+          <div class="card">
+            <div class="hd">
+              <div class="t">Largest Blocks</div>
+              <div id="blockCount" class="t">0</div>
+            </div>
+            <div id="blockList" class="list"></div>
+          </div>
+
+          <div class="card">
+            <div class="hd">
+              <div class="t">Departments</div>
+            </div>
+            <div id="legend" class="legend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">CALVEY PARTI 4 · standalone HTML app · local program database only</div>
+
+<script>
+const MASTER_PATH = "./CALVEY_FORM_v1/data/building_program_database_master_v0.2.json";
+const DATA_DIR = "./CALVEY_FORM_v1/data/";
+const VIEW_W = 1200;
+const VIEW_H = 760;
+const OPTION_COUNT = 120;
+const PAD = 72;
+
+const CATEGORY_COLORS = {
+  "Public/Entry":"#c9a959",
+  "Public/Commons":"#b79b63",
+  "Public/Support":"#9e8654",
+  "Administration":"#8978bc",
+  "Work":"#6bb8d4",
+  "Meeting":"#59a5c4",
+  "Learning":"#73bf7a",
+  "Instruction":"#73bf7a",
+  "Clinical":"#c15d42",
+  "Clinical/Support":"#b75238",
+  "Clinical/Diagnostics":"#ad4e38",
+  "Food Service":"#d0a36a",
+  "Amenity":"#6a9cc4",
+  "Amenity/Outdoor":"#6a9cc4",
+  "Operations":"#7d7d7d",
+  "Operations/Circulation":"#6b6b6b",
+  "Circulation":"#575757",
+  "Circulation/Core":"#4a4a4a",
+  "MEP":"#3b3b3b",
+  "MEP/Tech":"#3b3b3b",
+  "Mobility":"#8aa0a8",
+  "Parking":"#2f2f2f",
+  "Safety/Operations":"#6a3d3d",
+  "Rooms":"#6a9cc4",
+  "Support":"#7e7e7e"
+};
+
+const state = {
+  catalog: [],
+  dbCache: new Map(),
+  program: null,
+  entry: null,
+  layout: null,
+  sketch: {
+    points: [],
+    closed: false
+  }
+};
+
+const els = {
+  programType: document.getElementById("programType"),
+  targetSize: document.getElementById("targetSize"),
+  footprintMode: document.getElementById("footprintMode"),
+  shuffleBtn: document.getElementById("shuffleBtn"),
+  fitBtn: document.getElementById("fitBtn"),
+  optionSlider: document.getElementById("optionSlider"),
+  optionValue: document.getElementById("optionValue"),
+  programChip: document.getElementById("programChip"),
+  profileChip: document.getElementById("profileChip"),
+  footprintChip: document.getElementById("footprintChip"),
+  dnaChip: document.getElementById("dnaChip"),
+  statusLine: document.getElementById("statusLine"),
+  profileSub: document.getElementById("profileSub"),
+  sizeSub: document.getElementById("sizeSub"),
+  footprintSub: document.getElementById("footprintSub"),
+  viewport: document.getElementById("viewport"),
+  planLayer: document.getElementById("planLayer"),
+  overlayLayer: document.getElementById("overlayLayer"),
+  sketchTools: document.getElementById("sketchTools"),
+  sketchIdle: document.getElementById("sketchIdle"),
+  sketchStatus: document.getElementById("sketchStatus"),
+  startSketchBtn: document.getElementById("startSketchBtn"),
+  closeSketchBtn: document.getElementById("closeSketchBtn"),
+  undoSketchBtn: document.getElementById("undoSketchBtn"),
+  clearSketchBtn: document.getElementById("clearSketchBtn"),
+  metrics: document.getElementById("metrics"),
+  blockList: document.getElementById("blockList"),
+  blockCount: document.getElementById("blockCount"),
+  legend: document.getElementById("legend")
+};
+
+document.addEventListener("DOMContentLoaded", boot);
+
+async function boot(){
+  wireUI();
+  updateOptionLabel();
+  try{
+    const master = await loadJSON(MASTER_PATH);
+    state.catalog = master.databases || [];
+    els.programType.innerHTML = state.catalog.map((entry) => (
+      `<option value="${escapeAttr(entry.json)}">${escapeHtml(entry.building_type || entry.category || entry.json)}</option>`
+    )).join("");
+    await onProgramChange();
+  }catch(error){
+    els.statusLine.textContent = "Program data did not load. Use a local server so the copied CALVEY JSON files can be fetched.";
+    els.statusLine.classList.add("warn");
+    console.error(error);
+  }
+}
+
+function wireUI(){
+  els.programType.addEventListener("change", onProgramChange);
+  els.targetSize.addEventListener("change", renderApp);
+  els.footprintMode.addEventListener("change", () => {
+    updateSketchUI();
+    renderApp();
+  });
+  els.optionSlider.addEventListener("input", () => {
+    updateOptionLabel();
+    renderApp();
+  });
+  els.shuffleBtn.addEventListener("click", () => {
+    els.optionSlider.value = String(Math.min(OPTION_COUNT, Number(els.optionSlider.value) + 1));
+    if(Number(els.optionSlider.value) >= OPTION_COUNT) els.optionSlider.value = "1";
+    updateOptionLabel();
+    renderApp();
+  });
+  els.fitBtn.addEventListener("click", renderApp);
+
+  els.startSketchBtn.addEventListener("click", () => {
+    state.sketch.points = [];
+    state.sketch.closed = false;
+    renderApp();
+  });
+  els.closeSketchBtn.addEventListener("click", () => {
+    if(state.sketch.points.length >= 3){
+      state.sketch.closed = true;
+      renderApp();
+    }
+  });
+  els.undoSketchBtn.addEventListener("click", () => {
+    if(state.sketch.closed){
+      state.sketch.closed = false;
+    }else{
+      state.sketch.points.pop();
+    }
+    renderApp();
+  });
+  els.clearSketchBtn.addEventListener("click", () => {
+    state.sketch.points = [];
+    state.sketch.closed = false;
+    renderApp();
+  });
+
+  els.viewport.addEventListener("click", onViewportClick);
+  els.viewport.addEventListener("dblclick", onViewportDoubleClick);
+  window.addEventListener("keydown", (event) => {
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    if(tag === "input" || tag === "select" || tag === "textarea") return;
+    if(event.key === "ArrowRight"){
+      els.optionSlider.value = String(clamp(Number(els.optionSlider.value) + 1, 1, OPTION_COUNT));
+      updateOptionLabel();
+      renderApp();
+    }else if(event.key === "ArrowLeft"){
+      els.optionSlider.value = String(clamp(Number(els.optionSlider.value) - 1, 1, OPTION_COUNT));
+      updateOptionLabel();
+      renderApp();
+    }else if(event.key === "Enter" && els.footprintMode.value === "sketch"){
+      if(state.sketch.points.length >= 3){
+        state.sketch.closed = true;
+        renderApp();
+      }
+    }
+  });
+}
+
+async function onProgramChange(){
+  const file = els.programType.value;
+  const entry = state.catalog.find((item) => item.json === file) || state.catalog[0];
+  if(!entry) return;
+  try{
+    const raw = await getProgramDatabase(entry);
+    state.entry = entry;
+    state.program = normalizeDatabase(entry, raw);
+    updateOptionLabel();
+    updateSketchUI();
+    renderApp();
+  }catch(error){
+    els.statusLine.textContent = "The selected program file could not be loaded.";
+    els.statusLine.classList.add("warn");
+    console.error(error);
+  }
+}
+
+function updateOptionLabel(){
+  els.optionValue.textContent = `Option ${String(els.optionSlider.value).padStart(3, "0")} / ${OPTION_COUNT}`;
+}
+
+function updateSketchUI(){
+  const sketchMode = els.footprintMode.value === "sketch";
+  els.sketchTools.hidden = !sketchMode;
+  els.sketchIdle.hidden = sketchMode;
+  if(!sketchMode) return;
+  if(!state.sketch.points.length){
+    els.sketchStatus.textContent = "Click points in the viewport to draw a custom outline.";
+  }else if(state.sketch.closed){
+    els.sketchStatus.textContent = `Sketch ready · ${state.sketch.points.length} points · now scrub the option slider.`;
+  }else{
+    els.sketchStatus.textContent = `Sketch in progress · ${state.sketch.points.length} points · close the shape when ready.`;
+  }
+}
+
+function onViewportClick(event){
+  if(els.footprintMode.value !== "sketch" || state.sketch.closed) return;
+  const point = eventToViewPoint(event, els.viewport);
+  if(!point) return;
+  if(point.x < 70 || point.x > VIEW_W - 70 || point.y < 70 || point.y > VIEW_H - 70) return;
+  state.sketch.points.push({
+    x: snap(point.x, 16),
+    y: snap(point.y, 16)
+  });
+  renderApp();
+}
+
+function onViewportDoubleClick(event){
+  if(els.footprintMode.value !== "sketch") return;
+  if(state.sketch.points.length >= 3){
+    state.sketch.closed = true;
+    renderApp();
+    event.preventDefault();
+  }
+}
+
+async function getProgramDatabase(entry){
+  if(state.dbCache.has(entry.json)) return state.dbCache.get(entry.json);
+  const data = await loadJSON(`${DATA_DIR}${entry.json}`);
+  state.dbCache.set(entry.json, data);
+  return data;
+}
+
+function renderApp(){
+  updateSketchUI();
+  if(!state.program){
+    return;
+  }
+
+  const targetGross = clamp(Number(els.targetSize.value) || 60000, 2000, 3000000);
+  const profile = resolveProfile(state.program, targetGross);
+  const option = Number(els.optionSlider.value);
+  const footprintMode = els.footprintMode.value;
+  els.programChip.textContent = state.program.buildingType;
+  els.profileChip.textContent = profile.name;
+  els.footprintChip.textContent = footprintMode === "sketch" ? "Sketch" : presetLabel(footprintMode);
+  els.profileSub.textContent = `${formatNumber(profile.grossSfTypical[0])}–${formatNumber(profile.grossSfTypical[1])} GSF typical · ${Math.round(profile.efficiencyRange[0] * 100)}–${Math.round(profile.efficiencyRange[1] * 100)}% efficient`;
+
+  if(footprintMode === "sketch" && !state.sketch.closed){
+    els.statusLine.classList.remove("warn");
+    els.statusLine.textContent = "Sketch the footprint in the viewport, then close the shape to start shuffling plan options.";
+    els.dnaChip.textContent = "Sketch First";
+    renderSketchOnly();
+    renderMetrics(null, targetGross, profile);
+    renderBlockList([]);
+    renderLegend([]);
+    return;
+  }
+
+  const seedBase = `${state.program.id}|${profile.id}|${footprintMode}|${targetGross}|${option}`;
+  const dna = makeOptionDNA(seedBase, option);
+  const footprint = buildFootprint(footprintMode, targetGross, dna);
+  const blocks = buildBlocks(state.program, profile, targetGross, dna);
+  const plan = solvePlan(blocks, footprint, dna);
+  state.layout = {profile, footprint, blocks, dna, targetGross, plan};
+
+  els.statusLine.classList.remove("warn");
+  els.statusLine.textContent = `${state.program.buildingType} · ${profile.name} · ${formatNumber(targetGross)} GSF · ${plan.placed.length} placed blocks`;
+  els.dnaChip.textContent = dna.label;
+
+  renderPlan(plan, footprint, dna, targetGross, profile);
+  renderMetrics(plan, targetGross, profile);
+  renderBlockList(plan.families);
+  renderLegend(plan.legend);
+}
+
+function normalizeDatabase(entry, raw){
+  return {
+    id: entry.category || raw.building_type || "Program",
+    buildingType: raw.building_type || entry.building_type || entry.category || "Program",
+    subtypes: (raw.subtypes || []).map((subtype, index) => ({
+      id: subtype.id || `SUB_${index + 1}`,
+      name: subtype.name || `Subtype ${index + 1}`,
+      grossSfTypical: subtype.gross_sf_typical || [12000, 60000],
+      efficiencyRange: subtype.efficiency_ratio_target_range || [0.72, 0.82]
+    })),
+    rooms: (raw.space_library || []).map((space, index) => {
+      const areaRange = space.gsf_range || space.nsf_range || [100, 400];
+      const areaBase = midpoint(areaRange) || 220;
+      return {
+        id: space.id || `ROOM_${index + 1}`,
+        name: space.name || `Room ${index + 1}`,
+        category: space.category || "Support",
+        areaBase,
+        areaShare: midpoint(space.percent_of_gross_range),
+        daylight: priorityValue(space.daylight_priority),
+        publicness: inferPublicness(space),
+        privacy: inferPrivacy(space),
+        service: inferService(space),
+        adj: (space.adjacencies || []).map((adj) => ({
+          id: adj.space_id || "",
+          weight: clamp(Number(adj.weight) || 0.4, 0.05, 1),
+          relationship: String(adj.relationship || "").toLowerCase()
+        }))
+      };
+    })
+  };
+}
+
+function resolveProfile(program, targetGross){
+  const profiles = program.subtypes.length ? program.subtypes : [{
+    id: "DEFAULT",
+    name: `${program.buildingType} / Default`,
+    grossSfTypical: [12000, 60000],
+    efficiencyRange: [0.72, 0.82]
+  }];
+  return profiles.slice().sort((a, b) => {
+    const aMid = midpoint(a.grossSfTypical) || targetGross;
+    const bMid = midpoint(b.grossSfTypical) || targetGross;
+    return Math.abs(aMid - targetGross) - Math.abs(bMid - targetGross);
+  })[0];
+}
+
+function makeOptionDNA(seedBase, option){
+  const rand = mulberry32(xmur3(seedBase)());
+  const edge = rand();
+  const front = rand();
+  const cluster = rand();
+  const stretch = rand();
+  const biasA = edge >= 0.55 ? "Perimeter" : "Interior";
+  const biasB = front >= 0.5 ? "Front-loaded" : "Deep-loaded";
+  const biasC = cluster >= 0.5 ? "Clustered" : "Scattered";
+  return {
+    edge,
+    front,
+    cluster,
+    stretch,
+    label: `${biasA} · ${biasB} · ${biasC}`,
+    option
+  };
+}
+
+function buildBlocks(program, profile, targetGross, dna){
+  const efficiency = clamp(midpoint(profile.efficiencyRange) || 0.78, 0.45, 0.92);
+  const targetNet = targetGross * efficiency;
+  const rooms = program.rooms.map((room) => ({...room}));
+  const totalShare = rooms.reduce((sum, room) => sum + (room.areaShare || 0), 0);
+  const baseAreas = rooms.map((room) => room.areaShare && totalShare > 0.2 ? room.areaShare * targetGross : room.areaBase);
+  const baseSum = baseAreas.reduce((sum, value) => sum + value, 0) || 1;
+  const scale = targetNet / baseSum;
+  const chunkArea = clamp(targetGross * 0.014, 500, 1400);
+  const blocks = [];
+
+  rooms.forEach((room, index) => {
+    const scaledArea = Math.max(90, baseAreas[index] * scale);
+    const parts = Math.max(1, Math.ceil(scaledArea / chunkArea));
+    const partArea = scaledArea / parts;
+    for(let i = 0; i < parts; i += 1){
+      blocks.push({
+        id: `${room.id}_${i + 1}`,
+        familyId: room.id,
+        name: parts === 1 ? room.name : `${room.name} ${String.fromCharCode(65 + i)}`,
+        baseName: room.name,
+        category: room.category,
+        area: partArea,
+        daylight: room.daylight,
+        publicness: room.publicness,
+        privacy: room.privacy,
+        service: room.service,
+        adj: room.adj,
+        labelPriority: i === 0 ? 1 : 0
+      });
+    }
+  });
+
+  return blocks.sort((a, b) => {
+    const aNoise = seededValue(`${a.id}|${dna.option}`);
+    const bNoise = seededValue(`${b.id}|${dna.option}`);
+    return (b.area + b.labelPriority * 120) - (a.area + a.labelPriority * 120) + (bNoise - aNoise) * 80;
+  });
+}
+
+function buildFootprint(mode, targetGross, dna){
+  const shape = mode === "sketch" ? buildSketchShape() : buildPresetShape(mode, dna);
+  const scaled = scaleFootprintToArea(shape, targetGross);
+  scaled.label = mode === "sketch" ? "Sketch" : presetLabel(mode);
+  return scaled;
+}
+
+function buildSketchShape(){
+  const points = state.sketch.points.map((point) => [
+    (point.x - VIEW_W * 0.5) / 8,
+    (point.y - VIEW_H * 0.5) / 8
+  ]);
+  return polygonPackage(points, [], "Sketch");
+}
+
+function buildPresetShape(mode, dna){
+  if(mode === "bar"){
+    return polygonPackage(rectPoints(2.9, 0.86), [], "Bar");
+  }
+  if(mode === "courtyard"){
+    const outer = rectPoints(1.62, 1.22);
+    const innerScale = lerp(0.26, 0.42, dna.stretch);
+    const inner = rectPoints(1.62 * innerScale, 1.22 * innerScale);
+    return polygonPackage(outer, [inner], "Courtyard");
+  }
+  if(mode === "lshape"){
+    return polygonPackage([
+      [-0.82, -0.62],
+      [0.78, -0.62],
+      [0.78, -0.12],
+      [-0.08, -0.12],
+      [-0.08, 0.64],
+      [-0.82, 0.64]
+    ], [], "L-Shape");
+  }
+  if(mode === "corner"){
+    return polygonPackage([
+      [-0.86, -0.68],
+      [0.86, -0.68],
+      [0.86, -0.22],
+      [-0.18, -0.22],
+      [-0.18, 0.68],
+      [-0.86, 0.68]
+    ], [], "Corner");
+  }
+  if(mode === "narrowdeep"){
+    return polygonPackage(rectPoints(0.92, 1.92), [], "Narrow / Deep");
+  }
+  return polygonPackage(rectPoints(1.28, 1.02), [], "Rectangle");
+}
+
+function solvePlan(blocks, footprint, dna){
+  const cellSize = clamp(Math.sqrt((polygonArea(footprint.points) || 1) / 720), 7, 18);
+  const grid = rasterizeFootprint(footprint, cellSize);
+  const placed = [];
+  const familyAnchors = new Map();
+  const families = new Map();
+
+  blocks.forEach((block) => {
+    const placement = placeBlock(block, grid, familyAnchors, dna, cellSize);
+    if(!placement) return;
+    placed.push(placement);
+
+    if(!families.has(block.familyId)){
+      families.set(block.familyId, {
+        name: block.baseName,
+        category: block.category,
+        area: 0,
+        chunks: 0
+      });
+    }
+    const family = families.get(block.familyId);
+    family.area += block.area;
+    family.chunks += 1;
+  });
+
+  const usedArea = placed.reduce((sum, item) => sum + item.area, 0);
+  const footprintArea = polygonArea(footprint.points) - footprint.voids.reduce((sum, voidPoly) => sum + polygonArea(voidPoly), 0);
+  const edgeScore = placed.length ? average(placed.map((item) => item.perimeterExposure)) : 0;
+  const daylightScore = placed.length ? average(placed.map((item) => item.perimeterExposure * item.block.daylight)) : 0;
+  const adjacencyScore = placed.length ? average(placed.map((item) => item.adjScore)) : 0;
+
+  return {
+    placed,
+    families: [...families.values()].sort((a, b) => b.area - a.area).slice(0, 18),
+    legend: uniqueBy(placed.map((item) => ({category: item.block.category, fill: colorForCategory(item.block.category)})), "category"),
+    usedArea,
+    footprintArea,
+    fillRatio: clamp(usedArea / Math.max(footprintArea, 1), 0, 1),
+    edgeScore,
+    daylightScore,
+    adjacencyScore
+  };
+}
+
+function placeBlock(block, grid, familyAnchors, dna, cellSize){
+  const targetCells = Math.max(1, Math.round(block.area / (cellSize * cellSize)));
+  const dims = buildDimCandidates(targetCells, block, dna);
+  let best = null;
+
+  dims.forEach((dim) => {
+    scanRectangles(grid, dim.w, dim.h, (cells, rectBounds) => {
+      const metrics = rectMetrics(cells, grid);
+      const centerX = (rectBounds.minX + rectBounds.maxX) * 0.5;
+      const centerY = (rectBounds.minY + rectBounds.maxY) * 0.5;
+      const score = scorePlacement(block, metrics, centerX, centerY, familyAnchors, dna);
+      if(!best || score > best.score){
+        best = {cells, rectBounds, metrics, score};
+      }
+    });
+  });
+
+  if(!best){
+    const fallback = grid.cells.find((cell) => cell.free);
+    if(!fallback) return null;
+    best = {
+      cells: [fallback],
+      rectBounds: {
+        minX: fallback.x,
+        minY: fallback.y,
+        maxX: fallback.x + cellSize,
+        maxY: fallback.y + cellSize
+      },
+      metrics: rectMetrics([fallback], grid),
+      score: 0
+    };
+  }
+
+  best.cells.forEach((cell) => {
+    cell.free = false;
+    cell.blockId = block.id;
+  });
+
+  const centerX = (best.rectBounds.minX + best.rectBounds.maxX) * 0.5;
+  const centerY = (best.rectBounds.minY + best.rectBounds.maxY) * 0.5;
+  const anchor = familyAnchors.get(block.familyId);
+  const adjScore = adjacencyAnchorScore(block, centerX, centerY, familyAnchors);
+  if(anchor){
+    anchor.x = lerp(anchor.x, centerX, 0.5);
+    anchor.y = lerp(anchor.y, centerY, 0.5);
+  }else{
+    familyAnchors.set(block.familyId, {x: centerX, y: centerY});
+  }
+
+  return {
+    block,
+    x: best.rectBounds.minX,
+    y: best.rectBounds.minY,
+    w: best.rectBounds.maxX - best.rectBounds.minX,
+    h: best.rectBounds.maxY - best.rectBounds.minY,
+    centerX,
+    centerY,
+    area: block.area,
+    fill: colorForCategory(block.category),
+    perimeterExposure: best.metrics.perimeter,
+    adjScore,
+    anchorDist: anchor ? Math.hypot(centerX - anchor.x, centerY - anchor.y) : 0
+  };
+}
+
+function buildDimCandidates(targetCells, block, dna){
+  const baseAspect = lerp(0.72, 2.1, dna.stretch);
+  const daylightBoost = block.daylight > 0.7 ? 0.55 : 0;
+  const aspects = [baseAspect + daylightBoost, 1, 0.62 + daylightBoost * 0.25, 1.6 + daylightBoost, 2.3];
+  const seen = new Set();
+  const dims = [];
+
+  aspects.forEach((aspect) => {
+    const width = Math.max(1, Math.round(Math.sqrt(targetCells * Math.max(0.35, aspect))));
+    const height = Math.max(1, Math.ceil(targetCells / Math.max(width, 1)));
+    const keyA = `${width}x${height}`;
+    const keyB = `${height}x${width}`;
+    if(!seen.has(keyA)){
+      dims.push({w: width, h: height});
+      seen.add(keyA);
+    }
+    if(!seen.has(keyB)){
+      dims.push({w: height, h: width});
+      seen.add(keyB);
+    }
+  });
+
+  dims.push({w: Math.max(1, Math.ceil(targetCells / 2)), h: 2});
+  dims.push({w: 1, h: Math.max(1, targetCells)});
+  return dims.slice(0, 10);
+}
+
+function scanRectangles(grid, widthCells, heightCells, callback){
+  grid.cells.forEach((cell) => {
+    if(!cell.free) return;
+    const cells = [];
+    let valid = true;
+    for(let dy = 0; dy < heightCells; dy += 1){
+      for(let dx = 0; dx < widthCells; dx += 1){
+        const key = `${cell.row + dy}:${cell.col + dx}`;
+        const member = grid.keyMap.get(key);
+        if(!member || !member.free){
+          valid = false;
+          break;
+        }
+        cells.push(member);
+      }
+      if(!valid) break;
+    }
+    if(!valid) return;
+    callback(cells, {
+      minX: cell.x,
+      minY: cell.y,
+      maxX: cell.x + widthCells * grid.cellSize,
+      maxY: cell.y + heightCells * grid.cellSize
+    });
+  });
+}
+
+function rectMetrics(cells){
+  return {
+    perimeter: average(cells.map((cell) => cell.perimeter)),
+    entry: average(cells.map((cell) => cell.entryScore)),
+    depth: average(cells.map((cell) => cell.depthScore)),
+    center: average(cells.map((cell) => cell.centerScore))
+  };
+}
+
+function scorePlacement(block, metrics, centerX, centerY, familyAnchors, dna){
+  const adj = adjacencyAnchorScore(block, centerX, centerY, familyAnchors);
+  const family = familyAnchors.get(block.familyId);
+  const familyPull = family ? clamp(1 - Math.hypot(centerX - family.x, centerY - family.y) / 260, 0, 1) : 0;
+  let score = 0;
+  score += block.daylight * lerp(metrics.center, metrics.perimeter, 0.25 + dna.edge * 0.7);
+  score += block.publicness * lerp(metrics.depth, metrics.entry, 0.35 + dna.front * 0.6);
+  score += block.privacy * lerp(metrics.entry, metrics.depth, 0.35 + (1 - dna.front) * 0.6);
+  score += block.service * lerp(metrics.perimeter, metrics.center, 0.65);
+  score += adj * (0.36 + (1 - dna.edge) * 0.55);
+  score += familyPull * (0.26 + dna.cluster * 0.34);
+  score += (seededValue(`${block.id}|${centerX}|${centerY}|${dna.option}`) - 0.5) * 0.12;
+  return score;
+}
+
+function adjacencyAnchorScore(block, x, y, familyAnchors){
+  let score = 0;
+  (block.adj || []).forEach((adj) => {
+    const anchor = familyAnchors.get(adj.id);
+    if(!anchor) return;
+    const dist = Math.hypot(x - anchor.x, y - anchor.y);
+    score += relationWeight(adj.relationship) * adj.weight * clamp(1 - dist / 320, -0.7, 1);
+  });
+  return score;
+}
+
+function rasterizeFootprint(footprint, cellSize){
+  const bounds = polygonBounds(footprint.points);
+  const cols = Math.ceil(bounds.width / cellSize) + 2;
+  const rows = Math.ceil(bounds.height / cellSize) + 2;
+  const keyMap = new Map();
+  const cells = [];
+  const centerX = (bounds.minX + bounds.maxX) * 0.5;
+  const centerY = (bounds.minY + bounds.maxY) * 0.5;
+
+  for(let row = 0; row < rows; row += 1){
+    for(let col = 0; col < cols; col += 1){
+      const x = bounds.minX - cellSize + col * cellSize;
+      const y = bounds.minY - cellSize + row * cellSize;
+      const cx = x + cellSize * 0.5;
+      const cy = y + cellSize * 0.5;
+      if(!pointInPolygon(cx, cy, footprint.points)) continue;
+      if((footprint.voids || []).some((voidPoly) => pointInPolygon(cx, cy, voidPoly))) continue;
+      const cell = {
+        id: `${row}:${col}`,
+        row,
+        col,
+        x,
+        y,
+        cx,
+        cy,
+        free: true,
+        perimeter: 0,
+        entryScore: 0,
+        depthScore: 0,
+        centerScore: 0
+      };
+      cells.push(cell);
+      keyMap.set(cell.id, cell);
+    }
+  }
+
+  cells.forEach((cell) => {
+    const neighbors = [
+      keyMap.get(`${cell.row - 1}:${cell.col}`),
+      keyMap.get(`${cell.row + 1}:${cell.col}`),
+      keyMap.get(`${cell.row}:${cell.col - 1}`),
+      keyMap.get(`${cell.row}:${cell.col + 1}`)
+    ];
+    const missing = neighbors.reduce((sum, neighbor) => sum + (neighbor ? 0 : 1), 0);
+    cell.perimeter = missing / 4;
+    const nx = invLerp(bounds.minX, bounds.maxX, cell.cx);
+    const ny = invLerp(bounds.minY, bounds.maxY, cell.cy);
+    cell.entryScore = 1 - ny;
+    cell.depthScore = ny;
+    const dist = Math.hypot((cell.cx - centerX) / Math.max(bounds.width, 1), (cell.cy - centerY) / Math.max(bounds.height, 1));
+    cell.centerScore = clamp(1 - dist * 1.4, 0, 1);
+  });
+
+  return {cells, keyMap, cellSize};
+}
+
+function renderPlan(plan, footprint, dna, targetGross, profile){
+  const footprintBounds = polygonBounds(footprint.points);
+  const pad = {x: PAD, y: PAD + 32};
+  const fit = fitBounds(footprintBounds, {
+    x: pad.x,
+    y: pad.y,
+    w: VIEW_W - pad.x * 2,
+    h: VIEW_H - pad.y * 2 - 30
+  });
+
+  const outlinePath = polygonToScreenPath(footprint.points, fit);
+  const voidPaths = (footprint.voids || []).map((voidPoly) => polygonToScreenPath(voidPoly, fit));
+  const placed = plan.placed.map((item) => ({
+    ...item,
+    sx: fit.x(item.x),
+    sy: fit.y(item.y),
+    sw: item.w * fit.k,
+    sh: item.h * fit.k,
+    scx: fit.x(item.centerX),
+    scy: fit.y(item.centerY)
+  }));
+
+  const titleX = fit.x(footprintBounds.minX);
+  const titleY = fit.y(footprintBounds.minY) - 18;
+  const entry = buildEntryMark(footprintBounds, fit);
+  const planSvg = [];
+  planSvg.push(`<text class="plan-title" x="${round(titleX, 1)}" y="${round(titleY, 1)}">Plan Shuffle</text>`);
+  planSvg.push(`<text class="plan-sub" x="${round(titleX, 1)}" y="${round(titleY + 16, 1)}">${escapeHtml(profile.name)} · ${formatNumber(targetGross)} GSF · ${escapeHtml(dna.label)}</text>`);
+  planSvg.push(`<path class="outline" d="${outlinePath}"></path>`);
+  voidPaths.forEach((path) => planSvg.push(`<path class="void" d="${path}"></path>`));
+  planSvg.push(`<path class="entry" d="${entry}"></path>`);
+
+  placed.forEach((item) => {
+    planSvg.push(`<rect class="room" x="${round(item.sx, 1)}" y="${round(item.sy, 1)}" width="${round(item.sw, 1)}" height="${round(item.sh, 1)}" rx="0" ry="0" fill="${item.fill}"></rect>`);
+    if(canLabel(item)){
+      planSvg.push(`<text class="room-label" text-anchor="middle" x="${round(item.scx, 1)}" y="${round(item.scy - 2, 1)}">${escapeHtml(labelName(item.block.baseName))}</text>`);
+      planSvg.push(`<text class="room-area" text-anchor="middle" x="${round(item.scx, 1)}" y="${round(item.scy + 12, 1)}">${Math.round(item.area)} sf</text>`);
+    }
+  });
+
+  els.planLayer.innerHTML = planSvg.join("");
+  els.overlayLayer.innerHTML = "";
+}
+
+function renderSketchOnly(){
+  els.planLayer.innerHTML = `
+    <text class="plan-title" x="72" y="72">Sketch Footprint</text>
+    <text class="plan-sub" x="72" y="88">Click to add points · double-click or press Enter to close shape</text>
+  `;
+  const overlay = [];
+  if(state.sketch.points.length){
+    const d = `M${state.sketch.points.map((point) => `${point.x},${point.y}`).join("L")}${state.sketch.closed ? "Z" : ""}`;
+    overlay.push(`<path class="ghost-outline" d="${d}"></path>`);
+    if(!state.sketch.closed){
+      overlay.push(`<path class="ghost-line" d="${d}"></path>`);
+    }
+    state.sketch.points.forEach((point, index) => {
+      overlay.push(`<circle class="ghost-point" cx="${point.x}" cy="${point.y}" r="5"></circle>`);
+      overlay.push(`<text class="overlay-note" x="${point.x + 10}" y="${point.y - 10}">P${index + 1}</text>`);
+    });
+  }else{
+    overlay.push(`<text class="overlay-note" x="72" y="${VIEW_H - 76}">Start anywhere inside the frame. Three points minimum.</text>`);
+  }
+  els.overlayLayer.innerHTML = overlay.join("");
+}
+
+function renderMetrics(plan, targetGross, profile){
+  const metrics = plan ? [
+    {k:"Blocks", v:String(plan.placed.length), s:"small shuffled program modules"},
+    {k:"Profile", v:profile.name, s:"auto-selected from target size"},
+    {k:"Fill", v:`${Math.round(plan.fillRatio * 100)}%`, s:"block area / footprint area"},
+    {k:"Daylight", v:`${Math.round(plan.daylightScore * 100)}%`, s:"perimeter-seeking tendency"},
+    {k:"Adjacency", v:`${Math.round(plan.adjacencyScore * 100)}%`, s:"relationship pull across anchors"},
+    {k:"Gross", v:`${formatCompact(targetGross)} SF`, s:"single-plan schematic target"}
+  ] : [
+    {k:"Blocks", v:"—", s:"draw a sketch or choose a preset"},
+    {k:"Profile", v:profile.name, s:"auto-selected from target size"},
+    {k:"Fill", v:"—", s:"waiting for a plan"},
+    {k:"Daylight", v:"—", s:"waiting for a plan"},
+    {k:"Adjacency", v:"—", s:"waiting for a plan"},
+    {k:"Gross", v:`${formatCompact(targetGross)} SF`, s:"single-plan schematic target"}
+  ];
+  els.metrics.innerHTML = metrics.map((metric) => `
+    <div class="metric">
+      <div class="k">${escapeHtml(metric.k)}</div>
+      <div class="v">${escapeHtml(metric.v)}</div>
+      <div class="s">${escapeHtml(metric.s)}</div>
+    </div>
+  `).join("");
+}
+
+function renderBlockList(families){
+  els.blockCount.textContent = `${families.length}`;
+  els.blockList.innerHTML = families.map((family) => `
+    <div class="list-row">
+      <div class="sw" style="background:${colorForCategory(family.category)}"></div>
+      <div>
+        <div class="n">${escapeHtml(labelName(family.name))}</div>
+        <div class="m">${escapeHtml(family.category)} · ${family.chunks} block${family.chunks === 1 ? "" : "s"}</div>
+      </div>
+      <div class="a">${Math.round(family.area)} sf</div>
+    </div>
+  `).join("");
+}
+
+function renderLegend(items){
+  els.legend.innerHTML = items.map((item) => `
+    <div class="legend-item">
+      <span class="sw" style="background:${item.fill};margin-top:0"></span>
+      <span>${escapeHtml(item.category)}</span>
+    </div>
+  `).join("");
+}
+
+function fitBounds(bounds, frame){
+  const w = Math.max(bounds.width, 1);
+  const h = Math.max(bounds.height, 1);
+  const k = Math.min(frame.w / w, frame.h / h);
+  const ox = frame.x + (frame.w - w * k) * 0.5 - bounds.minX * k;
+  const oy = frame.y + (frame.h - h * k) * 0.5 - bounds.minY * k;
+  return {
+    k,
+    x: (value) => ox + value * k,
+    y: (value) => oy + value * k
+  };
+}
+
+function buildEntryMark(bounds, fit){
+  const midX = (bounds.minX + bounds.maxX) * 0.5;
+  const y = fit.y(bounds.minY) - 10;
+  const x = fit.x(midX);
+  return `M${round(x - 12, 1)},${round(y, 1)}L${round(x, 1)},${round(y + 12, 1)}L${round(x + 12, 1)},${round(y, 1)}`;
+}
+
+function canLabel(item){
+  return item.block.labelPriority && item.sw > 70 && item.sh > 30;
+}
+
+function colorForCategory(category){
+  return CATEGORY_COLORS[category] || "#6f6f6f";
+}
+
+function labelName(name){
+  return String(name || "")
+    .replace(/\s*\(Typical\)\s*/gi, " ")
+    .replace(/\s+\b[A-Z]$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function relationWeight(relationship){
+  const rel = String(relationship || "").toLowerCase();
+  if(rel.includes("avoid") || rel.includes("separate")) return -0.8;
+  if(rel.includes("must") || rel.includes("direct")) return 1;
+  if(rel.includes("near") || rel.includes("should")) return 0.72;
+  if(rel.includes("vertical")) return 0.4;
+  return 0.3;
+}
+
+function inferPublicness(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/public|entry|lobby|retail|gallery|commons|visitor|worship|cafe|amenity/.test(source)) return 1;
+  if(/circulation|support|ops|storage|mep|loading/.test(source)) return 0.15;
+  return 0.35;
+}
+
+function inferPrivacy(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/room|residential|sleep|patient|office|admin|lab|faculty|staff|secure|classroom|clinical/.test(source)) return 0.8;
+  if(/public|entry|lobby|retail|cafe|gallery/.test(source)) return 0.12;
+  return 0.34;
+}
+
+function inferService(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/core|mep|service|support|storage|loading|ops|parking|mechanical|electrical/.test(source)) return 0.94;
+  if(/circulation|corridor|lobby|elevator|stair/.test(source)) return 0.74;
+  return 0.12;
+}
+
+function priorityValue(value){
+  const source = String(value || "").toLowerCase();
+  if(source.includes("high")) return 1;
+  if(source.includes("medium")) return 0.62;
+  if(source.includes("low")) return 0.28;
+  return 0.05;
+}
+
+function polygonPackage(points, voids, label){
+  const bounds = polygonBounds(points);
+  const cx = (bounds.minX + bounds.maxX) * 0.5;
+  const cy = (bounds.minY + bounds.maxY) * 0.5;
+  return {
+    label,
+    points: points.map(([x, y]) => [x - cx, y - cy]),
+    voids: (voids || []).map((poly) => poly.map(([x, y]) => [x - cx, y - cy]))
+  };
+}
+
+function scaleFootprintToArea(shape, targetArea){
+  const area = polygonArea(shape.points);
+  const scale = Math.sqrt(targetArea / Math.max(area, 0.0001));
+  const points = shape.points.map(([x, y]) => [x * scale, y * scale]);
+  const voids = (shape.voids || []).map((poly) => poly.map(([x, y]) => [x * scale, y * scale]));
+  return {
+    label: shape.label,
+    points,
+    voids
+  };
+}
+
+function rectPoints(width, height){
+  return [
+    [-width * 0.5, -height * 0.5],
+    [width * 0.5, -height * 0.5],
+    [width * 0.5, height * 0.5],
+    [-width * 0.5, height * 0.5]
+  ];
+}
+
+function polygonToScreenPath(points, fit){
+  return `M${points.map(([x, y]) => `${round(fit.x(x), 1)},${round(fit.y(y), 1)}`).join("L")}Z`;
+}
+
+function polygonArea(points){
+  let area = 0;
+  for(let i = 0; i < points.length; i += 1){
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[(i + 1) % points.length];
+    area += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(area) * 0.5;
+}
+
+function polygonBounds(points){
+  const bounds = points.reduce((acc, [x, y]) => ({
+    minX: Math.min(acc.minX, x),
+    maxX: Math.max(acc.maxX, x),
+    minY: Math.min(acc.minY, y),
+    maxY: Math.max(acc.maxY, y)
+  }), {minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity});
+  bounds.width = bounds.maxX - bounds.minX;
+  bounds.height = bounds.maxY - bounds.minY;
+  return bounds;
+}
+
+function pointInPolygon(x, y, polygon){
+  let inside = false;
+  for(let i = 0, j = polygon.length - 1; i < polygon.length; j = i++){
+    const xi = polygon[i][0];
+    const yi = polygon[i][1];
+    const xj = polygon[j][0];
+    const yj = polygon[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 0.00001) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function eventToViewPoint(event, svg){
+  const rect = svg.getBoundingClientRect();
+  if(!rect.width || !rect.height) return null;
+  return {
+    x: (event.clientX - rect.left) * (VIEW_W / rect.width),
+    y: (event.clientY - rect.top) * (VIEW_H / rect.height)
+  };
+}
+
+function presetLabel(value){
+  return ({
+    rectangle:"Rectangle",
+    bar:"Bar",
+    courtyard:"Courtyard",
+    lshape:"L-Shape",
+    corner:"Corner",
+    narrowdeep:"Narrow / Deep",
+    sketch:"Sketch"
+  })[value] || value;
+}
+
+function uniqueBy(items, key){
+  const map = new Map();
+  items.forEach((item) => {
+    if(!map.has(item[key])) map.set(item[key], item);
+  });
+  return [...map.values()];
+}
+
+function midpoint(range){
+  return Array.isArray(range) && range.length >= 2 ? (Number(range[0]) + Number(range[1])) * 0.5 : null;
+}
+
+function average(values){
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function formatNumber(value){
+  return new Intl.NumberFormat("en-US", {maximumFractionDigits:0}).format(Math.round(value));
+}
+
+function formatCompact(value){
+  if(value >= 1000000) return `${round(value / 1000000, 0.01)}M`;
+  if(value >= 1000) return `${round(value / 1000, 0.1)}k`;
+  return formatNumber(value);
+}
+
+function xmur3(str){
+  let h = 1779033703 ^ str.length;
+  for(let i = 0; i < str.length; i += 1){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  };
+}
+
+function mulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function seededValue(input){
+  return mulberry32(xmur3(input)())();
+}
+
+function clamp(value, min, max){
+  return Math.max(min, Math.min(max, value));
+}
+
+function lerp(a, b, t){
+  return a + (b - a) * t;
+}
+
+function invLerp(a, b, value){
+  if(a === b) return 0;
+  return clamp((value - a) / (b - a), 0, 1);
+}
+
+function round(value, step){
+  return Math.round(value / step) * step;
+}
+
+function snap(value, step){
+  return Math.round(value / step) * step;
+}
+
+function escapeHtml(value){
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeAttr(value){
+  return escapeHtml(value).replaceAll("'", "&#39;");
+}
+
+async function loadJSON(path){
+  const response = await fetch(path);
+  if(!response.ok) throw new Error(`${path} failed with status ${response.status}`);
+  return response.json();
+}
+</script>
+</body>
+</html>
