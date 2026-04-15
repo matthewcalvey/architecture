@@ -780,6 +780,312 @@
     .floor-removal-confirm .actions button.proceed:hover {
       filter: brightness(1.1);
     }
+
+    /* ============================================================
+       v1 — Phase 9. Weights + Program Inputs + Session Summary +
+       Export panels, plus A/B modal.
+       ============================================================ */
+    :root {
+      --calvey-warning: #C05050;
+    }
+
+    .weights-panel, .program-inputs-panel, .session-summary-panel, .export-panel {
+      padding: 16px;
+      border: 1px solid var(--calvey-rule);
+      background: white;
+      margin-bottom: 16px;
+    }
+
+    .weights-panel h3, .program-inputs-panel h3,
+    .session-summary-panel h3, .export-panel h3 {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--calvey-muted);
+      margin: 0 0 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--calvey-rule);
+    }
+
+    .weights-panel .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 48px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .weights-panel .slider-row input[type="range"] {
+      accent-color: var(--calvey-accent);
+      width: 100%;
+    }
+
+    .weights-panel .slider-row .slider-value {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--calvey-text);
+    }
+
+    .weights-panel .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0 0 0;
+      margin-top: 8px;
+      border-top: 1px solid var(--calvey-rule);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .weights-panel .total-row .total-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--calvey-text);
+      font-size: 14px;
+    }
+
+    .program-inputs-panel .input-row {
+      display: grid;
+      grid-template-columns: 1fr 100px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .program-inputs-panel input[type="number"] {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      text-align: right;
+      padding: 6px 10px;
+      border: 1px solid var(--calvey-rule);
+      background: var(--calvey-surface);
+    }
+
+    .program-inputs-panel .dirty-note {
+      font-size: 10px;
+      color: var(--calvey-muted);
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .session-summary-panel .chip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .session-summary-panel .summary-chip {
+      padding: 12px;
+      border: 1px solid var(--calvey-rule);
+      transition: background 0.15s;
+    }
+
+    .session-summary-panel .summary-chip:hover {
+      background: var(--calvey-surface);
+    }
+
+    .session-summary-panel .summary-chip .chip-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--calvey-muted);
+      margin-bottom: 4px;
+    }
+
+    .session-summary-panel .summary-chip .chip-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      color: var(--calvey-text);
+    }
+
+    .session-summary-panel .timeline {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--calvey-rule);
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .session-summary-panel .timeline-event {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 4px 0;
+      color: var(--calvey-text);
+    }
+
+    .session-summary-panel .timeline-event .event-time {
+      color: var(--calvey-muted);
+    }
+
+    .ab-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 20, 20, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .ab-modal {
+      background: white;
+      border: 1px solid var(--calvey-rule);
+      padding: 40px;
+      max-width: 900px;
+      width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .ab-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--calvey-rule);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--calvey-text);
+    }
+
+    .ab-modal-header button {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      background: none;
+      border: 1px solid var(--calvey-rule);
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .ab-modal-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .ab-modal-panel {
+      border: 1px solid var(--calvey-rule);
+      padding: 20px;
+    }
+
+    .ab-modal-panel h4 {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      margin: 0 0 16px 0;
+      color: var(--calvey-muted);
+    }
+
+    .ab-modal-panel .thumbnail {
+      width: 100%;
+      height: 220px;
+      background: var(--calvey-surface);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .ab-modal-panel .thumbnail svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .ab-modal-panel .metadata {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .ab-modal-panel .metadata .row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ab-modal-panel .metadata .label {
+      color: var(--calvey-muted);
+      text-transform: uppercase;
+    }
+
+    .ab-modal-panel .metadata .value {
+      color: var(--calvey-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ab-modal-panel button {
+      width: 100%;
+      min-height: 44px;
+      padding: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--calvey-accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .ab-modal-panel button.secondary {
+      background: white;
+      color: var(--calvey-text);
+      border: 1px solid var(--calvey-rule);
+    }
+
+    .ab-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 24px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--calvey-rule);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--calvey-muted);
+      text-transform: uppercase;
+    }
+
+    .export-panel button {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      margin-bottom: 8px;
+      padding: 12px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: white;
+      color: var(--calvey-text);
+      border: 1px solid var(--calvey-rule);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .export-panel button:hover:not(:disabled) {
+      background: var(--calvey-surface);
+    }
+
+    .export-panel button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -792,7 +1098,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.6.4-stepT3";
+    const ENGINE_VERSION = "1.0.0-v1";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -880,7 +1186,46 @@
           stale: false
         },
         warnings: [],
-        sessions: []
+        sessions: [],
+        // v1 — Phase 1. Confidence scoring scaffolding. weights default to the
+        // 5-way split the Stage D scorer uses; threshold controls the
+        // low_confidence chip + red-outline logic. total_score/floor_scores/
+        // room_scores are populated by Stage D.
+        confidence: {
+          weights: {
+            program_fit: 0.25,
+            daylight: 0.25,
+            adjacency: 0.15,
+            lock_preservation: 0.20,
+            circulation_quality: 0.15
+          },
+          threshold: 0.55,
+          total_score: null,
+          floor_scores: [],
+          room_scores: [],
+          below_threshold: false
+        },
+        // v1 — Phase 1. Program driver inputs. Kept in sync with
+        // context.program.program_inputs (which is what the engine has always
+        // read). UI writes to context.program.program_inputs; we copy here on
+        // generate so the bundle exporter and the spec-mandated root-level
+        // field both see the same data.
+        program_inputs: {},
+        // v1 — Phase 1. Typed event log per session.
+        session: {
+          id: null,
+          started_at: null,
+          ended_at: null,
+          events: [],
+          derived_signals: null,
+          ab_history: []
+        },
+        // v1 — Phase 1. A/B candidate pair (regenerate modal).
+        candidate_plans: {
+          current: null,
+          candidate: null,
+          diff_summary: null
+        }
       };
     }
 
@@ -1063,6 +1408,39 @@
         }
       }
 
+      // v1 — Phase 1 validator additions.
+      if (isPlainObject(p.confidence)) {
+        const cw = p.confidence.weights;
+        const cwKeys = ["program_fit","daylight","adjacency","lock_preservation","circulation_quality"];
+        if (isPlainObject(cw)) {
+          const allPresent = cwKeys.every(k => typeof cw[k] === "number");
+          if (!allPresent) {
+            warnings.push("confidence.weights missing one of program_fit/daylight/adjacency/lock_preservation/circulation_quality");
+          } else {
+            const sum = cwKeys.reduce((acc, k) => acc + Number(cw[k]), 0);
+            if (Math.abs(sum - 1.0) > 0.02) {
+              warnings.push("confidence.weights do not sum to 1.0 ± 0.02 (got " + sum.toFixed(3) + ")");
+            }
+          }
+        }
+        if (p.confidence.total_score !== null && p.confidence.total_score !== undefined) {
+          const ts = Number(p.confidence.total_score);
+          if (!Number.isFinite(ts) || ts < 0 || ts > 1) {
+            warnings.push("confidence.total_score out of [0,1]");
+          }
+        }
+      }
+      if (isPlainObject(p.session) && Array.isArray(p.session.events)) {
+        p.session.events.forEach((ev, i) => {
+          if (!isPlainObject(ev) ||
+              typeof ev.type !== "string" || !ev.type ||
+              typeof ev.timestamp !== "string" || !ev.timestamp ||
+              !("payload" in ev)) {
+            warnings.push("session.events[" + i + "] missing type/timestamp/payload");
+          }
+        });
+      }
+
       // Mirror structured project.warnings into the chip row so engine-raised
       // warnings (e.g., overflow) show up alongside validator warnings.
       if (Array.isArray(p.warnings)) {
@@ -1096,11 +1474,65 @@
       try {
         const raw = localStorage.getItem(LS_KEY);
         if (!raw) return null;
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        return upgradeProject(parsed);
       } catch (e) {
         console.debug("loadFromLocalStorage: parse error", e);
         return null;
       }
+    }
+
+    // v1 — Phase 1. Non-destructive upgrade of older projects so they gain
+    // the new confidence / session / candidate_plans / program_inputs fields
+    // with safe defaults. Existing data preserved.
+    function upgradeProject(p) {
+      if (!isPlainObject(p)) return p;
+      if (!isPlainObject(p.confidence)) {
+        p.confidence = {
+          weights: {
+            program_fit: 0.25,
+            daylight: 0.25,
+            adjacency: 0.15,
+            lock_preservation: 0.20,
+            circulation_quality: 0.15
+          },
+          threshold: 0.55,
+          total_score: null,
+          floor_scores: [],
+          room_scores: [],
+          below_threshold: false
+        };
+      } else {
+        if (!isPlainObject(p.confidence.weights)) {
+          p.confidence.weights = {
+            program_fit: 0.25,
+            daylight: 0.25,
+            adjacency: 0.15,
+            lock_preservation: 0.20,
+            circulation_quality: 0.15
+          };
+        }
+        if (typeof p.confidence.threshold !== "number") p.confidence.threshold = 0.55;
+        if (!("total_score" in p.confidence)) p.confidence.total_score = null;
+        if (!Array.isArray(p.confidence.floor_scores)) p.confidence.floor_scores = [];
+        if (!Array.isArray(p.confidence.room_scores)) p.confidence.room_scores = [];
+        if (!("below_threshold" in p.confidence)) p.confidence.below_threshold = false;
+      }
+      if (!isPlainObject(p.session)) {
+        p.session = {
+          id: null, started_at: null, ended_at: null,
+          events: [], derived_signals: null, ab_history: []
+        };
+      } else {
+        if (!Array.isArray(p.session.events)) p.session.events = [];
+        if (!Array.isArray(p.session.ab_history)) p.session.ab_history = [];
+        if (!("derived_signals" in p.session)) p.session.derived_signals = null;
+      }
+      if (!isPlainObject(p.candidate_plans)) {
+        p.candidate_plans = { current: null, candidate: null, diff_summary: null };
+      }
+      if (!isPlainObject(p.program_inputs)) p.program_inputs = {};
+      return p;
     }
 
     function saveToLocalStorage(project) {
@@ -1136,22 +1568,161 @@
             reject(new Error("Could not parse JSON: " + e.message));
             return;
           }
-          const v = validateProject(parsed);
+          const upgraded = upgradeProject(parsed);
+          const v = validateProject(upgraded);
           if (!v.ok) {
             reject(new Error("Invalid project file: " + v.errors.join("; ")));
             return;
           }
-          resolve(parsed);
+          resolve(upgraded);
         };
         reader.readAsText(file);
       });
     }
 
     // ============================================================
-    // SECTION 03 — SESSIONS  [Step 08 — TODO]
+    // SECTION 03 — SESSIONS (v1 — Phase 7)
+    // Typed event log, session start/end, derived signals.
     // ============================================================
 
-    // (empty — will be filled in Step 08)
+    const EVENT_TYPES = [
+      "SESSION_START",
+      "GENERATE",
+      "REGENERATE",
+      "LOCK",
+      "UNLOCK",
+      "DRAG_ROOM",
+      "REPROPORTION",
+      "CROSS_FLOOR_DRAG",
+      "REMOVE_LOCKED_FLOOR",
+      "SELECT_AB_VARIANT",
+      "WEIGHTS_CHANGED",
+      "PROGRAM_INPUTS_CHANGED",
+      "SESSION_END"
+    ];
+
+    function nowIso() { return new Date().toISOString(); }
+
+    // Mutates project.session.events.push with a typed event. Unknown types
+    // console.warn and no-op.
+    function logEvent(project, type, payload) {
+      if (!isPlainObject(project)) return project;
+      if (!EVENT_TYPES.includes(type)) {
+        console.warn("logEvent: unknown type", type);
+        return project;
+      }
+      if (!isPlainObject(project.session)) {
+        project.session = {
+          id: null, started_at: null, ended_at: null,
+          events: [], derived_signals: null, ab_history: []
+        };
+      }
+      if (!Array.isArray(project.session.events)) project.session.events = [];
+      project.session.events.push({
+        type,
+        timestamp: nowIso(),
+        payload: isPlainObject(payload) ? payload : {}
+      });
+      return project;
+    }
+
+    // Initialize a new session (new id, new event log). Does not clear plan.
+    function startSession(project) {
+      if (!isPlainObject(project)) return project;
+      const id = (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function")
+        ? crypto.randomUUID()
+        : ("s-" + Math.random().toString(36).slice(2, 10));
+      project.session = {
+        id,
+        started_at: nowIso(),
+        ended_at: null,
+        events: [{
+          type: "SESSION_START",
+          timestamp: nowIso(),
+          payload: {
+            project_id: project.project_id || null,
+            building_type: (project.context && project.context.program)
+              ? project.context.program.building_type : null
+          }
+        }],
+        derived_signals: null,
+        ab_history: Array.isArray(project.session && project.session.ab_history)
+          ? project.session.ab_history : []
+      };
+      return project;
+    }
+
+    function deriveSessionSignals(session) {
+      if (!isPlainObject(session)) return null;
+      const events = Array.isArray(session.events) ? session.events : [];
+      const typeCounts = {};
+      const lockReasons = {};
+      const floorActivity = {};
+      for (const ev of events) {
+        if (!isPlainObject(ev)) continue;
+        typeCounts[ev.type] = (typeCounts[ev.type] || 0) + 1;
+        if (ev.type === "LOCK" && ev.payload && ev.payload.reason) {
+          lockReasons[ev.payload.reason] = (lockReasons[ev.payload.reason] || 0) + 1;
+        }
+        const fl = ev.payload && (ev.payload.floor_level ??
+                                   ev.payload.from_floor ??
+                                   ev.payload.to_floor);
+        if (fl != null) {
+          floorActivity[fl] = (floorActivity[fl] || 0) + 1;
+        }
+      }
+      const duration_ms = (session.started_at && session.ended_at)
+        ? (new Date(session.ended_at).getTime() - new Date(session.started_at).getTime())
+        : null;
+      let abA = 0, abB = 0;
+      for (const ev of events) {
+        if (ev && ev.type === "SELECT_AB_VARIANT" && ev.payload) {
+          if (ev.payload.chosen === "A") abA++;
+          else if (ev.payload.chosen === "B") abB++;
+        }
+      }
+      let mostActive = null;
+      let mostCount = -1;
+      for (const [fl, c] of Object.entries(floorActivity)) {
+        if (c > mostCount) { mostCount = c; mostActive = fl; }
+      }
+      return {
+        duration_ms,
+        generate_count: typeCounts.GENERATE || 0,
+        regenerate_count: typeCounts.REGENERATE || 0,
+        lock_count: typeCounts.LOCK || 0,
+        unlock_count: typeCounts.UNLOCK || 0,
+        drag_count: typeCounts.DRAG_ROOM || 0,
+        cross_floor_move_count: typeCounts.CROSS_FLOOR_DRAG || 0,
+        reproportion_count: typeCounts.REPROPORTION || 0,
+        ab_a_count: abA,
+        ab_b_count: abB,
+        lock_reasons_breakdown: lockReasons,
+        most_active_floor: mostActive
+      };
+    }
+
+    function endSession(project) {
+      if (!isPlainObject(project) || !isPlainObject(project.session)) return project;
+      if (!project.session.started_at) return project;
+      project.session.ended_at = nowIso();
+      project.session.events.push({
+        type: "SESSION_END",
+        timestamp: nowIso(),
+        payload: {
+          duration_ms: project.session.started_at
+            ? (new Date(project.session.ended_at).getTime() -
+               new Date(project.session.started_at).getTime())
+            : null
+        }
+      });
+      const derived = deriveSessionSignals(project.session);
+      if (derived && isPlainObject(project.confidence)) {
+        derived.final_confidence = project.confidence.total_score;
+      }
+      project.session.derived_signals = derived;
+      return project;
+    }
 
     // ============================================================
     // SECTION 04 — ENGINE
@@ -1632,6 +2203,25 @@
         const deptName = toTitleCase(deptKey);
         const daylight = normalizeDaylightPriority(space.daylight_priority);
 
+        // v1 — Phase 2. Carry adjacency declarations through to the placed
+        // room so Stage C can read them without re-consulting the building
+        // type JSON. Normalize to [{ template_id, weight, relationship }].
+        const adjacenciesRaw = Array.isArray(space.adjacencies) ? space.adjacencies : [];
+        const adjacencies = adjacenciesRaw
+          .map(a => {
+            if (!isPlainObject(a)) return null;
+            const tid = a.space_id || a.template_id || a.id || null;
+            if (!tid) return null;
+            return {
+              template_id: String(tid),
+              weight: Number.isFinite(Number(a.weight)) ? Number(a.weight) : 0.5,
+              relationship: typeof a.relationship === "string" ? a.relationship : "near"
+            };
+          })
+          .filter(Boolean);
+        const departmentGroup = (typeof parti.department_group === "string")
+          ? parti.department_group.toLowerCase() : null;
+
         for (let k = 0; k < n; k++) {
           instances.push({
             // New (Step 04) canonical fields:
@@ -1669,7 +2259,12 @@
             actual_area_sf: 0,
             bounds: null,
             locked: false,
-            lock_reason: null
+            lock_reason: null,
+
+            // v1 — Phase 2. Adjacency declarations + department_group for
+            // Stage C / Stage D.
+            adjacencies,
+            department_group: departmentGroup
           });
         }
         digest.total_instances += n;
@@ -2272,7 +2867,18 @@
             centroid: [cx, cy],
             aspect_ratio: best.w / best.h,
             locked: false,
-            lock_reason: null
+            lock_reason: null,
+            // v1 — Phase 1. Populated by Stage C/D after placement.
+            adjacency_violations: [],
+            repair_reasons: [],
+            confidence: null,
+            confidence_subscores: null,
+            // v1 — Phase 2. Declared adjacency targets + department group
+            // so Stage C / Stage D can read them from the room directly.
+            adjacencies: Array.isArray(inst.room.adjacencies)
+              ? inst.room.adjacencies.map(a => ({ ...a })) : [],
+            department_group: typeof inst.room.department_group === "string"
+              ? inst.room.department_group : null
           });
         }
       }
@@ -2714,8 +3320,41 @@
       np.warnings = upsertOverflowWarning(np.warnings, programArea, capacity, floorCount);
       np.warnings = upsertUnplacedWarning(np.warnings, allUnplaced);
 
+      // v1 — Phase 2. Stage C: per-floor adjacency repair. Cascade depth 1,
+      // max 3 iterations, max 5 repairs per iteration.
+      for (const fl of newFloors) {
+        runStageC(fl);
+      }
+
+      // v1 — Phase 3. Stage D: per-room confidence scoring + totals.
+      if (!isPlainObject(np.confidence)) {
+        np.confidence = {
+          weights: {
+            program_fit: 0.25, daylight: 0.25, adjacency: 0.15,
+            lock_preservation: 0.20, circulation_quality: 0.15
+          },
+          threshold: 0.55, total_score: null,
+          floor_scores: [], room_scores: [], below_threshold: false
+        };
+      }
+      runStageD(np);
+
+      // v1 — Phase 3. Low-confidence chip (auto-clearing — managed by
+      // upsertLowConfidenceWarning).
+      np.warnings = upsertLowConfidenceWarning(
+        np.warnings, np.confidence.total_score, np.confidence.threshold);
+
+      // v1 — Phase 5. Mirror context.program.program_inputs to the root-level
+      // project.program_inputs alias on every generate so bundle/export and
+      // spec-mandated field stay in sync.
+      np.program_inputs = { ...(np.context.program.program_inputs || {}) };
+
       // Step 04 — clear stale flag; we've just regenerated.
       np.current_plan.stale = false;
+
+      // Inputs-dirty chip clears on every generate/regenerate.
+      np.warnings = (np.warnings || []).filter(
+        w => !(isPlainObject(w) && w.id === "inputs_dirty"));
 
       // updated_at is displayed in metadata and used by autosave timestamps.
       np.updated_at = new Date().toISOString();
@@ -2723,6 +3362,523 @@
       // this plan. (Old files loaded from disk keep their field otherwise.)
       np.engine_version = ENGINE_VERSION;
 
+      return np;
+    }
+
+    // v1 — Phase 3. Low-confidence chip (warning-level, auto-clears on next
+    // generate when score is above threshold).
+    function upsertLowConfidenceWarning(warnings, totalScore, threshold) {
+      const arr = Array.isArray(warnings) ? warnings.filter(
+        w => !(isPlainObject(w) && w.id === "low_confidence")) : [];
+      if (totalScore != null && Number.isFinite(totalScore) &&
+          threshold != null && totalScore < threshold) {
+        arr.push({
+          id: "low_confidence",
+          severity: "warning",
+          message: "Total confidence " + (totalScore * 100).toFixed(0) +
+            "% below " + (threshold * 100).toFixed(0) +
+            "% threshold — consider regenerating",
+          raised_at: new Date().toISOString()
+        });
+      }
+      return arr;
+    }
+
+    // ============================================================
+    // v1 — Phase 2. STAGE C: adjacency repair
+    // Local solver, cascade depth 1, max 3 iterations, 5 repairs/iteration.
+    // Mutates the floor's rooms in place (adjacency_violations + repair_reasons).
+    // ============================================================
+
+    function cellsCentroidCells(cells) {
+      if (!Array.isArray(cells) || cells.length === 0) return [0, 0];
+      let su = 0, sv = 0;
+      for (const [u, v] of cells) { su += u; sv += v; }
+      return [su / cells.length, sv / cells.length];
+    }
+
+    function minCellDistance(cellsA, cellsB) {
+      let best = Infinity;
+      for (const [ua, va] of cellsA) {
+        for (const [ub, vb] of cellsB) {
+          const d = Math.abs(ua - ub) + Math.abs(va - vb);
+          if (d < best) best = d;
+          if (best === 0) return 0;
+        }
+      }
+      return best === Infinity ? -1 : best;
+    }
+
+    function computeAdjacencyViolations(rooms) {
+      // Returns [{A, B, distance}] where A.adjacencies lists B.template_id and
+      // min cell distance > 2. Only pairs where both rooms are on this floor.
+      const violations = [];
+      const byTemplate = new Map();
+      for (const r of rooms) {
+        if (!isPlainObject(r)) continue;
+        const tid = r.template_id || r.type;
+        if (!tid) continue;
+        if (!byTemplate.has(tid)) byTemplate.set(tid, []);
+        byTemplate.get(tid).push(r);
+      }
+      for (const A of rooms) {
+        if (!isPlainObject(A) || !Array.isArray(A.adjacencies)) continue;
+        if (!Array.isArray(A.cells) || A.cells.length === 0) continue;
+        for (const decl of A.adjacencies) {
+          if (!isPlainObject(decl) || !decl.template_id) continue;
+          const candidates = byTemplate.get(decl.template_id) || [];
+          let bestTarget = null, bestDist = Infinity;
+          for (const B of candidates) {
+            if (B === A) continue;
+            if (!Array.isArray(B.cells) || B.cells.length === 0) continue;
+            const d = minCellDistance(A.cells, B.cells);
+            if (d >= 0 && d < bestDist) { bestDist = d; bestTarget = B; }
+          }
+          if (bestTarget && bestDist > 2) {
+            violations.push({ A, B: bestTarget, distance: bestDist, decl });
+          }
+        }
+      }
+      return violations;
+    }
+
+    function runStageC(floor) {
+      if (!isPlainObject(floor) || !Array.isArray(floor.rooms) ||
+          !isPlainObject(floor.grid)) return;
+      const rooms = floor.rooms;
+      if (rooms.length === 0) return;
+
+      // Reset per-run fields (leave repair_reasons populated across iters
+      // inside this run; cleared only at the start of a generate call).
+      for (const r of rooms) {
+        if (!isPlainObject(r)) continue;
+        r.adjacency_violations = [];
+        r.repair_reasons = [];
+      }
+
+      const maxIters = 3;
+      let repairsTotal = 0;
+      for (let iter = 0; iter < maxIters; iter++) {
+        const violations = computeAdjacencyViolations(rooms);
+        if (violations.length === 0) { repairsTotal; break; }
+        violations.sort((a, b) => b.distance - a.distance);
+        let repairedThisIter = 0;
+        for (const v of violations) {
+          if (repairedThisIter >= 5) break;
+          const C = findIntermediateRoom(v.A, v.B, rooms);
+          if (!C) continue;
+          if (C.locked) continue;
+          const newPos = findRelocationFor(C, floor, [v.A.cells, v.B.cells]);
+          if (!newPos) continue;
+          applyRelocation(C, newPos, floor);
+          (v.A.repair_reasons = v.A.repair_reasons || []).push({
+            iteration: iter,
+            action: "intermediate_displaced",
+            reason: "moved " + (C.instance_id || C.type) +
+                    " to improve " + (v.A.instance_id || v.A.type) +
+                    "↔" + (v.B.instance_id || v.B.type)
+          });
+          repairedThisIter++;
+        }
+        repairsTotal += repairedThisIter;
+        if (repairedThisIter === 0) break;
+      }
+
+      // Final violation pass: write to each room's adjacency_violations.
+      const finalViolations = computeAdjacencyViolations(rooms);
+      for (const v of finalViolations) {
+        (v.A.adjacency_violations = v.A.adjacency_violations || []).push({
+          other_room_id: v.B.instance_id,
+          declared_distance: 2,
+          actual_distance: v.distance
+        });
+      }
+      console.debug("Stage C: " + rooms.length + " rooms, " +
+        repairsTotal + " repairs applied, " + finalViolations.length +
+        " violations remaining");
+    }
+
+    // Returns an unlocked room (not A or B) whose centroid falls in the
+    // cell-space bbox of A ∪ B. null if none.
+    function findIntermediateRoom(A, B, rooms) {
+      const all = (A.cells || []).concat(B.cells || []);
+      if (all.length === 0) return null;
+      let umin = Infinity, umax = -Infinity, vmin = Infinity, vmax = -Infinity;
+      for (const [u, v] of all) {
+        if (u < umin) umin = u; if (u > umax) umax = u;
+        if (v < vmin) vmin = v; if (v > vmax) vmax = v;
+      }
+      for (const C of rooms) {
+        if (!isPlainObject(C) || C === A || C === B) continue;
+        if (C.locked) continue;
+        if (!Array.isArray(C.cells) || C.cells.length === 0) continue;
+        const [cu, cv] = cellsCentroidCells(C.cells);
+        if (cu >= umin && cu <= umax && cv >= vmin && cv <= vmax) return C;
+      }
+      return null;
+    }
+
+    // Find a contiguous cell set (same area as room.cells) within radius 5 of
+    // the room's centroid, inside its department region, not overlapping
+    // locked rooms or any of `avoidCellSets`, preserving aspect ratio ±30%.
+    function findRelocationFor(room, floor, avoidCellSets) {
+      if (!isPlainObject(room) || !Array.isArray(room.cells)) return null;
+      const grid = floor.grid;
+      const W = grid.width_cells, H = grid.height_cells;
+      const regions = Array.isArray(floor.department_regions)
+        ? floor.department_regions : [];
+      const region = regions.find(r => r && r.id === room.department_id);
+      if (!region || !Array.isArray(region.cells)) return null;
+
+      // Region cell lookup.
+      const regionSet = new Set();
+      for (const [u, v] of region.cells) regionSet.add(u + "," + v);
+
+      // Occupied cells = every other room's cells (+ locked rooms).
+      const occupied = new Set();
+      for (const r of (floor.rooms || [])) {
+        if (!isPlainObject(r) || r === room) continue;
+        if (!Array.isArray(r.cells)) continue;
+        for (const [u, v] of r.cells) occupied.add(u + "," + v);
+      }
+      // Avoid cells from the caller.
+      const avoid = new Set();
+      if (Array.isArray(avoidCellSets)) {
+        for (const set of avoidCellSets) {
+          if (!Array.isArray(set)) continue;
+          for (const [u, v] of set) avoid.add(u + "," + v);
+        }
+      }
+
+      const area = room.cells.length;
+      const bb = room.bbox_cells || { u_min: 0, u_max: 0, v_min: 0, v_max: 0 };
+      const w0 = bb.u_max - bb.u_min + 1;
+      const h0 = bb.v_max - bb.v_min + 1;
+      const aspect0 = (w0 >= h0) ? (w0 / h0) : (h0 / w0);
+
+      const [ccu, ccv] = cellsCentroidCells(room.cells);
+      const radius = 5;
+
+      // Generate candidate (w, h) pairs s.t. w*h ≈ area, aspect within ±30%.
+      const candidates = [];
+      for (let w = 1; w <= Math.min(W, area); w++) {
+        const h = Math.round(area / w);
+        if (h < 1 || h > H) continue;
+        if (w * h < area * 0.85 || w * h > area * 1.15) continue;
+        const ar = (w >= h) ? (w / h) : (h / w);
+        if (ar > aspect0 * 1.3 || ar < aspect0 * 0.7) continue;
+        candidates.push([w, h]);
+      }
+      if (candidates.length === 0) candidates.push([w0, h0]);
+
+      // Scan within radius 5 of centroid for a w×h block that satisfies all.
+      let best = null;
+      for (const [w, h] of candidates) {
+        for (let av = Math.max(0, Math.floor(ccv - radius));
+             av <= Math.min(H - h, Math.ceil(ccv + radius)); av++) {
+          for (let au = Math.max(0, Math.floor(ccu - radius));
+               au <= Math.min(W - w, Math.ceil(ccu + radius)); au++) {
+            let ok = true;
+            for (let dv = 0; dv < h && ok; dv++) {
+              for (let du = 0; du < w; du++) {
+                const u = au + du, v = av + dv;
+                const k = u + "," + v;
+                if (!regionSet.has(k)) { ok = false; break; }
+                if (occupied.has(k)) { ok = false; break; }
+                if (avoid.has(k)) { ok = false; break; }
+              }
+            }
+            if (!ok) continue;
+            const dist = Math.abs(au + w / 2 - ccu) +
+                         Math.abs(av + h / 2 - ccv);
+            if (!best || dist < best.dist) {
+              best = { au, av, w, h, dist };
+            }
+          }
+        }
+      }
+      if (!best) return null;
+      const newCells = [];
+      for (let dv = 0; dv < best.h; dv++) {
+        for (let du = 0; du < best.w; du++) {
+          newCells.push([best.au + du, best.av + dv]);
+        }
+      }
+      // Reject no-op moves (result === current cells).
+      const curKey = room.cells.map(c => c[0] + "," + c[1]).sort().join(";");
+      const newKey = newCells.map(c => c[0] + "," + c[1]).sort().join(";");
+      if (curKey === newKey) return null;
+      return {
+        cells: newCells,
+        bbox_cells: {
+          u_min: best.au, v_min: best.av,
+          u_max: best.au + best.w - 1, v_max: best.av + best.h - 1
+        }
+      };
+    }
+
+    function applyRelocation(room, newPos, floor) {
+      room.cells = newPos.cells;
+      room.bbox_cells = newPos.bbox_cells;
+      const grid = floor.grid;
+      if (isPlainObject(grid)) {
+        let cx = 0, cy = 0;
+        for (const [u, v] of room.cells) {
+          const [wx, wy] = cellCenter(grid, u, v);
+          cx += wx; cy += wy;
+        }
+        room.centroid = [cx / room.cells.length, cy / room.cells.length];
+        const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+        room.area_sf = room.cells.length * cellArea;
+        room.actual_area_sf = room.area_sf;
+        const bb = room.bbox_cells;
+        const w = bb.u_max - bb.u_min + 1;
+        const h = bb.v_max - bb.v_min + 1;
+        room.aspect_ratio = (h > 0) ? w / h : 1;
+      }
+    }
+
+    // ============================================================
+    // v1 — Phase 3. STAGE D: per-room confidence scoring (5 weights).
+    // ============================================================
+
+    // Distance from a cell (u, v) to the nearest boundary cell on the floor.
+    // Uses a simple Manhattan to the grid edge or any "outside" cell neighbor.
+    function cellDistanceToFacade(u, v, grid) {
+      if (!isPlainObject(grid)) return 0;
+      const W = grid.width_cells, H = grid.height_cells;
+      // Nearest grid edge (approx: distance to the 4 sides)
+      const dEdge = Math.min(u, v, W - 1 - u, H - 1 - v);
+      // Also: if there's an "outside" cell within the grid within some ring,
+      // count that distance.
+      const inside = grid.inside;
+      if (Array.isArray(inside)) {
+        for (let r = 0; r <= dEdge; r++) {
+          // Ring scan
+          for (let du = -r; du <= r; du++) {
+            const nu = u + du;
+            if (nu < 0 || nu >= W) continue;
+            const ringV = [v - r, v + r];
+            for (const nv of ringV) {
+              if (nv < 0 || nv >= H) continue;
+              if (!inside[nv] || !inside[nv][nu]) return r;
+            }
+          }
+          for (let dv = -r + 1; dv <= r - 1; dv++) {
+            const nv = v + dv;
+            if (nv < 0 || nv >= H) continue;
+            const ringU = [u - r, u + r];
+            for (const nu of ringU) {
+              if (nu < 0 || nu >= W) continue;
+              if (!inside[nv] || !inside[nv][nu]) return r;
+            }
+          }
+        }
+      }
+      return dEdge;
+    }
+
+    function scoreRoom(room, rooms, grid, prevCellsByInstance) {
+      const subscores = {
+        program_fit: 1,
+        daylight: 1,
+        adjacency: 1,
+        lock_preservation: 1,
+        circulation_quality: 1
+      };
+
+      if (!isPlainObject(room) || !Array.isArray(room.cells) ||
+          !isPlainObject(grid)) return subscores;
+
+      const cellArea = grid.cell_size_ft * grid.cell_size_ft;
+
+      // 1) program_fit: |actual - target| / target
+      const target = Number.isFinite(Number(room.target_area_sf)) &&
+                     Number(room.target_area_sf) > 0
+        ? Number(room.target_area_sf) / cellArea : room.cells.length;
+      const actual = room.cells.length;
+      subscores.program_fit = (target > 0)
+        ? Math.max(0, 1 - Math.min(1, Math.abs(actual - target) / target))
+        : 1;
+
+      // 2) daylight: distance to facade vs. priority target distance
+      let targetDist = 6;
+      switch (String(room.daylight_priority || "").toLowerCase()) {
+        case "high": targetDist = 0; break;
+        case "medium": targetDist = 2; break;
+        case "low": targetDist = 4; break;
+        default: targetDist = 6; break;
+      }
+      let minDist = Infinity;
+      for (const [u, v] of room.cells) {
+        const d = cellDistanceToFacade(u, v, grid);
+        if (d < minDist) minDist = d;
+      }
+      if (minDist === Infinity) minDist = 0;
+      subscores.daylight = Math.max(0, 1 - Math.min(1,
+        Math.abs(minDist - targetDist) / 6));
+
+      // 3) adjacency: declared vs. violations
+      const declared = Array.isArray(room.adjacencies) ? room.adjacencies.length : 0;
+      if (declared === 0) {
+        subscores.adjacency = 1.0;
+      } else {
+        const vios = Array.isArray(room.adjacency_violations)
+          ? room.adjacency_violations.length : 0;
+        subscores.adjacency = Math.max(0, (declared - vios) / declared);
+      }
+
+      // 4) lock_preservation
+      if (room.locked === true) {
+        // If the locked room moved since last snapshot, that's a violation.
+        if (prevCellsByInstance) {
+          const prev = prevCellsByInstance.get(room.instance_id);
+          if (Array.isArray(prev)) {
+            const a = prev.map(c => c[0] + "," + c[1]).sort().join(";");
+            const b = room.cells.map(c => c[0] + "," + c[1]).sort().join(";");
+            subscores.lock_preservation = (a === b) ? 1.0 : 0.0;
+          } else {
+            subscores.lock_preservation = 1.0;
+          }
+        } else {
+          subscores.lock_preservation = 1.0;
+        }
+      } else {
+        subscores.lock_preservation = 1.0;
+      }
+
+      // 5) circulation_quality
+      const isCirc = (typeof room.department_group === "string" &&
+                     room.department_group.toLowerCase() === "circulation") ||
+                     /corridor|circulation|lobby|stair/i.test(
+                       String(room.template_id || room.type || ""));
+      if (isCirc) {
+        const others = rooms.filter(r => r && r !== room && Array.isArray(r.cells));
+        if (others.length === 0) {
+          subscores.circulation_quality = 1.0;
+        } else {
+          let reachable = 0;
+          for (const o of others) {
+            const d = minCellDistance(room.cells, o.cells);
+            if (d >= 0 && d <= 8) reachable++;
+          }
+          subscores.circulation_quality = reachable / others.length;
+        }
+      } else {
+        const circRooms = rooms.filter(r => {
+          if (!isPlainObject(r) || r === room) return false;
+          const grp = (r.department_group || "").toLowerCase();
+          if (grp === "circulation") return true;
+          return /corridor|circulation|lobby|stair/i.test(
+            String(r.template_id || r.type || ""));
+        });
+        if (circRooms.length === 0) {
+          subscores.circulation_quality = 0.5;
+        } else {
+          let hasAccess = false;
+          for (const c of circRooms) {
+            if (!Array.isArray(c.cells) || c.cells.length === 0) continue;
+            const d = minCellDistance(room.cells, c.cells);
+            if (d >= 0 && d <= 4) { hasAccess = true; break; }
+          }
+          subscores.circulation_quality = hasAccess ? 1.0 : 0.5;
+        }
+      }
+
+      return subscores;
+    }
+
+    function weightedRoomScore(subscores, weights) {
+      if (!isPlainObject(subscores) || !isPlainObject(weights)) return 0;
+      const keys = ["program_fit","daylight","adjacency","lock_preservation","circulation_quality"];
+      // Normalize weights to sum 1.
+      let total = 0;
+      for (const k of keys) total += Number(weights[k]) || 0;
+      if (total <= 0) total = 1;
+      let s = 0;
+      for (const k of keys) {
+        const w = (Number(weights[k]) || 0) / total;
+        s += w * (Number(subscores[k]) || 0);
+      }
+      return Math.max(0, Math.min(1, s));
+    }
+
+    // Full pass: compute subscores + per-room confidence + floor scores + total.
+    // prevProject optional (for lock_preservation diffing).
+    function runStageD(project, prevProject) {
+      if (!isPlainObject(project) || !isPlainObject(project.current_plan)) return;
+      const weights = (isPlainObject(project.confidence) &&
+                       isPlainObject(project.confidence.weights))
+        ? project.confidence.weights
+        : { program_fit: 0.25, daylight: 0.25, adjacency: 0.15,
+            lock_preservation: 0.20, circulation_quality: 0.15 };
+
+      // Build previous-cells lookup for lock_preservation.
+      const prevCellsByInstance = new Map();
+      if (isPlainObject(prevProject) && isPlainObject(prevProject.current_plan) &&
+          Array.isArray(prevProject.current_plan.floors)) {
+        for (const fl of prevProject.current_plan.floors) {
+          if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) continue;
+          for (const r of fl.rooms) {
+            if (isPlainObject(r) && r.instance_id && Array.isArray(r.cells)) {
+              prevCellsByInstance.set(r.instance_id, r.cells.map(c => c.slice()));
+            }
+          }
+        }
+      }
+
+      const floorScores = [];
+      const roomScores = [];
+      const floors = Array.isArray(project.current_plan.floors)
+        ? project.current_plan.floors : [];
+
+      for (const fl of floors) {
+        if (!isPlainObject(fl) || !Array.isArray(fl.rooms) ||
+            !isPlainObject(fl.grid)) continue;
+        const rooms = fl.rooms;
+        let scoreSum = 0;
+        let scored = 0;
+        for (const r of rooms) {
+          if (!isPlainObject(r) || !Array.isArray(r.cells) ||
+              r.cells.length === 0) continue;
+          const subs = scoreRoom(r, rooms, fl.grid, prevCellsByInstance);
+          const score = weightedRoomScore(subs, weights);
+          r.confidence = score;
+          r.confidence_subscores = subs;
+          scoreSum += score;
+          scored++;
+          roomScores.push({
+            floor_level: fl.level,
+            room_id: r.instance_id,
+            score,
+            subscores: { ...subs },
+            reasons: []
+          });
+        }
+        const floorScore = scored > 0 ? scoreSum / scored : 0;
+        floorScores.push({ level: fl.level, score: floorScore });
+      }
+
+      const totalScore = floorScores.length > 0
+        ? floorScores.reduce((a, x) => a + x.score, 0) / floorScores.length
+        : null;
+
+      project.confidence.total_score = totalScore;
+      project.confidence.floor_scores = floorScores;
+      project.confidence.room_scores = roomScores;
+      project.confidence.below_threshold =
+        (totalScore != null && totalScore < (project.confidence.threshold || 0.55));
+    }
+
+    // v1 — Phase 3. Recompute scores with current weights WITHOUT re-running
+    // Stage A/B/C. Used by the weight sliders so dragging updates the total
+    // score instantly.
+    function recomputeScoresOnly(project) {
+      if (!isPlainObject(project)) return project;
+      const np = cloneProject(project);
+      runStageD(np);
+      np.warnings = upsertLowConfidenceWarning(
+        np.warnings, np.confidence.total_score, np.confidence.threshold);
       return np;
     }
 
@@ -4164,7 +5320,7 @@
       );
     }
 
-    function FootprintCanvas({ project, setProject, programDb }) {
+    function FootprintCanvas({ project, setProject, programDb, onRegenerate }) {
       const polygon =
         (project && project.context && project.context.footprint &&
          Array.isArray(project.context.footprint.polygon))
@@ -4536,12 +5692,20 @@
             Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
           // Step 07 — search every floor for the room (chip target may be on
           // any visible floor; the active floor is just where the chip opened).
-          for (const fl of floors) {
+          for (let fi = 0; fi < floors.length; fi++) {
+            const fl = floors[fi];
             if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) continue;
             const idx = fl.rooms.findIndex(r => r && r.instance_id === roomId);
             if (idx < 0) continue;
-            fl.rooms[idx] = { ...fl.rooms[idx], locked: true, lock_reason: reason };
+            const room = fl.rooms[idx];
+            fl.rooms[idx] = { ...room, locked: true, lock_reason: reason };
             np.updated_at = new Date().toISOString();
+            logEvent(np, "LOCK", {
+              room_id: roomId,
+              room_name: room.display_name || room.type || roomId,
+              floor_level: fl.level != null ? fl.level : (fi + 1),
+              reason
+            });
             return np;
           }
           return p;
@@ -4557,12 +5721,19 @@
           const np = cloneProject(p);
           const floors = isPlainObject(np.current_plan) &&
             Array.isArray(np.current_plan.floors) ? np.current_plan.floors : [];
-          for (const fl of floors) {
+          for (let fi = 0; fi < floors.length; fi++) {
+            const fl = floors[fi];
             if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) continue;
             const idx = fl.rooms.findIndex(r => r && r.instance_id === roomId);
             if (idx < 0) continue;
-            fl.rooms[idx] = { ...fl.rooms[idx], locked: false, lock_reason: null };
+            const room = fl.rooms[idx];
+            fl.rooms[idx] = { ...room, locked: false, lock_reason: null };
             np.updated_at = new Date().toISOString();
+            logEvent(np, "UNLOCK", {
+              room_id: roomId,
+              room_name: room.display_name || room.type || roomId,
+              floor_level: fl.level != null ? fl.level : (fi + 1)
+            });
             return np;
           }
           return p;
@@ -4825,12 +5996,20 @@
           if (!isPlainObject(fl) || !Array.isArray(fl.rooms)) return p;
           const grid = fl.grid;
           if (!isPlainObject(grid)) return p;
+          const touchedIds = [];
           for (let i = 0; i < fl.rooms.length; i++) {
             const r = fl.rooms[i];
             if (!r || !ghostRooms[r.instance_id]) continue;
             fl.rooms[i] = rebuildRoomGeometry(r, ghostRooms[r.instance_id].cells, grid);
+            touchedIds.push(r.instance_id);
           }
           np.updated_at = new Date().toISOString();
+          logEvent(np, "REPROPORTION", {
+            room_ids: touchedIds,
+            axis: null,
+            delta_cells: cellOffset,
+            floor_level: fIdx + 1
+          });
           return np;
         });
       }
@@ -5389,7 +6568,15 @@
             if (dropTileIdx !== activeIdxNow) {
               setProject(p => {
                 const result = crossFloorMove(p, roomId, dropTileIdx);
-                if (result && result.ok) return result.project;
+                if (result && result.ok) {
+                  const np = result.project;
+                  logEvent(np, "CROSS_FLOOR_DRAG", {
+                    room_id: roomId,
+                    from_floor: activeIdxNow + 1,
+                    to_floor: dropTileIdx + 1
+                  });
+                  return np;
+                }
                 showReject(result && result.reason ? result.reason : "cross_floor_failed");
                 return p;
               });
@@ -5411,7 +6598,36 @@
           setProject(p => {
             const result = localReflow(p, roomId, ghostCells,
               { radius: 4, cascadeDepth: 1 });
-            if (result && result.ok) return result.project;
+            if (result && result.ok) {
+              // v1 — Phase 7. Log DRAG_ROOM on successful commit.
+              const np = result.project;
+              const fromCentroidCells = (() => {
+                let su = 0, sv = 0;
+                for (const [u, v] of startCells) { su += u; sv += v; }
+                return startCells.length > 0
+                  ? [su / startCells.length, sv / startCells.length] : [0, 0];
+              })();
+              const toCentroidCells = (() => {
+                let su = 0, sv = 0;
+                for (const [u, v] of ghostCells) { su += u; sv += v; }
+                return ghostCells.length > 0
+                  ? [su / ghostCells.length, sv / ghostCells.length] : [0, 0];
+              })();
+              const distance = Math.hypot(
+                toCentroidCells[0] - fromCentroidCells[0],
+                toCentroidCells[1] - fromCentroidCells[1]);
+              const activeIdxNow = (np.current_plan &&
+                Number.isFinite(Number(np.current_plan.active_floor_index)))
+                ? Math.floor(Number(np.current_plan.active_floor_index)) : 0;
+              logEvent(np, "DRAG_ROOM", {
+                room_id: roomId,
+                floor_level: activeIdxNow + 1,
+                from_centroid: fromCentroidCells,
+                to_centroid: toCentroidCells,
+                distance_cells: distance
+              });
+              return np;
+            }
             showReject(result && result.reason ? result.reason : "invalid_drop");
             return p;
           });
@@ -5544,10 +6760,22 @@
         if (!canGenerate) return;
         setIsGenerating(true);
         setGenerateError(null);
+        const startedAt = Date.now();
         try {
           const btName = project.context.program.building_type;
           const btJson = await fetchBuildingTypeJson(btName);
           const newProject = generatePlan(project, btJson);
+          // v1 — Phase 7. Log GENERATE event with summary payload.
+          const totalRooms = (newProject.current_plan.floors || [])
+            .reduce((acc, f) => acc +
+              (Array.isArray(f.rooms) ? f.rooms.length : 0), 0);
+          logEvent(newProject, "GENERATE", {
+            building_type: btName,
+            total_rooms: totalRooms,
+            confidence: newProject.confidence
+              ? newProject.confidence.total_score : null,
+            duration_ms: Date.now() - startedAt
+          });
           setProject(newProject);
         } catch (err) {
           console.error("generate failed:", err);
@@ -5933,10 +7161,29 @@
             );
           }
 
+          // v1 — Phase 3. Red dashed outline for low-confidence rooms.
+          let lowConfOutlineEl = null;
+          if (typeof room.confidence === "number" && room.confidence < 0.40 &&
+              room.bbox_cells) {
+            const bb = room.bbox_cells;
+            const [bx0, by0] = cornerScreen(bb.u_min, bb.v_min);
+            const [bx1, by1] = cornerScreen(bb.u_max + 1, bb.v_max + 1);
+            const lx = Math.min(bx0, bx1), ly = Math.min(by0, by1);
+            const lw = Math.abs(bx1 - bx0), lh = Math.abs(by1 - by0);
+            lowConfOutlineEl = (
+              <rect key="lowconf" x={lx + 1} y={ly + 1}
+                    width={Math.max(0, lw - 2)} height={Math.max(0, lh - 2)}
+                    fill="none" stroke="#C05050" strokeWidth="1.5"
+                    strokeDasharray="4 2"
+                    style={{ pointerEvents: "none" }} />
+            );
+          }
+
           return (
             <g key={"room-" + room.instance_id + "-" + ri}>
               {rects}
               {edges}
+              {lowConfOutlineEl}
               {lockGlyphEl}
               {labelEl}
               {hitEl}
@@ -6259,7 +7506,18 @@
               !Array.isArray(np.current_plan.floors)) return p;
           const oldFc = np.current_plan.floors.length;
           if (oldFc <= 1) return p;
+          const topFloor = np.current_plan.floors[np.current_plan.floors.length - 1];
+          const topRooms = (isPlainObject(topFloor) && Array.isArray(topFloor.rooms))
+            ? topFloor.rooms : [];
+          const hadLocks = topRooms.some(r => isPlainObject(r) && r.locked === true);
           np.current_plan.floors.pop();
+          if (hadLocks) {
+            logEvent(np, "REMOVE_LOCKED_FLOOR", {
+              floor_level: topFloor && topFloor.level != null
+                ? topFloor.level : oldFc,
+              room_count: topRooms.length
+            });
+          }
           const newFc = np.current_plan.floors.length;
           if (Number(np.current_plan.active_floor_index) >= newFc) {
             np.current_plan.active_floor_index = newFc - 1;
@@ -6446,6 +7704,16 @@
             <div style={{ marginTop: 8 }}>
               <button type="button" onClick={handleGenerate} disabled={!canGenerate}>
                 {isGenerating ? "GENERATING…" : "GENERATE"}
+              </button>
+              <button type="button"
+                      onClick={() => onRegenerate && onRegenerate()}
+                      disabled={!onRegenerate || !canGenerate ||
+                        !(project && project.current_plan &&
+                          Array.isArray(project.current_plan.floors) &&
+                          project.current_plan.floors.some(f =>
+                            Array.isArray(f.rooms) && f.rooms.length > 0))}
+                      title="Regenerate with current weights + inputs + locks (opens A/B modal)">
+                REGENERATE
               </button>
               <button type="button" onClick={handleReseedClick} disabled={!canGenerate}
                       title="Clear program_inputs and regenerate from subtypes[0]">
@@ -6646,10 +7914,417 @@
     }
 
     // ============================================================
-    // SECTION 06 — EXPORTERS  [Step 09 — TODO]
+    // SECTION 06 — EXPORTERS (v1 — Phase 8)
+    // JSON, SVG, PDF, training bundle.
     // ============================================================
 
-    // (empty — will be filled in Step 09)
+    function slugifyBuildingType(bt) {
+      return (bt || "project").toString().toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    }
+
+    function todayStamp() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function exportProjectJson(project) {
+      const btSlug = slugifyBuildingType(
+        project && project.context && project.context.program
+          ? project.context.program.building_type : "project");
+      const filename = "CALVEY_PARTY_" + btSlug + "_" + todayStamp() + ".json";
+      const blob = new Blob([JSON.stringify(project, null, 2)],
+        { type: "application/json" });
+      downloadBlob(blob, filename);
+    }
+
+    // Build the raw SVG text for a plan. Uses real world→SVG feet→pixel scale
+    // (1 ft → 2 px). Accepts an optional `floorIndex` to render just one floor
+    // (used by the A/B modal thumbnails).
+    function buildPlanSvg(project, options) {
+      const opts = isPlainObject(options) ? options : {};
+      const ptsPerFt = Number.isFinite(opts.ptsPerFt) ? opts.ptsPerFt : 2;
+      const padding = Number.isFinite(opts.padding) ? opts.padding : 40;
+      const titleBlockH = opts.omitTitle ? 0 : 120;
+      const floors = (project && project.current_plan &&
+                      Array.isArray(project.current_plan.floors))
+        ? project.current_plan.floors : [];
+      const polygon = (project && project.context && project.context.footprint &&
+                       Array.isArray(project.context.footprint.polygon))
+        ? project.context.footprint.polygon : [];
+      if (polygon.length < 3 || floors.length === 0) {
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="40">' +
+               '<text x="8" y="24" font-family="monospace" font-size="11">No plan</text></svg>';
+      }
+      const bnds = (function () {
+        let mnx = Infinity, mny = Infinity, mxx = -Infinity, mxy = -Infinity;
+        for (const [x, y] of polygon) {
+          if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+          if (x < mnx) mnx = x; if (x > mxx) mxx = x;
+          if (y < mny) mny = y; if (y > mxy) mxy = y;
+        }
+        return { mnx, mny, mxx, mxy };
+      })();
+      const wFt = bnds.mxx - bnds.mnx;
+      const hFt = bnds.mxy - bnds.mny;
+      const floorW = wFt * ptsPerFt;
+      const floorH = hFt * ptsPerFt;
+      const spacing = 40;
+
+      let floorIndexes = Array.from({ length: floors.length }, (_, i) => i);
+      if (Number.isInteger(opts.floorIndex)) floorIndexes = [opts.floorIndex];
+
+      const rowH = floorH + spacing + 60; // floor body + label + scale bar
+      const totalH = titleBlockH + padding + (rowH * floorIndexes.length) + padding;
+      const totalW = floorW + padding * 2;
+
+      function worldToSvg(x, y, yOffset) {
+        const sx = (x - bnds.mnx) * ptsPerFt;
+        // Y flip — world Y up, SVG Y down.
+        const sy = (bnds.mxy - y) * ptsPerFt;
+        return [sx, sy + yOffset];
+      }
+
+      const buildingType = project.context.program.building_type || "—";
+      const confidence = (project.confidence && project.confidence.total_score != null)
+        ? project.confidence.total_score.toFixed(2) : "—";
+
+      const parts = [];
+      parts.push('<svg xmlns="http://www.w3.org/2000/svg" width="' +
+        totalW.toFixed(1) + '" height="' + totalH.toFixed(1) + '">');
+      parts.push('<defs><style>' +
+        'text{font-family:\'Cormorant Garamond\',Georgia,serif;fill:#1A1A1A;}' +
+        '.label{font-family:\'Space Mono\',monospace;font-size:9px;}' +
+        '</style></defs>');
+
+      if (!opts.omitTitle) {
+        parts.push('<g transform="translate(' + padding + ',' + padding + ')">');
+        parts.push('<text x="0" y="0" font-size="24">CALVEY FORM / PARTY</text>');
+        parts.push('<text x="0" y="28" font-size="14">' +
+          escapeXml(buildingType) + '</text>');
+        parts.push('<text x="0" y="46" font-size="11" fill="#888">' +
+          escapeXml(todayStamp() + " · confidence " + confidence) +
+          '</text>');
+        parts.push('</g>');
+      }
+
+      const palette = { fill: ["#E6E2D6","#D6DFE6","#E6D6DA","#D6E6DB","#DFD6E6","#E6E0D6","#D6E1E6"] };
+
+      for (let i = 0; i < floorIndexes.length; i++) {
+        const fi = floorIndexes[i];
+        const fl = floors[fi];
+        if (!isPlainObject(fl)) continue;
+        const yOffset = titleBlockH + padding + i * rowH;
+        parts.push('<g transform="translate(' + padding + ',' +
+          yOffset + ')">');
+        if (!opts.omitLabels) {
+          parts.push('<text x="0" y="-8" class="label" font-size="10">FLOOR ' +
+            (fl.level || (fi + 1)) + '</text>');
+        }
+        // Outline polygon
+        parts.push('<polygon points="' + polygon.map(p => {
+          const [sx, sy] = worldToSvg(p[0], p[1], 0);
+          return sx.toFixed(1) + "," + sy.toFixed(1);
+        }).join(" ") + '" fill="#F9F9F4" stroke="#1A1A1A" stroke-width="2" />');
+
+        // Department regions
+        const regions = Array.isArray(fl.department_regions)
+          ? fl.department_regions : [];
+        const grid = fl.grid;
+        if (isPlainObject(grid) && regions.length > 0) {
+          const cs = grid.cell_size_ft;
+          regions.forEach((reg, ri) => {
+            if (!Array.isArray(reg.cells)) return;
+            const c = palette.fill[ri % palette.fill.length];
+            const cellRects = reg.cells.map(([u, v]) => {
+              const wx = grid.origin_x + u * cs;
+              const wy = grid.origin_y + v * cs;
+              const [sx0, sy0] = worldToSvg(wx, wy + cs, 0);
+              const [sx1, sy1] = worldToSvg(wx + cs, wy, 0);
+              const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+              const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+              return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) +
+                '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) +
+                '" fill="' + c + '" fill-opacity="0.5" />';
+            });
+            parts.push(cellRects.join(""));
+          });
+        }
+
+        // Rooms
+        const rooms = Array.isArray(fl.rooms) ? fl.rooms : [];
+        for (const r of rooms) {
+          if (!isPlainObject(r) || !Array.isArray(r.cells) || !r.bbox_cells ||
+              !isPlainObject(grid)) continue;
+          const cs = grid.cell_size_ft;
+          const bb = r.bbox_cells;
+          const wx = grid.origin_x + bb.u_min * cs;
+          const wy = grid.origin_y + bb.v_min * cs;
+          const [sx0, sy0] = worldToSvg(wx, wy + (bb.v_max - bb.v_min + 1) * cs, 0);
+          const [sx1, sy1] = worldToSvg(wx + (bb.u_max - bb.u_min + 1) * cs, wy, 0);
+          const x = Math.min(sx0, sx1), y = Math.min(sy0, sy1);
+          const w = Math.abs(sx1 - sx0), h = Math.abs(sy1 - sy0);
+          parts.push('<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) +
+            '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) +
+            '" fill="rgba(0,0,0,0.05)" stroke="#1A1A1A" stroke-width="0.75" />');
+          if (!opts.omitLabels && w > 40 && h > 14) {
+            const label = (r.display_name || r.type || "").toString().toUpperCase();
+            parts.push('<text x="' + (x + w / 2).toFixed(1) +
+              '" y="' + (y + h / 2 + 3).toFixed(1) +
+              '" text-anchor="middle" class="label">' +
+              escapeXml(label.slice(0, 24)) + '</text>');
+          }
+        }
+
+        // Scale bar
+        if (!opts.omitLabels) {
+          const sb100 = 100 * ptsPerFt;
+          const sby = floorH + 20;
+          parts.push('<line x1="0" y1="' + sby + '" x2="' + sb100 +
+            '" y2="' + sby + '" stroke="#1A1A1A" stroke-width="1" />');
+          parts.push('<text x="0" y="' + (sby + 14) +
+            '" class="label">100 ft</text>');
+        }
+
+        parts.push('</g>');
+      }
+
+      parts.push('</svg>');
+      return parts.join("\n");
+    }
+
+    function escapeXml(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function exportPlanSvg(project) {
+      const btSlug = slugifyBuildingType(
+        project && project.context && project.context.program
+          ? project.context.program.building_type : "project");
+      const filename = "CALVEY_PARTY_" + btSlug + "_" + todayStamp() + ".svg";
+      const svg = buildPlanSvg(project);
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      downloadBlob(blob, filename);
+    }
+
+    // Rasterize an SVG string to a PNG data URL. Returns Promise<dataUrl>.
+    function svgToPngDataUrl(svgText, widthPx, heightPx, scale) {
+      return new Promise((resolve, reject) => {
+        const dpr = Math.max(1, Math.min(scale || 2, 3));
+        const img = new Image();
+        const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(widthPx * dpr));
+            canvas.height = Math.max(1, Math.round(heightPx * dpr));
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL("image/png"));
+          } catch (e) { reject(e); }
+        };
+        img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+        img.src = url;
+      });
+    }
+
+    // Lazy load jsPDF from CDN. Returns Promise<jsPDF constructor>.
+    let __jspdfLoadPromise = null;
+    function loadJsPdf() {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        return Promise.resolve(window.jspdf.jsPDF);
+      }
+      if (__jspdfLoadPromise) return __jspdfLoadPromise;
+      __jspdfLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.onload = () => {
+          if (window.jspdf && window.jspdf.jsPDF) resolve(window.jspdf.jsPDF);
+          else reject(new Error("jsPDF loaded but constructor missing"));
+        };
+        script.onerror = () => reject(new Error("Failed to load jsPDF"));
+        document.head.appendChild(script);
+      });
+      return __jspdfLoadPromise;
+    }
+
+    async function exportPlanPdf(project) {
+      const jsPDF = await loadJsPdf();
+      const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 40;
+
+      const buildingType = (project.context && project.context.program)
+        ? (project.context.program.building_type || "—") : "—";
+      const conf = (project.confidence && project.confidence.total_score != null)
+        ? project.confidence.total_score : null;
+      const floors = (project.current_plan && Array.isArray(project.current_plan.floors))
+        ? project.current_plan.floors : [];
+
+      // --- Title page ---
+      doc.setFont("times", "normal");
+      doc.setFontSize(32);
+      doc.text("CALVEY FORM / PARTY", margin, margin + 40);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(11);
+      doc.text(String(buildingType), margin, margin + 70);
+      doc.text(todayStamp(), margin, margin + 86);
+      doc.setFont("times", "normal");
+      doc.setFontSize(24);
+      doc.text("Confidence: " + (conf != null ? (conf * 100).toFixed(0) + "%" : "—"),
+        margin, margin + 160);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(10);
+      const rooms = floors.reduce((acc, f) => acc +
+        (Array.isArray(f.rooms) ? f.rooms.length : 0), 0);
+      doc.text("Floors: " + floors.length, margin, margin + 200);
+      doc.text("Rooms placed: " + rooms, margin, margin + 214);
+
+      // --- Floor pages ---
+      for (let i = 0; i < floors.length; i++) {
+        doc.addPage();
+        doc.setFont("courier", "normal");
+        doc.setFontSize(12);
+        doc.text("FLOOR " + (floors[i].level || (i + 1)), margin, margin + 14);
+        try {
+          const svg = buildPlanSvg(project, {
+            omitTitle: true, floorIndex: i, ptsPerFt: 2
+          });
+          // Try to fit the rasterized SVG inside the page area below the header.
+          const availW = pageW - margin * 2;
+          const availH = pageH - margin * 2 - 30;
+          const dataUrl = await svgToPngDataUrl(svg, availW, availH, 2);
+          doc.addImage(dataUrl, "PNG", margin, margin + 30, availW, availH);
+        } catch (e) {
+          console.warn("PDF: floor raster failed", e);
+          doc.setFontSize(10);
+          doc.text("(Floor rasterization failed)", margin, margin + 60);
+        }
+      }
+
+      // --- Confidence report ---
+      doc.addPage();
+      doc.setFont("courier", "normal");
+      doc.setFontSize(12);
+      doc.text("CONFIDENCE REPORT", margin, margin + 14);
+      doc.setFontSize(10);
+      let y = margin + 40;
+      const weights = (project.confidence && project.confidence.weights) || {};
+      doc.text("Weights:", margin, y); y += 14;
+      for (const k of ["program_fit","daylight","adjacency","lock_preservation","circulation_quality"]) {
+        doc.text("  " + k + ": " + (Number(weights[k]) || 0).toFixed(2), margin, y);
+        y += 12;
+      }
+      y += 8;
+      doc.text("Per-floor scores:", margin, y); y += 14;
+      const fs = (project.confidence && project.confidence.floor_scores) || [];
+      for (const f of fs) {
+        doc.text("  Floor " + f.level + ": " +
+          (f.score != null ? (f.score * 100).toFixed(0) + "%" : "—"),
+          margin, y);
+        y += 12;
+      }
+      y += 8;
+      const rs = (project.confidence && project.confidence.room_scores) || [];
+      const sorted = rs.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+      doc.text("Top 10 rooms:", margin, y); y += 14;
+      for (const r of sorted.slice(0, 10)) {
+        doc.text("  " + (r.room_id || "") + " — " +
+          (r.score != null ? (r.score * 100).toFixed(0) + "%" : "—"),
+          margin, y);
+        y += 11;
+        if (y > pageH - margin) { doc.addPage(); y = margin + 14; }
+      }
+      y += 8;
+      doc.text("Bottom 10 rooms:", margin, y); y += 14;
+      for (const r of sorted.slice(-10).reverse()) {
+        doc.text("  " + (r.room_id || "") + " — " +
+          (r.score != null ? (r.score * 100).toFixed(0) + "%" : "—"),
+          margin, y);
+        y += 11;
+        if (y > pageH - margin) { doc.addPage(); y = margin + 14; }
+      }
+
+      const btSlug = slugifyBuildingType(buildingType);
+      doc.save("CALVEY_PARTY_" + btSlug + "_" + todayStamp() + ".pdf");
+    }
+
+    function exportTrainingBundle(project) {
+      // Assemble the structured-decisions bundle.
+      const session = isPlainObject(project.session) ? project.session : {
+        events: [], ab_history: [], derived_signals: null
+      };
+      const lockReasonsLog = [];
+      for (const ev of (session.events || [])) {
+        if (ev && ev.type === "LOCK") {
+          lockReasonsLog.push({
+            room_id: ev.payload && ev.payload.room_id,
+            room_name: ev.payload && ev.payload.room_name,
+            reason: ev.payload && ev.payload.reason,
+            locked_at: ev.timestamp
+          });
+        }
+      }
+      const regenDiffs = [];
+      for (const ev of (session.events || [])) {
+        if (ev && ev.type === "REGENERATE") {
+          regenDiffs.push({
+            timestamp: ev.timestamp,
+            confidence_before: ev.payload && ev.payload.confidence_before,
+            confidence_after: ev.payload && ev.payload.confidence_after,
+            rooms_moved: null,
+            chosen_variant: null
+          });
+        }
+      }
+      for (const ab of (session.ab_history || [])) {
+        // Merge chosen_variant into the nearest REGENERATE diff.
+        if (!regenDiffs.length) break;
+        const last = regenDiffs[regenDiffs.length - 1];
+        if (!last.chosen_variant) {
+          last.chosen_variant = ab.chosen;
+          last.rooms_moved = (ab.delta && ab.delta.rooms_moved) || null;
+        }
+      }
+      const bundle = {
+        bundle_version: "1.0",
+        exported_at: nowIso(),
+        project_id: project.project_id,
+        building_type: (project.context && project.context.program)
+          ? project.context.program.building_type : null,
+        session,
+        final_plan: project.current_plan,
+        final_confidence: project.confidence,
+        ab_history: session.ab_history || [],
+        weights_used: (project.confidence && project.confidence.weights) || {},
+        program_inputs: project.program_inputs || (
+          project.context && project.context.program
+            ? project.context.program.program_inputs : {}),
+        lock_reasons_log: lockReasonsLog,
+        regeneration_diffs: regenDiffs
+      };
+      const filename = "CALVEY_PARTY_training_" +
+        (project.project_id || "project") + "_" + todayStamp() + ".json";
+      const blob = new Blob([JSON.stringify(bundle, null, 2)],
+        { type: "application/json" });
+      downloadBlob(blob, filename);
+    }
 
     // ============================================================
     // SECTION 07 — APP
@@ -6693,6 +8368,13 @@
       return <div className="section">{chips}</div>;
     }
 
+    function formatConfidence(c) {
+      if (!c || typeof c !== "object") return "—";
+      if (c.total_score == null) return "—";
+      return (c.total_score * 100).toFixed(0) + "% (threshold " +
+        ((c.threshold || 0.55) * 100).toFixed(0) + "%)";
+    }
+
     function MetadataPanel({ project }) {
       const vertexCount =
         project &&
@@ -6716,6 +8398,7 @@
             <tr><td className="label">BUILDING TYPE</td><td className="value">{buildingType}</td></tr>
             <tr><td className="label">FOOTPRINT</td><td className="value">{vertexCount} vertices</td></tr>
             <tr><td className="label">WEIGHTS</td><td className="value">{formatWeights(project.weights)}</td></tr>
+            <tr><td className="label">CONFIDENCE</td><td className="value">{formatConfidence(project.confidence)}</td></tr>
           </tbody>
         </table>
       );
@@ -6774,6 +8457,442 @@
         isPlainObject(p.context.program) &&
         (p.context.program.building_type === null || p.context.program.building_type === undefined);
       return polyEmpty && noType;
+    }
+
+    // ============================================================
+    // v1 — Phase 4-8. Sidebar panels, A/B modal, regenerate hook.
+    // ============================================================
+
+    const DEFAULT_CONFIDENCE_WEIGHTS = {
+      program_fit: 0.25,
+      daylight: 0.25,
+      adjacency: 0.15,
+      lock_preservation: 0.20,
+      circulation_quality: 0.15
+    };
+
+    function WeightsPanel({ project, setProject }) {
+      const weights = (project && project.confidence && project.confidence.weights)
+        ? project.confidence.weights : DEFAULT_CONFIDENCE_WEIGHTS;
+      const totalScore = (project && project.confidence &&
+        project.confidence.total_score != null)
+        ? project.confidence.total_score : null;
+
+      function onChange(k, v) {
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.confidence)) {
+            np.confidence = {
+              weights: { ...DEFAULT_CONFIDENCE_WEIGHTS },
+              threshold: 0.55, total_score: null,
+              floor_scores: [], room_scores: [], below_threshold: false
+            };
+          }
+          if (!isPlainObject(np.confidence.weights)) {
+            np.confidence.weights = { ...DEFAULT_CONFIDENCE_WEIGHTS };
+          }
+          np.confidence.weights[k] = Number(v);
+          // Recompute scores immediately (weights change → total changes).
+          const rescored = recomputeScoresOnly(np);
+          return rescored;
+        });
+      }
+
+      function onRelease() {
+        setProject(p => logEvent(cloneProject(p), "WEIGHTS_CHANGED", {
+          weights: { ...(p.confidence && p.confidence.weights) }
+        }));
+      }
+
+      function onReset() {
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.confidence)) np.confidence = {};
+          np.confidence.weights = { ...DEFAULT_CONFIDENCE_WEIGHTS };
+          const rescored = recomputeScoresOnly(np);
+          logEvent(rescored, "WEIGHTS_CHANGED",
+            { weights: { ...DEFAULT_CONFIDENCE_WEIGHTS }, reset: true });
+          return rescored;
+        });
+      }
+
+      const rows = [
+        ["program_fit", "PROGRAM FIT"],
+        ["daylight", "DAYLIGHT"],
+        ["adjacency", "ADJACENCY"],
+        ["lock_preservation", "LOCK PRESERVATION"],
+        ["circulation_quality", "CIRCULATION"]
+      ];
+
+      return (
+        <div className="weights-panel">
+          <h3>WEIGHTS</h3>
+          {rows.map(([k, label]) => {
+            const val = Number(weights[k]);
+            return (
+              <div key={k} className="slider-row">
+                <span>{label}</span>
+                <input type="range" min="0" max="1" step="0.05"
+                  value={Number.isFinite(val) ? val : 0}
+                  onChange={(e) => onChange(k, e.target.value)}
+                  onPointerUp={onRelease}
+                  onKeyUp={onRelease} />
+                <span className="slider-value">
+                  {Number.isFinite(val) ? val.toFixed(2) : "—"}
+                </span>
+              </div>
+            );
+          })}
+          <div className="total-row">
+            <span>TOTAL</span>
+            <span className="total-value">
+              {totalScore != null ? (totalScore * 100).toFixed(0) + "%" : "—"}
+            </span>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <button type="button" onClick={onReset}
+              style={{ fontFamily: "'Space Mono',monospace", fontSize: 11,
+                padding: "6px 12px", border: "1px solid var(--calvey-rule)",
+                background: "white", cursor: "pointer" }}>
+              RESET
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function ProgramInputsPanel({ project, setProject }) {
+      const inputs = (project && project.context && project.context.program &&
+        isPlainObject(project.context.program.program_inputs))
+        ? project.context.program.program_inputs : {};
+      const keys = Object.keys(inputs).sort();
+
+      function onChange(k, v) {
+        const newVal = v === "" ? "" : Number(v);
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.context)) np.context = {};
+          if (!isPlainObject(np.context.program)) np.context.program = {};
+          if (!isPlainObject(np.context.program.program_inputs)) {
+            np.context.program.program_inputs = {};
+          }
+          np.context.program.program_inputs[k] = Number.isFinite(Number(newVal))
+            ? Number(newVal) : 0;
+          // Mirror root.
+          if (!isPlainObject(np.program_inputs)) np.program_inputs = {};
+          np.program_inputs[k] = np.context.program.program_inputs[k];
+          // Dirty chip.
+          np.warnings = (np.warnings || []).filter(
+            w => !(isPlainObject(w) && w.id === "inputs_dirty"));
+          np.warnings.push({
+            id: "inputs_dirty",
+            severity: "info",
+            message: "Program inputs changed — regenerate to apply",
+            raised_at: nowIso()
+          });
+          return np;
+        });
+      }
+
+      function onBlur(k, oldVal, newVal) {
+        if (oldVal === newVal) return;
+        setProject(p => logEvent(cloneProject(p),
+          "PROGRAM_INPUTS_CHANGED",
+          { driver: k, old_value: oldVal, new_value: newVal }));
+      }
+
+      if (keys.length === 0) {
+        return (
+          <div className="program-inputs-panel">
+            <h3>PROGRAM INPUTS</h3>
+            <div style={{ fontSize: 11, color: "var(--calvey-muted)",
+              fontStyle: "italic" }}>
+              Generate to discover drivers.
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="program-inputs-panel">
+          <h3>PROGRAM INPUTS</h3>
+          {keys.map(k => {
+            const v = inputs[k];
+            return (
+              <div key={k} className="input-row">
+                <span>{k.replace(/_/g, " ")}</span>
+                <input type="number" value={v != null ? v : 0}
+                  onChange={(e) => onChange(k, e.target.value)}
+                  onBlur={(e) => onBlur(k, v, Number(e.target.value))} />
+              </div>
+            );
+          })}
+          <div className="dirty-note">Changing values requires regenerate</div>
+        </div>
+      );
+    }
+
+    function SessionSummaryPanel({ project }) {
+      const session = project && project.session;
+      const derived = session && session.derived_signals;
+      const [expandedType, setExpandedType] = React.useState(null);
+      if (!derived) return null;
+
+      const fmtDuration = (ms) => {
+        if (!ms || ms < 0) return "—";
+        const s = Math.round(ms / 1000);
+        const m = Math.floor(s / 60);
+        return m > 0 ? (m + "m " + (s % 60) + "s") : (s + "s");
+      };
+
+      const chips = [
+        { key: "duration", label: "DURATION", value: fmtDuration(derived.duration_ms), type: null },
+        { key: "generate", label: "GENERATES", value: derived.generate_count, type: "GENERATE" },
+        { key: "regenerate", label: "REGENERATES", value: derived.regenerate_count, type: "REGENERATE" },
+        { key: "lock", label: "LOCKS", value: derived.lock_count, type: "LOCK" },
+        { key: "drag", label: "DRAGS", value: derived.drag_count, type: "DRAG_ROOM" },
+        { key: "conf", label: "FINAL CONFIDENCE",
+          value: derived.final_confidence != null
+            ? (derived.final_confidence * 100).toFixed(0) + "%" : "—",
+          type: null }
+      ];
+
+      const events = Array.isArray(session.events) ? session.events : [];
+      const filteredEvents = expandedType
+        ? events.filter(e => e && e.type === expandedType) : [];
+
+      return (
+        <div className="session-summary-panel">
+          <h3>SESSION SUMMARY</h3>
+          <div className="chip-grid">
+            {chips.map(c => (
+              <div key={c.key} className="summary-chip"
+                   onClick={() => c.type && setExpandedType(
+                     expandedType === c.type ? null : c.type)}
+                   style={{ cursor: c.type ? "pointer" : "default" }}>
+                <div className="chip-label">{c.label}</div>
+                <div className="chip-value">{c.value}</div>
+              </div>
+            ))}
+          </div>
+          {expandedType && (
+            <div className="timeline">
+              <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 10,
+                color: "var(--calvey-muted)", marginBottom: 8,
+                textTransform: "uppercase" }}>
+                {expandedType} events ({filteredEvents.length})
+              </div>
+              {filteredEvents.length === 0 && (
+                <div style={{ fontSize: 10, color: "var(--calvey-muted)" }}>
+                  (none)
+                </div>
+              )}
+              {filteredEvents.map((ev, i) => (
+                <div key={i} className="timeline-event">
+                  <span className="event-time">
+                    {ev.timestamp ? ev.timestamp.slice(11, 19) : ""}
+                  </span>
+                  <span>{JSON.stringify(ev.payload)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function ExportPanel({ project, canExportPlan }) {
+      const [pdfBusy, setPdfBusy] = React.useState(false);
+      const [pdfError, setPdfError] = React.useState(null);
+      async function onPdf() {
+        setPdfError(null);
+        setPdfBusy(true);
+        try {
+          await exportPlanPdf(project);
+        } catch (e) {
+          setPdfError(e && e.message ? e.message : String(e));
+        } finally {
+          setPdfBusy(false);
+        }
+      }
+      return (
+        <div className="export-panel">
+          <h3>EXPORT</h3>
+          <button type="button" onClick={() => exportProjectJson(project)}>
+            EXPORT PROJECT (.json)
+          </button>
+          <button type="button" onClick={() => exportPlanSvg(project)}
+                  disabled={!canExportPlan}>
+            EXPORT PLAN (.svg)
+          </button>
+          <button type="button" onClick={onPdf}
+                  disabled={!canExportPlan || pdfBusy}>
+            {pdfBusy ? "EXPORTING…" : "EXPORT PLAN (.pdf)"}
+          </button>
+          <button type="button" onClick={() => exportTrainingBundle(project)}
+                  disabled={!canExportPlan}>
+            EXPORT TRAINING BUNDLE
+          </button>
+          {pdfError && (
+            <div style={{ color: "var(--calvey-error)", fontSize: 11,
+              marginTop: 6 }}>{pdfError}</div>
+          )}
+        </div>
+      );
+    }
+
+    // A/B modal. Renders two side-by-side plan thumbnails with metadata.
+    function ABModal({ current, candidate, diffSummary, onKeepA, onAcceptB, onClose }) {
+      const aSvg = React.useMemo(() => buildPlanSvg(current, {
+        omitTitle: true, omitLabels: true, floorIndex: 0, ptsPerFt: 1
+      }), [current]);
+      const bSvg = React.useMemo(() => buildPlanSvg(candidate, {
+        omitTitle: true, omitLabels: true, floorIndex: 0, ptsPerFt: 1
+      }), [candidate]);
+
+      function counts(p) {
+        const floors = (p && p.current_plan && Array.isArray(p.current_plan.floors))
+          ? p.current_plan.floors : [];
+        let rooms = 0, violations = 0;
+        for (const f of floors) {
+          if (f && Array.isArray(f.rooms)) {
+            for (const r of f.rooms) {
+              rooms++;
+              if (r && Array.isArray(r.adjacency_violations)) {
+                violations += r.adjacency_violations.length;
+              }
+            }
+          }
+        }
+        const conf = (p && p.confidence && p.confidence.total_score != null)
+          ? p.confidence.total_score : null;
+        return { rooms, violations, conf };
+      }
+      const aMeta = counts(current);
+      const bMeta = counts(candidate);
+
+      return (
+        <div className="ab-modal-backdrop" onClick={onClose}>
+          <div className="ab-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ab-modal-header">
+              <span>REGENERATION RESULT</span>
+              <button type="button" onClick={onClose}>× CLOSE</button>
+            </div>
+            <div className="ab-modal-body">
+              <div className="ab-modal-panel">
+                <h4>A · CURRENT</h4>
+                <div className="thumbnail" dangerouslySetInnerHTML={{ __html: aSvg }} />
+                <div className="metadata">
+                  <div className="row">
+                    <span className="label">CONFIDENCE</span>
+                    <span className="value">
+                      {aMeta.conf != null ? (aMeta.conf * 100).toFixed(0) + "%" : "—"}
+                    </span>
+                  </div>
+                  <div className="row">
+                    <span className="label">ROOMS</span>
+                    <span className="value">{aMeta.rooms}</span>
+                  </div>
+                  <div className="row">
+                    <span className="label">ADJACENCY VIO</span>
+                    <span className="value">{aMeta.violations}</span>
+                  </div>
+                </div>
+                <button type="button" className="secondary" onClick={onKeepA}>
+                  KEEP A
+                </button>
+              </div>
+              <div className="ab-modal-panel">
+                <h4>B · CANDIDATE</h4>
+                <div className="thumbnail" dangerouslySetInnerHTML={{ __html: bSvg }} />
+                <div className="metadata">
+                  <div className="row">
+                    <span className="label">CONFIDENCE</span>
+                    <span className="value">
+                      {bMeta.conf != null ? (bMeta.conf * 100).toFixed(0) + "%" : "—"}
+                    </span>
+                  </div>
+                  <div className="row">
+                    <span className="label">ROOMS</span>
+                    <span className="value">{bMeta.rooms}</span>
+                  </div>
+                  <div className="row">
+                    <span className="label">ADJACENCY VIO</span>
+                    <span className="value">{bMeta.violations}</span>
+                  </div>
+                </div>
+                <button type="button" onClick={onAcceptB}>
+                  ACCEPT B
+                </button>
+              </div>
+            </div>
+            <div className="ab-modal-footer">
+              {diffSummary && (
+                <>
+                  <span>
+                    Δ CONFIDENCE&nbsp;{diffSummary.confidence_delta != null
+                      ? (diffSummary.confidence_delta > 0 ? "+" : "") +
+                        (diffSummary.confidence_delta * 100).toFixed(1) + "%"
+                      : "—"}
+                  </span>
+                  <span>Δ ROOMS MOVED&nbsp;{diffSummary.rooms_moved ?? 0}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Compute a diff summary between two projects. Used by the A/B modal.
+    function computeDiffSummary(currentProject, candidateProject) {
+      const centroid = (r) => Array.isArray(r.centroid) ? r.centroid : [0, 0];
+      const currRooms = new Map();
+      const candRooms = new Map();
+      const floorsA = (currentProject && currentProject.current_plan &&
+        Array.isArray(currentProject.current_plan.floors))
+        ? currentProject.current_plan.floors : [];
+      const floorsB = (candidateProject && candidateProject.current_plan &&
+        Array.isArray(candidateProject.current_plan.floors))
+        ? candidateProject.current_plan.floors : [];
+      for (const f of floorsA) {
+        if (f && Array.isArray(f.rooms)) {
+          for (const r of f.rooms) if (r && r.instance_id) currRooms.set(r.instance_id, r);
+        }
+      }
+      for (const f of floorsB) {
+        if (f && Array.isArray(f.rooms)) {
+          for (const r of f.rooms) if (r && r.instance_id) candRooms.set(r.instance_id, r);
+        }
+      }
+      let moved = 0;
+      for (const [id, r] of candRooms) {
+        const prev = currRooms.get(id);
+        if (!prev) continue;
+        const c1 = centroid(r), c0 = centroid(prev);
+        const dx = Math.abs(c1[0] - c0[0]);
+        const dy = Math.abs(c1[1] - c0[1]);
+        // 2 cells threshold — convert using grid cell size where available.
+        const cell = (prev.target_area_sf && prev.cells && prev.cells.length)
+          ? Math.sqrt(prev.target_area_sf / prev.cells.length) : 5;
+        if (Math.hypot(dx, dy) > 2 * cell) moved++;
+      }
+      const added = [];
+      for (const id of candRooms.keys()) {
+        if (!currRooms.has(id)) added.push(id);
+      }
+      const removed = [];
+      for (const id of currRooms.keys()) {
+        if (!candRooms.has(id)) removed.push(id);
+      }
+      const confA = (currentProject.confidence && currentProject.confidence.total_score) || 0;
+      const confB = (candidateProject.confidence && candidateProject.confidence.total_score) || 0;
+      return {
+        rooms_moved: moved,
+        rooms_added: added.length,
+        rooms_removed: removed.length,
+        confidence_delta: confB - confA
+      };
     }
 
     function OnboardingView({ buildingTypes, dbLoaded, onStart, onUpload, onBlank, uploadError }) {
@@ -6906,20 +9025,27 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.6.0-STEP07 · STEP 07 OF 09
+            SCHEMA 2.1-PARTY · ENGINE 1.0.0-v1
           </footer>
         </div>
       );
     }
 
     function App() {
-      const [project, setProject] = React.useState(() => loadFromLocalStorage() ?? emptyProject());
+      const [project, setProject] = React.useState(() => {
+        const p = loadFromLocalStorage() ?? emptyProject();
+        // v1 — Phase 7. Start a session if the loaded project has none.
+        if (!p.session || !p.session.started_at) startSession(p);
+        return p;
+      });
       const [validation, setValidation] = React.useState(() => validateProject(project));
       const [dbStatus, setDbStatus] = React.useState({ loaded: false, count: 0, error: null, types: [], databases: [] });
       const [forceAdvanced, setForceAdvanced] = React.useState(false);
       const [textareaValue, setTextareaValue] = React.useState(() => JSON.stringify(project, null, 2));
       const [applyError, setApplyError] = React.useState(null);
       const [uploadError, setUploadError] = React.useState(null);
+      // v1 — Phase 6. A/B modal state.
+      const [abModal, setAbModal] = React.useState(null); // { current, candidate, diff }
 
       // Autosave + revalidate on every project change
       React.useEffect(() => {
@@ -6996,7 +9122,13 @@
       }, []);
 
       function handleNewProject() {
+        // v1 — Phase 7. Fire SESSION_END before clearing, then start a new session.
+        if (project && project.session && project.session.started_at &&
+            !project.session.ended_at) {
+          endSession(project);
+        }
         const p = emptyProject();
+        startSession(p);
         setProject(p);
         setApplyError(null);
         setUploadError(null);
@@ -7010,10 +9142,147 @@
         }
         p.context.footprint.polygon = buildRectanglePolygon(width, depth);
         p.context.footprint.source = "onboarding_rectangle";
+        startSession(p);
         setProject(p);
         setApplyError(null);
         setUploadError(null);
         setForceAdvanced(false);
+      }
+
+      // v1 — Phase 7. End the current session in place (keeps the plan, shows chips).
+      function handleEndSession() {
+        setProject(p => {
+          const np = cloneProject(p);
+          endSession(np);
+          return np;
+        });
+      }
+
+      // v1 — Phase 7. Start a new session (after END SESSION). Keeps the plan.
+      function handleNewSession() {
+        setProject(p => {
+          const np = cloneProject(p);
+          startSession(np);
+          return np;
+        });
+      }
+
+      // v1 — Phase 6. REGENERATE. Runs a fresh A→B→C→D pipeline with the
+      // current weights + program_inputs + locks, and opens A/B modal.
+      async function handleRegenerate() {
+        if (!project || !project.current_plan ||
+            !Array.isArray(project.current_plan.floors) ||
+            project.current_plan.floors.every(f =>
+              !Array.isArray(f.rooms) || f.rooms.length === 0)) {
+          return;
+        }
+        const btName = project.context && project.context.program
+          ? project.context.program.building_type : null;
+        if (!btName) return;
+        try {
+          // Fetch building type. Use the canvas's fetchBuildingTypeJson indirectly
+          // — we need programDb here. Fall back to re-reading master index.
+          const dbPath = dbStatus.source || "./data/master_index.json";
+          const entry = (Array.isArray(dbStatus.databases) ? dbStatus.databases : [])
+            .find(e => isPlainObject(e) && e.building_type === btName);
+          if (!entry) throw new Error("building type not in master index");
+          const fileName = entry.file || entry.json;
+          if (!fileName) throw new Error("master index entry has no file");
+          const dir = dbPath.substring(0, dbPath.lastIndexOf("/") + 1);
+          const res = await fetch(dir + fileName);
+          if (!res.ok) throw new Error("fetch failed (" + res.status + ")");
+          const btJson = await res.json();
+
+          const before = project;
+          const confBefore = (before.confidence && before.confidence.total_score)
+            || null;
+          const candidate = generatePlan(before, btJson);
+          const confAfter = (candidate.confidence && candidate.confidence.total_score)
+            || null;
+          const diff = computeDiffSummary(before, candidate);
+
+          logEvent(candidate, "REGENERATE", {
+            locks_respected: true,
+            confidence_before: confBefore,
+            confidence_after: confAfter,
+            duration_ms: null
+          });
+
+          setAbModal({ current: before, candidate, diff });
+        } catch (err) {
+          console.error("regenerate failed:", err);
+          setApplyError("Regenerate failed: " + (err && err.message ? err.message : String(err)));
+        }
+      }
+
+      function handleAbKeepA() {
+        if (!abModal) return;
+        const evt = {
+          type: "SELECT_AB_VARIANT",
+          timestamp: nowIso(),
+          payload: { chosen: "A", delta: abModal.diff }
+        };
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.session)) np.session = {
+            events: [], ab_history: [], derived_signals: null
+          };
+          if (!Array.isArray(np.session.events)) np.session.events = [];
+          if (!Array.isArray(np.session.ab_history)) np.session.ab_history = [];
+          np.session.events.push(evt);
+          np.session.ab_history.push({
+            timestamp: evt.timestamp, chosen: "A", delta: abModal.diff
+          });
+          return np;
+        });
+        setAbModal(null);
+      }
+
+      function handleAbAcceptB() {
+        if (!abModal) return;
+        const evt = {
+          type: "SELECT_AB_VARIANT",
+          timestamp: nowIso(),
+          payload: { chosen: "B", delta: abModal.diff }
+        };
+        // Candidate becomes current. Copy session from current (already carries events).
+        const accepted = cloneProject(abModal.candidate);
+        // Preserve the session from the A side (current) — it has the full history.
+        accepted.session = JSON.parse(JSON.stringify(project.session || {
+          events: [], ab_history: [], derived_signals: null
+        }));
+        if (!Array.isArray(accepted.session.events)) accepted.session.events = [];
+        if (!Array.isArray(accepted.session.ab_history)) accepted.session.ab_history = [];
+        accepted.session.events.push(evt);
+        accepted.session.ab_history.push({
+          timestamp: evt.timestamp, chosen: "B", delta: abModal.diff
+        });
+        setProject(accepted);
+        setAbModal(null);
+      }
+
+      function handleAbClose() {
+        if (!abModal) return;
+        const evt = {
+          type: "SELECT_AB_VARIANT",
+          timestamp: nowIso(),
+          payload: { chosen: "A", delta: abModal.diff, note: "closed_without_selecting" }
+        };
+        setProject(p => {
+          const np = cloneProject(p);
+          if (!isPlainObject(np.session)) np.session = {
+            events: [], ab_history: [], derived_signals: null
+          };
+          if (!Array.isArray(np.session.events)) np.session.events = [];
+          if (!Array.isArray(np.session.ab_history)) np.session.ab_history = [];
+          np.session.events.push(evt);
+          np.session.ab_history.push({
+            timestamp: evt.timestamp, chosen: "A",
+            delta: abModal.diff, note: "closed_without_selecting"
+          });
+          return np;
+        });
+        setAbModal(null);
       }
 
       function handleBlankStart() {
@@ -7124,15 +9393,27 @@
         );
       }
 
+      const sessionEnded = !!(project.session && project.session.ended_at);
+      const canExportPlan = !!(project.current_plan &&
+        Array.isArray(project.current_plan.floors) &&
+        project.current_plan.floors.some(f =>
+          Array.isArray(f.rooms) && f.rooms.length > 0));
+
       return (
         <div className="app">
           <header className="section">
             <h1>CALVEY PARTY 2</h1>
-            <div className="label">SANDBOX · STEP 07 · MULTI-FLOOR + CROSS-FLOOR DRAG</div>
+            <div className="label">SANDBOX · v1.0.0 · STAGE A–D + CONFIDENCE</div>
           </header>
 
           <div className="section">
             <button onClick={handleNewProject}>Start Over</button>
+            {!sessionEnded && (
+              <button onClick={handleEndSession}>End Session</button>
+            )}
+            {sessionEnded && (
+              <button onClick={handleNewSession}>New Session</button>
+            )}
             <label className="upload">
               Load .calvey-party.json
               <input type="file" accept=".json,application/json" onChange={handleUpload} />
@@ -7152,9 +9433,22 @@
             stale={!!(project && project.current_plan && project.current_plan.stale)}
           />
 
-          <FootprintCanvas project={project} setProject={setProject} programDb={dbStatus} />
+          <FootprintCanvas project={project} setProject={setProject}
+            programDb={dbStatus} onRegenerate={handleRegenerate} />
 
           <div className="hairline"></div>
+
+          {/* v1 — Phase 4 & 5 & 7 & 8 panels. */}
+          {!sessionEnded && (
+            <>
+              <WeightsPanel project={project} setProject={setProject} />
+              <ProgramInputsPanel project={project} setProject={setProject} />
+            </>
+          )}
+          {sessionEnded && (
+            <SessionSummaryPanel project={project} />
+          )}
+          <ExportPanel project={project} canExportPlan={canExportPlan} />
 
           <div className="section">
             <h3>METADATA</h3>
@@ -7188,8 +9482,15 @@
           </div>
 
           <footer>
-            SCHEMA 2.1-PARTY · ENGINE 0.6.0-STEP07 · STEP 07 OF 09
+            SCHEMA 2.1-PARTY · ENGINE {ENGINE_VERSION}
           </footer>
+
+          {abModal && (
+            <ABModal current={abModal.current} candidate={abModal.candidate}
+              diffSummary={abModal.diff}
+              onKeepA={handleAbKeepA} onAcceptB={handleAbAcceptB}
+              onClose={handleAbClose} />
+          )}
         </div>
       );
     }

@@ -41,7 +41,7 @@ If none are found, the status line will read "not present."
 
 ## Engine version
 
-`0.6.4-stepT3`
+`1.0.0-v1`
 
 ## Build status
 
@@ -55,9 +55,8 @@ If none are found, the status line will read "not present."
 - [x] **Step 07.1** — Locked-room confirmation on `− REMOVE TOP`: if the top floor contains any locked rooms, the button is replaced by an inline CANCEL / PROCEED chip listing the affected rooms. No modal, no feature additions — trust fix only.
 - [x] **Step T1** — Touch input framework foundation + pan/pinch-zoom/drag retrofit. Viewport + CSS setup, `useLongPress` / `fatFingerRadius` helpers, multi-pointer tracking, pinch-to-zoom (midpoint-stable), ghost offset + finger connector on touch drag, debug gesture readout. Lock gesture (right-click/long-press) and wall scrub unchanged — those ship in T2.
 - [x] **Step T2** — Touch lock gesture + touch wall scrub. `useLongPress` now owns the 500 ms room-hold timer (mouse + touch); double-tap-to-lock retired on touch. Wall scrub flips from hover-to-preview to press-to-preview on touch, with the alignment-group highlight painted during the scrub and the live area tooltip mirrored 40 px above the finger. Fat-finger pointer-down radius is 8 px on touch / 4 px on mouse (separate from the 12 px T1 hover radius). Lock chip lays out as a 2-column button grid with 36×72-min tap targets and clamps to the viewport with an 80 px thumb-zone gap at the bottom. `onContextMenu` always preventDefaults.
-- [x] **Step T3** — Cross-floor drag visual feedback for touch. Drop-target ring rendered as a 4-px ring 12 px outside the tile bounds (visible around a fingertip), pulsing accent-blue on valid, static red on invalid. Dragged-room name float rendered 60 px above the finger as a `position: fixed` label so the user can confirm which room they're carrying. Floor tile activation switched from `onClick` to `onPointerDown`/`onPointerUp` with a gesture guard (`dragging_room` releases yield to the canvas's cross-floor-drop handler; everything else is a tap that switches `active_floor_index` and triggers a 250 ms tile `tap-flash`). Debug readout now reports `over floor tile N` / `INVALID` during a drag. *(current)*
-- [ ] Step 08 — Sliders + regenerate + session completion / end-chips
-- [ ] Step 09 — Exporters (JSON / SVG / PDF)
+- [x] **Step T3** — Cross-floor drag visual feedback for touch. Drop-target ring rendered as a 4-px ring 12 px outside the tile bounds (visible around a fingertip), pulsing accent-blue on valid, static red on invalid. Dragged-room name float rendered 60 px above the finger as a `position: fixed` label so the user can confirm which room they're carrying. Floor tile activation switched from `onClick` to `onPointerDown`/`onPointerUp` with a gesture guard (`dragging_room` releases yield to the canvas's cross-floor-drop handler; everything else is a tap that switches `active_floor_index` and triggers a 250 ms tile `tap-flash`).
+- [x] **v1.0.0** — Stage C (adjacency repair, cascade depth 1, max 3 iterations) + Stage D (5-weight confidence scorer — program_fit / daylight / adjacency / lock_preservation / circulation_quality, per-room + per-floor + total, red dashed outline for rooms below 0.40, low-confidence chip below 0.55 threshold). Weight sliders panel (live re-score via `recomputeScoresOnly`, logs one `WEIGHTS_CHANGED` event per pointerup). Program inputs panel (auto-discovery from building-type JSON drivers, dirty chip clears on next generate). REGENERATE button + A/B modal (only modal in the tool — side-by-side thumbnails, counts, confidence deltas, ACCEPT B / KEEP A / × CLOSE). Typed session event log with 13 event types; `SESSION_START` / `SESSION_END`, derived signals, SESSION SUMMARY chip grid with click-to-expand timeline. Four exporters (JSON / SVG / PDF via jsPDF lazy-loaded / training bundle). *(current)*
 
 ### Step 04 notes
 
