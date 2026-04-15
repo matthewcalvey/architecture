@@ -182,5 +182,3 @@ If multiple source formats exist, create a normalization layer in JS that maps t
 4. this is a good start. i'd like to see some intelligence in the layouts and some minimum room dimensions. what can you learn from our extensive research into this? call the next version 5 and think long and hard before you give me another program thats not generating real plans
 
 5. ok 5 is better but the sketch wont complete and i cant see the results of the slider because the plan is too low. there needs to be a continuous logic to the slider, not just jumping around, first all rooms of a certain program group together and go around the perimeter like the hands of a clock and then start to widen, deepen, rotate after you did the normal room size in every side. call this 6, look at the grasshopper scripts that do this, learn from them, integrate that logic, its free. MAKE THIS SUPERB. also, give me an md of all my prompts for this in order in one file
-
-6. i cant see the plans and the slider at the same time, and when i can see it, its going outside the box. is there any logic for stairs and corridors? research what we have discussed and built that simple logic in. call it 7
