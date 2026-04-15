@@ -530,6 +530,34 @@
     .scrub-area-tooltip .room-area { font-size: 12px; color: var(--calvey-text); margin-top: 2px; }
     .scrub-area-tooltip .others    { font-size: 8px; color: var(--calvey-muted); margin-top: 2px; }
 
+    /* Step T3 — dragged-room name float. Rendered 60 px above the finger
+       during a cross-floor drag so the user can confirm they're dragging
+       the room they meant to. Above the T1 ghost offset (which sits 40 px
+       above the finger) so both labels are visible together. position:
+       fixed uses viewport coords; pointer-events: none so it never blocks
+       hit-testing on the floor tile underneath. */
+    .drag-room-name-float {
+      position: fixed;
+      background: white;
+      border: 1px solid var(--calvey-text);
+      padding: 4px 8px;
+      font-family: 'Space Mono', monospace;
+      pointer-events: none;
+      z-index: 50;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
+    }
+    .drag-room-name-float .name {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--calvey-text);
+    }
+    .drag-room-name-float .dept {
+      font-size: 8px;
+      text-transform: uppercase;
+      color: var(--calvey-muted);
+    }
+
     /* Step 06 — wall hover cursors. The descendant selector is required
        because per-room hit-target rects (`[data-room-id]`) already set
        `cursor: grab`, which would otherwise win for the user's actual
@@ -555,6 +583,17 @@
       z-index: 5;
     }
 
+    /* Step T3 — each tile lives inside a wrapper so the drop-target ring
+       can be rendered as an absolutely-positioned sibling that extends
+       outside the tile bounds (so it's still visible around a fingertip
+       on touch). The tile itself keeps overflow:hidden for the thumbnail;
+       the wrapper and the floor-strip column let it spill out. */
+    .floor-tile-wrapper {
+      position: relative;
+      width: 80px;
+      height: 60px;
+    }
+
     .floor-tile {
       width: 80px;
       height: 60px;
@@ -563,20 +602,59 @@
       position: relative;
       cursor: pointer;
       overflow: hidden;
+      /* Step T3 — make tile taps immediate on iOS (no 300 ms synthesized
+         click delay) and suppress the default tap highlight halo. */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .floor-tile.active {
       border: 2px solid var(--calvey-accent);
     }
 
-    .floor-tile.drop-target {
-      border: 2px solid var(--calvey-accent);
-      border-style: dashed;
+    /* Step T3 — drop-target ring. A 4-px ring positioned 12 px outside
+       the tile on all sides so the user can see it around a fingertip.
+       pointer-events: none lets hit-testing pass through to the tile
+       underneath (so document.elementFromPoint still reports the tile
+       that receives the drop). Valid targets pulse; invalid targets stay
+       static red (a pulsing red feels aggressive). */
+    .drop-target-ring {
+      position: absolute;
+      top: -12px;
+      left: -12px;
+      right: -12px;
+      bottom: -12px;
+      border: 4px solid var(--calvey-accent);
+      pointer-events: none;
+      z-index: 10;
+      animation: drop-target-pulse 1s ease-in-out infinite;
     }
 
-    .floor-tile.drop-target-invalid {
-      border: 2px solid var(--calvey-error);
-      border-style: dashed;
+    .drop-target-ring.invalid {
+      border-color: var(--calvey-error);
+      animation: none;
+    }
+
+    @keyframes drop-target-pulse {
+      0%, 100% {
+        border-color: var(--calvey-accent);
+        box-shadow: 0 0 0 0 rgba(106, 156, 196, 0.4);
+      }
+      50% {
+        border-color: var(--calvey-accent);
+        box-shadow: 0 0 0 6px rgba(106, 156, 196, 0.0);
+      }
+    }
+
+    /* Step T3 — brief flash on a floor tile tap so the user gets "the
+       system heard you" feedback even before the canvas rerenders. */
+    .floor-tile.tap-flash {
+      animation: tap-flash 0.25s ease-out;
+    }
+
+    @keyframes tap-flash {
+      0%   { background: var(--calvey-accent); }
+      100% { background: white; }
     }
 
     .floor-tile .floor-label {
@@ -714,7 +792,7 @@
     // ============================================================
 
     const SCHEMA_VERSION = "2.1-party";
-    const ENGINE_VERSION = "0.6.3-stepT2";
+    const ENGINE_VERSION = "0.6.4-stepT3";
 
     function emptyProject() {
       const now = new Date().toISOString();
@@ -3347,6 +3425,14 @@
           const [u, v] = gesture.ghostCells[0];
           at = " · at (" + u + ", " + v + ")";
         }
+        // Step T3 — surface cross-floor drop target state so the iPhone
+        // test session can verify that elementFromPoint is reporting the
+        // right tile through the finger.
+        if (Number.isInteger(gesture.crossFloorTarget)) {
+          const tileSuffix = " · over floor tile " + gesture.crossFloorTarget +
+            (gesture.crossFloorValid ? "" : " · INVALID");
+          return "dragging_room " + rid + at + tileSuffix;
+        }
         return "dragging_room " + rid + at;
       }
       if (gesture.type === "reproportioning") {
@@ -3931,12 +4017,20 @@
 
     // Vertical floor strip with one tile per floor + add/remove buttons.
     // Numbered top-to-bottom by physical level: the TOP tile is the top floor,
-    // the BOTTOM tile is the ground floor. Click activates; drop targets for
+    // the BOTTOM tile is the ground floor. Tap activates; drop targets for
     // cross-floor drag are wired by data-floor-index attributes (the canvas's
     // pointer handlers detect via document.elementFromPoint).
+    //
+    // Step T3 — tile activation is now pointer-driven instead of click-driven.
+    // onPointerDown stops propagation so a tile press never starts a canvas
+    // pan; onPointerUp checks the current gesture state and either (a) yields
+    // to the canvas's cross-floor-drop handler if a drag is in progress or
+    // (b) switches the active floor and flashes the tile. The onClick path
+    // is retired because iOS Safari's 300 ms synthesized click was racing
+    // with the canvas's pointer handlers.
     function FloorStrip({ project, polygon, activeIdx, dropTargetIdx,
-                          dropTargetValid, onActivate, onAddFloor,
-                          onRemoveFloor, showRegenChip,
+                          dropTargetValid, gestureType, onActivate,
+                          onAddFloor, onRemoveFloor, showRegenChip,
                           floorRemovalPending, onCancelFloorRemoval,
                           onConfirmFloorRemoval }) {
       const floors = (project && project.current_plan &&
@@ -3946,6 +4040,44 @@
       // Top-to-bottom display order: highest level first (e.g. floor 3, 2, 1).
       const order = [];
       for (let i = fc - 1; i >= 0; i--) order.push(i);
+
+      // Step T3 — tap-flash state. flashIdx is the floor index currently
+      // showing the 250 ms tap-flash animation, or null. Cleared by a timer
+      // so the class falls off after the animation completes.
+      const [flashIdx, setFlashIdx] = React.useState(null);
+      const flashTimerRef = React.useRef(null);
+      React.useEffect(() => () => {
+        if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      }, []);
+
+      function triggerFlash(idx) {
+        if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+        setFlashIdx(idx);
+        flashTimerRef.current = setTimeout(() => {
+          setFlashIdx(null);
+          flashTimerRef.current = null;
+        }, 250);
+      }
+
+      // Step T3 — tile press: swallow the event so the canvas below doesn't
+      // start a pan. The tile itself doesn't need to react on down; the
+      // activation happens on up so a move-off still cancels naturally.
+      function handleTilePointerDown(e) {
+        e.stopPropagation();
+      }
+
+      // Step T3 — tile release: if a room-drag is in flight the canvas's
+      // pointer-up handles the cross-floor drop (pointer capture on the SVG
+      // means this handler normally won't even fire during a drag, but guard
+      // defensively in case capture failed). Otherwise treat it as a tap and
+      // switch the active floor.
+      function handleTilePointerUp(e, i) {
+        e.stopPropagation();
+        if (gestureType === "dragging_room") return;
+        if (onActivate) onActivate(i);
+        triggerFlash(i);
+      }
+
       return (
         <div className="floor-strip">
           {order.map(i => {
@@ -3953,25 +4085,32 @@
             if (!isPlainObject(f)) return null;
             const isActive = i === activeIdx;
             const isDrop = i === dropTargetIdx;
+            const isFlashing = i === flashIdx;
             const cls = ["floor-tile"];
             if (isActive) cls.push("active");
-            if (isDrop) cls.push(dropTargetValid ? "drop-target" : "drop-target-invalid");
+            if (isFlashing) cls.push("tap-flash");
             const roomCount = Array.isArray(f.rooms) ? f.rooms.length : 0;
             const unplacedCount = Array.isArray(f.unplaced_rooms) ? f.unplaced_rooms.length : 0;
             const level = Number.isFinite(Number(f.level)) ? Number(f.level) : (i + 1);
             return (
-              <div key={"floor-tile-" + i}
-                   className={cls.join(" ")}
-                   data-floor-index={i}
-                   onClick={() => onActivate && onActivate(i)}
-                   title={"Activate floor " + level}>
-                {renderFloorThumbnail(f, polygon, 80, 60)}
-                <div className="floor-label" data-floor-index={i}>FLOOR {level}</div>
-                <div className="room-count" data-floor-index={i}>{roomCount}</div>
-                {unplacedCount > 0 && (
-                  <div className="unplaced-badge" data-floor-index={i}
-                       title={unplacedCount + " unplaced"} />
+              <div key={"floor-tile-" + i} className="floor-tile-wrapper">
+                {isDrop && (
+                  <div className={"drop-target-ring" +
+                    (dropTargetValid ? "" : " invalid")} />
                 )}
+                <div className={cls.join(" ")}
+                     data-floor-index={i}
+                     onPointerDown={handleTilePointerDown}
+                     onPointerUp={(e) => handleTilePointerUp(e, i)}
+                     title={"Activate floor " + level}>
+                  {renderFloorThumbnail(f, polygon, 80, 60)}
+                  <div className="floor-label" data-floor-index={i}>FLOOR {level}</div>
+                  <div className="room-count" data-floor-index={i}>{roomCount}</div>
+                  {unplacedCount > 0 && (
+                    <div className="unplaced-badge" data-floor-index={i}
+                         title={unplacedCount + " unplaced"} />
+                  )}
+                </div>
               </div>
             );
           })}
@@ -4099,7 +4238,11 @@
         currentZoom: null,
         // Step T1 — last finger position during touch drag (container-screen
         // coords). Used to draw the finger→ghost dashed connector.
-        fingerScreen: null
+        fingerScreen: null,
+        // Step T3 — last finger position in viewport (client) coords during
+        // any pointer drag. Used to anchor the dragged-room-name float (a
+        // position: fixed label) above the finger during cross-floor drag.
+        fingerClient: null
       });
       const gestureRef = React.useRef(gesture);
       React.useEffect(() => { gestureRef.current = gesture; }, [gesture]);
@@ -4291,7 +4434,7 @@
           ? { type: "idle", roomId: null, startBounds: null,
               ghostCells: null, dropValid: false,
               crossFloorTarget: null, crossFloorValid: false,
-              pointerType: null, fingerScreen: null, currentZoom: null }
+              pointerType: null, fingerScreen: null, fingerClient: null, currentZoom: null }
           : g));
       }
 
@@ -4735,7 +4878,8 @@
           ghostCells: startCells,
           dropValid: true,
           pointerType: e.pointerType || "mouse",
-          fingerScreen: { x: screenX, y: screenY }
+          fingerScreen: { x: screenX, y: screenY },
+          fingerClient: { x: e.clientX, y: e.clientY }
         });
         // Step T2 — arm long-press through the shared useLongPress helper.
         // The helper handles the 500 ms timer and 3 px move threshold; on
@@ -4765,7 +4909,7 @@
               ? { type: "idle", roomId: null, startBounds: null,
                   ghostCells: null, dropValid: false,
                   crossFloorTarget: null, crossFloorValid: false,
-                  pointerType: null, fingerScreen: null, currentZoom: null }
+                  pointerType: null, fingerScreen: null, fingerClient: null, currentZoom: null }
               : g));
           }
         }
@@ -4849,7 +4993,7 @@
           ? { type: "idle", roomId: null, startBounds: null,
               ghostCells: null, dropValid: false,
               crossFloorTarget: null, crossFloorValid: false,
-              pointerType: null, fingerScreen: null, currentZoom: null }
+              pointerType: null, fingerScreen: null, fingerClient: null, currentZoom: null }
           : g));
       }
 
@@ -5077,7 +5221,8 @@
               dropValid: false,
               crossFloorTarget,
               crossFloorValid,
-              fingerScreen: { x: sx, y: sy }
+              fingerScreen: { x: sx, y: sy },
+              fingerClient: { x: e.clientX, y: e.clientY }
             }));
             return;
           }
@@ -5127,7 +5272,8 @@
             dropValid: valid,
             crossFloorTarget: null,
             crossFloorValid: false,
-            fingerScreen: { x: sx, y: sy }
+            fingerScreen: { x: sx, y: sy },
+            fingerClient: { x: e.clientX, y: e.clientY }
           }));
           return;
         }
@@ -5171,7 +5317,7 @@
             ? { type: "idle", roomId: null, startBounds: null,
                 ghostCells: null, dropValid: false,
                 crossFloorTarget: null, crossFloorValid: false,
-                pointerType: null, fingerScreen: null, currentZoom: null }
+                pointerType: null, fingerScreen: null, fingerClient: null, currentZoom: null }
             : g));
           return;
         }
@@ -5215,7 +5361,7 @@
           setGesture({ type: "idle", roomId: null, startBounds: null,
                        ghostCells: null, dropValid: false,
                        crossFloorTarget: null, crossFloorValid: false,
-                       pointerType: null, fingerScreen: null, currentZoom: null });
+                       pointerType: null, fingerScreen: null, fingerClient: null, currentZoom: null });
 
           // Pure tap (no movement): record for double-tap, do nothing else.
           // Step T2 — skip the double-tap bookkeeping for touch. Touch no
@@ -6434,6 +6580,7 @@
             dropTargetIdx={Number.isInteger(gesture.crossFloorTarget)
               ? gesture.crossFloorTarget : -1}
             dropTargetValid={!!gesture.crossFloorValid}
+            gestureType={gesture.type}
             onActivate={handleActivateFloor}
             onAddFloor={handleAddFloor}
             onRemoveFloor={() => handleRemoveFloor(false)}
@@ -6442,6 +6589,49 @@
             onCancelFloorRemoval={handleCancelFloorRemoval}
             onConfirmFloorRemoval={handleConfirmFloorRemoval}
           />
+
+          {/* Step T3 — dragged-room name float. Rendered during any
+              dragging_room gesture as a position:fixed label 60 px above
+              the finger, showing the room name + department so the user
+              can confirm what they're carrying. Especially useful on touch
+              where the finger covers both the room-source and any floor
+              tile it hovers. Clamped to the viewport with an 8-px margin. */}
+          {gesture.type === "dragging_room" && gesture.fingerClient &&
+            Number.isFinite(gesture.fingerClient.x) &&
+            Number.isFinite(gesture.fingerClient.y) && (() => {
+              const draggedRoom = placedRooms.find(
+                r => r && r.instance_id === gesture.roomId);
+              if (!draggedRoom) return null;
+              const roomName = (draggedRoom.display_name ||
+                draggedRoom.type || "").toString();
+              const deptId = draggedRoom.department_id || "";
+              const deptRegion = regions.find(
+                rr => rr && rr.id === deptId);
+              const deptName = (deptRegion && deptRegion.name)
+                ? deptRegion.name : deptId;
+              // position: fixed uses viewport coords; translate(-50%, -100%)
+              // anchors the label centered horizontally above its top-left
+              // position. Offset 60 px above the finger. The browser clamps
+              // by default via the edge, but we add explicit margins via
+              // max()/min() so long labels don't spill off.
+              const fx = gesture.fingerClient.x;
+              const fy = gesture.fingerClient.y - 60;
+              const clampedX = Math.max(8, Math.min(window.innerWidth - 8, fx));
+              const clampedY = Math.max(8, fy);
+              return (
+                <div className="drag-room-name-float"
+                     style={{
+                       left: clampedX + "px",
+                       top: clampedY + "px",
+                       transform: "translate(-50%, -100%)"
+                     }}>
+                  <div className="name">{roomName.toUpperCase()}</div>
+                  {deptName && (
+                    <div className="dept">{deptName.toString().toUpperCase()}</div>
+                  )}
+                </div>
+              );
+            })()}
 
           {/* Step T1 — debug gesture readout. Scaffolding for the iPhone
               touch test session; suppressed by ?debug=0. Slated to come out
