@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALVEY PARTI 3 — Room Layout Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3eee4;
+  --paper:#faf6ee;
+  --panel:#f7f2e8;
+  --panel-strong:#f0e9dc;
+  --line:#d4cab9;
+  --line-strong:#b9ad99;
+  --ink:#273036;
+  --ink-soft:#5f686f;
+  --ink-faint:#8b8f92;
+  --accent:#6f8799;
+  --accent-soft:rgba(111,135,153,0.18);
+  --accent-faint:rgba(111,135,153,0.08);
+  --sun:#b89b64;
+  --danger:#8f6f63;
+  --shadow:0 24px 60px rgba(39,48,54,0.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(111,135,153,0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(184,155,100,0.08), transparent 24%),
+    linear-gradient(180deg, rgba(255,255,255,0.2), transparent 220px),
+    var(--bg);
+  line-height:1.35;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit}
+::selection{background:rgba(111,135,153,0.18)}
+
+.hero{
+  padding:28px 28px 18px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.38), rgba(255,255,255,0.1)),
+    linear-gradient(90deg, rgba(111,135,153,0.06), transparent 40%);
+}
+.navline{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  align-items:center;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.navline span.active{color:var(--accent)}
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(320px, 1.2fr) minmax(280px, 0.8fr);
+  gap:24px;
+  margin-top:16px;
+  align-items:end;
+}
+.eyebrow{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  margin-bottom:8px;
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(44px,6vw,86px);
+  line-height:0.92;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-weight:400;
+}
+.hero p{
+  margin:12px 0 0;
+  max-width:860px;
+  font-size:20px;
+  line-height:1.25;
+  color:var(--ink-soft);
+}
+.hero-meta{
+  display:grid;
+  gap:10px;
+  align-self:start;
+}
+.hero-chip{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.42);
+  padding:12px 14px;
+  box-shadow:var(--shadow);
+}
+.hero-chip .label{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.hero-chip .value{
+  margin-top:4px;
+  font-size:18px;
+  color:var(--ink);
+}
+
+.app-shell{
+  display:grid;
+  grid-template-columns:360px minmax(0,1fr);
+  gap:20px;
+  padding:22px 22px 24px;
+  min-height:calc(100vh - 210px);
+}
+.rail,.workspace{
+  min-height:0;
+}
+.rail{
+  display:grid;
+  grid-template-rows:auto auto auto minmax(0,1fr);
+  gap:14px;
+}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.18));
+  box-shadow:var(--shadow);
+}
+.card.pad{padding:14px}
+
+.section-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.section-head h2{
+  margin:0;
+  font-size:20px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+.section-head .hint,
+.micro{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  line-height:1.45;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+.fields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.field{
+  display:grid;
+  gap:6px;
+}
+.field.full{grid-column:1/-1}
+.field label{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.11em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.field input[type="number"],
+.field select,
+.field input[type="text"]{
+  width:100%;
+  height:42px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.54);
+  color:var(--ink);
+  padding:0 12px;
+  font-size:17px;
+  outline:none;
+  transition:border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+.field input:focus,
+.field select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(111,135,153,0.12);
+  background:#fff;
+}
+.field .subcopy{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  color:var(--ink-faint);
+  letter-spacing:0.06em;
+}
+
+.button-row,
+.toolbar-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.btn{
+  height:38px;
+  padding:0 12px;
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,0.48);
+  color:var(--ink);
+  cursor:pointer;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  transition:transform 0.18s, background 0.18s, border-color 0.18s, color 0.18s;
+}
+.btn:hover{
+  transform:translateY(-1px);
+  border-color:var(--accent);
+  color:var(--accent);
+  background:#fff;
+}
+.btn.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fdfcf8;
+}
+.btn.primary:hover{
+  color:#fff;
+}
+
+.footprint-load{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  border:1px dashed var(--line-strong);
+  background:rgba(255,255,255,0.22);
+}
+.footprint-load input[type="file"]{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  max-width:100%;
+}
+.footprint-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:28px;
+  padding:4px 9px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.5);
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+.slider-stack{display:grid;gap:12px}
+.slider-block{
+  padding:10px 12px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.28);
+}
+.slider-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
+}
+.slider-head .name{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.slider-head .value{
+  font-family:"Space Mono",monospace;
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+}
+.slider-extremes{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:4px;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  color:var(--ink-faint);
+  letter-spacing:0.04em;
+}
+input[type="range"]{
+  width:100%;
+  appearance:none;
+  height:24px;
+  background:transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--line), var(--accent), var(--line));
+}
+input[type="range"]::-moz-range-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--line), var(--accent), var(--line));
+}
+input[type="range"]::-webkit-slider-thumb{
+  appearance:none;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  margin-top:-8px;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(111,135,153,0.1);
+}
+input[type="range"]::-moz-range-thumb{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(111,135,153,0.1);
+}
+
+.metrics-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.metric{
+  padding:11px 12px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.28);
+}
+.metric .label{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.metric .value{
+  margin-top:4px;
+  font-size:28px;
+  line-height:1;
+  color:var(--ink);
+}
+.metric .note{
+  margin-top:4px;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.05em;
+  color:var(--ink-faint);
+}
+
+.list-card{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  min-height:0;
+}
+.program-list{
+  overflow:auto;
+  min-height:0;
+  padding:0 14px 14px;
+}
+.program-row{
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  padding:10px 0;
+  border-bottom:1px solid rgba(185,173,153,0.45);
+}
+.program-row:last-child{border-bottom:none}
+.swatch{
+  width:12px;
+  height:12px;
+  border:1px solid rgba(39,48,54,0.14);
+  margin-top:4px;
+}
+.program-row .title{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink);
+}
+.program-row .meta{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  color:var(--ink-faint);
+  margin-top:3px;
+  letter-spacing:0.04em;
+}
+.program-row .area{
+  font-size:17px;
+  color:var(--ink);
+  white-space:nowrap;
+}
+
+.workspace{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:12px;
+}
+.workspace-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px 16px;
+}
+.workspace-title{
+  display:grid;
+  gap:4px;
+}
+.workspace-title h2{
+  margin:0;
+  font-size:24px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+.status-line{
+  font-size:18px;
+  color:var(--ink-soft);
+}
+.viewport-card{
+  position:relative;
+  overflow:hidden;
+  min-height:520px;
+}
+.viewport-overlay{
+  position:absolute;
+  top:14px;
+  left:16px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  z-index:2;
+  pointer-events:none;
+}
+.viewport-tag{
+  padding:5px 8px;
+  border:1px solid var(--line);
+  background:rgba(250,246,238,0.76);
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.viewport-note{
+  position:absolute;
+  right:16px;
+  bottom:14px;
+  z-index:2;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  background:rgba(250,246,238,0.74);
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  pointer-events:none;
+}
+.error-banner{
+  border:1px solid rgba(143,111,99,0.4);
+  background:rgba(143,111,99,0.08);
+  color:var(--danger);
+  padding:10px 12px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.05em;
+}
+.viewport{
+  width:100%;
+  height:100%;
+  display:block;
+  background:
+    radial-gradient(circle at top left, rgba(111,135,153,0.06), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.18)),
+    var(--paper);
+  touch-action:none;
+  cursor:grab;
+}
+.viewport.is-panning{cursor:grabbing}
+
+.workspace-foot{
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:12px;
+}
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:8px;
+}
+.summary-pill{
+  padding:10px 12px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.26);
+}
+.summary-pill .label{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.summary-pill .value{
+  margin-top:4px;
+  font-size:18px;
+}
+.legend-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px 14px 14px;
+}
+.legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:30px;
+  padding:5px 9px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.26);
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+.footer{
+  padding:0 24px 20px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  color:var(--ink-faint);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+
+svg text{
+  user-select:none;
+  pointer-events:none;
+}
+.floor-title{
+  font-family:"Space Mono",monospace;
+  font-size:18px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  fill:var(--ink-soft);
+}
+.floor-meta{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  fill:var(--ink-faint);
+}
+.room-name{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  fill:#182228;
+}
+.room-area{
+  font-family:"Cormorant Garamond",serif;
+  font-size:16px;
+  fill:#223038;
+}
+.grid-major{stroke:rgba(111,135,153,0.1);stroke-width:1}
+.grid-minor{stroke:rgba(111,135,153,0.05);stroke-width:1}
+.outline{
+  fill:none;
+  stroke:rgba(39,48,54,0.35);
+  stroke-width:2;
+}
+.void-fill{
+  fill:rgba(243,238,228,0.9);
+  stroke:rgba(39,48,54,0.18);
+  stroke-dasharray:6 8;
+}
+.room-outline{
+  fill:none;
+  stroke:rgba(24,34,40,0.48);
+  stroke-width:1.1;
+}
+.entry-mark{
+  stroke:var(--accent);
+  stroke-width:2;
+  fill:none;
+}
+
+@media (max-width: 1160px){
+  .app-shell{grid-template-columns:1fr}
+  .workspace-foot{grid-template-columns:1fr}
+  .rail{grid-template-rows:auto auto auto auto}
+  .program-list{max-height:420px}
+}
+@media (max-width: 780px){
+  .hero{padding:22px 16px 14px}
+  .hero-grid{grid-template-columns:1fr}
+  .app-shell{padding:16px}
+  .workspace-bar{display:grid}
+  .workspace-title h2{font-size:20px}
+  .status-line{font-size:16px}
+  .fields{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .viewport-card{min-height:420px}
+  .footer{padding:0 16px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="navline">
+      <span>CALVEY FORM</span>
+      <span>/</span>
+      <span>Program-to-Plan Explorer</span>
+      <span>/</span>
+      <span class="active">03 Layout Parti</span>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Multi-Floor Schematic Option Browser</div>
+        <h1>CALVEY<br>PARTI 3</h1>
+        <p>Fast program-to-plan generation for room layouts across one or more floors. Scrub the option slider, bias the logic, and move through plausible arrangements before the refinement screen.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-chip">
+          <div class="label">Mode</div>
+          <div class="value">Finch-like option explorer, tuned for CALVEY FORM</div>
+        </div>
+        <div class="hero-chip">
+          <div class="label">Inputs</div>
+          <div class="value">Building program, target GSF, footprint preset or local footprint JSON</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <aside class="rail">
+      <section class="card pad">
+        <div class="section-head">
+          <div>
+            <h2>Program Setup</h2>
+            <div class="hint">Room data is loaded from the copied CALVEY FORM database in this folder.</div>
+          </div>
+        </div>
+        <div id="errorBanner" class="error-banner" hidden></div>
+        <div class="fields">
+          <div class="field full">
+            <label for="buildingType">Building Type</label>
+            <select id="buildingType"></select>
+          </div>
+          <div class="field full">
+            <label for="programSubtype">Program Profile</label>
+            <select id="programSubtype"></select>
+            <div id="subtypeRange" class="subcopy">Loading profile ranges…</div>
+          </div>
+          <div class="field">
+            <label for="targetGross">Target Gross SF</label>
+            <input id="targetGross" type="number" min="2000" step="500" value="65000">
+          </div>
+          <div class="field">
+            <label for="floorCount">Floor Count</label>
+            <select id="floorCount">
+              <option value="auto">Auto</option>
+              <option value="1">1 floor</option>
+              <option value="2">2 floors</option>
+              <option value="3">3 floors</option>
+              <option value="4">4 floors</option>
+              <option value="5">5 floors</option>
+              <option value="6">6 floors</option>
+              <option value="7">7 floors</option>
+              <option value="8">8 floors</option>
+              <option value="9">9 floors</option>
+              <option value="10">10 floors</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="footprintPreset">Footprint Preset</label>
+            <select id="footprintPreset">
+              <option value="rectangle">Rectangle</option>
+              <option value="bar">Bar</option>
+              <option value="courtyard">Courtyard</option>
+              <option value="lshape">L-Shape</option>
+              <option value="corner">Corner</option>
+              <option value="narrowdeep">Narrow / Deep</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Footprint Source</label>
+            <div id="footprintSource" class="footprint-chip">Using preset footprint</div>
+          </div>
+          <div class="field full">
+            <label>Local Footprint JSON</label>
+            <div class="footprint-load">
+              <input id="footprintFile" type="file" accept=".json,application/json">
+              <span id="footprintName" class="micro">Expected schema: {"points":[[x,y],...]}</span>
+            </div>
+          </div>
+        </div>
+        <div class="button-row" style="margin-top:12px">
+          <button id="applyTypical" class="btn">Use Profile Midpoint</button>
+          <button id="clearFootprint" class="btn">Clear Imported Footprint</button>
+          <button id="regenerate" class="btn primary">Regenerate Layout</button>
+        </div>
+      </section>
+
+      <section class="card pad">
+        <div class="section-head">
+          <div>
+            <h2>Bias Sliders</h2>
+            <div class="hint">The option slider is the main scrubber. The others reshape how rooms settle.</div>
+          </div>
+        </div>
+        <div class="slider-stack">
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Option</div>
+              <div class="value" id="optionValue">Option 001</div>
+            </div>
+            <input id="optionSlider" type="range" min="1" max="120" step="1" value="1">
+            <div class="slider-extremes">
+              <span>Earlier</span>
+              <span>Later</span>
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Adjacency vs Daylight</div>
+              <div class="value" id="adjacencyDaylightValue">Balanced</div>
+            </div>
+            <input id="adjacencyDaylight" type="range" min="0" max="100" step="1" value="50">
+            <div class="slider-extremes">
+              <span>Adjacency-led</span>
+              <span>Daylight-led</span>
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Compactness vs Expression</div>
+              <div class="value" id="compactExpressionValue">Balanced</div>
+            </div>
+            <input id="compactExpression" type="range" min="0" max="100" step="1" value="46">
+            <div class="slider-extremes">
+              <span>Tight pack</span>
+              <span>Articulated</span>
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Public vs Private Zoning</div>
+              <div class="value" id="zoningValue">Public Forward</div>
+            </div>
+            <input id="zoningBias" type="range" min="0" max="100" step="1" value="38">
+            <div class="slider-extremes">
+              <span>Public forward</span>
+              <span>Private forward</span>
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Single-Floor vs Multi-Floor</div>
+              <div class="value" id="floorBiasValue">Moderate Spread</div>
+            </div>
+            <input id="floorBias" type="range" min="0" max="100" step="1" value="48">
+            <div class="slider-extremes">
+              <span>Pack tight</span>
+              <span>Spread vertically</span>
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-head">
+              <div class="name">Core / Circulation Bias</div>
+              <div class="value" id="coreBiasValue">Measured</div>
+            </div>
+            <input id="coreBias" type="range" min="0" max="100" step="1" value="56">
+            <div class="slider-extremes">
+              <span>Loose field</span>
+              <span>Strong spine</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card pad">
+        <div class="section-head">
+          <div>
+            <h2>Readout</h2>
+            <div class="hint">Performance is schematic, but it should be close enough for next-step refinement.</div>
+          </div>
+        </div>
+        <div id="metrics" class="metrics-grid"></div>
+      </section>
+
+      <section class="card list-card">
+        <div class="pad" style="padding-bottom:10px">
+          <div class="section-head" style="margin-bottom:0">
+            <div>
+              <h2>Program Blocks</h2>
+              <div id="programListHint" class="hint">Scaled from the current target GSF.</div>
+            </div>
+          </div>
+        </div>
+        <div id="programList" class="program-list"></div>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <section class="card workspace-bar">
+        <div class="workspace-title">
+          <h2>Multi-Floor Layout Stack</h2>
+          <div id="statusLine" class="status-line">Loading program database…</div>
+          <div id="loadingLine" class="micro">Pan to move, wheel or trackpad to zoom, double-click fit to frame the stack.</div>
+        </div>
+        <div class="toolbar-actions">
+          <button id="shuffleOption" class="btn">Shuffle Option</button>
+          <button id="fitAll" class="btn">Fit All</button>
+          <button id="resetView" class="btn">Reset View</button>
+        </div>
+      </section>
+
+      <section class="card viewport-card">
+        <div class="viewport-overlay">
+          <div id="workspaceTagA" class="viewport-tag">Program loading</div>
+          <div id="workspaceTagB" class="viewport-tag">Footprint preset</div>
+        </div>
+        <svg id="viewport" class="viewport" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet" aria-label="Room layout explorer">
+          <defs>
+            <pattern id="minorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" class="grid-minor"></path>
+            </pattern>
+            <pattern id="majorGrid" width="160" height="160" patternUnits="userSpaceOnUse">
+              <rect width="160" height="160" fill="url(#minorGrid)"></rect>
+              <path d="M 160 0 L 0 0 0 160" fill="none" class="grid-major"></path>
+            </pattern>
+          </defs>
+          <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#majorGrid)"></rect>
+          <g id="world"></g>
+        </svg>
+        <div class="viewport-note">Stacked levels · schematic room clusters · local data only</div>
+      </section>
+
+      <section class="workspace-foot">
+        <section class="card">
+          <div class="pad" style="padding-bottom:10px">
+            <div class="section-head" style="margin-bottom:0">
+              <div>
+                <h2>Layout Summary</h2>
+                <div class="hint">A quick sanity pass on the current option.</div>
+              </div>
+            </div>
+          </div>
+          <div id="summaryGrid" class="summary-grid" style="padding:0 14px 14px"></div>
+        </section>
+
+        <section class="card">
+          <div class="pad" style="padding-bottom:10px">
+            <div class="section-head" style="margin-bottom:0">
+              <div>
+                <h2>Department Legend</h2>
+                <div class="hint">Colors are drawn from normalized room categories.</div>
+              </div>
+            </div>
+          </div>
+          <div id="legendList" class="legend-list"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <div class="footer">CALVEY PARTI 3 · standalone HTML app · program-to-plan layout generation</div>
+
+<script>
+const MASTER_PATH = "./CALVEY_FORM_v1/data/building_program_database_master_v0.2.json";
+const DATA_DIR = "./CALVEY_FORM_v1/data/";
+const OPTION_COUNT = 120;
+const FLOOR_GAP = 220;
+const VIEW_PADDING = 120;
+const GRID_TARGET_CELLS = 340;
+
+const CATEGORY_COLORS = {
+  "Public/Entry":"#d0be94",
+  "Public/Commons":"#c8b486",
+  "Public/Support":"#bda57c",
+  "Administration":"#9ea4b8",
+  "Work":"#91b6c4",
+  "Meeting":"#84a9b7",
+  "Learning":"#9fba8e",
+  "Instruction":"#94b182",
+  "Clinical":"#d0a087",
+  "Clinical/Support":"#c38d74",
+  "Clinical/Diagnostics":"#be8568",
+  "Food Service":"#c89a79",
+  "Amenity":"#8ea6b7",
+  "Amenity/Outdoor":"#8bb3b0",
+  "Operations":"#a9a39a",
+  "Operations/Circulation":"#998f85",
+  "Circulation":"#b2aba0",
+  "Circulation/Core":"#9e9a92",
+  "MEP":"#8f8b85",
+  "MEP/Tech":"#878c92",
+  "Mobility":"#9cb0b5",
+  "Parking":"#8a8c91",
+  "Safety/Operations":"#ad8d7f",
+  "Rooms":"#9fb9ca",
+  "Support":"#a6a99d"
+};
+
+const state = {
+  catalog: null,
+  programCache: new Map(),
+  currentProgram: null,
+  currentRawDatabase: null,
+  layout: null,
+  lastBounds: null,
+  importedFootprint: null,
+  importedFootprintName: "",
+  needsRefit: true,
+  errorMessage: "",
+  transform: {x: 0, y: 0, k: 1},
+  animation: null,
+  drag: null
+};
+
+const els = {
+  buildingType: document.getElementById("buildingType"),
+  programSubtype: document.getElementById("programSubtype"),
+  subtypeRange: document.getElementById("subtypeRange"),
+  targetGross: document.getElementById("targetGross"),
+  floorCount: document.getElementById("floorCount"),
+  footprintPreset: document.getElementById("footprintPreset"),
+  footprintFile: document.getElementById("footprintFile"),
+  footprintName: document.getElementById("footprintName"),
+  footprintSource: document.getElementById("footprintSource"),
+  applyTypical: document.getElementById("applyTypical"),
+  clearFootprint: document.getElementById("clearFootprint"),
+  regenerate: document.getElementById("regenerate"),
+  optionSlider: document.getElementById("optionSlider"),
+  adjacencyDaylight: document.getElementById("adjacencyDaylight"),
+  compactExpression: document.getElementById("compactExpression"),
+  zoningBias: document.getElementById("zoningBias"),
+  floorBias: document.getElementById("floorBias"),
+  coreBias: document.getElementById("coreBias"),
+  optionValue: document.getElementById("optionValue"),
+  adjacencyDaylightValue: document.getElementById("adjacencyDaylightValue"),
+  compactExpressionValue: document.getElementById("compactExpressionValue"),
+  zoningValue: document.getElementById("zoningValue"),
+  floorBiasValue: document.getElementById("floorBiasValue"),
+  coreBiasValue: document.getElementById("coreBiasValue"),
+  metrics: document.getElementById("metrics"),
+  programList: document.getElementById("programList"),
+  programListHint: document.getElementById("programListHint"),
+  viewport: document.getElementById("viewport"),
+  world: document.getElementById("world"),
+  statusLine: document.getElementById("statusLine"),
+  loadingLine: document.getElementById("loadingLine"),
+  workspaceTagA: document.getElementById("workspaceTagA"),
+  workspaceTagB: document.getElementById("workspaceTagB"),
+  fitAll: document.getElementById("fitAll"),
+  resetView: document.getElementById("resetView"),
+  shuffleOption: document.getElementById("shuffleOption"),
+  summaryGrid: document.getElementById("summaryGrid"),
+  legendList: document.getElementById("legendList"),
+  errorBanner: document.getElementById("errorBanner")
+};
+
+document.addEventListener("DOMContentLoaded", boot);
+
+async function boot(){
+  wireUI();
+  updateSliderLabels();
+  try{
+    const master = await loadJSON(MASTER_PATH);
+    state.catalog = master.databases || [];
+    populateBuildingTypes();
+    await onBuildingTypeChange();
+  }catch(error){
+    showError("Unable to load the local CALVEY program database. Serve this folder over local HTTP if your browser blocks file-based fetches.");
+    console.error(error);
+  }
+}
+
+function wireUI(){
+  els.buildingType.addEventListener("change", onBuildingTypeChange);
+  els.programSubtype.addEventListener("change", () => {
+    syncSubtypeRange();
+    renderCurrentOption(true);
+  });
+  els.applyTypical.addEventListener("click", () => {
+    applySubtypeMidpoint();
+    renderCurrentOption(true);
+  });
+  els.clearFootprint.addEventListener("click", () => {
+    state.importedFootprint = null;
+    state.importedFootprintName = "";
+    els.footprintFile.value = "";
+    updateFootprintState();
+    renderCurrentOption(true);
+  });
+  els.regenerate.addEventListener("click", () => renderCurrentOption(true));
+  els.targetGross.addEventListener("change", () => renderCurrentOption(true));
+  els.floorCount.addEventListener("change", () => renderCurrentOption(true));
+  els.footprintPreset.addEventListener("change", () => {
+    updateFootprintState();
+    renderCurrentOption(true);
+  });
+  els.footprintFile.addEventListener("change", handleFootprintFile);
+
+  [
+    els.optionSlider,
+    els.adjacencyDaylight,
+    els.compactExpression,
+    els.zoningBias,
+    els.floorBias,
+    els.coreBias
+  ].forEach((input) => {
+    input.addEventListener("input", () => {
+      updateSliderLabels();
+      renderCurrentOption(false);
+    });
+  });
+
+  els.shuffleOption.addEventListener("click", () => {
+    els.optionSlider.value = String(1 + Math.floor(Math.random() * OPTION_COUNT));
+    updateSliderLabels();
+    renderCurrentOption(false);
+  });
+  els.fitAll.addEventListener("click", () => fitToLayout(true));
+  els.resetView.addEventListener("click", () => {
+    state.needsRefit = true;
+    fitToLayout(true);
+  });
+
+  els.viewport.addEventListener("pointerdown", onPointerDown);
+  els.viewport.addEventListener("wheel", onWheelZoom, {passive:false});
+  els.viewport.addEventListener("dblclick", () => fitToLayout(true));
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("resize", () => {
+    if(state.layout){
+      state.needsRefit = true;
+      fitToLayout(false);
+    }
+  });
+  window.addEventListener("keydown", (event) => {
+    const isTyping = /input|select|textarea/i.test(document.activeElement?.tagName || "");
+    if(isTyping) return;
+    if(event.key === "ArrowRight"){
+      els.optionSlider.value = String(Math.min(OPTION_COUNT, Number(els.optionSlider.value) + 1));
+      updateSliderLabels();
+      renderCurrentOption(false);
+    }else if(event.key === "ArrowLeft"){
+      els.optionSlider.value = String(Math.max(1, Number(els.optionSlider.value) - 1));
+      updateSliderLabels();
+      renderCurrentOption(false);
+    }
+  });
+}
+
+function showError(message){
+  state.errorMessage = message;
+  els.errorBanner.hidden = false;
+  els.errorBanner.textContent = message;
+}
+
+function clearError(){
+  state.errorMessage = "";
+  els.errorBanner.hidden = true;
+  els.errorBanner.textContent = "";
+}
+
+function populateBuildingTypes(){
+  els.buildingType.innerHTML = state.catalog.map((entry, index) => {
+    const label = entry.building_type || entry.category || `Program ${index + 1}`;
+    return `<option value="${escapeAttr(entry.json)}">${escapeHtml(label)}</option>`;
+  }).join("");
+}
+
+async function onBuildingTypeChange(){
+  clearError();
+  const file = els.buildingType.value;
+  const entry = state.catalog.find((item) => item.json === file) || state.catalog[0];
+  if(!entry) return;
+  try{
+    const raw = await getProgramDatabase(entry);
+    state.currentRawDatabase = raw;
+    state.currentProgram = normalizeDatabase(entry, raw);
+    populateSubtypeSelect(state.currentProgram);
+    applySubtypeMidpoint();
+    updateFootprintState();
+    renderCurrentOption(true);
+  }catch(error){
+    showError("The selected building type could not be loaded from the local CALVEY database.");
+    console.error(error);
+  }
+}
+
+function populateSubtypeSelect(program){
+  const subtypes = program.subtypes.length ? program.subtypes : [{
+    id: "DEFAULT",
+    name: `${program.buildingType} / Default`,
+    grossSfTypical: [12000, 60000],
+    efficiencyRange: [0.72, 0.82]
+  }];
+  els.programSubtype.innerHTML = subtypes.map((subtype) => (
+    `<option value="${escapeAttr(subtype.id)}">${escapeHtml(subtype.name)}</option>`
+  )).join("");
+  syncSubtypeRange();
+}
+
+function syncSubtypeRange(){
+  const subtype = getSelectedSubtype();
+  if(!subtype){
+    els.subtypeRange.textContent = "No subtype profile loaded.";
+    return;
+  }
+  const min = formatNumber(subtype.grossSfTypical?.[0] || 0);
+  const max = formatNumber(subtype.grossSfTypical?.[1] || 0);
+  const eff = subtype.efficiencyRange ? `${Math.round(subtype.efficiencyRange[0] * 100)}–${Math.round(subtype.efficiencyRange[1] * 100)}% efficient` : "efficiency not set";
+  els.subtypeRange.textContent = `${min}–${max} GSF typical · ${eff}`;
+}
+
+function applySubtypeMidpoint(){
+  const subtype = getSelectedSubtype();
+  if(!subtype) return;
+  const mid = midpoint(subtype.grossSfTypical) || 40000;
+  els.targetGross.value = String(roundTo(mid, 100));
+  syncSubtypeRange();
+}
+
+async function handleFootprintFile(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const raw = JSON.parse(text);
+    state.importedFootprint = normalizeFootprintJSON(raw);
+    state.importedFootprintName = file.name;
+    els.footprintName.textContent = `${file.name} loaded`;
+    updateFootprintState();
+    renderCurrentOption(true);
+  }catch(error){
+    showError("Footprint JSON could not be parsed. Use a simple polygon like {\"points\":[[0,0],[120,0],[120,80],[0,80]]}.");
+    console.error(error);
+  }
+}
+
+function updateFootprintState(){
+  if(state.importedFootprint){
+    els.footprintSource.textContent = `Imported · ${state.importedFootprintName || "Custom JSON"}`;
+    els.workspaceTagB.textContent = `Footprint · ${state.importedFootprint.label || "Imported JSON"}`;
+  }else{
+    els.footprintSource.textContent = `Preset · ${labelizePreset(els.footprintPreset.value)}`;
+    els.workspaceTagB.textContent = `Footprint · ${labelizePreset(els.footprintPreset.value)}`;
+    els.footprintName.textContent = "Expected schema: {\"points\":[[x,y],...]}";
+  }
+}
+
+function updateSliderLabels(){
+  const option = Number(els.optionSlider.value);
+  els.optionValue.textContent = `Option ${String(option).padStart(3, "0")}`;
+  els.adjacencyDaylightValue.textContent = sliderDescriptor(Number(els.adjacencyDaylight.value), [
+    "Adjacency-led","Weighted","Balanced","Window-seeking","Daylight-led"
+  ]);
+  els.compactExpressionValue.textContent = sliderDescriptor(Number(els.compactExpression.value), [
+    "Tight pack","Controlled","Balanced","Looser","Expressive"
+  ]);
+  els.zoningValue.textContent = sliderDescriptor(Number(els.zoningBias.value), [
+    "Public Forward","Civic front","Balanced","Private-led","Private Forward"
+  ]);
+  els.floorBiasValue.textContent = sliderDescriptor(Number(els.floorBias.value), [
+    "Dense plate","Low-rise","Moderate Spread","Vertical","Tall stack"
+  ]);
+  els.coreBiasValue.textContent = sliderDescriptor(Number(els.coreBias.value), [
+    "Loose field","Soft order","Measured","Structured","Strong spine"
+  ]);
+}
+
+async function getProgramDatabase(entry){
+  if(state.programCache.has(entry.json)) return state.programCache.get(entry.json);
+  const data = await loadJSON(`${DATA_DIR}${entry.json}`);
+  state.programCache.set(entry.json, data);
+  return data;
+}
+
+async function renderCurrentOption(refit){
+  if(!state.currentProgram) return;
+  clearError();
+  els.statusLine.textContent = "Generating option…";
+  const settings = collectSettings();
+  try{
+    const layout = buildLayout(state.currentProgram, settings);
+    state.layout = layout;
+    state.needsRefit = state.needsRefit || refit;
+    renderWorkspace(layout);
+    renderMetrics(layout);
+    renderProgramList(layout);
+    renderSummary(layout);
+    renderLegend(layout);
+    els.statusLine.textContent = `${layout.program.buildingType} · ${layout.subtype.name} · ${layout.footprint.label} · ${layout.floors.length} level${layout.floors.length === 1 ? "" : "s"}`;
+    els.workspaceTagA.textContent = `Option ${String(settings.optionIndex).padStart(3, "0")} · ${Math.round(layout.scores.adjacency * 100)} adj · ${Math.round(layout.scores.daylight * 100)} daylight`;
+    els.loadingLine.textContent = `Gross ${formatNumber(settings.targetGross)} SF · plate ${formatNumber(layout.plateGross)} SF · ${layout.footprintSource}`;
+    if(state.needsRefit) fitToLayout(true);
+  }catch(error){
+    showError("Layout generation ran into a schematic dead-end. Try another option or adjust the floor count.");
+    console.error(error);
+  }
+}
+
+function collectSettings(){
+  return {
+    targetGross: clamp(Number(els.targetGross.value) || 50000, 2000, 3000000),
+    floorMode: els.floorCount.value,
+    footprintPreset: els.footprintPreset.value,
+    optionIndex: Number(els.optionSlider.value),
+    adjacencyDaylight: Number(els.adjacencyDaylight.value) / 100,
+    compactExpression: Number(els.compactExpression.value) / 100,
+    zoningBias: Number(els.zoningBias.value) / 100,
+    floorBias: Number(els.floorBias.value) / 100,
+    coreBias: Number(els.coreBias.value) / 100
+  };
+}
+
+function buildLayout(program, settings){
+  const subtype = getSelectedSubtype() || program.subtypes[0];
+  const floorCount = determineFloorCount(program, subtype, settings);
+  const efficiency = clamp(midpoint(subtype.efficiencyRange) || (1 / program.grossingFactor), 0.45, 0.92);
+  const plateGross = settings.targetGross / floorCount;
+  const footprint = buildFootprintGeometry(settings, plateGross);
+  const scenario = buildScenario(program, subtype, settings.targetGross, floorCount, efficiency, settings.coreBias, plateGross);
+  const roomsByFloor = assignRoomsToFloors(scenario.rooms, floorCount, scenario.netPerFloor, settings);
+  const cellSize = clamp(Math.sqrt(plateGross / GRID_TARGET_CELLS), 7, 16);
+  const floors = [];
+  const seedBase = `${program.id}|${subtype.id}|${settings.optionIndex}|${settings.targetGross}|${settings.floorBias}|${settings.zoningBias}|${settings.adjacencyDaylight}|${settings.compactExpression}|${settings.coreBias}|${settings.footprintPreset}|${floorCount}`;
+
+  for(let i = 0; i < floorCount; i += 1){
+    const floorSeed = mulberry32(xmur3(`${seedBase}|L${i}`)());
+    floors.push(layoutOneFloor({
+      floorIndex: i,
+      totalFloors: floorCount,
+      rooms: roomsByFloor[i],
+      footprint,
+      cellSize,
+      settings,
+      random: floorSeed
+    }));
+  }
+
+  const worldBounds = calculateWorldBounds(floors);
+  const scores = scoreLayout(floors, footprint, scenario, settings);
+
+  return {
+    program,
+    subtype,
+    settings,
+    floors,
+    worldBounds,
+    footprint,
+    footprintSource: state.importedFootprint ? `Imported footprint · ${state.importedFootprintName}` : `Preset footprint · ${footprint.label}`,
+    targetGross: settings.targetGross,
+    netTarget: scenario.netTarget,
+    plateGross,
+    efficiency,
+    grossingFactor: roundTo(1 / efficiency, 0.01),
+    roomCount: scenario.rooms.length,
+    scores
+  };
+}
+
+function determineFloorCount(program, subtype, settings){
+  if(settings.floorMode !== "auto") return Number(settings.floorMode);
+  const target = settings.targetGross;
+  const explicitUpper = clamp(Math.ceil(target / 12000), 2, 10);
+  const subtypeBand = midpoint(subtype.grossSfTypical) || target;
+  const scaleHint = clamp(target / Math.max(12000, subtypeBand * 0.35), 0.6, 3.4);
+  const base = clamp(Math.round(1 + settings.floorBias * (explicitUpper - 1) * 0.9 + (scaleHint - 1) * 0.8), 1, explicitUpper);
+  const tallProgramBoost = /hotel|housing|residential|senior|student/i.test(program.buildingType) ? 1 : 0;
+  return clamp(base + tallProgramBoost, 1, explicitUpper);
+}
+
+function buildScenario(program, subtype, targetGross, floorCount, efficiency, coreBias, plateGross){
+  const netTarget = targetGross * efficiency;
+  const baseRooms = program.rooms.map((room) => ({...room}));
+  const totalAreaShare = baseRooms.reduce((sum, room) => sum + (room.areaShare || 0), 0);
+  const baseAreaValues = baseRooms.map((room) => {
+    if(room.areaShare && totalAreaShare > 0.2) return room.areaShare * targetGross;
+    return room.areaBase;
+  });
+  const circulationShare = baseRooms.reduce((sum, room) => sum + (isCirculationRoom(room) ? (room.areaShare || 0) : 0), 0);
+  const coreShare = baseRooms.reduce((sum, room) => sum + (isCoreRoom(room) ? (room.areaShare || 0) : 0), 0);
+
+  const syntheticRooms = [];
+  let reserve = 0;
+  if(circulationShare < 0.05){
+    const spineTotal = targetGross * lerp(0.03, 0.075, coreBias);
+    reserve += spineTotal;
+    for(let i = 0; i < floorCount; i += 1){
+      syntheticRooms.push({
+        id: `SYN_SPINE_${i + 1}`,
+        familyId: "SYN_SPINE",
+        name: "Main Circulation",
+        shortName: "Spine",
+        dept: "Circulation",
+        area: roundTo(spineTotal / floorCount, 10),
+        zone: "service",
+        daylight: 0.05,
+        publicness: 0.15,
+        privacy: 0.15,
+        service: 0.9,
+        floorPreference: "All",
+        priority: 0.9,
+        adj: [],
+        synthetic: true,
+        role: "corridor",
+        forceFloor: i
+      });
+    }
+  }
+  if(coreShare < 0.02){
+    const coreTotal = targetGross * lerp(0.018, 0.04, coreBias);
+    reserve += coreTotal;
+    for(let i = 0; i < floorCount; i += 1){
+      syntheticRooms.push({
+        id: `SYN_CORE_${i + 1}`,
+        familyId: "SYN_CORE",
+        name: "Vertical Core",
+        shortName: "Core",
+        dept: "Circulation/Core",
+        area: roundTo(coreTotal / floorCount, 10),
+        zone: "service",
+        daylight: 0,
+        publicness: 0.05,
+        privacy: 0.2,
+        service: 1,
+        floorPreference: "All",
+        priority: 1,
+        adj: [],
+        synthetic: true,
+        role: "core",
+        forceFloor: i
+      });
+    }
+  }
+
+  const scaledTarget = Math.max(4000, netTarget - reserve);
+  const baseAreaSum = baseAreaValues.reduce((sum, value) => sum + value, 0) || 1;
+  const scale = scaledTarget / baseAreaSum;
+  const scaledRooms = baseRooms.map((room, index) => ({
+    ...room,
+    area: roundTo(Math.max(room.minArea || 90, baseAreaValues[index] * scale), 10)
+  }));
+
+  const maxChunkArea = Math.max(1200, plateGross * efficiency * 0.68);
+  const rooms = splitOversizeRooms(scaledRooms, maxChunkArea).concat(syntheticRooms);
+  const netPerFloor = netTarget / floorCount;
+
+  return {rooms, netTarget, netPerFloor};
+}
+
+function splitOversizeRooms(rooms, maxChunkArea){
+  const output = [];
+  rooms.forEach((room) => {
+    const chunkCount = room.synthetic ? 1 : Math.max(1, Math.ceil(room.area / maxChunkArea));
+    if(chunkCount === 1){
+      output.push({...room});
+      return;
+    }
+    const chunkArea = room.area / chunkCount;
+    for(let i = 0; i < chunkCount; i += 1){
+      output.push({
+        ...room,
+        id: `${room.id}_${i + 1}`,
+        familyId: room.familyId || room.id,
+        area: roundTo(chunkArea, 10),
+        name: `${room.name} ${String.fromCharCode(65 + i)}`
+      });
+    }
+  });
+  return output;
+}
+
+function assignRoomsToFloors(rooms, floorCount, netPerFloor, settings){
+  const floors = Array.from({length: floorCount}, () => []);
+  const usage = Array(floorCount).fill(0);
+  const maxUsage = Array.from({length: floorCount}, (_, index) => netPerFloor * (index === 0 ? 1.18 : 1.08));
+  const ordered = rooms.slice().sort((a, b) => {
+    const aWeight = roomOrderingWeight(a);
+    const bWeight = roomOrderingWeight(b);
+    return bWeight - aWeight;
+  });
+
+  ordered.forEach((room) => {
+    if(Number.isInteger(room.forceFloor)){
+      room.floorIndex = room.forceFloor;
+      floors[room.forceFloor].push(room);
+      usage[room.forceFloor] += room.area;
+      return;
+    }
+    let bestFloor = 0;
+    let bestScore = -Infinity;
+    for(let i = 0; i < floorCount; i += 1){
+      const pref = floorPreferenceScore(room.floorPreference, i, floorCount);
+      const zone = zoneFloorScore(room, i, floorCount, settings.zoningBias);
+      const overload = Math.max(0, (usage[i] + room.area - maxUsage[i]) / maxUsage[i]);
+      const capacityPenalty = overload * 1.7;
+      const jitter = seededValue(`${room.id}|${i}|${settings.optionIndex}`) * 0.22;
+      const score = pref + zone - capacityPenalty + jitter;
+      if(score > bestScore){
+        bestScore = score;
+        bestFloor = i;
+      }
+    }
+    room.floorIndex = bestFloor;
+    floors[bestFloor].push(room);
+    usage[bestFloor] += room.area;
+  });
+
+  return floors.map((floorRooms) => floorRooms.sort((a, b) => roomOrderingWeight(b) - roomOrderingWeight(a)));
+}
+
+function layoutOneFloor(context){
+  const {floorIndex, totalFloors, rooms, footprint, cellSize, settings, random} = context;
+  const grid = rasterizeFootprint(footprint, cellSize);
+  const cellArea = cellSize * cellSize;
+  const placements = [];
+  const familyAnchors = new Map();
+
+  const majorAxis = footprint.bounds.width >= footprint.bounds.height ? "x" : "y";
+
+  rooms.forEach((room) => {
+    const targetCells = Math.max(1, Math.round(room.area / cellArea));
+    let cluster;
+    if(room.role === "core" || isCoreRoom(room)){
+      cluster = allocateCoreCluster(grid, targetCells, room, settings, majorAxis, random);
+    }else if(room.role === "corridor" || isCirculationRoom(room)){
+      cluster = allocateCorridorCluster(grid, targetCells, room, settings, majorAxis, random);
+    }else{
+      cluster = allocateGenericCluster(grid, targetCells, room, settings, familyAnchors, random);
+    }
+    if(!cluster.cells.length) return;
+    const placement = finalizePlacement(cluster, room, floorIndex, cellSize);
+    placements.push(placement);
+    familyAnchors.set(room.familyId || room.id, placement);
+  });
+
+  const yOffset = floorIndex * (footprint.bounds.height + FLOOR_GAP);
+  placements.forEach((placement) => {
+    placement.renderPath = placement.renderPath.replace(/([0-9.-]+),([0-9.-]+)/g, (_, x, y) => `${roundTo(Number(x), 1)},${roundTo(Number(y) + yOffset, 1)}`);
+    placement.outlinePath = placement.outlinePath.replace(/([0-9.-]+),([0-9.-]+)/g, (_, x, y) => `${roundTo(Number(x), 1)},${roundTo(Number(y) + yOffset, 1)}`);
+    placement.centerY += yOffset;
+    placement.bounds.minY += yOffset;
+    placement.bounds.maxY += yOffset;
+  });
+
+  const translatedOutline = translatePath(footprint.path, 0, yOffset);
+  const translatedVoids = footprint.voidPaths.map((path) => translatePath(path, 0, yOffset));
+  const entryMarker = buildEntryMarker(footprint, yOffset);
+
+  return {
+    floorIndex,
+    levelName: `Level ${floorIndex + 1}`,
+    rooms: placements,
+    yOffset,
+    outlinePath: translatedOutline,
+    voidPaths: translatedVoids,
+    entryMarker,
+    bounds: {
+      minX: footprint.bounds.minX,
+      maxX: footprint.bounds.maxX,
+      minY: footprint.bounds.minY + yOffset,
+      maxY: footprint.bounds.maxY + yOffset
+    }
+  };
+}
+
+function rasterizeFootprint(footprint, cellSize){
+  const bounds = footprint.bounds;
+  const cols = Math.ceil(bounds.width / cellSize) + 2;
+  const rows = Math.ceil(bounds.height / cellSize) + 2;
+  const cells = [];
+  const keyMap = new Map();
+  const centerX = (bounds.minX + bounds.maxX) * 0.5;
+  const centerY = (bounds.minY + bounds.maxY) * 0.5;
+
+  for(let row = 0; row < rows; row += 1){
+    for(let col = 0; col < cols; col += 1){
+      const x = bounds.minX - cellSize + col * cellSize;
+      const y = bounds.minY - cellSize + row * cellSize;
+      const cx = x + cellSize * 0.5;
+      const cy = y + cellSize * 0.5;
+      if(!pointInPolygon(cx, cy, footprint.points)) continue;
+      if(footprint.voids.some((voidPoly) => pointInPolygon(cx, cy, voidPoly))) continue;
+      const cell = {
+        id: `${row}:${col}`,
+        row,
+        col,
+        x,
+        y,
+        cx,
+        cy,
+        free: true,
+        roomId: "",
+        perimeter: 0,
+        entryScore: 0,
+        depthScore: 0,
+        centerScore: 0
+      };
+      cells.push(cell);
+      keyMap.set(cell.id, cell);
+    }
+  }
+
+  cells.forEach((cell) => {
+    const neighbors = {
+      up: keyMap.get(`${cell.row - 1}:${cell.col}`),
+      down: keyMap.get(`${cell.row + 1}:${cell.col}`),
+      left: keyMap.get(`${cell.row}:${cell.col - 1}`),
+      right: keyMap.get(`${cell.row}:${cell.col + 1}`)
+    };
+    cell.neighbors = neighbors;
+    const missing = ["up","down","left","right"].reduce((sum, key) => sum + (neighbors[key] ? 0 : 1), 0);
+    cell.perimeter = missing / 4;
+    const nx = invLerp(bounds.minX, bounds.maxX, cell.cx);
+    const ny = invLerp(bounds.minY, bounds.maxY, cell.cy);
+    if(footprint.entrySide === "left") cell.entryScore = 1 - nx;
+    else if(footprint.entrySide === "right") cell.entryScore = nx;
+    else if(footprint.entrySide === "top") cell.entryScore = 1 - ny;
+    else cell.entryScore = ny;
+    cell.depthScore = 1 - cell.entryScore;
+    const dist = Math.hypot((cell.cx - centerX) / Math.max(bounds.width, 1), (cell.cy - centerY) / Math.max(bounds.height, 1));
+    cell.centerScore = clamp(1 - dist * 1.45, 0, 1);
+  });
+
+  return {cells, keyMap, cellSize, bounds, centerX, centerY};
+}
+
+function allocateCoreCluster(grid, targetCells, room, settings, majorAxis, random){
+  const dims = findRectDims(targetCells, majorAxis === "x" ? 1.15 : 0.87);
+  const candidates = scanRectangleCandidates(grid, dims.w, dims.h, (cells, bbox) => {
+    const centerScore = average(cells.map((cell) => cell.centerScore));
+    const depthScore = average(cells.map((cell) => cell.depthScore));
+    const edgePreference = settings.coreBias < 0.35 ? depthScore * 0.65 : 0;
+    const centrality = settings.coreBias >= 0.35 ? centerScore * (0.6 + settings.coreBias * 0.6) : 0.2 * centerScore;
+    return centrality + edgePreference + (random() - 0.5) * 0.06 - Math.abs((bbox.w / Math.max(bbox.h, 1)) - 1) * 0.03;
+  });
+  if(!candidates.length) return {cells: []};
+  const best = candidates.sort((a, b) => b.score - a.score)[0];
+  best.cells.forEach((cell) => {
+    cell.free = false;
+    cell.roomId = room.id;
+  });
+  return {cells: best.cells};
+}
+
+function allocateCorridorCluster(grid, targetCells, room, settings, majorAxis, random){
+  const preferredAxis = settings.coreBias >= 0.55 ? majorAxis : (majorAxis === "x" ? "y" : "x");
+  const width = settings.coreBias > 0.75 ? 2 : 1;
+  const sorted = grid.cells.slice().sort((a, b) => {
+    const aScore = corridorSeedScore(a, preferredAxis, settings, random);
+    const bScore = corridorSeedScore(b, preferredAxis, settings, random);
+    return bScore - aScore;
+  });
+  const cluster = [];
+  const taken = new Set();
+  for(const seed of sorted){
+    if(!seed.free) continue;
+    const line = corridorLineFromSeed(grid, seed, preferredAxis, width);
+    line.forEach((cell) => {
+      if(cell.free && !taken.has(cell.id) && cluster.length < targetCells){
+        cluster.push(cell);
+        taken.add(cell.id);
+      }
+    });
+    if(cluster.length >= targetCells) break;
+  }
+  if(cluster.length < targetCells){
+    expandCluster(grid, cluster, targetCells, (cell) => corridorSeedScore(cell, preferredAxis, settings, random));
+  }
+  cluster.forEach((cell) => {
+    cell.free = false;
+    cell.roomId = room.id;
+  });
+  return {cells: cluster};
+}
+
+function allocateGenericCluster(grid, targetCells, room, settings, familyAnchors, random){
+  const freeCells = grid.cells.filter((cell) => cell.free);
+  if(!freeCells.length) return {cells: []};
+  let bestSeed = freeCells[0];
+  let bestScore = -Infinity;
+  for(const cell of freeCells){
+    const score = genericSeedScore(room, cell, settings, familyAnchors, random);
+    if(score > bestScore){
+      bestScore = score;
+      bestSeed = cell;
+    }
+  }
+
+  const cluster = [bestSeed];
+  const selected = new Set([bestSeed.id]);
+  bestSeed.free = false;
+  bestSeed.roomId = room.id;
+
+  while(cluster.length < targetCells){
+    const frontier = [];
+    cluster.forEach((cell) => {
+      Object.values(cell.neighbors).forEach((neighbor) => {
+        if(neighbor && neighbor.free && !selected.has(neighbor.id)) frontier.push(neighbor);
+      });
+    });
+    if(!frontier.length) break;
+    frontier.sort((a, b) => {
+      const scoreA = growthScore(room, a, cluster, settings, familyAnchors, random);
+      const scoreB = growthScore(room, b, cluster, settings, familyAnchors, random);
+      return scoreB - scoreA;
+    });
+    const next = frontier[0];
+    next.free = false;
+    next.roomId = room.id;
+    selected.add(next.id);
+    cluster.push(next);
+  }
+
+  if(cluster.length < targetCells){
+    const spillCells = grid.cells.filter((cell) => cell.free).sort((a, b) => {
+      const scoreA = growthScore(room, a, cluster, settings, familyAnchors, random);
+      const scoreB = growthScore(room, b, cluster, settings, familyAnchors, random);
+      return scoreB - scoreA;
+    });
+    while(cluster.length < targetCells && spillCells.length){
+      const next = spillCells.shift();
+      next.free = false;
+      next.roomId = room.id;
+      cluster.push(next);
+    }
+  }
+
+  return {cells: cluster};
+}
+
+function expandCluster(grid, cluster, targetCells, scoreFn){
+  const selected = new Set(cluster.map((cell) => cell.id));
+  while(cluster.length < targetCells){
+    const frontier = [];
+    cluster.forEach((cell) => {
+      Object.values(cell.neighbors).forEach((neighbor) => {
+        if(neighbor && neighbor.free && !selected.has(neighbor.id)) frontier.push(neighbor);
+      });
+    });
+    if(!frontier.length) break;
+    frontier.sort((a, b) => scoreFn(b) - scoreFn(a));
+    const next = frontier[0];
+    next.free = false;
+    selected.add(next.id);
+    cluster.push(next);
+  }
+}
+
+function finalizePlacement(cluster, room, floorIndex, cellSize){
+  const cells = cluster.cells;
+  const bounds = cellClusterBounds(cells, cellSize);
+  const centroid = {
+    x: average(cells.map((cell) => cell.cx)),
+    y: average(cells.map((cell) => cell.cy))
+  };
+  const outlinePath = pathFromCells(cells, cellSize);
+  const renderPath = cells.map((cell) => `M${cell.x},${cell.y}h${cellSize}v${cellSize}h-${cellSize}Z`).join("");
+  return {
+    id: room.id,
+    familyId: room.familyId || room.id,
+    name: room.name,
+    shortName: room.shortName || room.name,
+    dept: room.dept,
+    area: cells.length * cellSize * cellSize,
+    targetArea: room.area,
+    cells,
+    bounds,
+    centerX: centroid.x,
+    centerY: centroid.y,
+    fill: colorForCategory(room.dept),
+    outlinePath,
+    renderPath,
+    role: room.role || "",
+    roomMeta: room
+  };
+}
+
+function renderWorkspace(layout){
+  const parts = [];
+  layout.floors.forEach((floor) => {
+    const floorTitleY = floor.bounds.minY - 34;
+    parts.push(`<g class="floor">`);
+    parts.push(`<text class="floor-title" x="${roundTo(floor.bounds.minX, 1)}" y="${roundTo(floorTitleY, 1)}">${escapeHtml(floor.levelName)}</text>`);
+    parts.push(`<text class="floor-meta" x="${roundTo(floor.bounds.minX, 1)}" y="${roundTo(floorTitleY + 18, 1)}">${formatNumber(layout.plateGross)} GSF target plate</text>`);
+    parts.push(`<path class="outline" d="${floor.outlinePath}"></path>`);
+    floor.voidPaths.forEach((path) => {
+      parts.push(`<path class="void-fill" d="${path}"></path>`);
+    });
+    parts.push(`<path class="entry-mark" d="${floor.entryMarker}"></path>`);
+    floor.rooms.forEach((room) => {
+      parts.push(`<g class="room">`);
+      parts.push(`<path d="${room.renderPath}" fill="${room.fill}" opacity="0.82"></path>`);
+      parts.push(`<path class="room-outline" d="${room.outlinePath}"></path>`);
+      const label = roomLabel(room);
+      if(label){
+        parts.push(`<text class="room-name" text-anchor="middle" x="${roundTo(room.centerX, 1)}" y="${roundTo(room.centerY - 3, 1)}">${escapeHtml(label.name)}</text>`);
+        parts.push(`<text class="room-area" text-anchor="middle" x="${roundTo(room.centerX, 1)}" y="${roundTo(room.centerY + 13, 1)}">${escapeHtml(label.area)}</text>`);
+      }
+      parts.push(`</g>`);
+    });
+    parts.push(`</g>`);
+  });
+  els.world.innerHTML = parts.join("");
+  applyTransform();
+  state.lastBounds = layout.worldBounds;
+}
+
+function renderMetrics(layout){
+  const metrics = [
+    {label:"Floors", value:String(layout.floors.length), note:`${layout.settings.floorMode === "auto" ? "Auto floor logic" : "User fixed floor count"}`},
+    {label:"Plate Size", value:formatCompact(layout.plateGross), note:"gross square feet per level"},
+    {label:"Adjacency", value:`${Math.round(layout.scores.adjacency * 100)}%`, note:"same-floor proximity + touch"},
+    {label:"Daylight", value:`${Math.round(layout.scores.daylight * 100)}%`, note:"perimeter match for light-hungry rooms"},
+    {label:"Net / Gross", value:`${Math.round(layout.efficiency * 100)}%`, note:`grossing factor ${layout.grossingFactor.toFixed(2)}`},
+    {label:"Coverage", value:`${Math.round(layout.scores.coverage * 100)}%`, note:"program fill inside each plate"}
+  ];
+  els.metrics.innerHTML = metrics.map((metric) => `
+    <div class="metric">
+      <div class="label">${escapeHtml(metric.label)}</div>
+      <div class="value">${escapeHtml(metric.value)}</div>
+      <div class="note">${escapeHtml(metric.note)}</div>
+    </div>
+  `).join("");
+}
+
+function renderProgramList(layout){
+  const rows = [];
+  layout.floors.forEach((floor) => {
+    floor.rooms
+      .slice()
+      .sort((a, b) => b.area - a.area)
+      .forEach((room) => {
+        rows.push(`
+          <div class="program-row">
+            <div class="swatch" style="background:${room.fill}"></div>
+            <div>
+              <div class="title">${escapeHtml(room.name)}</div>
+              <div class="meta">${escapeHtml(floor.levelName)} · ${escapeHtml(room.dept)}</div>
+            </div>
+            <div class="area">${escapeHtml(formatCompact(room.targetArea))}</div>
+          </div>
+        `);
+      });
+  });
+  els.programList.innerHTML = rows.join("");
+  els.programListHint.textContent = `${layout.roomCount} schematic room blocks scaled to ${formatNumber(layout.targetGross)} GSF.`;
+}
+
+function renderSummary(layout){
+  const items = [
+    {label:"Program", value:layout.program.buildingType},
+    {label:"Profile", value:layout.subtype.name},
+    {label:"Footprint", value:layout.footprint.label},
+    {label:"Entry Bias", value:capitalize(layout.footprint.entrySide)},
+    {label:"Target Gross", value:`${formatCompact(layout.targetGross)} GSF`},
+    {label:"Current Option", value:`${String(layout.settings.optionIndex).padStart(3, "0")}`},
+    {label:"Stack Logic", value:layout.settings.floorMode === "auto" ? "Auto floors" : `${layout.floors.length} fixed floors`},
+    {label:"Source", value:state.importedFootprint ? "Imported footprint JSON" : "Preset footprint"}
+  ];
+  els.summaryGrid.innerHTML = items.map((item) => `
+    <div class="summary-pill">
+      <div class="label">${escapeHtml(item.label)}</div>
+      <div class="value">${escapeHtml(item.value)}</div>
+    </div>
+  `).join("");
+}
+
+function renderLegend(layout){
+  const seen = new Map();
+  layout.floors.forEach((floor) => {
+    floor.rooms.forEach((room) => {
+      if(!seen.has(room.dept)) seen.set(room.dept, room.fill);
+    });
+  });
+  els.legendList.innerHTML = [...seen.entries()].slice(0, 14).map(([dept, fill]) => `
+    <div class="legend-item">
+      <span class="swatch" style="background:${fill};margin-top:0"></span>
+      <span>${escapeHtml(dept)}</span>
+    </div>
+  `).join("");
+}
+
+function fitToLayout(animated){
+  if(!state.layout || !state.lastBounds) return;
+  const svgRect = els.viewport.getBoundingClientRect();
+  const width = svgRect.width || 1200;
+  const height = svgRect.height || 900;
+  const bounds = state.lastBounds;
+  const worldW = Math.max(bounds.maxX - bounds.minX, 1);
+  const worldH = Math.max(bounds.maxY - bounds.minY, 1);
+  const scale = Math.min((width - VIEW_PADDING) / worldW, (height - VIEW_PADDING) / worldH);
+  const x = width * 0.5 - (bounds.minX + worldW * 0.5) * scale;
+  const y = height * 0.5 - (bounds.minY + worldH * 0.5) * scale;
+  const target = {x, y, k: scale};
+  state.needsRefit = false;
+  if(animated) animateTransform(target);
+  else{
+    state.transform = target;
+    applyTransform();
+  }
+}
+
+function animateTransform(target){
+  const start = performance.now();
+  const from = {...state.transform};
+  state.animation = {start, from, target};
+  requestAnimationFrame(stepAnimation);
+}
+
+function stepAnimation(now){
+  if(!state.animation) return;
+  const t = clamp((now - state.animation.start) / 280, 0, 1);
+  const eased = 1 - Math.pow(1 - t, 3);
+  state.transform = {
+    x: lerp(state.animation.from.x, state.animation.target.x, eased),
+    y: lerp(state.animation.from.y, state.animation.target.y, eased),
+    k: lerp(state.animation.from.k, state.animation.target.k, eased)
+  };
+  applyTransform();
+  if(t < 1) requestAnimationFrame(stepAnimation);
+  else state.animation = null;
+}
+
+function applyTransform(){
+  els.world.setAttribute("transform", `translate(${roundTo(state.transform.x, 3)} ${roundTo(state.transform.y, 3)}) scale(${roundTo(state.transform.k, 5)})`);
+}
+
+function onPointerDown(event){
+  state.drag = {
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    originX: state.transform.x,
+    originY: state.transform.y
+  };
+  els.viewport.classList.add("is-panning");
+  els.viewport.setPointerCapture(event.pointerId);
+}
+
+function onPointerMove(event){
+  if(!state.drag || state.drag.pointerId !== event.pointerId) return;
+  const dx = event.clientX - state.drag.startX;
+  const dy = event.clientY - state.drag.startY;
+  state.transform.x = state.drag.originX + dx;
+  state.transform.y = state.drag.originY + dy;
+  applyTransform();
+}
+
+function onPointerUp(event){
+  if(!state.drag || state.drag.pointerId !== event.pointerId) return;
+  state.drag = null;
+  els.viewport.classList.remove("is-panning");
+}
+
+function onWheelZoom(event){
+  event.preventDefault();
+  const rect = els.viewport.getBoundingClientRect();
+  const cx = event.clientX - rect.left;
+  const cy = event.clientY - rect.top;
+  const scaleFactor = Math.exp(-event.deltaY * 0.0012);
+  const nextK = clamp(state.transform.k * scaleFactor, 0.08, 6);
+  const worldX = (cx - state.transform.x) / state.transform.k;
+  const worldY = (cy - state.transform.y) / state.transform.k;
+  state.transform.x = cx - worldX * nextK;
+  state.transform.y = cy - worldY * nextK;
+  state.transform.k = nextK;
+  applyTransform();
+}
+
+function scoreLayout(floors, footprint, scenario, settings){
+  const allRooms = floors.flatMap((floor) => floor.rooms);
+  const families = new Map(allRooms.map((room) => [room.familyId || room.id, room]));
+  let daylightTotal = 0;
+  let daylightWeight = 0;
+  let coverageArea = 0;
+  let usableFootprintArea = 0;
+  let adjacencyTotal = 0;
+  let adjacencyWeight = 0;
+  const plateArea = polygonArea(footprint.points) - footprint.voids.reduce((sum, voidPoly) => sum + polygonArea(voidPoly), 0);
+
+  floors.forEach((floor) => {
+    usableFootprintArea += plateArea;
+    coverageArea += floor.rooms.reduce((sum, room) => sum + room.area, 0);
+    floor.rooms.forEach((room) => {
+      const roomMeta = room.roomMeta;
+      const edgeCells = room.cells.filter((cell) => cell.perimeter > 0).length;
+      const perimeterShare = edgeCells / Math.max(room.cells.length, 1);
+      daylightTotal += clamp(perimeterShare * 1.35, 0, 1) * roomMeta.daylight * room.area;
+      daylightWeight += roomMeta.daylight * room.area;
+      (roomMeta.adj || []).forEach((adj) => {
+        const related = families.get(adj.id) || [...families.values()].find((candidate) => candidate.familyId === adj.id);
+        if(!related) return;
+        const dist = Math.hypot(room.centerX - related.centerX, room.centerY - related.centerY);
+        const sameFloor = floor.floorIndex === related.roomMeta.floorIndex ? 1 : 0.6;
+        const relation = relationWeight(adj.relationship);
+        const contribution = clamp(1 - dist / 420, 0, 1) * sameFloor * relation * adj.weight;
+        adjacencyTotal += contribution;
+        adjacencyWeight += Math.abs(relation * adj.weight);
+      });
+    });
+  });
+
+  return {
+    daylight: daylightWeight ? daylightTotal / daylightWeight : 0.72,
+    adjacency: adjacencyWeight ? clamp(adjacencyTotal / adjacencyWeight, 0, 1) : 0.76,
+    coverage: clamp(coverageArea / Math.max(usableFootprintArea, 1), 0, 1)
+  };
+}
+
+function normalizeDatabase(entry, raw){
+  const rooms = (raw.space_library || []).map((space, index) => {
+    const areaRange = space.gsf_range || space.nsf_range || [120, 480];
+    const areaBase = midpoint(areaRange) || 240;
+    const zone = inferZone(space);
+    const publicness = inferPublicness(space, zone);
+    const privacy = inferPrivacy(space, zone);
+    const service = inferService(space, zone);
+    return {
+      id: space.id || `ROOM_${index + 1}`,
+      familyId: space.id || `ROOM_${index + 1}`,
+      name: space.name || `Room ${index + 1}`,
+      shortName: shortenLabel(space.name || `Room ${index + 1}`),
+      dept: space.category || "Support",
+      areaBase,
+      areaShare: midpoint(space.percent_of_gross_range),
+      zone,
+      daylight: priorityValue(space.daylight_priority),
+      publicness,
+      privacy,
+      service,
+      floorPreference: space.stacking_preference || "All",
+      priority: clamp(((space.adjacencies || []).length * 0.1) + (space.percent_of_gross_range ? midpoint(space.percent_of_gross_range) * 4 : 0.2), 0.15, 1),
+      typicalLocation: space.typical_location || "",
+      minArea: (space.nsf_range && space.nsf_range[0]) ? Math.max(60, space.nsf_range[0] * 0.6) : 80,
+      adj: (space.adjacencies || []).map((adj) => ({
+        id: adj.space_id || adj.target_id || "",
+        weight: clamp(Number(adj.weight) || 0.45, 0.05, 1),
+        relationship: String(adj.relationship || "").toLowerCase()
+      }))
+    };
+  });
+
+  const subtypes = (raw.subtypes || []).map((subtype, index) => ({
+    id: subtype.id || `SUBTYPE_${index + 1}`,
+    name: subtype.name || `Subtype ${index + 1}`,
+    grossSfTypical: subtype.gross_sf_typical || [12000, 80000],
+    efficiencyRange: subtype.efficiency_ratio_target_range || [0.7, 0.82]
+  }));
+
+  return {
+    id: entry.category || raw.building_type || "Program",
+    buildingType: raw.building_type || entry.building_type || entry.category || "Program",
+    subtypes,
+    grossingFactor: 1 / clamp(midpoint(subtypes[0]?.efficiencyRange) || 0.78, 0.45, 0.92),
+    corridorTypology: inferCorridorTypology(raw.building_type || entry.building_type || "", rooms),
+    rooms
+  };
+}
+
+function buildFootprintGeometry(settings, targetArea){
+  if(state.importedFootprint){
+    const custom = scaleFootprintToArea(state.importedFootprint, targetArea);
+    const entrySide = custom.entrySide || seededPick(["left","right","top","bottom"], `${state.importedFootprintName}|${settings.optionIndex}`);
+    return {
+      ...custom,
+      entrySide,
+      label: custom.label || "Imported footprint",
+      source: "imported"
+    };
+  }
+  const expression = settings.compactExpression;
+  const compactness = 1 - expression;
+  const seed = `${settings.footprintPreset}|${settings.optionIndex}|${expression}`;
+  const rotate = seededValue(`${seed}|rotate`) > 0.58;
+  let footprint;
+
+  if(settings.footprintPreset === "bar"){
+    const width = lerp(1.9, 3.7, 0.45 + compactness * 0.4);
+    const height = lerp(0.72, 0.95, 1 - compactness);
+    footprint = polygonPackage(rectPoints(width, height), [], "Bar");
+  }else if(settings.footprintPreset === "courtyard"){
+    const outerW = lerp(1.32, 1.68, 1 - compactness);
+    const outerH = lerp(1.08, 1.34, compactness * 0.5 + 0.4);
+    const voidScale = lerp(0.28, 0.48, 0.3 + expression * 0.55);
+    const outer = rectPoints(outerW, outerH);
+    const inner = rectPoints(outerW * voidScale, outerH * voidScale);
+    footprint = polygonPackage(outer, [inner], "Courtyard");
+  }else if(settings.footprintPreset === "lshape"){
+    const notchX = lerp(0.38, 0.58, 0.35 + expression * 0.45);
+    const notchY = lerp(0.38, 0.6, 0.3 + expression * 0.5);
+    const points = [
+      [0,0],
+      [1.48,0],
+      [1.48,0.48],
+      [notchX,0.48],
+      [notchX,1.26],
+      [0,1.26]
+    ];
+    footprint = polygonPackage(points, [], "L-Shape");
+  }else if(settings.footprintPreset === "corner"){
+    const points = [
+      [0,0],
+      [1.58,0],
+      [1.58,0.42],
+      [0.46,0.42],
+      [0.46,1.32],
+      [0,1.32]
+    ];
+    footprint = polygonPackage(points, [], "Corner");
+  }else if(settings.footprintPreset === "narrowdeep"){
+    const width = lerp(0.72, 0.95, expression * 0.25);
+    const height = lerp(1.45, 1.95, 0.4 + compactness * 0.3);
+    footprint = polygonPackage(rectPoints(width, height), [], "Narrow / Deep");
+  }else{
+    const width = lerp(1.08, 1.55, compactness * 0.45 + 0.25);
+    const height = lerp(0.92, 1.18, 0.55 + expression * 0.25);
+    footprint = polygonPackage(rectPoints(width, height), [], "Rectangle");
+  }
+
+  let scaled = scaleFootprintToArea(footprint, targetArea);
+  if(rotate){
+    scaled = scaleFootprintToArea(rotateFootprint90(scaled), targetArea);
+  }
+  scaled.entrySide = seededPick(["left","right","top","bottom"], seed);
+  return scaled;
+}
+
+function polygonPackage(points, voids, label){
+  const bounds = polygonBounds(points);
+  const cx = (bounds.minX + bounds.maxX) * 0.5;
+  const cy = (bounds.minY + bounds.maxY) * 0.5;
+  return {
+    points: points.map(([x, y]) => [x - cx, y - cy]),
+    voids: (voids || []).map((voidPoly) => voidPoly.map(([x, y]) => [x - cx, y - cy])),
+    label
+  };
+}
+
+function scaleFootprintToArea(footprint, targetArea){
+  const currentArea = polygonArea(footprint.points);
+  const factor = Math.sqrt(targetArea / Math.max(currentArea, 0.0001));
+  const scaledPoints = footprint.points.map(([x, y]) => [x * factor, y * factor]);
+  const scaledVoids = (footprint.voids || []).map((voidPoly) => voidPoly.map(([x, y]) => [x * factor, y * factor]));
+  const bounds = polygonBounds(scaledPoints);
+  const centeredPoints = scaledPoints.map(([x, y]) => [x - (bounds.minX + bounds.maxX) * 0.5, y - (bounds.minY + bounds.maxY) * 0.5]);
+  const centeredVoids = scaledVoids.map((voidPoly) => voidPoly.map(([x, y]) => [x - (bounds.minX + bounds.maxX) * 0.5, y - (bounds.minY + bounds.maxY) * 0.5]));
+  const centeredBounds = polygonBounds(centeredPoints);
+  return {
+    label: footprint.label || "Footprint",
+    points: centeredPoints,
+    voids: centeredVoids,
+    entrySide: footprint.entrySide || null,
+    bounds: centeredBounds,
+    path: polygonPath(centeredPoints),
+    voidPaths: centeredVoids.map((voidPoly) => polygonPath(voidPoly))
+  };
+}
+
+function rotateFootprint90(footprint){
+  return {
+    ...footprint,
+    points: footprint.points.map(([x, y]) => [-y, x]),
+    voids: footprint.voids.map((voidPoly) => voidPoly.map(([x, y]) => [-y, x]))
+  };
+}
+
+function normalizeFootprintJSON(raw){
+  let points = null;
+  if(Array.isArray(raw?.points)) points = raw.points;
+  else if(Array.isArray(raw?.polygon)) points = raw.polygon;
+  else if(Array.isArray(raw?.outline)) points = raw.outline;
+  else if(Array.isArray(raw?.footprint?.points)) points = raw.footprint.points;
+  if(!Array.isArray(points) || points.length < 3){
+    throw new Error("Missing polygon points");
+  }
+  const parsedPoints = points.map((point) => Array.isArray(point) ? [Number(point[0]), Number(point[1])] : [Number(point.x), Number(point.y)]);
+  const voids = Array.isArray(raw?.voids) ? raw.voids.map((voidPoly) => voidPoly.map((point) => Array.isArray(point) ? [Number(point[0]), Number(point[1])] : [Number(point.x), Number(point.y)])) : [];
+  const footprint = polygonPackage(parsedPoints, voids, raw.name || raw.label || "Imported footprint");
+  footprint.entrySide = raw.entrySide || raw.entry_side || null;
+  return footprint;
+}
+
+function buildEntryMarker(footprint, yOffset){
+  const bounds = footprint.bounds;
+  const len = 42;
+  if(footprint.entrySide === "left"){
+    return `M${bounds.minX - 18},${yOffset - 8}l18,8l-18,8`;
+  }
+  if(footprint.entrySide === "right"){
+    return `M${bounds.maxX + 18},${yOffset - 8}l-18,8l18,8`;
+  }
+  if(footprint.entrySide === "top"){
+    return `M-8,${bounds.minY + yOffset - 18}l8,18l8,-18`;
+  }
+  return `M-8,${bounds.maxY + yOffset + 18}l8,-18l8,18`;
+}
+
+function genericSeedScore(room, cell, settings, familyAnchors, random){
+  const daylightWeight = settings.adjacencyDaylight;
+  const adjacencyWeight = 1 - settings.adjacencyDaylight;
+  const publicForward = 1 - settings.zoningBias;
+  const privateForward = settings.zoningBias;
+  let score = 0;
+  score += daylightWeight * room.daylight * (cell.perimeter * 0.85 + cell.entryScore * 0.15);
+  score += adjacencyWeight * adjacencyAnchorScore(room, cell, familyAnchors);
+  score += room.publicness * ((0.35 + 0.65 * publicForward) * cell.entryScore + 0.18 * cell.perimeter);
+  score += room.privacy * ((0.28 + 0.65 * privateForward) * cell.depthScore + 0.12 * cell.perimeter);
+  score += room.service * ((0.45 + 0.35 * settings.coreBias) * cell.centerScore + 0.18 * cell.depthScore);
+  score += (1 - settings.compactExpression) * 0.16 * cell.centerScore;
+  score += settings.compactExpression * 0.12 * (cell.perimeter + cell.depthScore * 0.5);
+  score += (random() - 0.5) * 0.08;
+  return score;
+}
+
+function growthScore(room, cell, cluster, settings, familyAnchors, random){
+  const base = genericSeedScore(room, cell, settings, familyAnchors, random);
+  const sharedEdgeCount = cluster.reduce((sum, member) => {
+    return sum + ((member.neighbors.up?.id === cell.id) || (member.neighbors.down?.id === cell.id) || (member.neighbors.left?.id === cell.id) || (member.neighbors.right?.id === cell.id) ? 1 : 0);
+  }, 0);
+  const clusterCenter = {
+    x: average(cluster.map((member) => member.cx)),
+    y: average(cluster.map((member) => member.cy))
+  };
+  const dist = Math.hypot(cell.cx - clusterCenter.x, cell.cy - clusterCenter.y);
+  const compactBonus = (1 - settings.compactExpression) * (sharedEdgeCount * 0.28 - dist * 0.0018);
+  const expressiveBonus = settings.compactExpression * (cell.perimeter * 0.22 + sharedEdgeCount * 0.06);
+  return base + compactBonus + expressiveBonus;
+}
+
+function corridorSeedScore(cell, axis, settings, random){
+  const alignment = axis === "x" ? cell.centerScore + (1 - Math.abs(cell.cy) / 2000) * 0.2 : cell.centerScore + (1 - Math.abs(cell.cx) / 2000) * 0.2;
+  return alignment + settings.coreBias * 0.35 + cell.depthScore * 0.05 + (random() - 0.5) * 0.06;
+}
+
+function corridorLineFromSeed(grid, seed, axis, width){
+  const line = [];
+  const pushNeighbor = (cell) => {
+    if(cell && cell.free && !line.includes(cell)) line.push(cell);
+  };
+  let cursor = seed;
+  while(cursor){
+    pushNeighbor(cursor);
+    for(let i = 1; i < width; i += 1){
+      pushNeighbor(axis === "x" ? cursor.neighbors.up : cursor.neighbors.left);
+      pushNeighbor(axis === "x" ? cursor.neighbors.down : cursor.neighbors.right);
+    }
+    cursor = axis === "x" ? cursor.neighbors.left : cursor.neighbors.up;
+  }
+  cursor = axis === "x" ? seed.neighbors.right : seed.neighbors.down;
+  while(cursor){
+    pushNeighbor(cursor);
+    for(let i = 1; i < width; i += 1){
+      pushNeighbor(axis === "x" ? cursor.neighbors.up : cursor.neighbors.left);
+      pushNeighbor(axis === "x" ? cursor.neighbors.down : cursor.neighbors.right);
+    }
+    cursor = axis === "x" ? cursor.neighbors.right : cursor.neighbors.down;
+  }
+  return line;
+}
+
+function scanRectangleCandidates(grid, widthCells, heightCells, scoreFn){
+  const candidates = [];
+  grid.cells.forEach((cell) => {
+    const cells = [];
+    let valid = true;
+    for(let dy = 0; dy < heightCells; dy += 1){
+      for(let dx = 0; dx < widthCells; dx += 1){
+        const member = grid.keyMap.get(`${cell.row + dy}:${cell.col + dx}`);
+        if(!member || !member.free){
+          valid = false;
+          break;
+        }
+        cells.push(member);
+      }
+      if(!valid) break;
+    }
+    if(!valid) return;
+    const bbox = cellClusterBounds(cells, grid.cellSize);
+    candidates.push({cells, bbox, score: scoreFn(cells, bbox)});
+  });
+  return candidates;
+}
+
+function roomOrderingWeight(room){
+  return (room.role === "core" ? 4 : 0) +
+    (room.role === "corridor" ? 3 : 0) +
+    room.service * 1.5 +
+    room.publicness * 0.9 +
+    room.priority * 1.2 +
+    room.area / 1500;
+}
+
+function floorPreferenceScore(preference, floorIndex, floorCount){
+  const topIndex = floorCount - 1;
+  const normalized = topIndex > 0 ? floorIndex / topIndex : 0;
+  const pref = String(preference || "All").toLowerCase();
+  if(pref.includes("ground") && pref.includes("roof")){
+    return floorIndex === 0 || floorIndex === topIndex ? 1 : -0.4;
+  }
+  if(pref.includes("ground") && pref.includes("upper")){
+    return floorIndex === 0 ? 0.8 : normalized * 0.6;
+  }
+  if(pref.includes("ground")) return floorIndex === 0 ? 1.1 : -0.7 * normalized;
+  if(pref.includes("upper")) return normalized * 0.95;
+  if(pref.includes("roof")) return floorIndex === topIndex ? 1 : -0.2;
+  if(pref.includes("below")) return floorIndex === 0 ? 0.8 : -0.25 * normalized;
+  return 0.22;
+}
+
+function zoneFloorScore(room, floorIndex, floorCount, zoningBias){
+  const normalized = floorCount > 1 ? floorIndex / (floorCount - 1) : 0;
+  const publicForward = 1 - zoningBias;
+  const privateForward = zoningBias;
+  let score = 0;
+  score += room.publicness * (lerp(0.85, -0.25, normalized) * (0.5 + publicForward));
+  score += room.privacy * (lerp(-0.12, 0.9, normalized) * (0.4 + privateForward));
+  score += room.service * (lerp(0.42, 0.18, normalized));
+  return score;
+}
+
+function adjacencyAnchorScore(room, cell, familyAnchors){
+  return (room.adj || []).reduce((sum, adj) => {
+    const anchor = familyAnchors.get(adj.id);
+    if(!anchor) return sum;
+    const dist = Math.hypot(cell.cx - anchor.centerX, cell.cy - anchor.centerY);
+    return sum + relationWeight(adj.relationship) * adj.weight * clamp(1 - dist / 360, -0.5, 1);
+  }, 0);
+}
+
+function relationWeight(relationship){
+  const rel = String(relationship || "").toLowerCase();
+  if(rel.includes("avoid") || rel.includes("separate")) return -0.85;
+  if(rel.includes("must") || rel.includes("direct")) return 1;
+  if(rel.includes("near") || rel.includes("should")) return 0.72;
+  if(rel.includes("vertical")) return 0.48;
+  return 0.32;
+}
+
+function inferZone(space){
+  const source = `${space.category || ""} ${space.security_zone || ""} ${space.typical_location || ""} ${space.name || ""}`.toLowerCase();
+  if(/public|entry|lobby|gallery|cafe|worship|visitor|retail|commons/.test(source)) return "public";
+  if(/mep|mechanical|electrical|loading|operations|storage|service|parking|back of house|housekeeping/.test(source)) return "service";
+  if(/clinical|room|residential|dorm|patient|office|faculty|staff|tenant|secure|restricted|lab|classroom/.test(source)) return "private";
+  return "shared";
+}
+
+function inferPublicness(space, zone){
+  if(zone === "public") return 0.92;
+  if(zone === "service") return 0.1;
+  return /meeting|learning|amenity|food/i.test(space.category || "") ? 0.55 : 0.32;
+}
+
+function inferPrivacy(space, zone){
+  if(zone === "private") return 0.88;
+  if(zone === "service") return 0.42;
+  return /rooms|clinical|administration|laboratory/i.test(space.category || "") ? 0.7 : 0.26;
+}
+
+function inferService(space, zone){
+  if(zone === "service") return 0.94;
+  return /circulation|core|operations|support|mep|parking/i.test(space.category || "") ? 0.8 : 0.12;
+}
+
+function inferCorridorTypology(buildingType, rooms){
+  const source = buildingType.toLowerCase();
+  if(/multifamily|hotel|housing|senior|student/.test(source)) return "double-loaded spine";
+  if(/industrial|warehouse|datacenter|parking/.test(source)) return "service bar";
+  if(/museum|cultural|civic|school|education|transit/.test(source)) return "commons network";
+  if(rooms.some((room) => /courtyard/i.test(room.name))) return "ring";
+  return "central spine";
+}
+
+function priorityValue(value){
+  const source = String(value || "").toLowerCase();
+  if(source.includes("high")) return 1;
+  if(source.includes("medium")) return 0.62;
+  if(source.includes("low")) return 0.28;
+  return 0.04;
+}
+
+function isCirculationRoom(room){
+  const source = `${room.dept || ""} ${room.name || ""}`.toLowerCase();
+  return /circulation|corridor|spine|hall/.test(source);
+}
+
+function isCoreRoom(room){
+  const source = `${room.dept || ""} ${room.name || ""}`.toLowerCase();
+  return /core|elev|stair|mech|elect|vertical/.test(source);
+}
+
+function roomLabel(room){
+  const width = room.bounds.maxX - room.bounds.minX;
+  const height = room.bounds.maxY - room.bounds.minY;
+  if(width < 46 || height < 24 || room.area < 420) return null;
+  const name = room.name.replace(/\s+[A-Z]$/, "").replace(/\s+\(Typical\)/gi, "");
+  return {
+    name: width < 70 ? shortenLabel(name) : name,
+    area: `${Math.round(room.targetArea)} sf`
+  };
+}
+
+function calculateWorldBounds(floors){
+  const bounds = {
+    minX: Infinity,
+    minY: Infinity,
+    maxX: -Infinity,
+    maxY: -Infinity
+  };
+  floors.forEach((floor) => {
+    bounds.minX = Math.min(bounds.minX, floor.bounds.minX - 60);
+    bounds.minY = Math.min(bounds.minY, floor.bounds.minY - 70);
+    bounds.maxX = Math.max(bounds.maxX, floor.bounds.maxX + 60);
+    bounds.maxY = Math.max(bounds.maxY, floor.bounds.maxY + 60);
+  });
+  return bounds;
+}
+
+function cellClusterBounds(cells, cellSize){
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  cells.forEach((cell) => {
+    minX = Math.min(minX, cell.x);
+    minY = Math.min(minY, cell.y);
+    maxX = Math.max(maxX, cell.x + cellSize);
+    maxY = Math.max(maxY, cell.y + cellSize);
+  });
+  return {minX, minY, maxX, maxY};
+}
+
+function pathFromCells(cells, cellSize){
+  const set = new Set(cells.map((cell) => cell.id));
+  const segments = [];
+  cells.forEach((cell) => {
+    if(!set.has(`${cell.row - 1}:${cell.col}`)) segments.push([[cell.x, cell.y], [cell.x + cellSize, cell.y]]);
+    if(!set.has(`${cell.row}:${cell.col + 1}`)) segments.push([[cell.x + cellSize, cell.y], [cell.x + cellSize, cell.y + cellSize]]);
+    if(!set.has(`${cell.row + 1}:${cell.col}`)) segments.push([[cell.x + cellSize, cell.y + cellSize], [cell.x, cell.y + cellSize]]);
+    if(!set.has(`${cell.row}:${cell.col - 1}`)) segments.push([[cell.x, cell.y + cellSize], [cell.x, cell.y]]);
+  });
+  const key = (point) => `${point[0]},${point[1]}`;
+  const startMap = new Map();
+  segments.forEach((segment, index) => {
+    const start = key(segment[0]);
+    if(!startMap.has(start)) startMap.set(start, []);
+    startMap.get(start).push(index);
+  });
+  const used = new Set();
+  const paths = [];
+  for(let i = 0; i < segments.length; i += 1){
+    if(used.has(i)) continue;
+    used.add(i);
+    const loop = [segments[i][0], segments[i][1]];
+    let end = segments[i][1];
+    let guard = 0;
+    while(key(end) !== key(loop[0]) && guard < segments.length + 10){
+      guard += 1;
+      const nextIndexes = startMap.get(key(end)) || [];
+      const nextIndex = nextIndexes.find((candidate) => !used.has(candidate));
+      if(nextIndex == null) break;
+      used.add(nextIndex);
+      const nextSegment = segments[nextIndex];
+      loop.push(nextSegment[1]);
+      end = nextSegment[1];
+    }
+    paths.push(`M${loop.map((point) => `${roundTo(point[0], 1)},${roundTo(point[1], 1)}`).join("L")}Z`);
+  }
+  return paths.join("");
+}
+
+function polygonPath(points){
+  return `M${points.map((point) => `${roundTo(point[0], 1)},${roundTo(point[1], 1)}`).join("L")}Z`;
+}
+
+function polygonArea(points){
+  let area = 0;
+  for(let i = 0; i < points.length; i += 1){
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[(i + 1) % points.length];
+    area += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(area) * 0.5;
+}
+
+function polygonBounds(points){
+  const bounds = points.reduce((acc, [x, y]) => ({
+    minX: Math.min(acc.minX, x),
+    maxX: Math.max(acc.maxX, x),
+    minY: Math.min(acc.minY, y),
+    maxY: Math.max(acc.maxY, y)
+  }), {minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity});
+  bounds.width = bounds.maxX - bounds.minX;
+  bounds.height = bounds.maxY - bounds.minY;
+  return bounds;
+}
+
+function pointInPolygon(x, y, polygon){
+  let inside = false;
+  for(let i = 0, j = polygon.length - 1; i < polygon.length; j = i++){
+    const xi = polygon[i][0];
+    const yi = polygon[i][1];
+    const xj = polygon[j][0];
+    const yj = polygon[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 0.00001) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function rectPoints(width, height){
+  return [
+    [-width * 0.5, -height * 0.5],
+    [width * 0.5, -height * 0.5],
+    [width * 0.5, height * 0.5],
+    [-width * 0.5, height * 0.5]
+  ];
+}
+
+function findRectDims(cellCount, preferredAspect){
+  const width = Math.max(2, Math.round(Math.sqrt(cellCount * preferredAspect)));
+  return {
+    w: width,
+    h: Math.max(2, Math.ceil(cellCount / width))
+  };
+}
+
+function average(values){
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function midpoint(range){
+  return Array.isArray(range) && range.length >= 2 ? (Number(range[0]) + Number(range[1])) * 0.5 : null;
+}
+
+function seededValue(input){
+  return mulberry32(xmur3(input)())();
+}
+
+function seededPick(options, input){
+  return options[Math.floor(seededValue(input) * options.length) % options.length];
+}
+
+function xmur3(str){
+  let h = 1779033703 ^ str.length;
+  for(let i = 0; i < str.length; i += 1){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  };
+}
+
+function mulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function sliderDescriptor(value, labels){
+  if(value <= 15) return labels[0];
+  if(value <= 38) return labels[1];
+  if(value <= 62) return labels[2];
+  if(value <= 84) return labels[3];
+  return labels[4];
+}
+
+function labelizePreset(value){
+  return ({
+    rectangle:"Rectangle",
+    bar:"Bar",
+    courtyard:"Courtyard",
+    lshape:"L-Shape",
+    corner:"Corner",
+    narrowdeep:"Narrow / Deep"
+  })[value] || value;
+}
+
+function colorForCategory(category){
+  if(CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
+  const hash = xmur3(category || "Support")();
+  const hue = hash % 360;
+  return `hsl(${hue} 24% 72%)`;
+}
+
+function shortenLabel(label){
+  return String(label || "")
+    .replace(/\s*\(typical\)\s*/gi, " ")
+    .replace(/\s*\/\s*/g, " / ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function loadJSON(path){
+  const response = await fetch(path);
+  if(!response.ok) throw new Error(`${path} failed with status ${response.status}`);
+  return response.json();
+}
+
+function formatNumber(value){
+  return new Intl.NumberFormat("en-US", {maximumFractionDigits:0}).format(Math.round(value));
+}
+
+function formatCompact(value){
+  if(value >= 1000000) return `${roundTo(value / 1000000, 2)}M`;
+  if(value >= 1000) return `${roundTo(value / 1000, 1)}k`;
+  return formatNumber(value);
+}
+
+function roundTo(value, step){
+  const precision = 1 / step;
+  return Math.round(value * precision) / precision;
+}
+
+function clamp(value, min, max){
+  return Math.max(min, Math.min(max, value));
+}
+
+function lerp(a, b, t){
+  return a + (b - a) * t;
+}
+
+function invLerp(a, b, value){
+  if(a === b) return 0;
+  return clamp((value - a) / (b - a), 0, 1);
+}
+
+function translatePath(path, dx, dy){
+  return path.replace(/([0-9.-]+),([0-9.-]+)/g, (_, x, y) => `${roundTo(Number(x) + dx, 1)},${roundTo(Number(y) + dy, 1)}`);
+}
+
+function capitalize(value){
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
+}
+
+function escapeHtml(value){
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeAttr(value){
+  return escapeHtml(value).replaceAll("'", "&#39;");
+}
+
+function getSelectedSubtype(){
+  if(!state.currentProgram) return null;
+  return state.currentProgram.subtypes.find((subtype) => subtype.id === els.programSubtype.value) || state.currentProgram.subtypes[0];
+}
+</script>
+</body>
+</html>
