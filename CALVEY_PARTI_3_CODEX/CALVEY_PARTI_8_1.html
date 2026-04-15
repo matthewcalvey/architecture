@@ -1,0 +1,3031 @@
+<!DOCTYPE html>
+<html lang="en" style="--accent:#6a9cc4;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALVEY PARTI 8-1 — Circulation Gap Logic</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c0c;
+  --surface:#131313;
+  --surface-2:#171717;
+  --border:#232323;
+  --text:#ddd8d0;
+  --text-dim:#8b857e;
+  --text-muted:#56514a;
+  --accent:#6a9cc4;
+  --gold:#c9a959;
+  --warn:#b46f58;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  background:
+    radial-gradient(ellipse at 28% 0%, rgba(106,156,196,0.06), transparent 42%),
+    radial-gradient(ellipse at 72% 100%, rgba(201,169,89,0.04), transparent 34%),
+    var(--bg);
+  color:var(--text);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(106,156,196,0.24);color:#fff}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#2a2a2a}
+
+.hero{
+  padding:14px 18px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.nav{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.nav .active{color:var(--accent)}
+.eyebrow{
+  margin-top:8px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.hero-line{
+  width:28px;
+  height:1px;
+  margin:8px auto 10px;
+  background:var(--accent);
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(26px,4vw,56px);
+  line-height:0.93;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  font-weight:300;
+}
+.hero p{
+  max-width:900px;
+  margin:8px auto 0;
+  font-size:clamp(13px,1.15vw,16px);
+  color:var(--text-dim);
+  font-style:italic;
+}
+.hero .meta{
+  margin-top:6px;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+.wrap{
+  max-width:1540px;
+  margin:0 auto;
+  padding:10px 12px 18px;
+}
+.panel{
+  border:1px solid var(--border);
+  background:var(--surface);
+  box-shadow:0 20px 44px rgba(0,0,0,0.24);
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:minmax(250px, 1fr) minmax(180px, 220px) minmax(220px, 280px) auto;
+  gap:10px;
+  align-items:end;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+}
+.field{
+  display:grid;
+  gap:7px;
+}
+.field label{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.field select,
+.field input[type="number"]{
+  width:100%;
+  background:#0c0c0c;
+  border:1px solid var(--border);
+  color:var(--text);
+  height:44px;
+  padding:0 12px;
+  font-size:18px;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  outline:none;
+  transition:border-color .18s, box-shadow .18s;
+}
+.field select:focus,
+.field input[type="number"]:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(106,156,196,0.08);
+}
+.field .sub{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  color:var(--text-muted);
+}
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  height:44px;
+  padding:0 14px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+  cursor:pointer;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  transition:all .2s ease;
+}
+.btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:translateY(-1px);
+}
+.btn.primary{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:#081017;
+}
+.btn.primary:hover{color:#081017}
+.btn.soft{background:rgba(255,255,255,0.04)}
+.btn.warn{
+  border-color:#4b2f28;
+  color:#d59a86;
+}
+
+.note-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:8px 12px 0;
+}
+.chip-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:6px 9px;
+  border:1px solid var(--border);
+  background:#101010;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.chip strong{
+  color:var(--text);
+  font-weight:400;
+  margin-left:6px;
+}
+.status{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  color:var(--text-muted);
+}
+.status.warn{color:#d59a86}
+
+.slider-panel{
+  position:sticky;
+  top:0;
+  z-index:4;
+  padding:8px 12px 10px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:rgba(19,19,19,0.96);
+  backdrop-filter:blur(10px);
+}
+.slider-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+.slider-head .ttl{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.slider-head .val{
+  font-family:"Space Mono",monospace;
+  font-size:11px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+input[type="range"]{
+  width:100%;
+  height:28px;
+  margin:6px 0 2px;
+  appearance:none;
+  background:transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--border), var(--accent), var(--border));
+}
+input[type="range"]::-moz-range-track{
+  height:1px;
+  background:linear-gradient(90deg, var(--border), var(--accent), var(--border));
+}
+input[type="range"]::-webkit-slider-thumb{
+  appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  margin-top:-8px;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(106,156,196,0.12);
+}
+input[type="range"]::-moz-range-thumb{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:1px solid var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(106,156,196,0.12);
+}
+.slider-ext{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  color:var(--text-muted);
+}
+
+.stage-shell{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 308px;
+  gap:12px;
+  padding:10px 12px 12px;
+  align-items:start;
+}
+.stage{
+  border:1px solid var(--border);
+  background:#080808;
+  position:relative;
+  min-height:clamp(360px, 50vh, 560px);
+  overflow:hidden;
+}
+.stage svg{
+  width:100%;
+  height:100%;
+  display:block;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(106,156,196,0.05), transparent 32%),
+    radial-gradient(circle at 82% 92%, rgba(201,169,89,0.04), transparent 26%),
+    #070707;
+}
+.stage-label{
+  position:absolute;
+  top:10px;
+  left:12px;
+  z-index:2;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.stage-hint{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  z-index:2;
+  padding:7px 9px;
+  border:1px solid var(--border);
+  background:rgba(7,7,7,0.86);
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.sidecar{
+  display:grid;
+  gap:12px;
+}
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.metric{
+  border:1px solid var(--border);
+  background:#0d0d0d;
+  padding:10px 11px;
+}
+.metric .k{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.metric .v{
+  margin-top:3px;
+  font-size:22px;
+  line-height:1.05;
+}
+.metric .s{
+  margin-top:4px;
+  font-family:"Space Mono",monospace;
+  font-size:8px;
+  letter-spacing:0.05em;
+  color:var(--text-muted);
+}
+.card{
+  border:1px solid var(--border);
+  background:#0d0d0d;
+}
+.card .hd{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+}
+.card .hd .t{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.sketch-tools{
+  display:grid;
+  gap:8px;
+  padding:12px;
+}
+.sketch-tools[hidden]{display:none}
+.sketch-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.mini{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.06em;
+  color:var(--text-muted);
+  line-height:1.6;
+}
+.logic-list{
+  display:grid;
+  gap:9px;
+  padding:12px;
+}
+.logic-item{
+  display:grid;
+  gap:2px;
+}
+.logic-item .n{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text);
+}
+.logic-item .m{
+  font-family:"Space Mono",monospace;
+  font-size:8px;
+  letter-spacing:0.05em;
+  color:var(--text-muted);
+}
+.list{
+  max-height:240px;
+  overflow:auto;
+}
+.list-row{
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  padding:9px 12px;
+  border-top:1px solid #161616;
+}
+.list-row:first-child{border-top:none}
+.sw{
+  width:12px;
+  height:12px;
+  border:1px solid #2a2a2a;
+  margin-top:4px;
+}
+.list-row .n{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.list-row .m{
+  margin-top:3px;
+  font-family:"Space Mono",monospace;
+  font-size:8px;
+  letter-spacing:0.06em;
+  color:var(--text-muted);
+}
+.list-row .a{
+  font-size:16px;
+  white-space:nowrap;
+}
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px;
+}
+.legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px;
+  min-height:28px;
+  border:1px solid var(--border);
+  background:#101010;
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+.footer{
+  text-align:center;
+  padding:20px 18px 28px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.1em;
+  color:var(--text-muted);
+  text-transform:uppercase;
+}
+
+svg text{pointer-events:none}
+.outline{
+  fill:rgba(106,156,196,0.03);
+  stroke:#5d7e98;
+  stroke-width:2.2;
+}
+.void{
+  fill:#060606;
+  stroke:#30404d;
+  stroke-width:1.2;
+  stroke-dasharray:7 7;
+}
+.room{
+  stroke:#060606;
+  stroke-width:1.05;
+  shape-rendering:crispEdges;
+}
+.corridor{
+  fill:#595959;
+}
+.core{
+  fill:#3c3c3c;
+}
+.stair{
+  fill:#8f8574;
+}
+.collector-guide{
+  fill:rgba(106,156,196,0.035);
+  stroke:#6a9cc4;
+  stroke-width:1.1;
+  stroke-dasharray:10 8;
+}
+.gap-guide{
+  fill:rgba(201,169,89,0.03);
+  stroke:#c9a959;
+  stroke-width:0.95;
+  stroke-dasharray:8 6;
+}
+.room-label{
+  font-family:"Space Mono",monospace;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  fill:#0b1115;
+}
+.room-area{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:14px;
+  fill:#081116;
+}
+.plan-title{
+  font-family:"Space Mono",monospace;
+  font-size:16px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  fill:var(--text-muted);
+}
+.plan-sub{
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:0.08em;
+  fill:var(--text-muted);
+}
+.entry{
+  fill:none;
+  stroke:var(--gold);
+  stroke-width:2;
+}
+.minor-grid{stroke:rgba(255,255,255,0.04);stroke-width:1}
+.major-grid{stroke:rgba(255,255,255,0.08);stroke-width:1}
+.ghost-outline{
+  fill:rgba(106,156,196,0.05);
+  stroke:rgba(106,156,196,0.7);
+  stroke-width:2;
+  stroke-dasharray:7 7;
+}
+.ghost-line{
+  fill:none;
+  stroke:rgba(201,169,89,0.85);
+  stroke-width:2;
+}
+.ghost-point{
+  fill:var(--gold);
+  stroke:#111;
+  stroke-width:1;
+}
+.overlay-note{
+  font-family:"Space Mono",monospace;
+  font-size:11px;
+  letter-spacing:0.08em;
+  fill:var(--text-dim);
+  text-transform:uppercase;
+}
+
+@media (max-width:1220px){
+  .stage-shell{grid-template-columns:1fr}
+}
+@media (max-width:980px){
+  .controls{grid-template-columns:1fr 1fr}
+  .actions{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .hero{padding:28px 14px 16px}
+  .wrap{padding:12px}
+  .controls{grid-template-columns:1fr}
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .stage{min-height:440px}
+}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="nav">
+      <span>CALVEY FORM</span>
+      <span>/</span>
+      <span>02 PROGRAM RESEARCH</span>
+      <span>/</span>
+      <span class="active">CALVEY PARTI 8-1</span>
+    </div>
+    <div class="eyebrow">Perimeter Orbit / Circulation Gaps / Hall + Stair + Elevator Logic</div>
+    <div class="hero-line"></div>
+    <h1>CALVEY<br>PARTI 8-1</h1>
+    <p>A perimeter-orbit plan explorer where hall space becomes a central gap only when the database actually includes it, stairs sit at opposing ends, and elevator space biases to the center while the program blocks keep their areas and compact around the collector.</p>
+    <div class="meta">Matthew Calvey · 2026</div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <div class="controls">
+        <div class="field">
+          <label for="programType">Program</label>
+          <select id="programType"></select>
+          <div id="profileSub" class="sub">Profile auto-selects from the target size.</div>
+        </div>
+        <div class="field">
+          <label for="targetSize">Size (GSF)</label>
+          <input id="targetSize" type="number" min="2000" step="1000" value="60000">
+          <div id="sizeSub" class="sub">Target gross area drives both planning bundles and footprint scaling.</div>
+        </div>
+        <div class="field">
+          <label for="footprintMode">Footprint</label>
+          <select id="footprintMode">
+            <option value="rectangle">Rectangle</option>
+            <option value="bar">Bar</option>
+            <option value="courtyard">Courtyard</option>
+            <option value="lshape">L-Shape</option>
+            <option value="corner">Corner</option>
+            <option value="narrowdeep">Narrow / Deep</option>
+            <option value="sketch">Sketch</option>
+          </select>
+          <div id="footprintSub" class="sub">Choose a preset or sketch a custom outline directly in the viewport.</div>
+        </div>
+        <div class="actions">
+          <button id="shuffleBtn" class="btn primary">Next Option</button>
+          <button id="fitBtn" class="btn">Refresh Plan</button>
+        </div>
+      </div>
+
+      <div class="note-row">
+        <div class="chip-row">
+          <div class="chip">Program<strong id="programChip">Loading</strong></div>
+          <div class="chip">Profile<strong id="profileChip">Auto</strong></div>
+          <div class="chip">Footprint<strong id="footprintChip">Rectangle</strong></div>
+          <div class="chip">Plan DNA<strong id="dnaChip">Queued</strong></div>
+        </div>
+        <div id="statusLine" class="status">Loading local CALVEY research and program data…</div>
+      </div>
+
+      <div class="slider-panel">
+        <div class="slider-head">
+          <div class="ttl">Option Slider</div>
+          <div id="optionValue" class="val">Option 001 / 144</div>
+        </div>
+        <input id="optionSlider" type="range" min="1" max="144" step="1" value="1">
+        <div class="slider-ext">
+          <span>Earlier options</span>
+          <span>Later options</span>
+        </div>
+      </div>
+
+      <div class="stage-shell">
+        <div class="stage">
+          <div class="stage-label">Plan View · Perimeter orbit / hall, stair, elevator gap logic</div>
+          <svg id="viewport" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid meet" aria-label="Plan intelligence workspace">
+            <defs>
+              <pattern id="minorGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path class="minor-grid" d="M28 0 L0 0 0 28" fill="none"></path>
+              </pattern>
+              <pattern id="majorGrid" width="112" height="112" patternUnits="userSpaceOnUse">
+                <rect width="112" height="112" fill="url(#minorGrid)"></rect>
+                <path class="major-grid" d="M112 0 L0 0 0 112" fill="none"></path>
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="1200" height="760" fill="url(#majorGrid)"></rect>
+            <g id="planLayer"></g>
+            <g id="overlayLayer"></g>
+          </svg>
+          <div class="stage-hint">Sketch mode: click points, close the outline, then scrub perimeter-orbit circulation options</div>
+        </div>
+
+        <div class="sidecar">
+          <div class="card">
+            <div class="hd"><div class="t">Planning Signals</div></div>
+            <div class="logic-list">
+              <div class="logic-item"><div class="n">Room size signals</div><div class="m">The local program database already carries `nsf_range` or `gsf_range`, so these blocks are area-driven rooms rather than abstract bubbles.</div></div>
+              <div class="logic-item"><div class="n">Adjacency graph</div><div class="m">Top-level edges plus per-space adjacency hints are merged into family anchors so related rooms stay together.</div></div>
+              <div class="logic-item"><div class="n">Perimeter orbit</div><div class="m">Program groups sweep around the outer footprint like a clock, but their target positions are projected onto a centered collector frame.</div></div>
+              <div class="logic-item"><div class="n">Hall vs stair</div><div class="m">If the database includes hall space, it reserves a central band at real hall width. If only stairs are present, they reserve opposing end gaps instead.</div></div>
+              <div class="logic-item"><div class="n">Elevators central</div><div class="m">Elevator and elevator-lobby space biases to the center so room adjacencies can still collect around a recognizable transport core without drawing a full core block.</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd"><div class="t">Sketch Footprint</div></div>
+            <div id="sketchTools" class="sketch-tools" hidden>
+              <div id="sketchStatus" class="mini">Choose sketch mode, then click points in the viewport to draw a custom outline.</div>
+              <div class="sketch-actions">
+                <button id="startSketchBtn" class="btn soft">Start New</button>
+                <button id="closeSketchBtn" class="btn">Close Shape</button>
+                <button id="undoSketchBtn" class="btn">Undo Point</button>
+                <button id="clearSketchBtn" class="btn warn">Clear Sketch</button>
+              </div>
+              <div class="mini">Tip: three to eight points is enough. Click the first point, press Enter, or double-click to close the polygon.</div>
+            </div>
+            <div id="sketchIdle" class="sketch-tools">
+              <div class="mini">Choose <strong style="color:var(--text)">Sketch</strong> in the footprint menu to draw directly in the plan viewport.</div>
+            </div>
+          </div>
+
+          <div id="metrics" class="metric-grid"></div>
+
+          <div class="card">
+            <div class="hd">
+              <div class="t">Placed Blocks</div>
+              <div id="roomCount" class="t">0</div>
+            </div>
+            <div id="roomList" class="list"></div>
+          </div>
+
+          <div class="card">
+            <div class="hd"><div class="t">Departments</div></div>
+            <div id="legend" class="legend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">CALVEY PARTI 8-1 · standalone HTML app · hall, stair, elevator gap logic · local research only</div>
+
+<script>
+const MASTER_PATH = "./CALVEY_FORM_v1/data/building_program_database_master_v0.2.json";
+const DATA_DIR = "./CALVEY_FORM_v1/data/";
+const VIEW_W = 1200;
+const VIEW_H = 760;
+const OPTION_COUNT = 144;
+const PAD = 74;
+
+const CATEGORY_COLORS = {
+  "Public/Entry":"#c9a959",
+  "Public/Commons":"#b79b63",
+  "Public/Support":"#9e8654",
+  "Administration":"#8978bc",
+  "Work":"#6bb8d4",
+  "Meeting":"#59a5c4",
+  "Learning":"#73bf7a",
+  "Instruction":"#73bf7a",
+  "Clinical":"#c15d42",
+  "Clinical/Support":"#b75238",
+  "Clinical/Diagnostics":"#ad4e38",
+  "Food Service":"#d0a36a",
+  "Amenity":"#6a9cc4",
+  "Amenity/Outdoor":"#6a9cc4",
+  "Operations":"#7d7d7d",
+  "Operations/Circulation":"#6b6b6b",
+  "Circulation":"#575757",
+  "Circulation/Core":"#4a4a4a",
+  "MEP":"#3b3b3b",
+  "MEP/Tech":"#3b3b3b",
+  "Mobility":"#8aa0a8",
+  "Parking":"#2f2f2f",
+  "Safety/Operations":"#6a3d3d",
+  "Rooms":"#6a9cc4",
+  "Support":"#7e7e7e"
+};
+
+const state = {
+  catalog: [],
+  cache: new Map(),
+  program: null,
+  entry: null,
+  layout: null,
+  sketch: {
+    points: [],
+    closed: false
+  }
+};
+
+const els = {
+  programType: document.getElementById("programType"),
+  targetSize: document.getElementById("targetSize"),
+  footprintMode: document.getElementById("footprintMode"),
+  shuffleBtn: document.getElementById("shuffleBtn"),
+  fitBtn: document.getElementById("fitBtn"),
+  optionSlider: document.getElementById("optionSlider"),
+  optionValue: document.getElementById("optionValue"),
+  programChip: document.getElementById("programChip"),
+  profileChip: document.getElementById("profileChip"),
+  footprintChip: document.getElementById("footprintChip"),
+  dnaChip: document.getElementById("dnaChip"),
+  statusLine: document.getElementById("statusLine"),
+  profileSub: document.getElementById("profileSub"),
+  sizeSub: document.getElementById("sizeSub"),
+  footprintSub: document.getElementById("footprintSub"),
+  viewport: document.getElementById("viewport"),
+  planLayer: document.getElementById("planLayer"),
+  overlayLayer: document.getElementById("overlayLayer"),
+  sketchTools: document.getElementById("sketchTools"),
+  sketchIdle: document.getElementById("sketchIdle"),
+  sketchStatus: document.getElementById("sketchStatus"),
+  startSketchBtn: document.getElementById("startSketchBtn"),
+  closeSketchBtn: document.getElementById("closeSketchBtn"),
+  undoSketchBtn: document.getElementById("undoSketchBtn"),
+  clearSketchBtn: document.getElementById("clearSketchBtn"),
+  metrics: document.getElementById("metrics"),
+  roomList: document.getElementById("roomList"),
+  roomCount: document.getElementById("roomCount"),
+  legend: document.getElementById("legend")
+};
+
+document.addEventListener("DOMContentLoaded", boot);
+
+async function boot(){
+  wireUI();
+  updateOptionLabel();
+  try{
+    const master = await loadJSON(MASTER_PATH);
+    state.catalog = master.databases || [];
+    els.programType.innerHTML = state.catalog.map((entry) => (
+      `<option value="${escapeAttr(entry.json)}">${escapeHtml(entry.building_type || entry.category || entry.json)}</option>`
+    )).join("");
+    await onProgramChange();
+  }catch(error){
+    els.statusLine.textContent = "Program data did not load. Use a local server so the copied CALVEY JSON files can be fetched.";
+    els.statusLine.classList.add("warn");
+    console.error(error);
+  }
+}
+
+function wireUI(){
+  els.programType.addEventListener("change", onProgramChange);
+  els.targetSize.addEventListener("change", renderApp);
+  els.footprintMode.addEventListener("change", () => {
+    updateSketchUI();
+    renderApp();
+  });
+  els.optionSlider.addEventListener("input", () => {
+    updateOptionLabel();
+    renderApp();
+  });
+  els.shuffleBtn.addEventListener("click", () => {
+    const current = Number(els.optionSlider.value);
+    els.optionSlider.value = String(current >= OPTION_COUNT ? 1 : current + 1);
+    updateOptionLabel();
+    renderApp();
+  });
+  els.fitBtn.addEventListener("click", renderApp);
+
+  els.startSketchBtn.addEventListener("click", () => {
+    state.sketch.points = [];
+    state.sketch.closed = false;
+    renderApp();
+  });
+  els.closeSketchBtn.addEventListener("click", () => {
+    if(state.sketch.points.length >= 3){
+      state.sketch.closed = true;
+      renderApp();
+    }
+  });
+  els.undoSketchBtn.addEventListener("click", () => {
+    if(state.sketch.closed){
+      state.sketch.closed = false;
+    }else{
+      state.sketch.points.pop();
+    }
+    renderApp();
+  });
+  els.clearSketchBtn.addEventListener("click", () => {
+    state.sketch.points = [];
+    state.sketch.closed = false;
+    renderApp();
+  });
+
+  els.viewport.addEventListener("click", onViewportClick);
+  els.viewport.addEventListener("dblclick", onViewportDoubleClick);
+  window.addEventListener("keydown", (event) => {
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    if(tag === "input" || tag === "select" || tag === "textarea") return;
+    if(event.key === "ArrowRight"){
+      els.optionSlider.value = String(clamp(Number(els.optionSlider.value) + 1, 1, OPTION_COUNT));
+      updateOptionLabel();
+      renderApp();
+    }else if(event.key === "ArrowLeft"){
+      els.optionSlider.value = String(clamp(Number(els.optionSlider.value) - 1, 1, OPTION_COUNT));
+      updateOptionLabel();
+      renderApp();
+    }else if(event.key === "Enter" && els.footprintMode.value === "sketch"){
+      if(state.sketch.points.length >= 3){
+        state.sketch.closed = true;
+        renderApp();
+      }
+    }
+  });
+}
+
+async function onProgramChange(){
+  const file = els.programType.value;
+  const entry = state.catalog.find((item) => item.json === file) || state.catalog[0];
+  if(!entry) return;
+  try{
+    const raw = await getProgramDatabase(entry);
+    state.entry = entry;
+    state.program = normalizeDatabase(entry, raw);
+    updateSketchUI();
+    renderApp();
+  }catch(error){
+    els.statusLine.textContent = "The selected program file could not be loaded.";
+    els.statusLine.classList.add("warn");
+    console.error(error);
+  }
+}
+
+function updateOptionLabel(){
+  els.optionValue.textContent = `Option ${String(els.optionSlider.value).padStart(3, "0")} / ${OPTION_COUNT}`;
+}
+
+function updateSketchUI(){
+  const sketchMode = els.footprintMode.value === "sketch";
+  els.sketchTools.hidden = !sketchMode;
+  els.sketchIdle.hidden = sketchMode;
+  if(!sketchMode) return;
+  if(!state.sketch.points.length){
+    els.sketchStatus.textContent = "Click points in the viewport to draw a custom outline.";
+  }else if(state.sketch.closed){
+    els.sketchStatus.textContent = `Sketch ready · ${state.sketch.points.length} points · now scrub the option slider.`;
+  }else{
+    els.sketchStatus.textContent = `Sketch in progress · ${state.sketch.points.length} points · click the first point, double-click, or press Enter to close.`;
+  }
+}
+
+function onViewportClick(event){
+  if(els.footprintMode.value !== "sketch" || state.sketch.closed) return;
+  if(event.detail > 1) return;
+  const point = eventToViewPoint(event, els.viewport);
+  if(!point) return;
+  if(point.x < 70 || point.x > VIEW_W - 70 || point.y < 70 || point.y > VIEW_H - 70) return;
+  const snapped = {
+    x: snap(point.x, 16),
+    y: snap(point.y, 16)
+  };
+  const first = state.sketch.points[0];
+  if(first && state.sketch.points.length >= 3 && Math.hypot(snapped.x - first.x, snapped.y - first.y) <= 20){
+    state.sketch.closed = true;
+    renderApp();
+    return;
+  }
+  state.sketch.points.push({
+    x: snapped.x,
+    y: snapped.y
+  });
+  renderApp();
+}
+
+function onViewportDoubleClick(event){
+  if(els.footprintMode.value !== "sketch") return;
+  if(state.sketch.points.length >= 3){
+    state.sketch.closed = true;
+    renderApp();
+    event.preventDefault();
+  }
+}
+
+async function getProgramDatabase(entry){
+  if(state.cache.has(entry.json)) return state.cache.get(entry.json);
+  const data = await loadJSON(`${DATA_DIR}${entry.json}`);
+  state.cache.set(entry.json, data);
+  return data;
+}
+
+function renderApp(){
+  updateSketchUI();
+  if(!state.program) return;
+
+  const targetGross = clamp(Number(els.targetSize.value) || 60000, 2000, 3000000);
+  const profile = resolveProfile(state.program, targetGross);
+  const option = Number(els.optionSlider.value);
+  const dna = makeOptionDNA(state.program, profile, targetGross, option, els.footprintMode.value);
+  const footprintMode = els.footprintMode.value;
+
+  els.programChip.textContent = state.program.buildingType;
+  els.profileChip.textContent = profile.name;
+  els.footprintChip.textContent = footprintMode === "sketch" ? "Sketch" : presetLabel(footprintMode);
+  els.profileSub.textContent = `${formatNumber(profile.grossSfTypical[0])}–${formatNumber(profile.grossSfTypical[1])} GSF typical · ${Math.round(profile.efficiencyRange[0] * 100)}–${Math.round(profile.efficiencyRange[1] * 100)}% efficient`;
+  els.dnaChip.textContent = dna.label;
+
+  if(footprintMode === "sketch" && !state.sketch.closed){
+    els.statusLine.classList.remove("warn");
+    els.statusLine.textContent = "Sketch the footprint in the viewport, then close the shape with the first point, double-click, or Enter to generate the plan.";
+    renderSketchOnly();
+    renderMetrics(null, targetGross, profile);
+    renderRoomList([]);
+    renderLegend([]);
+    return;
+  }
+
+  const footprint = buildFootprint(footprintMode, targetGross, dna);
+  const bundles = buildPlanningBundles(state.program, profile, targetGross, footprint, dna);
+  const plan = solvePlan(bundles, footprint, dna, targetGross);
+  state.layout = {profile, footprint, bundles, dna, targetGross, plan};
+
+  els.statusLine.classList.remove("warn");
+  els.statusLine.textContent = `${state.program.buildingType} · ${profile.name} · ${formatNumber(targetGross)} GSF · ${plan.rooms.length} placed blocks · ${Math.round(plan.minDimCompliance * 100)}% min-dim compliance · ${circulationSummary(plan.circulation)}`;
+
+  renderPlan(plan, footprint, dna, targetGross, profile);
+  renderMetrics(plan, targetGross, profile);
+  renderRoomList(plan.rooms);
+  renderLegend(plan.legend);
+}
+
+function normalizeDatabase(entry, raw){
+  const topLevelAdj = new Map();
+  (raw.adjacency_edges || []).forEach((edge) => {
+    if(!topLevelAdj.has(edge.from)) topLevelAdj.set(edge.from, []);
+    topLevelAdj.get(edge.from).push({
+      id: edge.to,
+      weight: normalizeAdjWeight(edge.weight),
+      relationship: String(edge.relationship || "").toLowerCase()
+    });
+  });
+
+  return {
+    id: entry.category || raw.building_type || "Program",
+    buildingType: raw.building_type || entry.building_type || entry.category || "Program",
+    typology: inferTypology(raw.building_type || entry.building_type || ""),
+    subtypes: (raw.subtypes || []).map((subtype, index) => ({
+      id: subtype.id || `SUB_${index + 1}`,
+      name: subtype.name || `Subtype ${index + 1}`,
+      grossSfTypical: subtype.gross_sf_typical || [12000, 60000],
+      efficiencyRange: subtype.efficiency_ratio_target_range || [0.72, 0.82]
+    })),
+    spaces: (raw.space_library || []).map((space, index) => normalizeSpace(space, index, topLevelAdj, raw.building_type || entry.building_type || ""))
+  };
+}
+
+function normalizeSpace(space, index, topLevelAdj, buildingType){
+  const nsfRange = space.nsf_range || space.gsf_range || [100, 400];
+  const areaBase = midpoint(nsfRange) || 220;
+  const rules = inferDimensionRules(space, buildingType, areaBase);
+  const adj = [...(space.adjacencies || []).map((edge) => ({
+    id: edge.space_id || edge.target_id || "",
+    weight: normalizeAdjWeight(edge.weight),
+    relationship: String(edge.relationship || "").toLowerCase()
+  })), ...(topLevelAdj.get(space.id) || [])];
+
+  return {
+    id: space.id || `ROOM_${index + 1}`,
+    name: space.name || `Room ${index + 1}`,
+    category: space.category || "Support",
+    groupKey: normalizeGroupLabel(space.category || "Support"),
+    nsfRange,
+    areaBase,
+    areaShare: midpoint(space.percent_of_gross_range),
+    daylight: priorityValue(space.daylight_priority),
+    daylightLabel: String(space.daylight_priority || ""),
+    typicalLocation: String(space.typical_location || ""),
+    securityZone: String(space.security_zone || ""),
+    stackingPreference: String(space.stacking_preference || ""),
+    notes: space.notes || [],
+    kind: rules.kind,
+    planningGroup: rules.planningGroup,
+    minWidth: rules.minWidth,
+    minDepth: rules.minDepth,
+    maxAspect: rules.maxAspect,
+    targetAspect: rules.targetAspect,
+    zone: rules.zone,
+    needsCorridor: rules.needsCorridor,
+    publicness: rules.publicness,
+    privacy: rules.privacy,
+    service: rules.service,
+    adj
+  };
+}
+
+function resolveProfile(program, targetGross){
+  const profiles = program.subtypes.length ? program.subtypes : [{
+    id: "DEFAULT",
+    name: `${program.buildingType} / Default`,
+    grossSfTypical: [12000, 60000],
+    efficiencyRange: [0.72, 0.82]
+  }];
+  return profiles.slice().sort((a, b) => {
+    const aMid = midpoint(a.grossSfTypical) || targetGross;
+    const bMid = midpoint(b.grossSfTypical) || targetGross;
+    return Math.abs(aMid - targetGross) - Math.abs(bMid - targetGross);
+  })[0];
+}
+
+function inferTypology(buildingType){
+  const source = String(buildingType || "").toLowerCase();
+  if(/hotel|multifamily|residential|senior|student/.test(source)) return "double_loaded";
+  if(/office|laboratory|healthcare/.test(source)) return "spine";
+  if(/school|education|civic|cultural|religious|recreation/.test(source)) return "commons";
+  if(/industrial|warehouse|datacenter|parking|transit|convention/.test(source)) return "service_bar";
+  return "front_back";
+}
+
+function inferDimensionRules(space, buildingType, areaBase){
+  const text = `${space.name || ""} ${space.category || ""} ${(space.notes || []).join(" ")}`.toLowerCase();
+  const parsed = parseDimensionHints(space.notes || []);
+  let kind = "room";
+  let planningGroup = "room";
+  let zone = "mixed";
+  let needsCorridor = true;
+  let publicness = inferPublicness(space);
+  let privacy = inferPrivacy(space);
+  let service = inferService(space);
+  let minWidth = parsed.minWidth || 0;
+  let minDepth = parsed.minDepth || 0;
+  let maxAspect = 2.8;
+  let targetAspect = 1.4;
+
+  if((/corridor|concourse|circulation|spine|hallway/.test(text) || (/hall/.test(text) && /circulation|lobby|elev|stair/.test(text))) && !/server hall|exhibit hall|warehouse/.test(text)){
+    kind = "corridor";
+    planningGroup = "corridor";
+    zone = "interior";
+    needsCorridor = false;
+    minWidth = Math.max(minWidth || corridorWidthForType(buildingType), corridorWidthForType(buildingType));
+    minDepth = Math.max(minDepth || 40, 24);
+    maxAspect = 20;
+    targetAspect = 8;
+  }else if(/stair|elev|vertical|riser|mech|elect|mep|core/.test(text)){
+    kind = "core";
+    planningGroup = "core";
+    zone = "interior";
+    minWidth = Math.max(minWidth || 12, 10);
+    minDepth = Math.max(minDepth || 12, 10);
+    maxAspect = 3;
+    targetAspect = 1.2;
+  }else if(/entry|lobby|vestibule|front desk|registration|wait|security|reception/.test(text)){
+    kind = "anchor";
+    planningGroup = "anchor";
+    zone = "front";
+    minWidth = Math.max(minWidth || Math.sqrt(areaBase) * 0.7, 14);
+    minDepth = Math.max(minDepth || areaBase / minWidth, 12);
+    maxAspect = 3.4;
+    targetAspect = 1.8;
+  }else if(/guestroom|bedroom|unit entry|resident unit|unit/.test(text)){
+    kind = "room_bar";
+    planningGroup = "room";
+    zone = "perimeter";
+    minWidth = Math.max(minWidth || 12, 10);
+    minDepth = Math.max(minDepth || 18, 12);
+    maxAspect = 3.2;
+    targetAspect = 1.8;
+  }else if(/exam|focus|small group|office\b|consult|toilet|restroom|bath/.test(text)){
+    kind = "cell_room";
+    planningGroup = "room";
+    zone = /toilet|bath|restroom/.test(text) ? "interior" : "adjacent";
+    minWidth = Math.max(minWidth || (/toilet|bath|restroom/.test(text) ? 6 : 10), 6);
+    minDepth = Math.max(minDepth || (/toilet|bath|restroom/.test(text) ? 8 : 10), 8);
+    maxAspect = 2.4;
+    targetAspect = /toilet|bath|restroom/.test(text) ? 1.2 : 1.4;
+  }else if(/class|seminar|meeting|conference|library|lounge|cafe|kitchen|dining|commons/.test(text)){
+    kind = "gathering";
+    planningGroup = "room";
+    zone = /kitchen/.test(text) ? "service_edge" : "front_perimeter";
+    minWidth = Math.max(minWidth || 14, /class|library|commons/.test(text) ? 20 : 14);
+    minDepth = Math.max(minDepth || 14, /class/.test(text) ? 24 : 12);
+    maxAspect = 3.6;
+    targetAspect = /class|library/.test(text) ? 1.6 : 1.8;
+  }else if(/open work|studio|gallery|court|gym|hall|warehouse|server hall|parking floor|sanctuary|platform|exhibit/.test(text)){
+    kind = "big_room";
+    planningGroup = "room";
+    zone = /warehouse|server|parking/.test(text) ? "deep" : "perimeter";
+    minWidth = Math.max(minWidth || Math.sqrt(areaBase) * 0.65, 20);
+    minDepth = Math.max(minDepth || Math.sqrt(areaBase) * 0.55, 18);
+    maxAspect = 4.5;
+    targetAspect = 1.6;
+  }else if(/loading|trash|storage|janitor|housekeep|laundry|support|service/.test(text)){
+    kind = "service";
+    planningGroup = "service";
+    zone = "service_edge";
+    minWidth = Math.max(minWidth || 10, 8);
+    minDepth = Math.max(minDepth || 10, 8);
+    maxAspect = 3;
+    targetAspect = 1.3;
+  }else{
+    minWidth = Math.max(minWidth || clamp(Math.sqrt(areaBase) * 0.55, 8, 22), 8);
+    minDepth = Math.max(minDepth || clamp(areaBase / Math.max(minWidth, 1), 8, 30), 8);
+    maxAspect = 3;
+    targetAspect = 1.5;
+  }
+
+  if(/perimeter/i.test(space.typical_location || "")) zone = zone === "interior" ? zone : "perimeter";
+  if(/interior/i.test(space.typical_location || "")) zone = zone === "front" ? zone : "interior";
+  if(/ground/i.test(space.stacking_preference || "")) publicness = Math.max(publicness, 0.45);
+
+  const genericMin = clamp(Math.sqrt(areaBase) * 0.45, 7, 24);
+  minWidth = Math.max(minWidth, genericMin * 0.8);
+  minDepth = Math.max(minDepth, Math.min(areaBase / Math.max(minWidth, 1), Math.max(genericMin * 0.8, 8)));
+  if(minWidth * minDepth > areaBase * 1.6){
+    const scale = Math.sqrt((areaBase * 1.2) / (minWidth * minDepth));
+    minWidth *= scale;
+    minDepth *= scale;
+  }
+
+  return {
+    kind,
+    planningGroup,
+    minWidth,
+    minDepth,
+    maxAspect,
+    targetAspect,
+    zone,
+    needsCorridor,
+    publicness,
+    privacy,
+    service
+  };
+}
+
+function buildPlanningBundles(program, profile, targetGross, footprint, dna){
+  const efficiency = clamp(midpoint(profile.efficiencyRange) || 0.78, 0.45, 0.92);
+  const targetNet = targetGross * efficiency;
+  const spaces = program.spaces.map((space) => ({...space}));
+  const totalShare = spaces.reduce((sum, space) => sum + (space.areaShare || 0), 0);
+  const baseAreas = spaces.map((space) => space.areaShare && totalShare > 0.2 ? space.areaShare * targetGross : space.areaBase);
+  const baseSum = baseAreas.reduce((sum, area) => sum + area, 0) || 1;
+  const scale = targetNet / baseSum;
+  const footprintArea = polygonArea(footprint.points) - (footprint.voids || []).reduce((sum, poly) => sum + polygonArea(poly), 0);
+  const scaledSpaces = spaces.map((space, index) => ({
+    ...space,
+    targetArea: Math.max(80, baseAreas[index] * scale)
+  }));
+
+  const familyMap = new Map();
+  const corridorMembers = [];
+  const coreMembers = [];
+  const supportMembers = [];
+  const rawRooms = [];
+
+  scaledSpaces.forEach((space) => {
+    if(space.planningGroup === "corridor"){
+      corridorMembers.push(space);
+      familyMap.set(space.id, "BUNDLE_HALL");
+    }else if(space.planningGroup === "core"){
+      coreMembers.push(space);
+      familyMap.set(space.id, isStairLikeSpace(space) ? "BUNDLE_STAIR" : isElevatorLikeSpace(space) ? "BUNDLE_ELEVATOR" : "BUNDLE_CORE");
+    }else if(space.planningGroup === "service" && space.targetArea < 420){
+      supportMembers.push(space);
+      familyMap.set(space.id, "BUNDLE_SUPPORT");
+    }else{
+      familyMap.set(space.id, space.id);
+      rawRooms.push(space);
+    }
+  });
+
+  const rooms = [];
+  const reserveArea = Math.max(targetGross - targetNet, 0);
+  const synthetic = syntheticInfrastructure(program.typology, reserveArea, targetGross);
+  const stairMembers = coreMembers.filter((space) => isStairLikeSpace(space));
+  const elevatorMembers = coreMembers.filter((space) => isElevatorLikeSpace(space) && !isStairLikeSpace(space));
+  const bundledCoreMembers = coreMembers.filter((space) => !isStairLikeSpace(space) && !isElevatorLikeSpace(space));
+  const hallArea = corridorMembers.reduce((sum, space) => sum + space.targetArea, 0);
+  const hallWidth = corridorMembers.length ? Math.max(corridorWidthForType(program.buildingType), ...corridorMembers.map((space) => space.minWidth)) : 0;
+  const stairCount = stairMembers.length
+    ? clamp(Math.max(stairMembers.length, 2), 2, 2)
+    : clamp(Math.max(suggestStairCount(program.typology, targetGross, footprintArea), 2), 2, 2);
+  const stairArea = stairMembers.length
+    ? stairMembers.reduce((sum, space) => sum + space.targetArea, 0)
+    : syntheticStairArea(program.buildingType, stairCount, targetGross);
+  const elevatorCount = elevatorMembers.length
+    ? clamp(elevatorMembers.length, 1, 3)
+    : suggestElevatorCount(program.buildingType, targetGross, footprintArea);
+  const elevatorArea = elevatorMembers.length
+    ? elevatorMembers.reduce((sum, space) => sum + space.targetArea, 0)
+    : syntheticElevatorArea(program.buildingType, elevatorCount, targetGross);
+  const hiddenArea = corridorMembers.reduce((sum, space) => sum + space.targetArea, 0)
+    + bundledCoreMembers.reduce((sum, space) => sum + space.targetArea, 0)
+    + stairMembers.reduce((sum, space) => sum + space.targetArea, 0)
+    + elevatorMembers.reduce((sum, space) => sum + space.targetArea, 0);
+  const impliedGapArea = hiddenArea
+    + (hallArea > 0 ? 0 : synthetic.corridorArea * 0.45)
+    + synthetic.coreArea
+    + (stairMembers.length ? 0 : syntheticStairArea(program.buildingType, stairCount, targetGross))
+    + (elevatorMembers.length ? 0 : syntheticElevatorArea(program.buildingType, elevatorCount, targetGross));
+  if(supportMembers.length){
+    const area = supportMembers.reduce((sum, space) => sum + space.targetArea, 0);
+    rooms.push({
+      id: "BUNDLE_SUPPORT",
+      familyId: "BUNDLE_SUPPORT",
+      groupKey: normalizeGroupLabel("Support"),
+      name: "Support Pod",
+      baseName: "Support Pod",
+      category: "Support",
+      kind: "service",
+      zone: "service_edge",
+      targetArea: area,
+      minWidth: 10,
+      minDepth: 10,
+      maxAspect: 3,
+      targetAspect: 1.4,
+      publicness: 0.08,
+      privacy: 0.3,
+      service: 0.9,
+      needsCorridor: false,
+      familyNotes: supportMembers.flatMap((space) => space.notes)
+    });
+  }
+
+  rawRooms.forEach((space) => {
+    const splitCount = determineSplitCount(space, footprintArea);
+    for(let i = 0; i < splitCount; i += 1){
+      const pieceArea = space.targetArea / splitCount;
+      rooms.push({
+        id: splitCount === 1 ? space.id : `${space.id}_${i + 1}`,
+        familyId: space.id,
+        groupKey: space.groupKey || normalizeGroupLabel(space.category),
+        name: splitCount === 1 ? space.name : `${space.name} ${String.fromCharCode(65 + i)}`,
+        baseName: space.name,
+        category: space.category,
+        kind: space.kind,
+        zone: space.zone,
+        targetArea: pieceArea,
+        minWidth: space.minWidth,
+        minDepth: space.minDepth,
+        maxAspect: space.maxAspect,
+        targetAspect: space.targetAspect,
+        publicness: space.publicness,
+        privacy: space.privacy,
+        service: space.service,
+        needsCorridor: space.needsCorridor,
+        daylight: space.daylight,
+        typicalLocation: space.typicalLocation,
+        familyNotes: space.notes
+      });
+    }
+  });
+
+  const adjacencyByFamily = buildFamilyAdjacency(scaledSpaces, familyMap);
+  const sourceById = new Map(scaledSpaces.map((space) => [space.id, space]));
+  rooms.forEach((room) => {
+    room.adj = adjacencyByFamily.get(room.familyId) || [];
+    if(room.daylight == null){
+      room.daylight = sourceById.get(room.familyId)?.daylight ?? 0.2;
+    }
+    room.needsCorridor = false;
+  });
+
+  const roomArea = rooms.reduce((sum, room) => sum + room.targetArea, 0);
+  const gapArea = clamp(impliedGapArea, footprintArea * 0.06, footprintArea * 0.42);
+  const collector = buildCollectorSpec(footprint, footprintArea, roomArea, gapArea, dna);
+  const circulation = buildCirculationSpec(program.buildingType, footprint, collector, footprintArea, dna, {
+    hallArea,
+    hallWidth,
+    stairArea,
+    stairCount,
+    elevatorArea,
+    elevatorCount,
+    coreArea: bundledCoreMembers.reduce((sum, space) => sum + space.targetArea, 0)
+  });
+  applyGroupSweepTargets(rooms, footprint, collector, dna);
+
+  const sorted = rooms.sort((a, b) => planningPriority(b, dna) - planningPriority(a, dna));
+  sorted.meta = {
+    roomArea,
+    gapArea,
+    hiddenArea,
+    collector,
+    circulation,
+    sizeCoverage: spaces.filter((space) => Array.isArray(space.nsfRange) || Array.isArray(space.gsfRange)).length / Math.max(spaces.length, 1)
+  };
+  return sorted;
+}
+
+function buildFamilyAdjacency(spaces, familyMap){
+  const store = new Map();
+  spaces.forEach((space) => {
+    const from = familyMap.get(space.id) || space.id;
+    if(!store.has(from)) store.set(from, new Map());
+    (space.adj || []).forEach((edge) => {
+      const to = familyMap.get(edge.id) || edge.id;
+      if(!to || to === from) return;
+      const prev = store.get(from).get(to) || {id: to, weight: 0, relationship: edge.relationship};
+      prev.weight = Math.max(prev.weight, edge.weight);
+      prev.relationship = strongerRelationship(prev.relationship, edge.relationship);
+      store.get(from).set(to, prev);
+    });
+  });
+  const out = new Map();
+  store.forEach((map, key) => out.set(key, [...map.values()]));
+  return out;
+}
+
+function strongerRelationship(a, b){
+  const rank = (rel) => {
+    const source = String(rel || "").toLowerCase();
+    if(source.includes("must") || source.includes("direct")) return 4;
+    if(source.includes("should") || source.includes("near")) return 3;
+    if(source.includes("optional")) return 2;
+    if(source.includes("avoid") || source.includes("separate")) return 1;
+    return 0;
+  };
+  return rank(b) > rank(a) ? b : a;
+}
+
+function determineSplitCount(space, footprintArea){
+  if(space.kind === "room_bar"){
+    const label = `${space.name || ""} ${space.category || ""}`.toLowerCase();
+    const chunk = /unit|guest|resident|bedroom|suite|patient/.test(label) ? 2400 : 3000;
+    return clamp(Math.ceil(space.targetArea / chunk), 1, 10);
+  }
+  if(space.kind === "cell_room" && space.targetArea > 1800){
+    return clamp(Math.ceil(space.targetArea / 900), 1, 4);
+  }
+  if(space.kind === "big_room"){
+    return clamp(Math.ceil(space.targetArea / Math.max(footprintArea * 0.28, 7000)), 1, 3);
+  }
+  if(space.kind === "gathering" && space.targetArea > 4500){
+    return clamp(Math.ceil(space.targetArea / 2500), 1, 3);
+  }
+  if(space.kind === "room" && space.targetArea > 3500){
+    return clamp(Math.ceil(space.targetArea / 1800), 1, 4);
+  }
+  return 1;
+}
+
+function planningPriority(room, dna){
+  const areaWeight = room.targetArea / 1000;
+  const publicWeight = room.publicness * 120;
+  const serviceWeight = room.service * 70;
+  const daylightWeight = room.daylight * 60;
+  const kindWeight = room.kind === "anchor" ? 140 : room.kind === "big_room" ? 110 : room.kind === "gathering" ? 90 : room.kind === "room_bar" ? 80 : room.kind === "service" ? 40 : 30;
+  const typologyWeight = dna.typology === "double_loaded" && room.kind === "room_bar"
+    ? 95 + Math.min(room.targetArea / 80, 55)
+    : dna.typology === "spine" && room.kind === "cell_room"
+      ? 24
+      : 0;
+  const groupWeight = room.groupRank != null ? Math.max(0, 20 - room.groupRank * 2.5) : 0;
+  return kindWeight + typologyWeight + groupWeight + areaWeight + publicWeight + daylightWeight + serviceWeight + seededValue(room.id) * 1.25;
+}
+
+function makeOptionDNA(program, profile, targetGross, option, footprintMode){
+  const typology = program.typology;
+  const t = OPTION_COUNT <= 1 ? 0 : (option - 1) / (OPTION_COUNT - 1);
+  const entrySide = typology === "commons" ? "left" : "bottom";
+  const orbitShift = t * 0.82;
+  const sideSpread = clamp((t - 0.16) / 0.3, 0, 1);
+  const widthGrow = clamp((t - 0.34) / 0.34, 0, 1);
+  const depthGrow = clamp((t - 0.5) / 0.32, 0, 1);
+  const rotatePhase = clamp((t - 0.72) / 0.28, 0, 1);
+  const collectBias = clamp((t - 0.12) / 0.52, 0, 1);
+  return {
+    option,
+    entrySide,
+    t,
+    orbitShift,
+    sideSpread,
+    widthGrow,
+    depthGrow,
+    rotatePhase,
+    collectBias,
+    frontBias: 0.32 + t * 0.44,
+    edgeBias: 0.22 + t * 0.62,
+    typology,
+    label: `clock ${Math.round(orbitShift * 360)}° · collect ${Math.round(collectBias * 100)} · widen ${Math.round(widthGrow * 100)} · deepen ${Math.round(depthGrow * 100)} · rotate ${Math.round(rotatePhase * 100)}`
+  };
+}
+
+function buildFootprint(mode, targetGross, dna){
+  const shape = mode === "sketch" ? buildSketchShape() : buildPresetShape(mode, dna);
+  const scaled = scaleFootprintToArea(shape, targetGross);
+  scaled.label = mode === "sketch" ? "Sketch" : presetLabel(mode);
+  return scaled;
+}
+
+function buildSketchShape(){
+  const points = state.sketch.points.map((point) => [
+    (point.x - VIEW_W * 0.5) / 8,
+    (point.y - VIEW_H * 0.5) / 8
+  ]);
+  return polygonPackage(points, [], "Sketch");
+}
+
+function buildPresetShape(mode, dna){
+  if(mode === "bar"){
+    return polygonPackage(rectPoints(2.95, 0.86), [], "Bar");
+  }
+  if(mode === "courtyard"){
+    const outer = rectPoints(1.66, 1.24);
+    const innerScale = lerp(0.24, 0.44, dna.edgeBias);
+    const inner = rectPoints(1.66 * innerScale, 1.24 * innerScale);
+    return polygonPackage(outer, [inner], "Courtyard");
+  }
+  if(mode === "lshape"){
+    return polygonPackage([
+      [-0.82, -0.62],
+      [0.78, -0.62],
+      [0.78, -0.12],
+      [-0.08, -0.12],
+      [-0.08, 0.64],
+      [-0.82, 0.64]
+    ], [], "L-Shape");
+  }
+  if(mode === "corner"){
+    return polygonPackage([
+      [-0.86, -0.68],
+      [0.86, -0.68],
+      [0.86, -0.22],
+      [-0.18, -0.22],
+      [-0.18, 0.68],
+      [-0.86, 0.68]
+    ], [], "Corner");
+  }
+  if(mode === "narrowdeep"){
+    return polygonPackage(rectPoints(0.9, 1.96), [], "Narrow / Deep");
+  }
+  return polygonPackage(rectPoints(1.32, 1.04), [], "Rectangle");
+}
+
+function buildCollectorSpec(footprint, footprintArea, roomArea, gapArea, dna){
+  const bounds = polygonBounds(footprint.points);
+  const boxArea = Math.max(bounds.width * bounds.height, 1);
+  const targetCollectorArea = clamp(roomArea * lerp(1.06, 1.18, dna.widthGrow * 0.45 + dna.depthGrow * 0.4), boxArea * 0.22, boxArea * 0.84);
+  const areaScale = Math.sqrt(targetCollectorArea / boxArea);
+  const gapBias = clamp(gapArea / Math.max(footprintArea, 1), 0.06, 0.34);
+  const scale = clamp(areaScale - gapBias * 0.18 - dna.collectBias * 0.1, 0.36, 0.86);
+  const width = bounds.width * scale;
+  const height = bounds.height * scale;
+  const cx = (bounds.minX + bounds.maxX) * 0.5;
+  const cy = (bounds.minY + bounds.maxY) * 0.5;
+  return {
+    rect: {
+      minX: cx - width * 0.5,
+      maxX: cx + width * 0.5,
+      minY: cy - height * 0.5,
+      maxY: cy + height * 0.5,
+      width,
+      height,
+      cx,
+      cy
+    },
+    cx,
+    cy,
+    radius: Math.hypot(width * 0.5, height * 0.5),
+    moat: clamp(Math.min(bounds.width - width, bounds.height - height) * 0.5, 0, Math.min(bounds.width, bounds.height) * 0.3)
+  };
+}
+
+function buildCirculationSpec(buildingType, footprint, collector, footprintArea, dna, config){
+  const bounds = polygonBounds(footprint.points);
+  const hallHorizontal = collector.rect.width >= collector.rect.height;
+  const hallIncluded = config.hallArea > 120;
+  const hallWidth = hallIncluded ? clamp(config.hallWidth || corridorWidthForType(buildingType), 6, 12) : 0;
+  const hallLengthRaw = hallWidth ? config.hallArea / hallWidth : 0;
+  const hallLength = hallIncluded
+    ? clamp(hallLengthRaw || (hallHorizontal ? collector.rect.width * 0.9 : collector.rect.height * 0.9), Math.min(collector.rect.width, collector.rect.height) * 0.45, hallHorizontal ? collector.rect.width * 0.96 : collector.rect.height * 0.96)
+    : 0;
+  const gaps = [];
+  let hallRect = null;
+  if(hallIncluded){
+    hallRect = hallHorizontal
+      ? makeRect(collector.cx, collector.cy, hallLength, hallWidth)
+      : makeRect(collector.cx, collector.cy, hallWidth, hallLength);
+    gaps.push({id:"GAP_HALL", familyId:"BUNDLE_HALL", kind:"hall", rect:hallRect});
+  }
+
+  const elevatorCount = clamp(config.elevatorCount || 0, 0, 3);
+  const elevatorAreaEach = elevatorCount ? Math.max(90, config.elevatorArea / Math.max(elevatorCount, 1)) : 0;
+  const elevatorSide = clamp(Math.sqrt(elevatorAreaEach), 9, 20);
+  const elevatorSpacing = elevatorCount > 1 ? elevatorSide * 1.15 : 0;
+  for(let i = 0; i < elevatorCount; i += 1){
+    const offset = elevatorCount === 1 ? 0 : (i - (elevatorCount - 1) / 2) * elevatorSpacing;
+    const rect = hallIncluded
+      ? hallHorizontal
+        ? makeRect(collector.cx + offset, collector.cy, elevatorSide, elevatorSide)
+        : makeRect(collector.cx, collector.cy + offset, elevatorSide, elevatorSide)
+      : makeRect(collector.cx + (hallHorizontal ? offset : 0), collector.cy + (hallHorizontal ? 0 : offset), elevatorSide, elevatorSide);
+    gaps.push({id:`GAP_ELEV_${i + 1}`, familyId:"BUNDLE_ELEVATOR", kind:"elevator", rect});
+  }
+
+  const stairCount = clamp(config.stairCount || 0, 0, 2);
+  const stairAreaEach = stairCount ? Math.max(120, config.stairArea / Math.max(stairCount, 1)) : 0;
+  const stairWidth = clamp(Math.sqrt(stairAreaEach) * 0.82, 10, 18);
+  const stairDepth = clamp(stairAreaEach / Math.max(stairWidth, 1), stairWidth, 26);
+  for(let i = 0; i < stairCount; i += 1){
+    const sign = i === 0 ? -1 : 1;
+    const rect = hallIncluded
+      ? hallHorizontal
+        ? makeRect((sign < 0 ? hallRect.minX : hallRect.maxX) + sign * stairWidth * 0.15, collector.cy, stairWidth, stairDepth)
+        : makeRect(collector.cx, (sign < 0 ? hallRect.minY : hallRect.maxY) + sign * stairDepth * 0.15, stairDepth, stairWidth)
+      : hallHorizontal
+        ? makeRect(collector.cx + sign * (collector.rect.width * 0.42), collector.cy, stairWidth, stairDepth)
+        : makeRect(collector.cx, collector.cy + sign * (collector.rect.height * 0.42), stairDepth, stairWidth);
+    gaps.push({id:`GAP_STAIR_${i + 1}`, familyId:"BUNDLE_STAIR", kind:"stair", rect: clampRectToBounds(rect, bounds)});
+  }
+
+  return {
+    hallIncluded,
+    hallWidth,
+    hallHorizontal,
+    stairCount,
+    elevatorCount,
+    gaps: gaps.map((gap) => ({...gap, rect: clampRectToBounds(gap.rect, bounds)}))
+  };
+}
+
+function solvePlan(rooms, footprint, dna, targetGross){
+  const footprintArea = polygonArea(footprint.points) - (footprint.voids || []).reduce((sum, poly) => sum + polygonArea(poly), 0);
+  const cellSize = chooseCellSize(footprintArea);
+  const grid = rasterizeFootprint(footprint, cellSize, dna.entrySide);
+  const placed = [];
+  const familyAnchors = new Map();
+  const groupAnchors = new Map();
+  const failures = [];
+  const legend = [];
+  const collector = rooms.meta?.collector || buildCollectorSpec(footprint, footprintArea, rooms.reduce((sum, room) => sum + room.targetArea, 0), footprintArea * 0.14, dna);
+  const circulation = rooms.meta?.circulation || buildCirculationSpec("Program", footprint, collector, footprintArea, dna, {
+    hallArea: 0,
+    hallWidth: 0,
+    stairArea: 0,
+    stairCount: 0,
+    elevatorArea: 0,
+    elevatorCount: 0,
+    coreArea: 0
+  });
+  reserveCirculationGaps(grid, circulation);
+  seedCirculationAnchors(familyAnchors, circulation);
+
+  rooms.forEach((room) => {
+    const placement = placeCollectorRoom(room, grid, dna, collector, familyAnchors, groupAnchors);
+    if(placement){
+      placed.push(placement);
+      updateFamilyAnchor(familyAnchors, placement);
+      if(placement.groupKey) updateFamilyAnchor(groupAnchors, placement, placement.groupKey);
+    }else{
+      failures.push(room);
+    }
+  });
+
+  placed.forEach((room) => {
+    if(!legend.find((item) => item.category === room.category)){
+      legend.push({category: room.category, fill: room.fill});
+    }
+  });
+
+  const usedArea = placed.reduce((sum, room) => sum + room.w * room.h, 0);
+  const minDimCompliance = placed.length ? average(placed.map((room) => room.meetsMinDims ? 1 : 0)) : 0;
+  const daylightFit = placed.length ? average(placed.map((room) => room.daylight > 0.4 ? clamp(room.orbitFit * 1.12, 0, 1) : clamp(room.collectFit * 0.92 + room.orbitFit * 0.15, 0, 1))) : 0;
+  const adjacencyFit = placed.length ? average(placed.map((room) => room.adjFit)) : 0;
+  const collectorFit = placed.length ? average(placed.map((room) => room.collectFit)) : 0;
+  const orbitFit = placed.length ? average(placed.map((room) => room.orbitFit)) : 0;
+  const compactFit = placed.length ? average(placed.map((room) => room.contactFit)) : 0;
+
+  return {
+    rooms: placed,
+    failures,
+    legend,
+    usedArea,
+    footprintArea,
+    fillRatio: clamp(usedArea / Math.max(footprintArea, 1), 0, 1),
+    minDimCompliance,
+    daylightFit,
+    adjacencyFit,
+    collectorFit,
+    orbitFit,
+    compactFit,
+    gapRatio: clamp(1 - usedArea / Math.max(footprintArea, 1), 0, 1),
+    collector,
+    circulation,
+    sizeCoverage: rooms.meta?.sizeCoverage || 0,
+    cellSize
+  };
+}
+
+function chooseCellSize(footprintArea){
+  return clamp(Math.sqrt(footprintArea / 950), 4, 8);
+}
+
+function rasterizeFootprint(footprint, cellSize, entrySide){
+  const bounds = polygonBounds(footprint.points);
+  const cols = Math.ceil(bounds.width / cellSize) + 2;
+  const rows = Math.ceil(bounds.height / cellSize) + 2;
+  const keyMap = new Map();
+  const cells = [];
+  const centerX = (bounds.minX + bounds.maxX) * 0.5;
+  const centerY = (bounds.minY + bounds.maxY) * 0.5;
+
+  for(let row = 0; row < rows; row += 1){
+    for(let col = 0; col < cols; col += 1){
+      const x = bounds.minX - cellSize + col * cellSize;
+      const y = bounds.minY - cellSize + row * cellSize;
+      const cx = x + cellSize * 0.5;
+      const cy = y + cellSize * 0.5;
+      if(!pointInPolygon(cx, cy, footprint.points)) continue;
+      if((footprint.voids || []).some((poly) => pointInPolygon(cx, cy, poly))) continue;
+      const cell = {
+        id: `${row}:${col}`,
+        row,
+        col,
+        x,
+        y,
+        cx,
+        cy,
+        free: true,
+        occupantType: "",
+        occupantId: "",
+        perimeter: 0,
+        front: 0,
+        back: 0,
+        center: 0,
+        side: 0,
+        nx: 0,
+        ny: 0
+      };
+      cells.push(cell);
+      keyMap.set(cell.id, cell);
+    }
+  }
+
+  cells.forEach((cell) => {
+    const neighbors = {
+      up: keyMap.get(`${cell.row - 1}:${cell.col}`),
+      down: keyMap.get(`${cell.row + 1}:${cell.col}`),
+      left: keyMap.get(`${cell.row}:${cell.col - 1}`),
+      right: keyMap.get(`${cell.row}:${cell.col + 1}`)
+    };
+    cell.neighbors = neighbors;
+    const missing = Object.values(neighbors).reduce((sum, neighbor) => sum + (neighbor ? 0 : 1), 0);
+    cell.perimeter = missing / 4;
+    const nx = invLerp(bounds.minX, bounds.maxX, cell.cx);
+    const ny = invLerp(bounds.minY, bounds.maxY, cell.cy);
+    cell.nx = nx;
+    cell.ny = ny;
+    cell.front = entrySide === "bottom" ? 1 - ny : entrySide === "top" ? ny : entrySide === "left" ? 1 - nx : nx;
+    cell.back = 1 - cell.front;
+    const dist = Math.hypot((cell.cx - centerX) / Math.max(bounds.width, 1), (cell.cy - centerY) / Math.max(bounds.height, 1));
+    cell.center = clamp(1 - dist * 1.45, 0, 1);
+    cell.side = Math.abs(nx - 0.5) * 2;
+  });
+
+  return {cells, keyMap, cellSize, bounds};
+}
+
+function placeCorridor(room, grid, dna){
+  const bounds = grid.bounds;
+  const major = bounds.width >= bounds.height ? "horizontal" : "vertical";
+  const orientation = dna.typology === "service_bar"
+    ? (major === "horizontal" ? "vertical" : "horizontal")
+    : dna.corridorOrientation;
+  const widthCells = Math.max(1, Math.ceil(room.minWidth / grid.cellSize));
+  const targetCells = Math.max(6, Math.round(room.targetArea / (grid.cellSize * grid.cellSize)));
+  const spanCells = orientation === "horizontal"
+    ? Math.max(6, Math.floor(bounds.width / grid.cellSize) - 2)
+    : Math.max(6, Math.floor(bounds.height / grid.cellSize) - 2);
+  const desiredLong = clamp(
+    Math.round(targetCells / Math.max(widthCells, 1)),
+    Math.max(6, Math.floor(spanCells * 0.48)),
+    spanCells
+  );
+  const longCandidates = uniqueBy(
+    [desiredLong, spanCells, Math.floor(spanCells * 0.84), Math.floor(spanCells * 0.68), Math.floor(spanCells * 0.56)]
+      .map((value) => ({value: Math.max(6, value)})),
+    "value"
+  ).map((item) => item.value);
+  const widthCandidates = uniqueBy(
+    [widthCells, widthCells + 1, Math.max(1, widthCells - 1)].map((value) => ({value: Math.max(1, value)})),
+    "value"
+  ).map((item) => item.value);
+  const dims = [];
+  longCandidates.forEach((longAxis) => {
+    widthCandidates.forEach((shortAxis) => {
+      dims.push(orientation === "horizontal"
+        ? {w: longAxis, h: shortAxis}
+        : {w: shortAxis, h: longAxis});
+    });
+  });
+  let best = null;
+  dims.forEach((dim) => {
+    scanRectangles(grid, Math.max(1, dim.w), Math.max(1, dim.h), (cells, rect) => {
+      const metrics = rectMetrics(cells, grid, rect, null, []);
+      const aspect = rect.width / Math.max(rect.height, 1);
+      const orientScore = orientation === "horizontal" ? clamp(aspect / 5, 0, 1) : clamp((1 / Math.max(aspect, 0.01)) / 5, 0, 1);
+      const spanFit = orientation === "horizontal"
+        ? clamp(rect.width / Math.max(bounds.width, 1), 0, 1)
+        : clamp(rect.height / Math.max(bounds.height, 1), 0, 1);
+      if((dna.typology === "double_loaded" || dna.typology === "spine") && spanFit < 0.62){
+        return;
+      }
+      const score = metrics.center * 0.9
+        + metrics.front * 0.25
+        + orientScore * 0.6
+        + spanFit * (dna.typology === "double_loaded" ? 1.25 : dna.typology === "spine" ? 0.8 : 0.35)
+        + (1 - Math.abs(metrics.front - 0.5)) * 0.2;
+      if(!best || score > best.score){
+        best = {cells, rect, metrics, score, type: "corridor"};
+      }
+    });
+  });
+  if(!best) return null;
+  occupyCells(best.cells, "corridor", room.id);
+  return finalizePlacement(room, best, grid);
+}
+
+function placeStair(room, grid, dna, corridorRect, placedStairs, index, total){
+  const targetCells = Math.max(2, Math.round(room.targetArea / (grid.cellSize * grid.cellSize)));
+  const dims = buildDimCandidates(room, grid.cellSize, targetCells, {
+    widthGrow: 0.16,
+    depthGrow: 0.08,
+    rotatePhase: total > 1 ? 0.35 : 0
+  });
+  const corridor = corridorRect ? (corridorRect.rect || corridorRect) : null;
+  let best = null;
+  dims.forEach((dim) => {
+    scanRectangles(grid, dim.w, dim.h, (cells, rect) => {
+      const metrics = rectMetrics(cells, grid, rect, corridorRect, placedStairs);
+      if(corridor && !metrics.touchCorridor && metrics.corridorNear < 0.16){
+        return;
+      }
+      let endFit = 0.55;
+      let sideFit = 0.45;
+      if(corridor){
+        if(dna.corridorOrientation === "horizontal"){
+          const targetX = total <= 1
+            ? corridor.cx
+            : index === 0
+              ? corridor.minX + rect.width * 0.5
+              : corridor.maxX - rect.width * 0.5;
+          const targetY = index % 2 === 0
+            ? corridor.maxY + rect.height * 0.5
+            : corridor.minY - rect.height * 0.5;
+          endFit = clamp(1 - Math.abs(rect.cx - targetX) / Math.max(grid.bounds.width * 0.45, 1), 0, 1);
+          sideFit = clamp(1 - Math.abs(rect.cy - targetY) / Math.max(grid.bounds.height * 0.3, 1), 0, 1);
+        }else{
+          const targetY = total <= 1
+            ? corridor.cy
+            : index === 0
+              ? corridor.minY + rect.height * 0.5
+              : corridor.maxY - rect.height * 0.5;
+          const targetX = index % 2 === 0
+            ? corridor.minX - rect.width * 0.5
+            : corridor.maxX + rect.width * 0.5;
+          endFit = clamp(1 - Math.abs(rect.cy - targetY) / Math.max(grid.bounds.height * 0.45, 1), 0, 1);
+          sideFit = clamp(1 - Math.abs(rect.cx - targetX) / Math.max(grid.bounds.width * 0.3, 1), 0, 1);
+        }
+      }
+      const separation = placedStairs.length
+        ? average(placedStairs.map((stair) => clamp(distanceRectToRect(rect, stair.rect || stair) / Math.max(grid.cellSize * 10, 1), 0, 1)))
+        : 1;
+      const edgeFit = Math.max(metrics.left, metrics.right, metrics.top, metrics.bottom);
+      const score = (metrics.touchCorridor ? 1 : metrics.corridorNear) * 1.45
+        + endFit * 0.95
+        + sideFit * 0.78
+        + metrics.perimeter * 0.65
+        + edgeFit * 0.35
+        + metrics.back * 0.22
+        + separation * 0.82;
+      if(!best || score > best.score){
+        best = {cells, rect, metrics, score, type: "stair"};
+      }
+    });
+  });
+  if(!best) return null;
+  occupyCells(best.cells, "stair", room.id);
+  return finalizePlacement(room, best, grid);
+}
+
+function placeCore(room, grid, dna, corridorRect, stairRects = []){
+  const targetCells = Math.max(4, Math.round(room.targetArea / (grid.cellSize * grid.cellSize)));
+  const dims = buildDimCandidates(room, grid.cellSize, targetCells);
+  let best = null;
+  dims.forEach((dim) => {
+    scanRectangles(grid, dim.w, dim.h, (cells, rect) => {
+      const metrics = rectMetrics(cells, grid, rect, corridorRect, stairRects);
+      const toward = dna.corePosition === "front" ? metrics.front : dna.corePosition === "back" ? metrics.back : metrics.center;
+      const score = metrics.center * 0.75 + metrics.corridorNear * 1.1 + toward * 0.45 + metrics.inner * 0.25 + metrics.coreNear * 0.35;
+      if(!best || score > best.score){
+        best = {cells, rect, metrics, score, type: "core"};
+      }
+    });
+  });
+  if(!best) return null;
+  occupyCells(best.cells, "core", room.id);
+  return finalizePlacement(room, best, grid);
+}
+
+function placeRoom(room, grid, dna, corridorRect, coreRects, familyAnchors, groupAnchors){
+  const targetCells = Math.max(1, Math.round(room.targetArea / (grid.cellSize * grid.cellSize)));
+  const dims = buildDimCandidates(room, grid.cellSize, targetCells, dna);
+  let best = null;
+  dims.forEach((dim) => {
+    scanRectangles(grid, dim.w, dim.h, (cells, rect) => {
+      const metrics = rectMetrics(cells, grid, rect, corridorRect, coreRects);
+      if(room.needsCorridor && corridorRect && metrics.corridorNear < 0.12 && !metrics.touchCorridor){
+        return;
+      }
+      if(room.kind === "room_bar" && corridorRect && (!metrics.touchCorridor || metrics.perimeter < 0.14)){
+        return;
+      }
+      if(room.kind === "cell_room" && corridorRect && !metrics.touchCorridor && metrics.corridorNear < 0.22){
+        return;
+      }
+      const adjFit = adjacencyScore(room, rect, familyAnchors);
+      const groupFit = groupAnchorScore(room, rect, groupAnchors);
+      const score = scoreRoomPlacement(room, rect, metrics, adjFit, groupFit, dna);
+      if(!best || score > best.score){
+        best = {cells, rect, metrics, score, adjFit, groupFit, type: "room"};
+      }
+    });
+  });
+  if(!best) return null;
+  occupyCells(best.cells, room.kind === "service" ? "service" : "room", room.id);
+  return finalizePlacement(room, best, grid);
+}
+
+function buildDimCandidates(room, cellSize, targetCells, dna = {widthGrow:0, depthGrow:0, rotatePhase:0}){
+  const minW = Math.max(1, Math.ceil(room.minWidth / cellSize));
+  const minD = Math.max(1, Math.ceil(room.minDepth / cellSize));
+  const tangentAspect = room.sidePref === "left" || room.sidePref === "right"
+    ? 1 / Math.max(room.targetAspect, 0.45)
+    : room.targetAspect;
+  const baseAspect = lerp(room.targetAspect, tangentAspect, 0.42);
+  const expressiveAspect = baseAspect * lerp(1, 1.45, dna.widthGrow) / lerp(1, 1.18, dna.depthGrow);
+  const aspectSeeds = dna.rotatePhase > 0.56
+    ? [1 / Math.max(expressiveAspect, 0.45), expressiveAspect, 1, expressiveAspect * 0.78, expressiveAspect * 1.24, 2.2, 0.65]
+    : [expressiveAspect, 1, expressiveAspect * 0.78, expressiveAspect * 1.24, 2.2, 0.65, 1 / Math.max(expressiveAspect, 0.45)];
+  const seen = new Set();
+  const dims = [];
+  const grownCells = Math.max(1, Math.round(targetCells * lerp(1, 1.12, dna.depthGrow * 0.55 + dna.widthGrow * 0.35)));
+
+  aspectSeeds.forEach((aspect) => {
+    const width = Math.max(minW, Math.round(Math.sqrt(grownCells * Math.max(0.35, aspect))));
+    const height = Math.max(minD, Math.ceil(grownCells / Math.max(width, 1)));
+    pushDim(width, height);
+    pushDim(height, width);
+  });
+
+  function pushDim(width, height){
+    const actualAspect = Math.max(width / Math.max(height, 1), height / Math.max(width, 1));
+    if(actualAspect > Math.max(room.maxAspect, 1.2)) return;
+    if(width < minW || height < minD) return;
+    const key = `${width}x${height}`;
+    if(seen.has(key)) return;
+    seen.add(key);
+    dims.push({w: width, h: height});
+  }
+
+  if(!dims.length){
+    dims.push({w: minW, h: Math.max(minD, Math.ceil(targetCells / Math.max(minW, 1)))});
+  }
+  return dims.slice(0, 10);
+}
+
+function scanRectangles(grid, widthCells, heightCells, callback){
+  grid.cells.forEach((cell) => {
+    if(!cell.free) return;
+    const cells = [];
+    let valid = true;
+    for(let dy = 0; dy < heightCells; dy += 1){
+      for(let dx = 0; dx < widthCells; dx += 1){
+        const member = grid.keyMap.get(`${cell.row + dy}:${cell.col + dx}`);
+        if(!member || !member.free){
+          valid = false;
+          break;
+        }
+        cells.push(member);
+      }
+      if(!valid) break;
+    }
+    if(!valid) return;
+    callback(cells, {
+      minX: cell.x,
+      minY: cell.y,
+      maxX: cell.x + widthCells * grid.cellSize,
+      maxY: cell.y + heightCells * grid.cellSize,
+      width: widthCells * grid.cellSize,
+      height: heightCells * grid.cellSize,
+      cx: cell.x + widthCells * grid.cellSize * 0.5,
+      cy: cell.y + heightCells * grid.cellSize * 0.5
+    });
+  });
+}
+
+function rectMetrics(cells, grid, rect, corridorRect, coreRects){
+  const perimeter = average(cells.map((cell) => cell.perimeter));
+  const front = average(cells.map((cell) => cell.front));
+  const back = average(cells.map((cell) => cell.back));
+  const center = average(cells.map((cell) => cell.center));
+  const nx = average(cells.map((cell) => cell.nx));
+  const ny = average(cells.map((cell) => cell.ny));
+  const touchCorridor = touchesOccupant(cells, "corridor");
+  const corridorNear = corridorRect ? clamp(1 - distanceRectToRect(rect, corridorRect.rect || corridorRect) / 180, 0, 1) : 0;
+  const coreNear = coreRects.length ? clamp(1 - Math.min(...coreRects.map((core) => distanceRectToRect(rect, core.rect || core))) / 160, 0, 1) : 0;
+  return {
+    perimeter,
+    front,
+    back,
+    center,
+    nx,
+    ny,
+    left: 1 - nx,
+    right: nx,
+    top: ny,
+    bottom: 1 - ny,
+    inner: 1 - perimeter,
+    touchCorridor,
+    corridorNear,
+    coreNear
+  };
+}
+
+function scoreRoomPlacement(room, rect, metrics, adjFit, groupFit, dna){
+  const aspect = Math.max(rect.width / Math.max(rect.height, 1), rect.height / Math.max(rect.width, 1));
+  const aspectFit = clamp(1 - Math.abs(aspect - room.targetAspect) / Math.max(room.targetAspect, 1), 0, 1);
+  const alongCorridor = dna.corridorOrientation === "horizontal"
+    ? rect.width / Math.max(rect.height, 1)
+    : rect.height / Math.max(rect.width, 1);
+  const orbitFit = room.targetNx == null
+    ? 0
+    : clamp(1 - Math.hypot(metrics.nx - room.targetNx, metrics.ny - room.targetNy) / 0.95, 0, 1);
+  const sideFit = room.sidePref ? metrics[room.sidePref] || 0 : 0;
+  let zoneFit = 0;
+  if(room.zone === "front" || room.zone === "front_perimeter"){
+    zoneFit += metrics.front * 1.0;
+  }
+  if(room.zone === "perimeter" || room.zone === "front_perimeter"){
+    zoneFit += metrics.perimeter * 0.95;
+  }
+  if(room.zone === "interior" || room.zone === "deep"){
+    zoneFit += metrics.center * 0.65 + metrics.back * 0.55;
+  }
+  if(room.zone === "service_edge"){
+    zoneFit += metrics.back * 0.75 + metrics.corridorNear * 0.55;
+  }
+  if(room.zone === "adjacent"){
+    zoneFit += metrics.corridorNear * 0.95;
+  }
+  if(room.zone === "mixed"){
+    zoneFit += metrics.center * 0.35 + metrics.perimeter * 0.35;
+  }
+
+  let score = 0;
+  score += room.daylight * (metrics.perimeter * (0.8 + dna.edgeBias * 0.4));
+  score += room.publicness * (metrics.front * (0.85 + dna.frontBias * 0.25));
+  score += room.privacy * (metrics.back * 0.75 + metrics.corridorNear * 0.3);
+  score += room.service * (metrics.coreNear * 0.65 + metrics.corridorNear * 0.45 + metrics.center * 0.35);
+  score += zoneFit * 0.95;
+  score += adjFit * 0.85;
+  score += orbitFit * 0.72;
+  score += sideFit * 0.58;
+  score += groupFit * 0.68;
+  score += aspectFit * 0.28;
+  if(room.kind === "room_bar"){
+    score += clamp(alongCorridor / 3.4, 0, 1) * 0.34;
+    score += (metrics.touchCorridor ? 1 : metrics.corridorNear) * 0.52;
+    score += metrics.perimeter * 0.42;
+    score += orbitFit * 0.32 + groupFit * 0.42 + sideFit * 0.22;
+  }else if(room.kind === "cell_room"){
+    score += (metrics.touchCorridor ? 1 : metrics.corridorNear) * 0.26;
+    score += groupFit * 0.22;
+  }else if(room.kind === "big_room"){
+    score += metrics.inner * 0.18 + metrics.center * 0.12;
+  }else if(room.kind === "service"){
+    score += metrics.back * 0.18 + metrics.coreNear * 0.22;
+  }
+  if(room.needsCorridor){
+    score += (metrics.touchCorridor ? 1 : metrics.corridorNear) * 0.9;
+  }
+  score += (seededValue(`${room.id}|${rect.minX}|${rect.minY}`) - 0.5) * 0.018;
+  return score;
+}
+
+function finalizePlacement(room, best, grid){
+  const rect = best.rect;
+  const meetsMinDims = rect.width >= room.minWidth - 0.01 && rect.height >= room.minDepth - 0.01;
+  return {
+    id: room.id,
+    familyId: room.familyId,
+    groupKey: room.groupKey,
+    name: room.name,
+    baseName: room.baseName,
+    category: room.category,
+    kind: room.kind,
+    zone: room.zone,
+    targetArea: room.targetArea,
+    x: rect.minX,
+    y: rect.minY,
+    w: rect.width,
+    h: rect.height,
+    cx: rect.cx,
+    cy: rect.cy,
+    minWidth: room.minWidth,
+    minDepth: room.minDepth,
+    meetsMinDims,
+    touchCorridor: best.metrics.touchCorridor,
+    corridorNear: best.metrics.corridorNear,
+    perimeterScore: best.metrics.perimeter,
+    adjFit: best.adjFit || 0,
+    fill: room.kind === "corridor" ? "#575757" : room.kind === "core" ? "#3c3c3c" : room.kind === "stair" ? "#8f8574" : colorForCategory(room.category),
+    rect,
+    needsCorridor: room.needsCorridor,
+    daylight: room.daylight,
+    notes: room.familyNotes || [],
+    adj: room.adj || []
+  };
+}
+
+function occupyCells(cells, type, id){
+  cells.forEach((cell) => {
+    cell.free = false;
+    cell.occupantType = type;
+    cell.occupantId = id;
+  });
+}
+
+function touchesOccupant(cells, type){
+  for(const cell of cells){
+    for(const neighbor of Object.values(cell.neighbors || {})){
+      if(neighbor && neighbor.occupantType === type) return true;
+    }
+  }
+  return false;
+}
+
+function updateFamilyAnchor(map, placement, key = placement.familyId){
+  const current = map.get(key);
+  if(current){
+    current.x = lerp(current.x, placement.cx, 1 / (current.count + 1));
+    current.y = lerp(current.y, placement.cy, 1 / (current.count + 1));
+    current.count += 1;
+  }else{
+    map.set(key, {x: placement.cx, y: placement.cy, count: 1});
+  }
+}
+
+function adjacencyScore(room, rect, familyAnchors){
+  if(!room.adj || !room.adj.length) return 0;
+  let score = 0;
+  let weight = 0;
+  room.adj.forEach((edge) => {
+    const anchor = familyAnchors.get(edge.id);
+    if(!anchor) return;
+    const dist = Math.hypot(rect.cx - anchor.x, rect.cy - anchor.y);
+    const rel = relationWeight(edge.relationship);
+    score += rel * edge.weight * clamp(1 - dist / 260, -0.8, 1);
+    weight += Math.abs(rel * edge.weight);
+  });
+  return weight ? clamp(score / weight, -1, 1) : 0;
+}
+
+function groupAnchorScore(room, rect, groupAnchors){
+  if(!room.groupKey) return 0;
+  const anchor = groupAnchors.get(room.groupKey);
+  if(!anchor) return 0;
+  const dist = Math.hypot(rect.cx - anchor.x, rect.cy - anchor.y);
+  return clamp(1 - dist / 220, 0, 1);
+}
+
+function placeCollectorRoom(room, grid, dna, collector, familyAnchors, groupAnchors){
+  const targetCells = Math.max(1, Math.round(room.targetArea / (grid.cellSize * grid.cellSize)));
+  const dims = buildDimCandidates(room, grid.cellSize, targetCells, dna);
+  let best = null;
+  dims.forEach((dim) => {
+    scanRectangles(grid, dim.w, dim.h, (cells, rect) => {
+      const metrics = collectorMetrics(cells, grid, rect, collector);
+      if(!metrics.centerInside && metrics.collectorNear < 0.28) return;
+      const adjFit = adjacencyScore(room, rect, familyAnchors);
+      const groupFit = groupAnchorScore(room, rect, groupAnchors);
+      const score = scoreCollectorPlacement(room, rect, metrics, adjFit, groupFit, collector, dna);
+      if(!best || score > best.score){
+        best = {cells, rect, metrics, score, adjFit, groupFit};
+      }
+    });
+  });
+  if(!best) return null;
+  occupyCells(best.cells, room.kind === "service" ? "service" : "room", room.id);
+  return finalizeCollectorPlacement(room, best);
+}
+
+function collectorMetrics(cells, grid, rect, collector){
+  const perimeter = average(cells.map((cell) => cell.perimeter));
+  const front = average(cells.map((cell) => cell.front));
+  const back = average(cells.map((cell) => cell.back));
+  const center = average(cells.map((cell) => cell.center));
+  const nx = average(cells.map((cell) => cell.nx));
+  const ny = average(cells.map((cell) => cell.ny));
+  const touchRoom = touchesOccupant(cells, "room") || touchesOccupant(cells, "service");
+  const contactRatio = neighborContactRatio(cells, ["room", "service"]);
+  const collectorNear = collector ? clamp(1 - distanceRectToRect(rect, collector.rect) / Math.max(collector.moat + grid.cellSize * 5, 1), 0, 1) : 0;
+  const centerInside = collector ? (pointInRect(rect.cx, rect.cy, collector.rect) ? 1 : 0) : 1;
+  const collectDist = collector ? Math.hypot(rect.cx - collector.cx, rect.cy - collector.cy) : 0;
+  const collectorCenter = collector ? clamp(1 - collectDist / Math.max(collector.radius, 1), 0, 1) : center;
+  return {
+    perimeter,
+    front,
+    back,
+    center,
+    nx,
+    ny,
+    left: 1 - nx,
+    right: nx,
+    top: ny,
+    bottom: 1 - ny,
+    touchRoom,
+    contactRatio,
+    collectorNear,
+    collectorCenter,
+    centerInside
+  };
+}
+
+function scoreCollectorPlacement(room, rect, metrics, adjFit, groupFit, collector, dna){
+  const aspect = Math.max(rect.width / Math.max(rect.height, 1), rect.height / Math.max(rect.width, 1));
+  const aspectFit = clamp(1 - Math.abs(aspect - room.targetAspect) / Math.max(room.targetAspect, 1), 0, 1);
+  const orbitFit = room.outerTargetX == null
+    ? 0
+    : clamp(1 - Math.hypot(rect.cx - room.outerTargetX, rect.cy - room.outerTargetY) / Math.max(collector.radius * 1.55, 1), 0, 1);
+  const collectFit = room.collectTargetX == null
+    ? 0
+    : clamp(1 - Math.hypot(rect.cx - room.collectTargetX, rect.cy - room.collectTargetY) / Math.max(collector.radius * 0.9, 1), 0, 1);
+  const sideFit = room.sidePref ? metrics[room.sidePref] || 0 : 0;
+
+  let zoneFit = 0;
+  if(room.zone === "front" || room.zone === "front_perimeter"){
+    zoneFit += metrics.front * 0.65 + orbitFit * 0.7;
+  }
+  if(room.zone === "perimeter" || room.zone === "front_perimeter"){
+    zoneFit += orbitFit * 0.92 + metrics.perimeter * 0.32;
+  }
+  if(room.zone === "interior" || room.zone === "deep"){
+    zoneFit += collectFit * 0.82 + metrics.collectorCenter * 0.42;
+  }
+  if(room.zone === "service_edge"){
+    zoneFit += collectFit * 0.62 + metrics.back * 0.34;
+  }
+  if(room.zone === "adjacent"){
+    zoneFit += collectFit * 0.85;
+  }
+  if(room.zone === "mixed"){
+    zoneFit += collectFit * 0.52 + orbitFit * 0.34;
+  }
+
+  let score = 0;
+  score += zoneFit * 1.02;
+  score += adjFit * 0.92;
+  score += groupFit * 0.82;
+  score += collectFit * 0.98;
+  score += orbitFit * 0.72;
+  score += metrics.collectorNear * 0.58;
+  score += metrics.centerInside * 0.46;
+  score += (metrics.touchRoom ? 0.42 : 0) + metrics.contactRatio * 1.18;
+  score += sideFit * 0.36;
+  score += aspectFit * 0.26;
+  score += room.daylight * (orbitFit * 0.76 + metrics.perimeter * 0.22);
+  score += room.publicness * (orbitFit * 0.42 + metrics.front * 0.16);
+  score += room.privacy * (collectFit * 0.38 + metrics.back * 0.22);
+  score += room.service * (collectFit * 0.3 + metrics.collectorCenter * 0.18);
+  if(room.kind === "room_bar"){
+    score += orbitFit * 0.3 + sideFit * 0.22 + metrics.contactRatio * 0.28;
+  }else if(room.kind === "cell_room"){
+    score += collectFit * 0.2 + metrics.contactRatio * 0.22;
+  }else if(room.kind === "big_room"){
+    score += metrics.collectorCenter * 0.2 + collectFit * 0.14;
+  }else if(room.kind === "service"){
+    score += metrics.back * 0.18 + collectFit * 0.16;
+  }
+  score += (seededValue(`${room.id}|${rect.minX}|${rect.minY}`) - 0.5) * 0.016;
+  return score;
+}
+
+function finalizeCollectorPlacement(room, best){
+  const rect = best.rect;
+  const meetsMinDims = rect.width >= room.minWidth - 0.01 && rect.height >= room.minDepth - 0.01;
+  return {
+    id: room.id,
+    familyId: room.familyId,
+    groupKey: room.groupKey,
+    name: room.name,
+    baseName: room.baseName,
+    category: room.category,
+    kind: room.kind,
+    zone: room.zone,
+    targetArea: room.targetArea,
+    x: rect.minX,
+    y: rect.minY,
+    w: rect.width,
+    h: rect.height,
+    cx: rect.cx,
+    cy: rect.cy,
+    minWidth: room.minWidth,
+    minDepth: room.minDepth,
+    meetsMinDims,
+    perimeterScore: best.metrics.perimeter,
+    adjFit: best.adjFit || 0,
+    collectFit: room.collectTargetX == null ? 0 : clamp(1 - Math.hypot(rect.cx - room.collectTargetX, rect.cy - room.collectTargetY) / 220, 0, 1),
+    orbitFit: room.outerTargetX == null ? 0 : clamp(1 - Math.hypot(rect.cx - room.outerTargetX, rect.cy - room.outerTargetY) / 320, 0, 1),
+    contactFit: clamp((best.metrics.contactRatio + (best.metrics.touchRoom ? 0.65 : 0)) / 1.65, 0, 1),
+    fill: colorForCategory(room.category),
+    rect,
+    daylight: room.daylight,
+    notes: room.familyNotes || [],
+    adj: room.adj || []
+  };
+}
+
+function neighborContactRatio(cells, types){
+  const allow = new Set(types);
+  let total = 0;
+  let hits = 0;
+  cells.forEach((cell) => {
+    Object.values(cell.neighbors || {}).forEach((neighbor) => {
+      if(!neighbor) return;
+      total += 1;
+      if(allow.has(neighbor.occupantType)) hits += 1;
+    });
+  });
+  return total ? hits / total : 0;
+}
+
+function pointInRect(x, y, rect){
+  return x >= rect.minX && x <= rect.maxX && y >= rect.minY && y <= rect.maxY;
+}
+
+function makeRect(cx, cy, width, height){
+  return {
+    minX: cx - width * 0.5,
+    maxX: cx + width * 0.5,
+    minY: cy - height * 0.5,
+    maxY: cy + height * 0.5,
+    width,
+    height,
+    cx,
+    cy
+  };
+}
+
+function clampRectToBounds(rect, bounds){
+  const width = Math.min(rect.width, bounds.width);
+  const height = Math.min(rect.height, bounds.height);
+  const cx = clamp(rect.cx, bounds.minX + width * 0.5, bounds.maxX - width * 0.5);
+  const cy = clamp(rect.cy, bounds.minY + height * 0.5, bounds.maxY - height * 0.5);
+  return makeRect(cx, cy, width, height);
+}
+
+function reserveCirculationGaps(grid, circulation){
+  (circulation.gaps || []).forEach((gap) => reserveRectCells(grid, gap.rect, "gap", gap.id));
+}
+
+function reserveRectCells(grid, rect, type, id){
+  grid.cells.forEach((cell) => {
+    if(!cell.free) return;
+    if(pointInRect(cell.cx, cell.cy, rect)){
+      cell.free = false;
+      cell.occupantType = type;
+      cell.occupantId = id;
+    }
+  });
+}
+
+function seedCirculationAnchors(map, circulation){
+  (circulation.gaps || []).forEach((gap) => {
+    updateFamilyAnchor(map, {cx: gap.rect.cx, cy: gap.rect.cy, familyId: gap.familyId}, gap.familyId);
+  });
+}
+
+function renderPlan(plan, footprint, dna, targetGross, profile){
+  const footprintBounds = polygonBounds(footprint.points);
+  const frame = {
+    x: PAD,
+    y: 44,
+    w: VIEW_W - PAD * 2,
+    h: VIEW_H - 128
+  };
+  const fit = fitBounds(footprintBounds, frame);
+  const outlinePath = polygonToScreenPath(footprint.points, fit);
+  const voidPaths = (footprint.voids || []).map((poly) => polygonToScreenPath(poly, fit));
+  const titleX = fit.x(footprintBounds.minX);
+  const titleY = fit.y(footprintBounds.maxY) - 18;
+  const planSvg = [];
+  planSvg.push(`<text class="plan-title" x="${round(titleX, 1)}" y="${round(titleY, 1)}">Perimeter Orbit / Center Collector</text>`);
+  planSvg.push(`<text class="plan-sub" x="${round(titleX, 1)}" y="${round(titleY + 16, 1)}">${escapeHtml(profile.name)} · ${formatNumber(targetGross)} GSF · ${escapeHtml(dna.label)}</text>`);
+  planSvg.push(`<path class="outline" d="${outlinePath}"></path>`);
+  voidPaths.forEach((path) => planSvg.push(`<path class="void" d="${path}"></path>`));
+  planSvg.push(`<path class="entry" d="${buildEntryMark(footprintBounds, fit, dna.entrySide)}"></path>`);
+  if(plan.collector){
+    planSvg.push(`<path class="collector-guide" d="${rectToScreenPath(plan.collector.rect, fit)}"></path>`);
+  }
+  (plan.circulation?.gaps || []).forEach((gap) => {
+    planSvg.push(`<path class="gap-guide" d="${rectToScreenPath(gap.rect, fit)}"></path>`);
+  });
+
+  plan.rooms.forEach((room) => {
+    const x = fit.x(room.x);
+    const y = fit.y(room.y + room.h);
+    const w = room.w * fit.k;
+    const h = room.h * fit.k;
+    const cls = "room";
+    planSvg.push(`<rect class="${cls}" x="${round(x, 1)}" y="${round(y, 1)}" width="${round(w, 1)}" height="${round(h, 1)}" fill="${room.fill}"></rect>`);
+    if(canLabel(room, w, h)){
+      planSvg.push(`<text class="room-label" text-anchor="middle" x="${round(x + w * 0.5, 1)}" y="${round(y + h * 0.5 - 2, 1)}">${escapeHtml(labelName(room.baseName))}</text>`);
+      planSvg.push(`<text class="room-area" text-anchor="middle" x="${round(x + w * 0.5, 1)}" y="${round(y + h * 0.5 + 12, 1)}">${Math.round(room.targetArea)} sf</text>`);
+    }
+  });
+
+  els.planLayer.innerHTML = planSvg.join("");
+  els.overlayLayer.innerHTML = "";
+}
+
+function renderSketchOnly(){
+  els.planLayer.innerHTML = `
+    <text class="plan-title" x="72" y="72">Sketch Footprint</text>
+    <text class="plan-sub" x="72" y="88">Click to add points · click the first point, double-click, or press Enter to close</text>
+  `;
+  const overlay = [];
+  if(state.sketch.points.length){
+    const d = `M${state.sketch.points.map((point) => `${point.x},${point.y}`).join("L")}${state.sketch.closed ? "Z" : ""}`;
+    overlay.push(`<path class="ghost-outline" d="${d}"></path>`);
+    if(!state.sketch.closed){
+      overlay.push(`<path class="ghost-line" d="${d}"></path>`);
+    }
+    state.sketch.points.forEach((point, index) => {
+      overlay.push(`<circle class="ghost-point" cx="${point.x}" cy="${point.y}" r="${index === 0 && !state.sketch.closed ? 7 : 5}"></circle>`);
+      overlay.push(`<text class="overlay-note" x="${point.x + 10}" y="${point.y - 10}">P${index + 1}</text>`);
+    });
+    if(!state.sketch.closed && state.sketch.points.length >= 3){
+      const first = state.sketch.points[0];
+      overlay.push(`<text class="overlay-note" x="${first.x + 14}" y="${first.y + 20}">click first point to close</text>`);
+    }
+  }else{
+    overlay.push(`<text class="overlay-note" x="72" y="${VIEW_H - 76}">Start anywhere inside the frame. Three points minimum.</text>`);
+  }
+  els.overlayLayer.innerHTML = overlay.join("");
+}
+
+function renderMetrics(plan, targetGross, profile){
+  const metrics = plan ? [
+    {k:"Placed", v:String(plan.rooms.length), s:`${plan.failures.length} room${plan.failures.length === 1 ? "" : "s"} failed to place`},
+    {k:"Min Dims", v:`${Math.round(plan.minDimCompliance * 100)}%`, s:"width and depth compliance"},
+    {k:"Flow", v:circulationMetricValue(plan.circulation), s:circulationMetricDetail(plan.circulation)},
+    {k:"Collect", v:`${Math.round(plan.collectorFit * 100)}%`, s:"rooms compacted toward the centered collector"},
+    {k:"Orbit", v:`${Math.round(plan.orbitFit * 100)}%`, s:"clock sweep still legible against the footprint perimeter"},
+    {k:"Daylight", v:`${Math.round(plan.daylightFit * 100)}%`, s:"light-hungry rooms on perimeter"},
+    {k:"Adjacency", v:`${Math.round(((plan.adjacencyFit + 1) * 0.5) * 100)}%`, s:"anchor satisfaction from research graph"},
+    {k:"Gap", v:`${Math.round(plan.gapRatio * 100)}%`, s:`${Math.round(plan.sizeCoverage * 100)}% of source spaces carried size ranges`}
+  ] : [
+    {k:"Placed", v:"—", s:"draw a sketch or choose a preset"},
+    {k:"Min Dims", v:"—", s:"waiting for a plan"},
+    {k:"Flow", v:"—", s:"waiting for a plan"},
+    {k:"Collect", v:"—", s:"waiting for a plan"},
+    {k:"Orbit", v:"—", s:"waiting for a plan"},
+    {k:"Daylight", v:"—", s:"waiting for a plan"},
+    {k:"Adjacency", v:"—", s:"waiting for a plan"},
+    {k:"Gap", v:`${formatCompact(targetGross)} SF`, s:`${profile.name} target`}
+  ];
+  els.metrics.innerHTML = metrics.map((metric) => `
+    <div class="metric">
+      <div class="k">${escapeHtml(metric.k)}</div>
+      <div class="v">${escapeHtml(metric.v)}</div>
+      <div class="s">${escapeHtml(metric.s)}</div>
+    </div>
+  `).join("");
+}
+
+function circulationSummary(circulation){
+  const parts = [];
+  if(circulation?.hallIncluded) parts.push(`${Math.round(circulation.hallWidth)}' hall`);
+  if(circulation?.stairCount) parts.push(`${circulation.stairCount} stair${circulation.stairCount === 1 ? "" : "s"}`);
+  if(circulation?.elevatorCount) parts.push(`${circulation.elevatorCount} elevator${circulation.elevatorCount === 1 ? "" : "s"}`);
+  return parts.join(" · ") || "collector gaps only";
+}
+
+function circulationMetricValue(circulation){
+  if(!circulation) return "—";
+  if(circulation.hallIncluded) return `${Math.round(circulation.hallWidth)}' Hall`;
+  return `${circulation.stairCount || 0} Stairs`;
+}
+
+function circulationMetricDetail(circulation){
+  if(!circulation) return "waiting for a plan";
+  const stairText = `${circulation.stairCount || 0} stair${circulation.stairCount === 1 ? "" : "s"} opposite`;
+  const elevatorText = `${circulation.elevatorCount || 0} elevator${circulation.elevatorCount === 1 ? "" : "s"} central`;
+  return circulation.hallIncluded ? `${stairText} · ${elevatorText}` : `${stairText}${circulation.elevatorCount ? ` · ${elevatorText}` : ""}`;
+}
+
+function renderRoomList(rooms){
+  els.roomCount.textContent = `${rooms.length}`;
+  els.roomList.innerHTML = rooms.slice().sort((a, b) => b.targetArea - a.targetArea).map((room) => `
+    <div class="list-row">
+      <div class="sw" style="background:${room.fill}"></div>
+      <div>
+        <div class="n">${escapeHtml(labelName(room.baseName || room.name))}</div>
+        <div class="m">${escapeHtml(room.category)} · ${Math.round(room.w)}x${Math.round(room.h)} ft · min ${Math.round(room.minWidth)}x${Math.round(room.minDepth)} ft</div>
+      </div>
+      <div class="a">${Math.round(room.targetArea)} sf</div>
+    </div>
+  `).join("");
+}
+
+function renderLegend(items){
+  els.legend.innerHTML = items.map((item) => `
+    <div class="legend-item">
+      <span class="sw" style="background:${item.fill};margin-top:0"></span>
+      <span>${escapeHtml(item.category)}</span>
+    </div>
+  `).join("");
+}
+
+function canLabel(room, width, height){
+  if(room.kind === "corridor" || room.kind === "stair") return false;
+  return width > 72 && height > 32 && room.targetArea > 180;
+}
+
+function buildEntryMark(bounds, fit, entrySide){
+  if(entrySide === "left"){
+    const x = fit.x(bounds.minX) - 10;
+    const y = fit.y((bounds.minY + bounds.maxY) * 0.5);
+    return `M${round(x, 1)},${round(y - 12, 1)}L${round(x + 12, 1)},${round(y, 1)}L${round(x, 1)},${round(y + 12, 1)}`;
+  }
+  if(entrySide === "right"){
+    const x = fit.x(bounds.maxX) + 10;
+    const y = fit.y((bounds.minY + bounds.maxY) * 0.5);
+    return `M${round(x, 1)},${round(y - 12, 1)}L${round(x - 12, 1)},${round(y, 1)}L${round(x, 1)},${round(y + 12, 1)}`;
+  }
+  if(entrySide === "top"){
+    const x = fit.x((bounds.minX + bounds.maxX) * 0.5);
+    const y = fit.y(bounds.maxY) + 10;
+    return `M${round(x - 12, 1)},${round(y, 1)}L${round(x, 1)},${round(y - 12, 1)}L${round(x + 12, 1)},${round(y, 1)}`;
+  }
+  const x = fit.x((bounds.minX + bounds.maxX) * 0.5);
+  const y = fit.y(bounds.minY) - 10;
+  return `M${round(x - 12, 1)},${round(y, 1)}L${round(x, 1)},${round(y + 12, 1)}L${round(x + 12, 1)},${round(y, 1)}`;
+}
+
+function fitBounds(bounds, frame){
+  const width = Math.max(bounds.width, 1);
+  const height = Math.max(bounds.height, 1);
+  const k = Math.min(frame.w / width, frame.h / height);
+  const ox = frame.x + (frame.w - width * k) * 0.5 - bounds.minX * k;
+  const oy = frame.y + Math.max(0, (frame.h - height * k) * 0.18) - bounds.minY * k;
+  return {
+    k,
+    x: (value) => ox + value * k,
+    y: (value) => VIEW_H - (oy + value * k)
+  };
+}
+
+function parseDimensionHints(notes){
+  const text = (notes || []).join(" | ");
+  let minWidth = 0;
+  let minDepth = 0;
+  const pairRegex = /(\d+(?:\.\d+)?)\s*(?:ft)?\s*[x×]\s*(\d+(?:\.\d+)?)/gi;
+  let match;
+  while((match = pairRegex.exec(text))){
+    const a = Number(match[1]);
+    const b = Number(match[2]);
+    if(a > 0 && b > 0){
+      minWidth = Math.max(minWidth, Math.min(a, b));
+      minDepth = Math.max(minDepth, Math.max(a, b));
+    }
+  }
+  const widthRegex = /(\d+(?:\.\d+)?)\s*ft\s*(?:wide|width|min width)/gi;
+  while((match = widthRegex.exec(text))){
+    minWidth = Math.max(minWidth, Number(match[1]));
+  }
+  const depthRegex = /(\d+(?:\.\d+)?)\s*ft\s*(?:deep|depth)/gi;
+  while((match = depthRegex.exec(text))){
+    minDepth = Math.max(minDepth, Number(match[1]));
+  }
+  return {minWidth, minDepth};
+}
+
+function corridorWidthForType(buildingType){
+  const source = String(buildingType || "").toLowerCase();
+  if(/multifamily|hotel|senior|student/.test(source)) return 6;
+  if(/school|education|civic|cultural|recreation|religious/.test(source)) return 8;
+  if(/transit|convention|industrial|warehouse/.test(source)) return 10;
+  return 8;
+}
+
+function isStairLikeSpace(space){
+  const source = `${space.name || ""} ${space.category || ""} ${(space.notes || []).join(" ")}`.toLowerCase();
+  return /stair|egress|exit stair|scissor stair/.test(source);
+}
+
+function isElevatorLikeSpace(space){
+  const source = `${space.name || ""} ${space.category || ""} ${(space.notes || []).join(" ")}`.toLowerCase();
+  return /elev|lift|elevator lobby|lift lobby|vertical transport/.test(source);
+}
+
+function suggestStairCount(typology, targetGross, footprintArea){
+  if(typology === "double_loaded" || typology === "spine") return targetGross > 18000 || footprintArea > 15000 ? 2 : 1;
+  if(typology === "commons" || typology === "service_bar") return targetGross > 26000 || footprintArea > 18000 ? 2 : 1;
+  return targetGross > 22000 || footprintArea > 16000 ? 2 : 1;
+}
+
+function syntheticStairArea(buildingType, count, targetGross){
+  const source = String(buildingType || "").toLowerCase();
+  const base = /transit|convention|industrial/.test(source)
+    ? 220
+    : /school|education|civic|cultural|religious|healthcare/.test(source)
+      ? 180
+      : /office|laboratory/.test(source)
+        ? 170
+        : 150;
+  const perStair = clamp(base + Math.sqrt(Math.max(targetGross, 1)) * 0.14, base, base + 70);
+  return perStair * count;
+}
+
+function suggestElevatorCount(buildingType, targetGross, footprintArea){
+  const source = String(buildingType || "").toLowerCase();
+  if(/industrial|warehouse|parking|recreation/.test(source)) return targetGross > 120000 ? 1 : 0;
+  if(/office|hospitality|multifamily|senior|student|healthcare|higher ed|civic|cultural/.test(source)){
+    return targetGross > 90000 || footprintArea > 26000 ? 2 : 1;
+  }
+  return targetGross > 140000 ? 2 : targetGross > 35000 ? 1 : 0;
+}
+
+function syntheticElevatorArea(buildingType, count, targetGross){
+  if(count <= 0) return 0;
+  const source = String(buildingType || "").toLowerCase();
+  const base = /hospitality|multifamily|senior|student/.test(source)
+    ? 130
+    : /office|healthcare|higher ed|civic|cultural/.test(source)
+      ? 150
+      : 110;
+  const each = clamp(base + Math.sqrt(Math.max(targetGross, 1)) * 0.08, base, base + 55);
+  return each * count;
+}
+
+function inferPublicness(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/public|entry|lobby|retail|gallery|commons|visitor|worship|cafe|amenity|wait|reception/.test(source)) return 1;
+  if(/circulation|support|ops|storage|mep|loading|service/.test(source)) return 0.15;
+  return 0.35;
+}
+
+function inferPrivacy(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/room|residential|sleep|patient|office|admin|lab|faculty|staff|secure|classroom|clinical|exam/.test(source)) return 0.8;
+  if(/public|entry|lobby|retail|cafe|gallery|commons|wait/.test(source)) return 0.12;
+  return 0.34;
+}
+
+function inferService(space){
+  const source = `${space.category || ""} ${space.name || ""}`.toLowerCase();
+  if(/core|mep|service|support|storage|loading|ops|parking|mechanical|electrical|riser|housekeep|laundry/.test(source)) return 0.94;
+  if(/circulation|corridor|lobby|elevator|stair/.test(source)) return 0.74;
+  return 0.12;
+}
+
+function priorityValue(value){
+  const source = String(value || "").toLowerCase();
+  if(source.includes("high")) return 1;
+  if(source.includes("medium")) return 0.62;
+  if(source.includes("low")) return 0.28;
+  return 0.05;
+}
+
+function relationWeight(relationship){
+  const rel = String(relationship || "").toLowerCase();
+  if(rel.includes("avoid") || rel.includes("separate")) return -0.8;
+  if(rel.includes("must") || rel.includes("direct")) return 1;
+  if(rel.includes("should") || rel.includes("near")) return 0.72;
+  if(rel.includes("optional")) return 0.35;
+  return 0.3;
+}
+
+function normalizeAdjWeight(weight){
+  const value = Number(weight);
+  if(!Number.isFinite(value)) return 0.4;
+  return clamp(value > 1 ? value / 5 : value, 0.05, 1);
+}
+
+function syntheticInfrastructure(typology, reserveArea, targetGross){
+  if(reserveArea <= 0) return {corridorArea: 0, coreArea: 0};
+  const shares = {
+    double_loaded: {corridor: 0.52, core: 0.22},
+    spine: {corridor: 0.44, core: 0.24},
+    commons: {corridor: 0.32, core: 0.18},
+    service_bar: {corridor: 0.28, core: 0.2},
+    front_back: {corridor: 0.34, core: 0.2}
+  };
+  const picked = shares[typology] || shares.front_back;
+  const corridorArea = clamp(reserveArea * picked.corridor, Math.min(targetGross * 0.03, reserveArea * 0.65), targetGross * 0.12);
+  const coreArea = clamp(reserveArea * picked.core, Math.min(targetGross * 0.015, reserveArea * 0.3), targetGross * 0.08);
+  return {corridorArea, coreArea};
+}
+
+function applyGroupSweepTargets(rooms, footprint, collector, dna){
+  const bounds = polygonBounds(footprint.points);
+  const groups = new Map();
+  rooms.forEach((room) => {
+    const key = room.groupKey || normalizeGroupLabel(room.category);
+    room.groupKey = key;
+    room.groupLabel = room.groupLabel || key;
+    if(!groups.has(key)){
+      groups.set(key, {
+        key,
+        label: room.category || key,
+        rooms: [],
+        area: 0,
+        rank: groupRank(room)
+      });
+    }
+    const group = groups.get(key);
+    group.rooms.push(room);
+    group.area += room.targetArea;
+    group.rank = Math.min(group.rank, groupRank(room));
+  });
+
+  const ordered = [...groups.values()].sort((a, b) => a.rank - b.rank || b.area - a.area || a.label.localeCompare(b.label));
+  const totalArea = ordered.reduce((sum, group) => sum + group.area, 0) || 1;
+  let cursor = mod1(dna.orbitShift);
+
+  ordered.forEach((group, groupIndex) => {
+    const span = clamp(group.area / totalArea, 0.08, dna.typology === "double_loaded" ? 0.3 : 0.22);
+    const center = mod1(cursor + span * 0.5);
+    const sortedRooms = group.rooms.slice().sort((a, b) => b.targetArea - a.targetArea);
+    const localStep = span / Math.max(sortedRooms.length, 1);
+    sortedRooms.forEach((room, roomIndex) => {
+      const spread = sortedRooms.length === 1 ? 0 : (roomIndex / Math.max(sortedRooms.length - 1, 1)) - 0.5;
+      const sweep = spread * span * dna.sideSpread * 0.7;
+      const orbit = mod1(center + sweep);
+      const anchor = pointOnBoundsPerimeter(bounds, orbit);
+      const collectorAnchor = pointOnRectPerimeter(collector.rect, orbit);
+      room.groupRank = groupIndex;
+      room.clockPosition = orbit;
+      room.targetNx = collectorAnchor.nx;
+      room.targetNy = collectorAnchor.ny;
+      room.outerTargetX = anchor.x;
+      room.outerTargetY = anchor.y;
+      room.collectTargetX = collectorAnchor.x;
+      room.collectTargetY = collectorAnchor.y;
+      room.sidePref = collectorAnchor.side;
+      room.groupPhase = localStep * roomIndex;
+    });
+    cursor = mod1(cursor + span);
+  });
+}
+
+function normalizeGroupLabel(category){
+  return String(category || "Support").trim().replace(/\s+/g, " ");
+}
+
+function groupRank(room){
+  if(room.kind === "anchor") return 0;
+  if(room.publicness > 0.72) return 1;
+  if(room.kind === "gathering") return 2;
+  if(room.kind === "room_bar") return 3;
+  if(room.kind === "cell_room") return 4;
+  if(room.kind === "service") return 6;
+  return 5;
+}
+
+function pointOnBoundsPerimeter(bounds, orbit){
+  const angle = -Math.PI * 0.5 + mod1(orbit) * Math.PI * 2;
+  const dx = Math.cos(angle);
+  const dy = Math.sin(angle);
+  const scale = 0.5 / Math.max(Math.abs(dx), Math.abs(dy), 0.0001);
+  const nx = clamp(0.5 + dx * scale, 0, 1);
+  const ny = clamp(0.5 + dy * scale, 0, 1);
+  return {
+    x: lerp(bounds.minX, bounds.maxX, nx),
+    y: lerp(bounds.minY, bounds.maxY, ny),
+    nx,
+    ny,
+    side: sideFromClock(orbit)
+  };
+}
+
+function pointOnRectPerimeter(rect, orbit){
+  const angle = -Math.PI * 0.5 + mod1(orbit) * Math.PI * 2;
+  const dx = Math.cos(angle);
+  const dy = Math.sin(angle);
+  const scale = 0.5 / Math.max(Math.abs(dx), Math.abs(dy), 0.0001);
+  const nx = clamp(0.5 + dx * scale, 0, 1);
+  const ny = clamp(0.5 + dy * scale, 0, 1);
+  return {
+    x: lerp(rect.minX, rect.maxX, nx),
+    y: lerp(rect.minY, rect.maxY, ny),
+    nx: invLerp(rect.minX, rect.maxX, lerp(rect.minX, rect.maxX, nx)),
+    ny: invLerp(rect.minY, rect.maxY, lerp(rect.minY, rect.maxY, ny)),
+    side: sideFromClock(orbit)
+  };
+}
+
+function sideFromClock(orbit){
+  const value = mod1(orbit);
+  if(value < 0.125 || value >= 0.875) return "top";
+  if(value < 0.375) return "right";
+  if(value < 0.625) return "bottom";
+  return "left";
+}
+
+function polygonPackage(points, voids, label){
+  const bounds = polygonBounds(points);
+  const cx = (bounds.minX + bounds.maxX) * 0.5;
+  const cy = (bounds.minY + bounds.maxY) * 0.5;
+  return {
+    label,
+    points: points.map(([x, y]) => [x - cx, y - cy]),
+    voids: (voids || []).map((poly) => poly.map(([x, y]) => [x - cx, y - cy]))
+  };
+}
+
+function scaleFootprintToArea(shape, targetArea){
+  const area = polygonArea(shape.points);
+  const scale = Math.sqrt(targetArea / Math.max(area, 0.0001));
+  return {
+    label: shape.label,
+    points: shape.points.map(([x, y]) => [x * scale, y * scale]),
+    voids: (shape.voids || []).map((poly) => poly.map(([x, y]) => [x * scale, y * scale]))
+  };
+}
+
+function rectPoints(width, height){
+  return [
+    [-width * 0.5, -height * 0.5],
+    [width * 0.5, -height * 0.5],
+    [width * 0.5, height * 0.5],
+    [-width * 0.5, height * 0.5]
+  ];
+}
+
+function polygonToScreenPath(points, fit){
+  return `M${points.map(([x, y]) => `${round(fit.x(x), 1)},${round(fit.y(y), 1)}`).join("L")}Z`;
+}
+
+function rectToScreenPath(rect, fit){
+  const points = [
+    [rect.minX, rect.minY],
+    [rect.maxX, rect.minY],
+    [rect.maxX, rect.maxY],
+    [rect.minX, rect.maxY]
+  ];
+  return polygonToScreenPath(points, fit);
+}
+
+function polygonArea(points){
+  let area = 0;
+  for(let i = 0; i < points.length; i += 1){
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[(i + 1) % points.length];
+    area += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(area) * 0.5;
+}
+
+function polygonBounds(points){
+  const bounds = points.reduce((acc, [x, y]) => ({
+    minX: Math.min(acc.minX, x),
+    maxX: Math.max(acc.maxX, x),
+    minY: Math.min(acc.minY, y),
+    maxY: Math.max(acc.maxY, y)
+  }), {minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity});
+  bounds.width = bounds.maxX - bounds.minX;
+  bounds.height = bounds.maxY - bounds.minY;
+  return bounds;
+}
+
+function pointInPolygon(x, y, polygon){
+  let inside = false;
+  for(let i = 0, j = polygon.length - 1; i < polygon.length; j = i++){
+    const xi = polygon[i][0];
+    const yi = polygon[i][1];
+    const xj = polygon[j][0];
+    const yj = polygon[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 0.00001) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function distanceRectToRect(a, b){
+  const dx = Math.max(0, Math.max(b.minX - a.maxX, a.minX - b.maxX));
+  const dy = Math.max(0, Math.max(b.minY - a.maxY, a.minY - b.maxY));
+  return Math.hypot(dx, dy);
+}
+
+function eventToViewPoint(event, svg){
+  const rect = svg.getBoundingClientRect();
+  if(!rect.width || !rect.height) return null;
+  return {
+    x: (event.clientX - rect.left) * (VIEW_W / rect.width),
+    y: (event.clientY - rect.top) * (VIEW_H / rect.height)
+  };
+}
+
+function presetLabel(value){
+  return ({
+    rectangle:"Rectangle",
+    bar:"Bar",
+    courtyard:"Courtyard",
+    lshape:"L-Shape",
+    corner:"Corner",
+    narrowdeep:"Narrow / Deep",
+    sketch:"Sketch"
+  })[value] || value;
+}
+
+function labelName(name){
+  return String(name || "")
+    .replace(/\s*\(Typical\)\s*/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function colorForCategory(category){
+  const source = String(category || "").toLowerCase();
+  if(/circulation|corridor/.test(source)) return "#6e7476";
+  if(/core|vertical/.test(source)) return "#4f5559";
+  if(/public|lobby|amenity|assembly|commons|community|retail|gallery|worship/.test(source)) return "#96a5b3";
+  if(/class|learning|education|meeting|conference|office|admin|workspace/.test(source)) return "#b1a58c";
+  if(/residential|guest|unit|patient|care|clinical/.test(source)) return "#b8c2c8";
+  if(/service|support|storage|back of house|operations|mep|utility|mechanical|electrical/.test(source)) return "#8f887d";
+  return "#a7afa9";
+}
+
+function uniqueBy(items, key){
+  const map = new Map();
+  items.forEach((item) => {
+    if(!map.has(item[key])) map.set(item[key], item);
+  });
+  return [...map.values()];
+}
+
+function midpoint(range){
+  return Array.isArray(range) && range.length >= 2 ? (Number(range[0]) + Number(range[1])) * 0.5 : null;
+}
+
+function average(values){
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+function formatNumber(value){
+  return new Intl.NumberFormat("en-US", {maximumFractionDigits:0}).format(Math.round(value));
+}
+
+function formatCompact(value){
+  if(value >= 1000000) return `${round(value / 1000000, 0.01)}M`;
+  if(value >= 1000) return `${round(value / 1000, 0.1)}k`;
+  return formatNumber(value);
+}
+
+function xmur3(str){
+  let h = 1779033703 ^ str.length;
+  for(let i = 0; i < str.length; i += 1){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  };
+}
+
+function mulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function seededValue(input){
+  return mulberry32(xmur3(input)())();
+}
+
+function clamp(value, min, max){
+  return Math.max(min, Math.min(max, value));
+}
+
+function lerp(a, b, t){
+  return a + (b - a) * t;
+}
+
+function invLerp(a, b, value){
+  if(a === b) return 0;
+  return clamp((value - a) / (b - a), 0, 1);
+}
+
+function mod1(value){
+  const out = value % 1;
+  return out < 0 ? out + 1 : out;
+}
+
+function round(value, step){
+  return Math.round(value / step) * step;
+}
+
+function snap(value, step){
+  return Math.round(value / step) * step;
+}
+
+function capitalize(value){
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
+}
+
+function escapeHtml(value){
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeAttr(value){
+  return escapeHtml(value).replaceAll("'", "&#39;");
+}
+
+async function loadJSON(path){
+  const response = await fetch(path);
+  if(!response.ok) throw new Error(`${path} failed with status ${response.status}`);
+  return response.json();
+}
+</script>
+</body>
+</html>
