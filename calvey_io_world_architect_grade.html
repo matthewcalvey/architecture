@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CALVEY IO — Living Catalog of Considerations</title>
+  <style>
+    /*
+      CALVEY IO — CREATIVE BRIEF IMPLEMENTATION
+      ------------------------------------------------------------
+      Design thesis:
+      This version treats architectural thinking as a quiet atlas rather than
+      a forum. Questions are fixed civic rooms. Answers are colored fragments
+      that accumulate around them. Comments become marginalia. Reactions leave
+      chromatic traces, not noisy counters. The interface is intentionally
+      slow, generous, and spatial: a reading garden built from considerations.
+
+      No frameworks. No external dependencies. Fully localStorage-based.
+    */
+
+    :root {
+      --bg: #f3f0e7;
+      --paper: rgba(255, 255, 252, 0.82);
+      --paper-solid: #fffefa;
+      --ink: #171716;
+      --ink-soft: #4f4d49;
+      --muted: #8b877f;
+      --rule: rgba(30, 28, 24, 0.14);
+      --rule-strong: rgba(30, 28, 24, 0.26);
+      --gold: #9c7a2e;
+      --blueprint: #577d9f;
+      --shadow: 0 22px 70px rgba(42, 35, 26, 0.13);
+      --soft-shadow: 0 12px 34px rgba(42, 35, 26, 0.09);
+      --radius: 28px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.7), transparent 28%),
+        radial-gradient(circle at 80% 90%, rgba(87,125,159,.11), transparent 32%),
+        linear-gradient(135deg, var(--bg), #ece6d7);
+      color: var(--ink);
+      font-family: var(--serif);
+    }
+
+    body.dark {
+      --bg: #111210;
+      --paper: rgba(28, 29, 26, 0.78);
+      --paper-solid: #20211d;
+      --ink: #f3efe3;
+      --ink-soft: #c5bfad;
+      --muted: #8e897d;
+      --rule: rgba(245, 239, 225, 0.16);
+      --rule-strong: rgba(245, 239, 225, 0.32);
+      --shadow: 0 22px 70px rgba(0,0,0,.35);
+      --soft-shadow: 0 12px 34px rgba(0,0,0,.28);
+      background:
+        radial-gradient(circle at 18% 12%, rgba(107,126,142,.22), transparent 28%),
+        radial-gradient(circle at 84% 86%, rgba(156,122,46,.11), transparent 38%),
+        linear-gradient(135deg, #10110f, #17150f);
+    }
+
+    button, input, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 1.5px solid currentColor;
+      outline-offset: 4px;
+    }
+
+    .topbar {
+      position: fixed;
+      z-index: 50;
+      left: 18px;
+      right: 18px;
+      top: 14px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 0 18px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--paper-solid) 76%, transparent);
+      backdrop-filter: blur(24px) saturate(1.2);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      min-width: 190px;
+      user-select: none;
+    }
+
+    .brand-kicker, .eyebrow, .micro, .chip, .button-mono, .count {
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: 9px;
+      line-height: 1;
+    }
+
+    .brand-kicker { color: var(--gold); }
+    .brand-title { font-size: 20px; letter-spacing: .07em; font-weight: 400; }
+    .session { color: var(--muted); }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 220px;
+      justify-content: flex-end;
+    }
+
+    .identity-pill, .icon-btn, .text-btn {
+      border: 1px solid var(--rule);
+      background: transparent;
+      border-radius: 999px;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: 9px;
+      transition: transform .22s ease, background .22s ease, border-color .22s ease;
+    }
+
+    .identity-pill:hover, .icon-btn:hover, .text-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--rule-strong);
+      background: rgba(255,255,255,.22);
+    }
+
+    .identity-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.16);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.22);
+      flex: 0 0 auto;
+    }
+
+    .icon-btn { width: 34px; padding: 0; font-size: 14px; letter-spacing: 0; }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #viewport {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2400px;
+      height: 1600px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: .18;
+      mix-blend-mode: multiply;
+      background-image:
+        linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.025) 1px, transparent 1px);
+      background-size: 64px 64px, 64px 64px;
+      mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 78%);
+    }
+
+    body.dark .grain { mix-blend-mode: screen; opacity: .09; }
+
+    #wires {
+      position: absolute;
+      inset: 0;
+      width: 2400px;
+      height: 1600px;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .node-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .question-room {
+      position: absolute;
+      width: 620px;
+      min-height: 310px;
+      padding: 34px 36px 36px;
+      border: 1px solid var(--rule);
+      border-radius: 42px;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--paper-solid) 80%, transparent), color-mix(in srgb, var(--paper-solid) 52%, transparent));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      transition: transform .5s ease, border-color .3s ease;
+    }
+
+    .question-room::before {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 1px solid var(--rule);
+      border-radius: 30px;
+      pointer-events: none;
+    }
+
+    .question-room:hover { border-color: var(--rule-strong); }
+
+    .q-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .q-title {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+      max-width: 520px;
+      font-size: clamp(38px, 4.3vw, 70px);
+      line-height: .92;
+      font-weight: 300;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+
+    .q-subtitle {
+      position: relative;
+      z-index: 2;
+      margin: 24px 0 26px;
+      max-width: 460px;
+      color: var(--ink-soft);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .answer-button {
+      position: relative;
+      z-index: 2;
+      border: 1px solid var(--rule-strong);
+      background: transparent;
+      border-radius: 999px;
+      padding: 12px 15px;
+      color: var(--ink);
+    }
+
+    .answer-button:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
+    .answer-node, .comment-node {
+      position: absolute;
+      border-radius: 24px;
+      background: var(--paper-solid);
+      border: 1px solid rgba(20,20,20,.08);
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+      transform-origin: center;
+      transition:
+        width .32s cubic-bezier(.22,.9,.22,1),
+        min-height .32s cubic-bezier(.22,.9,.22,1),
+        box-shadow .25s ease,
+        opacity .4s ease;
+      user-select: none;
+    }
+
+    .answer-node {
+      width: 298px;
+      min-height: 112px;
+      padding: 17px 18px 16px;
+      cursor: grab;
+    }
+
+    .answer-node.dragging {
+      cursor: grabbing;
+      box-shadow: 0 30px 90px rgba(20, 18, 14, .22);
+      z-index: 20;
+    }
+
+    .answer-node.expanded {
+      width: 456px;
+      min-height: 330px;
+      z-index: 18;
+    }
+
+    .answer-node.mine {
+      box-shadow: 0 16px 45px color-mix(in srgb, var(--author) 20%, transparent), var(--soft-shadow);
+    }
+
+    .answer-node::before, .comment-node::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: var(--author);
+    }
+
+    .answer-node::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--author) 22%, transparent), transparent 28%),
+        linear-gradient(90deg, color-mix(in srgb, var(--author) 10%, transparent), transparent 36%);
+      opacity: .95;
+    }
+
+    .node-inner {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .node-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .author-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .tiny-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--author);
+      flex: 0 0 auto;
+    }
+
+    .answer-text {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.28;
+      font-weight: 300;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .answer-node.expanded .answer-text {
+      display: block;
+      font-size: 22px;
+      line-height: 1.36;
+      overflow: visible;
+    }
+
+    .node-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .reaction-strip {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .react-btn, .save-btn {
+      height: 30px;
+      min-width: 30px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: 0 9px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .react-btn:hover, .save-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.42); }
+    .react-btn.agree.active { border-color: rgba(73,132,72,.45); }
+    .react-btn.disagree.active { border-color: rgba(150,55,32,.45); }
+
+    .reaction-digest {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .digest-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .digest-agree { background: #6da96c; }
+    .digest-disagree { background: #9b3a1f; }
+    .digest-comment { background: #85817a; }
+
+    .comment-node {
+      width: 192px;
+      min-height: 84px;
+      padding: 12px 13px 11px 19px;
+      opacity: .96;
+      cursor: default;
+    }
+
+    .comment-node::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: color-mix(in srgb, var(--author) 18%, transparent);
+      opacity: .56;
+      pointer-events: none;
+    }
+
+    .comment-text {
+      position: relative;
+      z-index: 2;
+      margin: 8px 0 0;
+      font-size: 13px;
+      line-height: 1.3;
+      color: var(--ink);
+    }
+
+    .comment-editor {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+      margin-top: 8px;
+    }
+
+    .comment-editor textarea {
+      width: 100%;
+      height: 44px;
+      resize: none;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      background: rgba(255,255,255,.36);
+      padding: 8px 9px;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .save-btn { min-width: 34px; padding: 0; }
+
+    .composer-panel {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      width: min(760px, calc(100vw - 28px));
+      border: 1px solid var(--rule);
+      border-radius: 30px;
+      background: color-mix(in srgb, var(--paper-solid) 82%, transparent);
+      backdrop-filter: blur(28px);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: none;
+    }
+
+    .composer-panel.open { display: block; animation: rise .28s ease both; }
+
+    @keyframes rise { from { transform: translate(-50%, 14px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+    .composer-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .composer-panel textarea {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+      border: 1px solid var(--rule);
+      border-radius: 22px;
+      background: rgba(255,255,255,.34);
+      padding: 16px;
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .composer-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .primary-btn {
+      border: 1px solid color-mix(in srgb, var(--user-color) 60%, var(--rule));
+      background: color-mix(in srgb, var(--user-color) 18%, var(--paper-solid));
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-size: 10px;
+      min-width: 124px;
+    }
+
+    .toolbar {
+      position: fixed;
+      z-index: 55;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      padding: 9px;
+      background: color-mix(in srgb, var(--paper-solid) 78%, transparent);
+      backdrop-filter: blur(22px);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .toolbar input[type="range"] { width: 150px; accent-color: var(--user-color); }
+
+    .start-overlay, .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background:
+        radial-gradient(circle at 22% 10%, color-mix(in srgb, var(--user-color, #577d9f) 13%, transparent), transparent 34%),
+        rgba(243,240,231,.78);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    body.dark .start-overlay, body.dark .modal-overlay { background: rgba(10,10,9,.72); }
+
+    .start-card, .modal-card {
+      width: min(880px, 100%);
+      border: 1px solid var(--rule);
+      border-radius: 42px;
+      background: color-mix(in srgb, var(--paper-solid) 86%, transparent);
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 5vw, 56px);
+    }
+
+    .start-card h1 {
+      margin: 14px 0 20px;
+      max-width: 760px;
+      font-size: clamp(42px, 7vw, 92px);
+      line-height: .9;
+      font-weight: 300;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .start-card p {
+      max-width: 640px;
+      color: var(--ink-soft);
+      font-size: 21px;
+      line-height: 1.45;
+      margin: 0 0 28px;
+    }
+
+    .start-card textarea {
+      width: 100%;
+      min-height: 152px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,.36);
+      border-radius: 28px;
+      padding: 20px;
+      resize: vertical;
+      font-size: 26px;
+      line-height: 1.34;
+    }
+
+    .start-actions, .modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="color"] {
+      appearance: none;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid var(--rule-strong);
+      border-radius: 50%;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+    .modal-overlay { display: none; }
+    .modal-overlay.open { display: flex; }
+    .modal-card { width: min(520px, 100%); }
+    .modal-card h2 {
+      margin: 0 0 18px;
+      font-size: 42px;
+      line-height: .95;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .field { display: grid; gap: 8px; margin: 18px 0; }
+    .field input[type="text"] {
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      padding: 13px 16px;
+      background: rgba(255,255,255,.32);
+      font-size: 18px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 110;
+      left: 50%;
+      top: 88px;
+      transform: translateX(-50%) translateY(-10px);
+      opacity: 0;
+      pointer-events: none;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: var(--paper-solid);
+      box-shadow: var(--soft-shadow);
+      padding: 11px 14px;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .scale-badge {
+      position: fixed;
+      z-index: 12;
+      right: 24px;
+      bottom: 92px;
+      width: min(330px, calc(100vw - 48px));
+      border: 1px solid var(--rule);
+      border-radius: 28px;
+      background: color-mix(in srgb, var(--paper-solid) 68%, transparent);
+      backdrop-filter: blur(18px);
+      padding: 18px;
+      box-shadow: var(--soft-shadow);
+      pointer-events: none;
+    }
+
+    .scale-badge p { margin: 8px 0 0; font-size: 15px; line-height: 1.35; color: var(--ink-soft); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 840px) {
+      .topbar { left: 10px; right: 10px; top: 10px; height: auto; min-height: 58px; border-radius: 24px; align-items: flex-start; padding: 12px; gap: 10px; }
+      .brand { min-width: auto; flex-direction: column; gap: 3px; align-items: flex-start; }
+      .brand-title { font-size: 18px; }
+      .top-actions { min-width: 0; flex-wrap: wrap; justify-content: flex-end; }
+      .identity-pill { max-width: 170px; overflow: hidden; }
+      .toolbar { bottom: 12px; max-width: calc(100vw - 18px); flex-wrap: wrap; justify-content: center; border-radius: 24px; }
+      .toolbar input[type="range"] { width: 100px; }
+      .question-room { width: 500px; }
+      .q-title { font-size: 44px; }
+      .composer-grid { grid-template-columns: 1fr; }
+      .scale-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar" aria-label="CALVEY IO top navigation">
+    <div class="brand">
+      <span class="brand-kicker">CALVEY</span>
+      <span class="brand-title">IO</span>
+      <span class="session micro">LIVING CATALOG · LOCAL SESSION</span>
+    </div>
+    <div class="top-actions">
+      <button class="identity-pill" id="identityButton" aria-label="Copy identity code">
+        <span class="identity-dot" id="identityDot"></span>
+        <span id="identityText">C-0000</span>
+      </button>
+      <button class="text-btn" id="exportButton">Export</button>
+      <button class="icon-btn" id="settingsButton" aria-label="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main id="app" aria-label="CALVEY IO spatial canvas">
+    <div id="viewport">
+      <svg id="wires" viewBox="0 0 2400 1600" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <section class="node-layer" id="nodeLayer"></section>
+    </div>
+  </main>
+
+  <aside class="scale-badge" aria-hidden="true">
+    <div class="eyebrow">HOW THIS SCALES</div>
+    <p id="scaleText">At a few voices, this is a garden. At hundreds, repeated colors and reaction traces become climates: dense questions bloom into districts.</p>
+  </aside>
+
+  <div class="toolbar" aria-label="Canvas controls">
+    <button class="text-btn" id="invertButton">Invert</button>
+    <span class="micro" id="zoomLabel">82%</span>
+    <input id="zoomSlider" type="range" min="45" max="135" value="82" aria-label="Zoom" />
+    <button class="text-btn" id="fitButton">Fit</button>
+  </div>
+
+  <section class="composer-panel" id="composerPanel" aria-label="Answer composer">
+    <div class="eyebrow" id="composerEyebrow">Answer</div>
+    <div class="composer-grid">
+      <textarea id="composerText" placeholder="Write a consideration, not a conclusion…"></textarea>
+      <div class="composer-actions">
+        <button class="primary-btn" id="saveAnswerButton">Place</button>
+        <button class="text-btn" id="cancelAnswerButton">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="start-overlay" id="startOverlay" aria-label="Start CALVEY IO">
+    <div class="start-card">
+      <div class="eyebrow">CALVEY IO · FIRST CONSIDERATION</div>
+      <h1>What makes good architecture?</h1>
+      <p>Begin with one thought. It does not need to be complete. CALVEY IO is a living catalog of considerations, not a scoreboard of correct answers.</p>
+      <textarea id="startText" placeholder="Good architecture is…"></textarea>
+      <div class="start-actions">
+        <div class="color-row">
+          <span class="eyebrow">Your color identity</span>
+          <input type="color" id="startColor" value="#577d9f" aria-label="Choose your identity color" />
+        </div>
+        <button class="primary-btn" id="startButton">Enter</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal-overlay" id="settingsModal" aria-label="Settings modal">
+    <div class="modal-card">
+      <div class="eyebrow">Identity settings</div>
+      <h2>Your visible trace</h2>
+      <div class="field">
+        <label class="eyebrow" for="handleInput">Handle</label>
+        <input id="handleInput" type="text" maxlength="24" placeholder="matt" />
+      </div>
+      <div class="field">
+        <label class="eyebrow" for="colorInput">Color</label>
+        <input id="colorInput" type="color" />
+      </div>
+      <div class="modal-actions">
+        <button class="text-btn" id="resetButton">Reset local session</button>
+        <div>
+          <button class="text-btn" id="closeSettingsButton">Close</button>
+          <button class="primary-btn" id="saveSettingsButton">Save</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast micro" id="toast" role="status" aria-live="polite">Copied</div>
+
+  <script>
+    (() => {
+      const STORAGE = {
+        id: 'calvey_io_id_v2',
+        handle: 'calvey_io_handle_v2',
+        color: 'calvey_io_color_v2',
+        started: 'calvey_io_started_v2',
+        answers: 'calvey_io_answers_v2',
+        comments: 'calvey_io_comments_v2',
+        reactions: 'calvey_io_reactions_v2',
+        dark: 'calvey_io_dark_v2',
+        seeded: 'calvey_io_seeded_v2'
+      };
+
+      const questions = [
+        {
+          id: 'q_good',
+          code: 'Q1',
+          title: 'What makes good architecture?',
+          subtitle: 'Beauty, use, time, comfort, memory, restraint, performance, generosity — the answer changes with the site and the person looking.',
+          x: 890, y: 190
+        },
+        {
+          id: 'q_ai_do',
+          code: 'Q2',
+          title: 'What do you want AI to do for architecture?',
+          subtitle: 'Not replace judgment, but perhaps expose patterns, test consequences, remember constraints, and make invisible tradeoffs visible.',
+          x: 1440, y: 910
+        },
+        {
+          id: 'q_ai_never',
+          code: 'Q3',
+          title: 'What should AI never do in architecture?',
+          subtitle: 'The boundary matters: authorship, responsibility, care, cultural memory, embodied experience, and public consequence should not be automated away.',
+          x: 260, y: 910
+        }
+      ];
+
+      const seedAnswers = [
+        ['q_good', 'Good architecture makes the difficult parts of life feel considered. It does not merely solve the brief; it makes a better brief visible.', '#a46a48', 'C-MA27', 760, 560],
+        ['q_good', 'It should age with dignity. The best buildings tolerate weather, adaptation, disagreement, and memory.', '#557d5c', 'C-LINA', 1090, 590],
+        ['q_good', 'A good building gives more to the city than it takes from the site.', '#8d5f91', 'C-ORO9', 1180, 430],
+        ['q_good', 'It has a clear idea, but it does not shout the idea at every scale.', '#b5893f', 'C-N42Q', 610, 390],
+        ['q_ai_do', 'AI should make options inspectable: energy, access, cost, embodied carbon, dignity. Show the trade, not just the image.', '#3e7f92', 'C-TAU1', 1540, 1210],
+        ['q_ai_do', 'I want an assistant that remembers precedent as spatial intelligence, not as Pinterest mood.', '#925b70', 'C-VEDA', 1770, 1050],
+        ['q_ai_do', 'Help me see consequences earlier. Do not design for me; make my assumptions visible.', '#686fb1', 'C-BRIX', 1310, 1190],
+        ['q_ai_never', 'AI should never launder responsibility. A building still lands in a neighborhood, on a budget, in a climate, with people inside.', '#9b4c38', 'C-HOLD', 520, 1190],
+        ['q_ai_never', 'Never flatten culture into style transfer. Context is not a texture map.', '#5d6f49', 'C-AKI2', 270, 1210],
+        ['q_ai_never', 'It should not optimize away delight just because delight is hard to quantify.', '#4f839d', 'C-ELM5', 650, 1030],
+        ['q_ai_do', 'Let it be a second memory: boring code checks, zoning lookups, redline history, daylight sanity tests.', '#c0783d', 'C-PATH', 1610, 1340],
+        ['q_good', 'The thing I keep returning to is fit: fit to body, place, climate, budget, craft, and future unknowns.', '#48776d', 'C-SERA', 930, 720]
+      ];
+
+      const seedComments = [
+        ['a_seed_0', '“A better brief visible” feels like the whole discipline in one sentence.', '#557d5c', 'C-LINA', 326, 18],
+        ['a_seed_4', 'Yes — especially “show the trade.” That is where trust could live.', '#686fb1', 'C-BRIX', 320, -8],
+        ['a_seed_8', 'Context is a relationship, not an asset library.', '#a46a48', 'C-MA27', 315, 16],
+        ['a_seed_9', 'This is where metrics need humility.', '#b5893f', 'C-N42Q', 318, 12]
+      ];
+
+      const els = {
+        viewport: document.getElementById('viewport'),
+        wires: document.getElementById('wires'),
+        nodeLayer: document.getElementById('nodeLayer'),
+        identityButton: document.getElementById('identityButton'),
+        identityDot: document.getElementById('identityDot'),
+        identityText: document.getElementById('identityText'),
+        exportButton: document.getElementById('exportButton'),
+        settingsButton: document.getElementById('settingsButton'),
+        invertButton: document.getElementById('invertButton'),
+        fitButton: document.getElementById('fitButton'),
+        zoomSlider: document.getElementById('zoomSlider'),
+        zoomLabel: document.getElementById('zoomLabel'),
+        composerPanel: document.getElementById('composerPanel'),
+        composerEyebrow: document.getElementById('composerEyebrow'),
+        composerText: document.getElementById('composerText'),
+        saveAnswerButton: document.getElementById('saveAnswerButton'),
+        cancelAnswerButton: document.getElementById('cancelAnswerButton'),
+        startOverlay: document.getElementById('startOverlay'),
+        startText: document.getElementById('startText'),
+        startColor: document.getElementById('startColor'),
+        startButton: document.getElementById('startButton'),
+        settingsModal: document.getElementById('settingsModal'),
+        handleInput: document.getElementById('handleInput'),
+        colorInput: document.getElementById('colorInput'),
+        closeSettingsButton: document.getElementById('closeSettingsButton'),
+        saveSettingsButton: document.getElementById('saveSettingsButton'),
+        resetButton: document.getElementById('resetButton'),
+        toast: document.getElementById('toast'),
+        scaleText: document.getElementById('scaleText')
+      };
+
+      const state = {
+        id: getOrCreateId(),
+        handle: localStorage.getItem(STORAGE.handle) || '',
+        color: localStorage.getItem(STORAGE.color) || '#577d9f',
+        started: localStorage.getItem(STORAGE.started) === 'true',
+        answers: readJson(STORAGE.answers, []),
+        comments: readJson(STORAGE.comments, []),
+        reactions: readJson(STORAGE.reactions, []),
+        selectedAnswer: null,
+        composingQid: null,
+        view: { x: -1200, y: -800, scale: 0.82 },
+        pointer: null,
+        panning: null,
+        lastFrame: performance.now()
+      };
+
+      function readJson(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; }
+        catch { return fallback; }
+      }
+
+      function writeJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+      function getOrCreateId() {
+        let id = localStorage.getItem(STORAGE.id);
+        if (id) return id;
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        id = 'C-' + Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        localStorage.setItem(STORAGE.id, id);
+        return id;
+      }
+
+      function uid(prefix) {
+        return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+      }
+
+      function persistAll() {
+        writeJson(STORAGE.answers, state.answers);
+        writeJson(STORAGE.comments, state.comments);
+        writeJson(STORAGE.reactions, state.reactions);
+        localStorage.setItem(STORAGE.color, state.color);
+        localStorage.setItem(STORAGE.handle, state.handle);
+        localStorage.setItem(STORAGE.started, String(state.started));
+      }
+
+      function seedIfNeeded() {
+        if (localStorage.getItem(STORAGE.seeded) === 'true') return;
+        const answers = seedAnswers.map((a, i) => ({
+          id: 'a_seed_' + i,
+          qid: a[0],
+          text: a[1],
+          color: a[2],
+          calvey_id: a[3],
+          x: a[4],
+          y: a[5],
+          vx: 0,
+          vy: 0,
+          createdAt: Date.now() - (1000000 - i * 25000),
+          lockedUntil: 0
+        }));
+        const comments = seedComments.map((c, i) => ({
+          id: 'c_seed_' + i,
+          target_id: c[0],
+          text: c[1],
+          color: c[2],
+          calvey_id: c[3],
+          offX: c[4],
+          offY: c[5],
+          createdAt: Date.now() - (800000 - i * 30000)
+        }));
+        state.answers = [...answers, ...state.answers];
+        state.comments = [...comments, ...state.comments];
+        state.reactions = [
+          { target_id: 'a_seed_0', calvey_id: 'C-LINA', type: 'agree', count: 2 },
+          { target_id: 'a_seed_4', calvey_id: 'C-BRIX', type: 'agree', count: 3 },
+          { target_id: 'a_seed_8', calvey_id: 'C-MA27', type: 'agree', count: 1 },
+          { target_id: 'a_seed_7', calvey_id: 'C-ELM5', type: 'agree', count: 2 },
+          { target_id: 'a_seed_9', calvey_id: 'C-HOLD', type: 'disagree', count: 1 }
+        ];
+        localStorage.setItem(STORAGE.seeded, 'true');
+        persistAll();
+      }
+
+      function applyIdentity() {
+        document.documentElement.style.setProperty('--user-color', state.color);
+        els.identityDot.style.background = state.color;
+        els.identityText.textContent = state.id + (state.handle ? ' · ' + state.handle : '');
+        els.startColor.value = state.color;
+        els.colorInput.value = state.color;
+        els.handleInput.value = state.handle;
+      }
+
+      function toast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => els.toast.classList.remove('show'), 1300);
+      }
+
+      function render() {
+        applyIdentity();
+        els.nodeLayer.innerHTML = '';
+        renderQuestions();
+        renderAnswers();
+        renderComments();
+        drawWires();
+        updateScaleText();
+      }
+
+      function renderQuestions() {
+        questions.forEach(q => {
+          const count = state.answers.filter(a => a.qid === q.id).length;
+          const room = document.createElement('article');
+          room.className = 'question-room';
+          room.dataset.qid = q.id;
+          room.style.left = q.x + 'px';
+          room.style.top = q.y + 'px';
+          room.innerHTML = `
+            <div class="q-meta">
+              <span class="eyebrow">${q.code}</span>
+              <span class="chip">${count} considerations</span>
+            </div>
+            <h2 class="q-title">${escapeHtml(q.title)}</h2>
+            <p class="q-subtitle">${escapeHtml(q.subtitle)}</p>
+            <button class="answer-button button-mono" data-answer-qid="${q.id}">Place a consideration</button>
+          `;
+          els.nodeLayer.appendChild(room);
+        });
+      }
+
+      function renderAnswers() {
+        state.answers.forEach(a => {
+          if (!a.vx) a.vx = 0;
+          if (!a.vy) a.vy = 0;
+          const node = document.createElement('article');
+          const mine = a.calvey_id === state.id;
+          const expanded = state.selectedAnswer === a.id;
+          node.className = 'answer-node' + (mine ? ' mine' : '') + (expanded ? ' expanded' : '');
+          node.dataset.answerId = a.id;
+          node.style.left = a.x + 'px';
+          node.style.top = a.y + 'px';
+          node.style.setProperty('--author', mine ? state.color : a.color);
+          const digest = getDigest(a.id);
+          const scale = getReactionScale(a.id);
+          node.style.transform = `scale(${scale})`;
+          node.innerHTML = `
+            <div class="node-inner">
+              <div class="node-topline">
+                <span class="author-mark"><i class="tiny-dot"></i><span class="micro">${escapeHtml(a.calvey_id)}</span></span>
+                <span class="micro">${timeAgo(a.createdAt)}</span>
+              </div>
+              <p class="answer-text">${escapeHtml(a.text)}</p>
+              <div class="node-footer">
+                <div class="reaction-digest" aria-label="Reaction summary">
+                  ${digest.agree ? `<span class="digest-dot digest-agree" title="${digest.agree} agree"></span>` : ''}
+                  ${digest.disagree ? `<span class="digest-dot digest-disagree" title="${digest.disagree} disagree"></span>` : ''}
+                  ${digest.comment ? `<span class="digest-dot digest-comment" title="${digest.comment} comments"></span>` : ''}
+                </div>
+                <div class="reaction-strip">
+                  <button class="react-btn agree ${hasReacted(a.id, 'agree') ? 'active' : ''}" data-react="agree" data-target="${a.id}" aria-label="Agree">+</button>
+                  <button class="react-btn disagree ${hasReacted(a.id, 'disagree') ? 'active' : ''}" data-react="disagree" data-target="${a.id}" aria-label="Disagree">−</button>
+                  <button class="react-btn" data-comment="${a.id}" aria-label="Comment">↵</button>
+                </div>
+              </div>
+            </div>
+          `;
+          els.nodeLayer.appendChild(node);
+        });
+      }
+
+      function renderComments() {
+        state.comments.forEach(c => {
+          const parent = state.answers.find(a => a.id === c.target_id);
+          if (!parent) return;
+          const node = document.createElement('aside');
+          node.className = 'comment-node';
+          node.dataset.commentId = c.id;
+          node.style.left = (parent.x + c.offX) + 'px';
+          node.style.top = (parent.y + c.offY) + 'px';
+          node.style.setProperty('--author', c.calvey_id === state.id ? state.color : c.color);
+          if (c.draft) {
+            node.innerHTML = `
+              <div class="eyebrow">Comment</div>
+              <div class="comment-editor">
+                <textarea data-comment-text="${c.id}" placeholder="add a comment…"></textarea>
+                <button class="save-btn" data-save-comment="${c.id}">↵</button>
+              </div>
+            `;
+          } else {
+            node.innerHTML = `
+              <div class="eyebrow">${escapeHtml(c.calvey_id)}</div>
+              <p class="comment-text">${escapeHtml(c.text)}</p>
+            `;
+          }
+          els.nodeLayer.appendChild(node);
+          if (c.draft) {
+            requestAnimationFrame(() => {
+              const ta = node.querySelector('textarea');
+              if (ta) ta.focus();
+            });
+          }
+        });
+      }
+
+      function getDigest(answerId) {
+        return {
+          agree: state.reactions.filter(r => r.target_id === answerId && r.type === 'agree').reduce((s, r) => s + r.count, 0),
+          disagree: state.reactions.filter(r => r.target_id === answerId && r.type === 'disagree').reduce((s, r) => s + r.count, 0),
+          comment: state.comments.filter(c => c.target_id === answerId && !c.draft).length
+        };
+      }
+
+      function hasReacted(answerId, type) {
+        return state.reactions.some(r => r.target_id === answerId && r.type === type && r.calvey_id === state.id);
+      }
+
+      function getReactionScale(answerId) {
+        const d = getDigest(answerId);
+        const score = d.agree - d.disagree;
+        return Math.max(.91, Math.min(1.11, 1 + Math.sign(score) * Math.log1p(Math.abs(score)) * 0.025));
+      }
+
+      function drawWires() {
+        const answerById = new Map(state.answers.map(a => [a.id, a]));
+        let svg = '';
+
+        state.answers.forEach(a => {
+          const q = questions.find(q => q.id === a.qid);
+          if (!q) return;
+          const sx = q.x + 310;
+          const sy = q.y + 155;
+          const tx = a.x;
+          const ty = a.y + 56;
+          svg += pathEl(sx, sy, tx, ty, a.calvey_id === state.id ? state.color : a.color, 0.26, 1.15, false, 'question');
+        });
+
+        state.comments.filter(c => !c.draft).forEach(c => {
+          const a = answerById.get(c.target_id);
+          if (!a) return;
+          const sx = a.x + 298;
+          const sy = a.y + 56;
+          const tx = a.x + c.offX;
+          const ty = a.y + c.offY + 38;
+          const color = c.calvey_id === state.id ? state.color : c.color;
+          svg += pathEl(sx, sy, tx, ty, color, 0.7, 2.35, false, 'comment');
+          svg += `<circle cx="${tx}" cy="${ty}" r="5" fill="#85817a" opacity="0.9" />`;
+        });
+
+        // Emergent similarity traces: deliberately subtle, generated by shared words.
+        const pairs = findSimilarPairs(state.answers).slice(0, 8);
+        pairs.forEach(([a, b]) => {
+          svg += pathEl(a.x + 150, a.y + 56, b.x + 150, b.y + 56, '#577d9f', 0.18, 1.1, true, 'similar');
+        });
+
+        els.wires.innerHTML = svg;
+      }
+
+      function pathEl(sx, sy, tx, ty, color, opacity, width, dashed, cls) {
+        const dx = tx - sx;
+        const dy = ty - sy;
+        const cp = Math.min(320, Math.max(44, Math.abs(dx) * 0.48 + Math.abs(dy) * 0.18));
+        const c1x = sx + (dx >= 0 ? cp : -cp);
+        const c2x = tx - (dx >= 0 ? cp : -cp);
+        const d = `M ${sx.toFixed(1)} ${sy.toFixed(1)} C ${c1x.toFixed(1)} ${sy.toFixed(1)}, ${c2x.toFixed(1)} ${ty.toFixed(1)}, ${tx.toFixed(1)} ${ty.toFixed(1)}`;
+        return `<path class="wire-${cls}" d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-opacity="${opacity}" stroke-linecap="round" ${dashed ? 'stroke-dasharray="8 10"' : ''}/>`;
+      }
+
+      function findSimilarPairs(answers) {
+        const words = s => new Set(s.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 5));
+        const sets = answers.map(a => [a, words(a.text)]);
+        const out = [];
+        for (let i = 0; i < sets.length; i++) {
+          for (let j = i + 1; j < sets.length; j++) {
+            const [a, aw] = sets[i];
+            const [b, bw] = sets[j];
+            let shared = 0;
+            aw.forEach(w => { if (bw.has(w)) shared++; });
+            if (shared >= 1 && a.qid !== b.qid) out.push([a, b, shared]);
+          }
+        }
+        return out.sort((p, q) => q[2] - p[2]);
+      }
+
+      function updateScaleText() {
+        const n = state.answers.length;
+        if (n < 20) els.scaleText.textContent = 'At this scale, every consideration can still be read as an individual fragment. The garden is personal.';
+        else if (n < 80) els.scaleText.textContent = 'As more voices enter, questions begin forming districts. Color becomes a civic identity layer.';
+        else els.scaleText.textContent = 'At hundreds of contributors, the object is no longer a set of answers. It becomes a climate map of architectural judgment.';
+      }
+
+      function updateView() {
+        els.viewport.style.transform = `translate(${window.innerWidth / 2 + state.view.x}px, ${window.innerHeight / 2 + state.view.y}px) scale(${state.view.scale})`;
+        els.zoomSlider.value = Math.round(state.view.scale * 100);
+        els.zoomLabel.textContent = Math.round(state.view.scale * 100) + '%';
+      }
+
+      function fitView() {
+        state.view.scale = window.innerWidth < 840 ? 0.46 : 0.70;
+        state.view.x = -1200 * state.view.scale;
+        state.view.y = -760 * state.view.scale;
+        // Transform is centered first, so these values are tuned for the atlas composition.
+        state.view.x = -850;
+        state.view.y = -600;
+        updateView();
+      }
+
+      function openComposer(qid) {
+        const q = questions.find(q => q.id === qid);
+        state.composingQid = qid;
+        els.composerEyebrow.textContent = q ? q.title : 'Answer';
+        els.composerText.value = '';
+        els.composerPanel.classList.add('open');
+        setTimeout(() => els.composerText.focus(), 50);
+      }
+
+      function closeComposer() {
+        state.composingQid = null;
+        els.composerPanel.classList.remove('open');
+      }
+
+      function saveAnswer(text, qid) {
+        const q = questions.find(q => q.id === qid) || questions[0];
+        if (!text.trim()) return;
+        const existing = state.answers.filter(a => a.qid === qid).length;
+        const angle = existing * 0.92;
+        const radius = 280 + (existing % 4) * 28;
+        const a = {
+          id: uid('a'),
+          qid,
+          text: text.trim(),
+          color: state.color,
+          calvey_id: state.id,
+          x: q.x + 220 + Math.cos(angle) * radius,
+          y: q.y + 180 + Math.sin(angle) * radius,
+          vx: 0,
+          vy: 0,
+          createdAt: Date.now(),
+          lockedUntil: Date.now() + 60000
+        };
+        state.answers.push(a);
+        persistAll();
+        render();
+      }
+
+      function react(targetId, type) {
+        const other = type === 'agree' ? 'disagree' : 'agree';
+        state.reactions = state.reactions.filter(r => !(r.target_id === targetId && r.calvey_id === state.id && r.type === other));
+        let r = state.reactions.find(r => r.target_id === targetId && r.calvey_id === state.id && r.type === type);
+        if (r) r.count = Math.min(9, r.count + 1);
+        else state.reactions.push({ target_id: targetId, calvey_id: state.id, type, count: 1 });
+        persistAll();
+        render();
+      }
+
+      function spawnComment(targetId) {
+        state.selectedAnswer = null;
+        render();
+        setTimeout(() => {
+          const parent = state.answers.find(a => a.id === targetId);
+          if (!parent) return;
+          state.comments.push({
+            id: uid('c'),
+            target_id: targetId,
+            text: '',
+            draft: true,
+            calvey_id: state.id,
+            color: state.color,
+            offX: 326,
+            offY: 16,
+            createdAt: Date.now()
+          });
+          render();
+        }, 330);
+      }
+
+      function saveComment(commentId) {
+        const c = state.comments.find(c => c.id === commentId);
+        const ta = document.querySelector(`[data-comment-text="${commentId}"]`);
+        const text = ta ? ta.value.trim() : '';
+        if (!c || !text) {
+          state.comments = state.comments.filter(x => x.id !== commentId);
+        } else {
+          c.text = text;
+          c.draft = false;
+        }
+        persistAll();
+        render();
+      }
+
+      function physicsStep(now) {
+        const dt = Math.min(32, now - state.lastFrame);
+        state.lastFrame = now;
+        const t = now * 0.001;
+        state.answers.forEach(a => {
+          const q = questions.find(q => q.id === a.qid);
+          if (!q) return;
+          if (a.lockedUntil && Date.now() < a.lockedUntil) return;
+          const reengage = a.lockedUntil ? Math.min(1, Math.max(0.1, (Date.now() - a.lockedUntil) / 20000)) : 1;
+          const homeX = q.x + 250;
+          const homeY = q.y + 160;
+          const dx = homeX - a.x;
+          const dy = homeY - a.y;
+          const spring = 0.000035 * reengage;
+          a.vx += dx * spring * dt;
+          a.vy += dy * spring * dt;
+          const ox = a.x - homeX;
+          const oy = a.y - homeY;
+          a.vx += -oy * 0.00000075 * dt * reengage;
+          a.vy += ox * 0.00000075 * dt * reengage;
+          a.vy += Math.sin(t + a.createdAt) * 0.00018 * dt;
+          a.vx *= 0.965;
+          a.vy *= 0.965;
+          a.x += a.vx * dt;
+          a.y += a.vy * dt;
+        });
+
+        // Soft collision only among answer fragments.
+        for (let i = 0; i < state.answers.length; i++) {
+          for (let j = i + 1; j < state.answers.length; j++) {
+            const a = state.answers[i], b = state.answers[j];
+            const dx = b.x - a.x, dy = b.y - a.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            const min = 190;
+            if (dist < min) {
+              const push = (min - dist) * 0.0025;
+              const nx = dx / dist, ny = dy / dist;
+              if (!a.lockedUntil || Date.now() > a.lockedUntil) { a.vx -= nx * push; a.vy -= ny * push; }
+              if (!b.lockedUntil || Date.now() > b.lockedUntil) { b.vx += nx * push; b.vy += ny * push; }
+            }
+          }
+        }
+
+        // Paint positions directly for performance; full render happens on interactions.
+        state.answers.forEach(a => {
+          const el = document.querySelector(`[data-answer-id="${a.id}"]`);
+          if (el && !el.classList.contains('dragging')) {
+            el.style.left = a.x + 'px';
+            el.style.top = a.y + 'px';
+          }
+        });
+        state.comments.forEach(c => {
+          const parent = state.answers.find(a => a.id === c.target_id);
+          const el = document.querySelector(`[data-comment-id="${c.id}"]`);
+          if (parent && el) {
+            el.style.left = (parent.x + c.offX) + 'px';
+            el.style.top = (parent.y + c.offY) + 'px';
+          }
+        });
+        drawWires();
+        requestAnimationFrame(physicsStep);
+      }
+
+      function screenToWorld(clientX, clientY) {
+        const cx = window.innerWidth / 2 + state.view.x;
+        const cy = window.innerHeight / 2 + state.view.y;
+        return { x: (clientX - cx) / state.view.scale, y: (clientY - cy) / state.view.scale };
+      }
+
+      function bindEvents() {
+        document.addEventListener('click', e => {
+          const answerQid = e.target.closest('[data-answer-qid]')?.dataset.answerQid;
+          if (answerQid) return openComposer(answerQid);
+
+          const reactBtn = e.target.closest('[data-react]');
+          if (reactBtn) {
+            e.stopPropagation();
+            return react(reactBtn.dataset.target, reactBtn.dataset.react);
+          }
+
+          const commentBtn = e.target.closest('[data-comment]');
+          if (commentBtn) {
+            e.stopPropagation();
+            return spawnComment(commentBtn.dataset.comment);
+          }
+
+          const saveCommentBtn = e.target.closest('[data-save-comment]');
+          if (saveCommentBtn) {
+            e.stopPropagation();
+            return saveComment(saveCommentBtn.dataset.saveComment);
+          }
+
+          const node = e.target.closest('.answer-node');
+          if (node && !e.target.closest('button')) {
+            state.selectedAnswer = state.selectedAnswer === node.dataset.answerId ? null : node.dataset.answerId;
+            render();
+            return;
+          }
+
+          if (!e.target.closest('.composer-panel') && !e.target.closest('.topbar') && !e.target.closest('.toolbar') && !e.target.closest('.modal-overlay')) {
+            if (state.selectedAnswer) { state.selectedAnswer = null; render(); }
+          }
+        });
+
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            state.selectedAnswer = null;
+            closeComposer();
+            els.settingsModal.classList.remove('open');
+            state.comments = state.comments.filter(c => !c.draft);
+            render();
+          }
+          if (e.key === 'Enter' && e.target.matches('[data-comment-text]') && !e.shiftKey) {
+            e.preventDefault();
+            saveComment(e.target.dataset.commentText);
+          }
+        });
+
+        els.startButton.addEventListener('click', () => {
+          const text = els.startText.value.trim();
+          if (!text) return toast('Write one consideration first');
+          state.color = els.startColor.value;
+          state.started = true;
+          localStorage.setItem(STORAGE.started, 'true');
+          localStorage.setItem(STORAGE.color, state.color);
+          saveAnswer(text, 'q_good');
+          els.startOverlay.classList.add('hidden');
+        });
+
+        els.saveAnswerButton.addEventListener('click', () => {
+          saveAnswer(els.composerText.value, state.composingQid || 'q_good');
+          closeComposer();
+        });
+
+        els.cancelAnswerButton.addEventListener('click', closeComposer);
+
+        els.zoomSlider.addEventListener('input', () => {
+          state.view.scale = Number(els.zoomSlider.value) / 100;
+          updateView();
+        });
+
+        els.fitButton.addEventListener('click', fitView);
+
+        els.invertButton.addEventListener('click', () => {
+          document.body.classList.toggle('dark');
+          localStorage.setItem(STORAGE.dark, document.body.classList.contains('dark') ? 'true' : 'false');
+        });
+
+        els.settingsButton.addEventListener('click', () => {
+          els.handleInput.value = state.handle;
+          els.colorInput.value = state.color;
+          els.settingsModal.classList.add('open');
+        });
+
+        els.closeSettingsButton.addEventListener('click', () => els.settingsModal.classList.remove('open'));
+        els.saveSettingsButton.addEventListener('click', () => {
+          state.handle = els.handleInput.value.trim();
+          const newColor = els.colorInput.value;
+          state.color = newColor;
+          state.answers.forEach(a => { if (a.calvey_id === state.id) a.color = newColor; });
+          state.comments.forEach(c => { if (c.calvey_id === state.id) c.color = newColor; });
+          persistAll();
+          els.settingsModal.classList.remove('open');
+          render();
+        });
+
+        els.resetButton.addEventListener('click', () => {
+          if (!confirm('Reset this local CALVEY IO session?')) return;
+          Object.values(STORAGE).forEach(k => localStorage.removeItem(k));
+          location.reload();
+        });
+
+        els.identityButton.addEventListener('click', async () => {
+          try { await navigator.clipboard.writeText(state.id); toast('Identity copied'); }
+          catch { toast(state.id); }
+        });
+
+        els.exportButton.addEventListener('click', () => {
+          const data = {
+            exportedAt: new Date().toISOString(),
+            identity: { id: state.id, handle: state.handle, color: state.color },
+            questions,
+            answers: state.answers,
+            comments: state.comments.filter(c => !c.draft),
+            reactions: state.reactions
+          };
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'calvey_io_local_export.json';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        // Pointer model: drag nodes or pan canvas. Single pointer by design;
+        // pinch is intentionally omitted in favor of reliable mobile panning + slider zoom.
+        document.addEventListener('pointerdown', e => {
+          const node = e.target.closest('.answer-node');
+          if (node && !e.target.closest('button')) {
+            const a = state.answers.find(x => x.id === node.dataset.answerId);
+            if (!a) return;
+            node.setPointerCapture(e.pointerId);
+            const p = screenToWorld(e.clientX, e.clientY);
+            state.pointer = { id: e.pointerId, answer: a, dx: p.x - a.x, dy: p.y - a.y, node };
+            node.classList.add('dragging');
+            return;
+          }
+          if (!e.target.closest('.topbar') && !e.target.closest('.toolbar') && !e.target.closest('.composer-panel') && !e.target.closest('.modal-overlay') && !e.target.closest('.start-overlay')) {
+            state.panning = { id: e.pointerId, x: e.clientX, y: e.clientY, vx: state.view.x, vy: state.view.y };
+          }
+        });
+
+        document.addEventListener('pointermove', e => {
+          if (state.pointer && state.pointer.id === e.pointerId) {
+            const p = screenToWorld(e.clientX, e.clientY);
+            state.pointer.answer.x = p.x - state.pointer.dx;
+            state.pointer.answer.y = p.y - state.pointer.dy;
+            state.pointer.answer.vx = 0;
+            state.pointer.answer.vy = 0;
+            state.pointer.node.style.left = state.pointer.answer.x + 'px';
+            state.pointer.node.style.top = state.pointer.answer.y + 'px';
+            drawWires();
+          } else if (state.panning && state.panning.id === e.pointerId) {
+            state.view.x = state.panning.vx + (e.clientX - state.panning.x);
+            state.view.y = state.panning.vy + (e.clientY - state.panning.y);
+            updateView();
+          }
+        });
+
+        document.addEventListener('pointerup', e => {
+          if (state.pointer && state.pointer.id === e.pointerId) {
+            state.pointer.answer.lockedUntil = Date.now() + 60000;
+            state.pointer.node.classList.remove('dragging');
+            state.pointer = null;
+            persistAll();
+          }
+          if (state.panning && state.panning.id === e.pointerId) state.panning = null;
+        });
+
+        window.addEventListener('wheel', e => {
+          if (e.ctrlKey || e.metaKey) return;
+          e.preventDefault();
+          const old = state.view.scale;
+          const delta = -e.deltaY * 0.001;
+          state.view.scale = Math.max(.45, Math.min(1.35, state.view.scale + delta));
+          const factor = state.view.scale / old;
+          state.view.x *= factor;
+          state.view.y *= factor;
+          updateView();
+        }, { passive: false });
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+      }
+
+      function timeAgo(ts) {
+        const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+        if (s < 60) return 'now';
+        const m = Math.floor(s / 60);
+        if (m < 60) return m + 'm';
+        const h = Math.floor(m / 60);
+        if (h < 24) return h + 'h';
+        return Math.floor(h / 24) + 'd';
+      }
+
+      function init() {
+        seedIfNeeded();
+        applyIdentity();
+        if (localStorage.getItem(STORAGE.dark) === 'true') document.body.classList.add('dark');
+        if (state.started) els.startOverlay.classList.add('hidden');
+        render();
+        fitView();
+        bindEvents();
+        requestAnimationFrame(physicsStep);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
